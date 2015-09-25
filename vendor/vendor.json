@@ -38,6 +38,11 @@
 			"revisionTime": "2015-08-19T22:16:17-07:00"
 		},
 		{
+			"path": "github.com/jpillora/backoff",
+			"revision": "2ff7c4694083b5dbd71b21fd7cb7577477a74b31",
+			"revisionTime": "2015-03-07T13:35:25+11:00"
+		},
+		{
 			"path": "github.com/mutecomm/go-sqlcipher",
 			"revision": "e96b2ad74d12394781292f7297d3c3a32046b8ad",
 			"revisionTime": "2015-09-13T16:57:01+02:00"
