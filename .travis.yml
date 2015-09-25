@@ -1,5 +1,6 @@
 language: go
 go: 1.5
+env: GO15VENDOREXPERIMENT=1
 before_install:
   - mysql -u root -e 'CREATE DATABASE spendbook;'
   - go install -v ./cmd/mutegenerate
