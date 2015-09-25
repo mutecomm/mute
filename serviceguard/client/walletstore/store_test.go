@@ -13,7 +13,7 @@ import (
 	"github.com/mutecomm/mute/util/times"
 
 	"github.com/agl/ed25519"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/mutecomm/go-sqlcipher"
 )
 
 const testExpire = int64(24 * 3600 * 14)

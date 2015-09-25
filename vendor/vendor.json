@@ -38,11 +38,6 @@
 			"revisionTime": "2015-08-19T22:16:17-07:00"
 		},
 		{
-			"path": "github.com/mattn/go-sqlite3",
-			"revision": "b808f01f660667b1510acf216aa2b9fe7f555ddb",
-			"revisionTime": "2015-09-20T10:07:23-06:00"
-		},
-		{
 			"path": "github.com/mutecomm/go-sqlcipher",
 			"revision": "e96b2ad74d12394781292f7297d3c3a32046b8ad",
 			"revisionTime": "2015-09-13T16:57:01+02:00"
