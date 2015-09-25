@@ -2,13 +2,23 @@ package configclient
 
 import (
 	"encoding/hex"
+	"flag"
 	"testing"
 )
 
 var pubkeyStr = "f6b5289bbe4bfc678b1f670b3b2a4bc837f052108092ca926d09f7afca9f485f"
 var configURL = "127.0.0.1:3080"
+var server bool
+
+func init() {
+	flag.BoolVar(&server, "server", false, "run server tests")
+	flag.Parse()
+}
 
 func TestClient(t *testing.T) {
+	if !server {
+		t.Skip("skipping test in non-server mode.")
+	}
 	publicKey, _ := hex.DecodeString(pubkeyStr)
 	sm, err := getConfig("http://"+configURL, publicKey, 0, 10)
 	if err != nil {
@@ -31,6 +41,9 @@ func TestClient(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
+	if !server {
+		t.Skip("skipping test in non-server mode.")
+	}
 	publicKey, _ := hex.DecodeString(pubkeyStr)
 
 	c := &Config{
