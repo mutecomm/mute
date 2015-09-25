@@ -11,7 +11,7 @@ import (
 
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/msg/msgid"
-	"github.com/mutecomm/mute/util/tests"
+	"github.com/mutecomm/mute/util/msgs"
 )
 
 const testBoundary = "e8b4973b051ba38d7dd15c21c0949e3c77aaf9a55c52224fb2c112842123--"
@@ -120,7 +120,7 @@ func TestMailHeader(t *testing.T) {
 func TestMultipartMIME(t *testing.T) {
 	var mime bytes.Buffer
 	writer := multipart.NewWriter(&mime)
-	if err := multipartMIME(writer, tests.Message1, nil); err != nil {
+	if err := multipartMIME(writer, msgs.Message1, nil); err != nil {
 		t.Fatal(err)
 	}
 	if err := writer.Close(); err != nil {
@@ -128,11 +128,11 @@ func TestMultipartMIME(t *testing.T) {
 	}
 	mime.Reset()
 	writer = multipart.NewWriter(&mime)
-	err := multipartMIME(writer, tests.Message1,
+	err := multipartMIME(writer, msgs.Message1,
 		[]*Attachment{
 			&Attachment{
 				Filename:    "message.txt",
-				Reader:      bytes.NewBufferString(tests.Message2),
+				Reader:      bytes.NewBufferString(msgs.Message2),
 				ContentType: "application/octet-stream",
 			},
 		})
@@ -164,11 +164,11 @@ func TestNew(t *testing.T) {
 		MessageID: messageID,
 		InReplyTo: inReplyTo,
 	}
-	err = New(&email, header, tests.Message1,
+	err = New(&email, header, msgs.Message1,
 		[]*Attachment{
 			&Attachment{
 				Filename: "message.txt",
-				Reader:   bytes.NewBufferString(tests.Message2),
+				Reader:   bytes.NewBufferString(msgs.Message2),
 			},
 		})
 	if err != nil {
@@ -200,12 +200,12 @@ func TestChunks(t *testing.T) {
 		[]*Attachment{
 			&Attachment{
 				Filename: "quote1.txt",
-				Reader:   bytes.NewBufferString(tests.Message1),
+				Reader:   bytes.NewBufferString(msgs.Message1),
 				Inline:   true,
 			},
 			&Attachment{
 				Filename:    "quote2.txt",
-				Reader:      bytes.NewBufferString(tests.Message2),
+				Reader:      bytes.NewBufferString(msgs.Message2),
 				ContentType: "application/octet-stream",
 			},
 		})
@@ -266,8 +266,8 @@ func TestChunks(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if string(msg1) != tests.Message1 {
-		t.Error("msg1 != tests.Message1")
+	if string(msg1) != msgs.Message1 {
+		t.Error("msg1 != msgs.Message1")
 	}
 	if !att1.Inline {
 		t.Error("att1 should be inline")
@@ -284,8 +284,8 @@ func TestChunks(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if string(msg2) != tests.Message2 {
-		t.Error("msg1 != tests.Message1")
+	if string(msg2) != msgs.Message2 {
+		t.Error("msg1 != msgs.Message2")
 	}
 	if att2.Inline {
 		t.Error("att2 should not be inline")

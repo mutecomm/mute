@@ -1,5 +1,5 @@
-// Package tests defines helper functions for Mute unit tests.
-package tests
+// Package msgs defines some test messages for Mute unit tests.
+package msgs
 
 // Message1 is a test message.
 const Message1 = `Security is mostly a superstition. It does not exist in

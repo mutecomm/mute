@@ -11,7 +11,7 @@ import (
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/uid"
 	"github.com/mutecomm/mute/util/fuzzer"
-	"github.com/mutecomm/mute/util/tests"
+	"github.com/mutecomm/mute/util/msgs"
 	"github.com/mutecomm/mute/util/times"
 )
 
@@ -33,7 +33,7 @@ func encrypt(sign bool, flipUIDs bool) (sender *uid.Message, recipient *uid.Mess
 	if flipUIDs {
 		sender, recipient = recipient, sender
 	}
-	r := bytes.NewBufferString(tests.Message1)
+	r := bytes.NewBufferString(msgs.Message1)
 	now := uint64(times.Now())
 	recipientKI, _, privateKey, err := recipient.KeyInit(1, now+times.Day, now-times.Day,
 		false, "mute.berlin", "", "", cipher.RandReader)
@@ -92,7 +92,7 @@ func decrypt(sender, recipient *uid.Message, r io.Reader, recipientTemp *uid.Key
 		return err
 	}
 	// do not compare messages when fuzzing, because messages have to be different!
-	if chkMsg && res.String() != tests.Message1 {
+	if chkMsg && res.String() != msgs.Message1 {
 		return errors.New("messages differ")
 	}
 	if sign {
