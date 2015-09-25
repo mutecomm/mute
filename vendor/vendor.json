@@ -23,6 +23,11 @@
 			"revisionTime": "2015-09-08T18:48:53-07:00"
 		},
 		{
+			"path": "github.com/fatih/structs",
+			"revision": "a9f7daa9c2729e97450c2da2feda19130a367d8f",
+			"revisionTime": "2015-05-26T09:43:52+03:00"
+		},
+		{
 			"path": "github.com/go-sql-driver/mysql",
 			"revision": "527bcd55aab2e53314f1a150922560174b493034",
 			"revisionTime": "2015-09-08T14:46:01+02:00"
