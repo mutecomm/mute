@@ -1,0 +1,2 @@
+# mute
+Mute secure messaging
