@@ -53,6 +53,11 @@
 			"revisionTime": "2015-09-13T16:57:01+02:00"
 		},
 		{
+			"path": "github.com/peterh/liner",
+			"revision": "941195f85dd7a23971a3d55142972d396278ddcf",
+			"revisionTime": "2015-09-06T09:14:10-04:00"
+		},
+		{
 			"path": "github.com/ronperry/cryptoedge/eccutil",
 			"revision": "cc363e290743065ada265b425d09e7e2e3eb6c9a",
 			"revisionTime": "2015-08-15T11:40:06Z"
