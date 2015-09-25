@@ -16,7 +16,7 @@ import (
 	"github.com/ronperry/cryptoedge/eccutil"
 )
 
-var database = "root:root@/spendbook"
+var database = "root@/spendbook"
 var keydirectory string
 
 func init() {

@@ -18,7 +18,7 @@ import (
 
 const testExpire = int64(24 * 3600 * 14)
 
-var testDB = "root:root@/wallet"
+var testDB = "root@/wallet"
 var sqliteDB = path.Join(os.TempDir(), "walletDB-"+strconv.FormatInt(times.Now(), 10)+".db")
 var testOwnerPub = [ed25519.PublicKeySize]byte{0x00, 0x01, 0x02}
 var testOwnerPriv = [ed25519.PrivateKeySize]byte{0x00, 0x02, 0x02}

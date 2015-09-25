@@ -18,7 +18,7 @@ import (
 	"github.com/ronperry/cryptoedge/eccutil"
 )
 
-var database = "root:root@/spendbook"
+var database = "root@/spendbook"
 var sqliteDB = path.Join(os.TempDir(), "keypoolDB-"+strconv.FormatInt(times.Now(), 10)+".db")
 
 func TestGenerator(t *testing.T) {
