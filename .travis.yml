@@ -3,6 +3,7 @@ go: 1.5
 env: GO15VENDOREXPERIMENT=1
 before_install:
   - mysql -u root -e 'CREATE DATABASE spendbook;'
+  - mysql -u root -e 'CREATE DATABASE wallet;'
   - go install -v ./cmd/mutegenerate
   - go generate -v ./release
 script:
