@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/codegangsta/cli"
-	"github.com/mutecomm/mute/cryptengine/internal/cache"
+	"github.com/mutecomm/mute/cryptengine/cache"
 	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/keydb"
 	"github.com/mutecomm/mute/log"
