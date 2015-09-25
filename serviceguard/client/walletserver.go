@@ -1,13 +1,12 @@
 package client
 
 import (
+	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/serviceguard/client/walletrpc"
 	"github.com/mutecomm/mute/serviceguard/common/keypool"
 	"github.com/mutecomm/mute/serviceguard/common/signkeys"
 	"github.com/mutecomm/mute/serviceguard/common/token"
 	"github.com/mutecomm/mute/serviceguard/common/types"
-
-	"github.com/agl/ed25519"
 )
 
 // WalletToken gets a token from wallet that matches usage.

@@ -5,12 +5,11 @@ package main
 import (
 	"os"
 
+	"github.com/codegangsta/cli"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/protoengine"
 	"github.com/mutecomm/mute/release"
 	"github.com/mutecomm/mute/util"
-
-	"github.com/codegangsta/cli"
 )
 
 func init() {

@@ -1,6 +1,8 @@
 package client
 
-import "testing"
+import (
+	"testing"
+)
 
 var message = `Message content, something to read, whatever.
 And dont forget the fish.

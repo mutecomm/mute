@@ -3,11 +3,10 @@ package util
 import (
 	"time"
 
-	"github.com/mutecomm/mute/log"
-	"github.com/mutecomm/mute/serviceguard/client"
-
 	"github.com/agl/ed25519"
 	"github.com/jpillora/backoff"
+	"github.com/mutecomm/mute/log"
+	"github.com/mutecomm/mute/serviceguard/client"
 )
 
 // WalletGetToken returns a token for the given usage and owner from

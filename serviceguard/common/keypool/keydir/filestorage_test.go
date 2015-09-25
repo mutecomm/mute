@@ -7,10 +7,9 @@ import (
 	"path"
 	"testing"
 
+	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/serviceguard/common/keypool"
 	"github.com/mutecomm/mute/serviceguard/common/signkeys"
-
-	"github.com/agl/ed25519"
 	"github.com/ronperry/cryptoedge/eccutil"
 )
 

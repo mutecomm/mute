@@ -2,11 +2,10 @@
 package trivial
 
 import (
+	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/serviceguard/client"
 	"github.com/mutecomm/mute/serviceguard/client/walletstore"
 	"github.com/mutecomm/mute/serviceguard/common/types"
-
-	"github.com/agl/ed25519"
 )
 
 // New takes a database handler or URL and creates the key backend and the

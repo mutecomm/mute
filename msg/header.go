@@ -8,7 +8,6 @@ import (
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/uid"
-
 	"golang.org/x/crypto/nacl/box"
 )
 

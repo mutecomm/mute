@@ -9,9 +9,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/mutecomm/mute/log"
-
 	"github.com/gorilla/rpc/v2/json2"
+	"github.com/mutecomm/mute/log"
 )
 
 // Client is a client for JSON-RPC over HTTPS calls.

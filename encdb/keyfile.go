@@ -8,7 +8,6 @@ import (
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode"
 	"github.com/mutecomm/mute/log"
-
 	"golang.org/x/crypto/pbkdf2"
 )
 

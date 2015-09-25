@@ -5,11 +5,10 @@ import (
 	"encoding/base64"
 	"errors"
 
+	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/serviceguard/common/constants"
 	"github.com/mutecomm/mute/serviceguard/common/jsonclient"
 	"github.com/mutecomm/mute/serviceguard/common/walletauth"
-
-	"github.com/agl/ed25519"
 )
 
 var (

@@ -7,7 +7,6 @@ import (
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/util/times"
-
 	"golang.org/x/crypto/curve25519"
 )
 

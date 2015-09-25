@@ -6,10 +6,9 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/serviceguard/common/walletauth"
 	"github.com/mutecomm/mute/util/times"
-
-	"github.com/agl/ed25519"
 )
 
 // FetchMessage fetches a message from the accountserver.

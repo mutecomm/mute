@@ -9,12 +9,11 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/agl/ed25519"
+	_ "github.com/mutecomm/go-sqlcipher"
 	"github.com/mutecomm/mute/serviceguard/common/keypool"
 	"github.com/mutecomm/mute/serviceguard/common/signkeys"
 	"github.com/mutecomm/mute/util/times"
-
-	"github.com/agl/ed25519"
-	_ "github.com/mutecomm/go-sqlcipher"
 	"github.com/ronperry/cryptoedge/eccutil"
 )
 

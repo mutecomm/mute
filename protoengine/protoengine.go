@@ -7,12 +7,11 @@ import (
 	"path"
 	"strings"
 
+	"github.com/codegangsta/cli"
 	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/util"
 	"github.com/mutecomm/mute/util/home"
-
-	"github.com/codegangsta/cli"
 )
 
 const (

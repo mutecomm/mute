@@ -6,14 +6,13 @@ import (
 	"io"
 	"testing"
 
+	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/uid"
 	"github.com/mutecomm/mute/util/fuzzer"
 	"github.com/mutecomm/mute/util/tests"
 	"github.com/mutecomm/mute/util/times"
-
-	"github.com/agl/ed25519"
 )
 
 func discardSession(identity, partner, rootKeyHash, chainKey string,

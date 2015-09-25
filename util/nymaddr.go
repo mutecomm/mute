@@ -3,13 +3,12 @@ package util
 import (
 	"encoding/hex"
 
+	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/mix/client"
 	"github.com/mutecomm/mute/mix/nymaddr"
-
-	"github.com/agl/ed25519"
 )
 
 // MailboxAddress returns the mailbox address for the given pubkey and server.

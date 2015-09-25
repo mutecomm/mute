@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"path"
 
+	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/configclient"
 	"github.com/mutecomm/mute/log"
 	mixclient "github.com/mutecomm/mute/mix/client"
@@ -14,8 +15,6 @@ import (
 	"github.com/mutecomm/mute/serviceguard/client/guardrpc"
 	"github.com/mutecomm/mute/serviceguard/client/keylookup"
 	"github.com/mutecomm/mute/serviceguard/client/walletrpc"
-
-	"github.com/agl/ed25519"
 )
 
 // InitMute initializes Mute with the configuration from config.

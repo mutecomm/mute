@@ -7,10 +7,9 @@ import (
 	"errors"
 	"net/url"
 
+	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/serviceguard/common/constants"
 	"github.com/mutecomm/mute/serviceguard/common/jsonclient"
-
-	"github.com/agl/ed25519"
 )
 
 var (

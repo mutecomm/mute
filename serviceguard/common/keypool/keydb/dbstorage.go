@@ -6,10 +6,9 @@ import (
 	"encoding/hex"
 	"errors"
 
+	_ "github.com/go-sql-driver/mysql" //
 	"github.com/mutecomm/mute/serviceguard/common/keypool"
 	"github.com/mutecomm/mute/serviceguard/common/signkeys"
-
-	_ "github.com/go-sql-driver/mysql" //
 )
 
 var (

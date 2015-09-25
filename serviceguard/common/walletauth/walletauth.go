@@ -9,9 +9,8 @@ import (
 	"io"
 	"strconv"
 
-	"github.com/mutecomm/mute/util/times"
-
 	"github.com/agl/ed25519"
+	"github.com/mutecomm/mute/util/times"
 )
 
 var (

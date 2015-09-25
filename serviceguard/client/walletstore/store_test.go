@@ -9,11 +9,10 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/mutecomm/mute/serviceguard/client"
-	"github.com/mutecomm/mute/util/times"
-
 	"github.com/agl/ed25519"
 	_ "github.com/mutecomm/go-sqlcipher"
+	"github.com/mutecomm/mute/serviceguard/client"
+	"github.com/mutecomm/mute/util/times"
 )
 
 const testExpire = int64(24 * 3600 * 14)

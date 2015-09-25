@@ -4,9 +4,8 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/mutecomm/mute/serviceguard/common/signkeys"
-
 	"github.com/agl/ed25519"
+	"github.com/mutecomm/mute/serviceguard/common/signkeys"
 )
 
 func TestNew(t *testing.T) {

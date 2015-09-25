@@ -6,7 +6,6 @@ import (
 	"github.com/mutecomm/mute/serviceguard/common/signkeys"
 	"github.com/mutecomm/mute/serviceguard/common/token"
 	"github.com/mutecomm/mute/util/times"
-
 	"github.com/ronperry/cryptoedge/jjm"
 )
 

@@ -8,12 +8,11 @@ import (
 	mathrand "math/rand"
 	"sync"
 
+	"github.com/agl/ed25519"
+	_ "github.com/go-sql-driver/mysql" // remove after tests
 	"github.com/mutecomm/mute/serviceguard/client"
 	"github.com/mutecomm/mute/serviceguard/common/constants"
 	"github.com/mutecomm/mute/util/times"
-
-	"github.com/agl/ed25519"
-	_ "github.com/go-sql-driver/mysql" // remove after tests
 )
 
 const (

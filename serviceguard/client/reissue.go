@@ -3,13 +3,12 @@ package client
 import (
 	"crypto/rand"
 
+	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/serviceguard/client/guardrpc"
 	"github.com/mutecomm/mute/serviceguard/common/keypool"
 	"github.com/mutecomm/mute/serviceguard/common/signkeys"
 	"github.com/mutecomm/mute/serviceguard/common/token"
 	"github.com/mutecomm/mute/serviceguard/common/types"
-
-	"github.com/agl/ed25519"
 )
 
 // ReissueToken reissues a token identified by tokenHash for owner.

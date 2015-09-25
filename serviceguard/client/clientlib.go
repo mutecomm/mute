@@ -10,13 +10,12 @@ package client
 import (
 	"sync"
 
+	"github.com/agl/ed25519"
 	keylookupClient "github.com/mutecomm/mute/serviceguard/client/keylookup"
 	"github.com/mutecomm/mute/serviceguard/client/packetproto"
 	"github.com/mutecomm/mute/serviceguard/client/walletrpc"
 	"github.com/mutecomm/mute/serviceguard/common/constants"
 	"github.com/mutecomm/mute/serviceguard/common/types"
-
-	"github.com/agl/ed25519"
 )
 
 // AuthTokenRetry defines how often an AuthToken should be retried on

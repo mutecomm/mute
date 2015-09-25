@@ -6,13 +6,12 @@ import (
 	"io"
 	"os"
 
+	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/mix/client"
 	"github.com/mutecomm/mute/util"
-
-	"github.com/agl/ed25519"
 )
 
 func (pe *ProtoEngine) fetch(

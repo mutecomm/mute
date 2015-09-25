@@ -4,10 +4,9 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 
+	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/serviceguard/common/walletauth"
 	"github.com/mutecomm/mute/util/times"
-
-	"github.com/agl/ed25519"
 )
 
 func splitKey(privkey *[ed25519.PrivateKeySize]byte) (pubkey *[ed25519.PublicKeySize]byte) {

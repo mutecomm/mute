@@ -8,14 +8,13 @@ import (
 	"encoding/json"
 	"io"
 
+	"github.com/fatih/structs"
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/uid/identity"
 	"github.com/mutecomm/mute/util/times"
-
-	"github.com/fatih/structs"
 )
 
 // The current version of the protocol.

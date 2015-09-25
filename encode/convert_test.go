@@ -1,6 +1,8 @@
 package encode
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestToUint64(t *testing.T) {
 	b := make([]byte, 8)

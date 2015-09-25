@@ -12,7 +12,6 @@ import (
 
 	"github.com/mutecomm/mute/mix/mixaddr"
 	"github.com/mutecomm/mute/util/times"
-
 	"github.com/ronperry/cryptoedge/lioness"
 	"golang.org/x/crypto/curve25519"
 )

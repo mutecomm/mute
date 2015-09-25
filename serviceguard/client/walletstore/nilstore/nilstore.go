@@ -1,10 +1,9 @@
 package nilstore
 
 import (
+	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/serviceguard/client"
 	"github.com/mutecomm/mute/util/times"
-
-	"github.com/agl/ed25519"
 )
 
 // NilStore is a walletstore without abilities

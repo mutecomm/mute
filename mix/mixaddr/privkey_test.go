@@ -7,9 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mutecomm/mute/util/times"
-
 	"github.com/agl/ed25519"
+	"github.com/mutecomm/mute/util/times"
 )
 
 var testDir = path.Join(os.TempDir(), "testkeys")

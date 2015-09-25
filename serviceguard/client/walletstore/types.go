@@ -5,9 +5,8 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 
-	"github.com/mutecomm/mute/serviceguard/client"
-
 	"github.com/agl/ed25519"
+	"github.com/mutecomm/mute/serviceguard/client"
 )
 
 // TokenEntryDBGlobal is the global table for tokens

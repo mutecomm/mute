@@ -8,9 +8,8 @@ import (
 	"encoding/json"
 	"math/rand"
 
-	"github.com/mutecomm/mute/util/times"
-
 	"github.com/agl/ed25519"
+	"github.com/mutecomm/mute/util/times"
 )
 
 var timeNow = func() int64 { return times.Now() }

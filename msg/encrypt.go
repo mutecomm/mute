@@ -8,12 +8,11 @@ import (
 	"io"
 	"io/ioutil"
 
+	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/uid"
-
-	"github.com/agl/ed25519"
 )
 
 func rootKeyAgreementSender(

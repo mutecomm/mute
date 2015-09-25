@@ -25,10 +25,9 @@ import (
 	"fmt"
 	"os"
 
+	_ "github.com/mutecomm/go-sqlcipher" // encDB is tightly coupled to go-sqlcipher
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/util"
-
-	_ "github.com/mutecomm/go-sqlcipher" // encDB is tightly coupled to go-sqlcipher
 )
 
 const (

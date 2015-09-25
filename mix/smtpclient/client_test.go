@@ -1,6 +1,8 @@
 package smtpclient
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestNew(t *testing.T) {
 	mc := &MailClient{
