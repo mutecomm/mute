@@ -58,6 +58,11 @@
 			"revisionTime": "2015-08-15T11:40:06Z"
 		},
 		{
+			"path": "github.com/ronperry/cryptoedge/lioness",
+			"revision": "cc363e290743065ada265b425d09e7e2e3eb6c9a",
+			"revisionTime": "2015-08-15T11:40:06Z"
+		},
+		{
 			"path": "golang.org/x/crypto/curve25519",
 			"revision": "e74b0352e547e3830f8471e7ae9609239c52606f",
 			"revisionTime": "2015-06-12T19:11:01+02:00"
