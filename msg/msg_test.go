@@ -162,9 +162,22 @@ func encryptAndDecryptFuzzing(t *testing.T, sign bool) {
 		return nil
 	}
 
+	// do not fuzz '=' characters in base64 encoding
+	buf := w.String()
+	end := w.Len() - 1
+	for {
+		if buf[end] == '=' {
+			end--
+		} else {
+			break
+		}
+
+	}
+
 	// fuzzer
 	fuzzer := &fuzzer.SequentialFuzzer{
 		Data:     w.Bytes(),
+		End:      end * 8,
 		TestFunc: testFunc,
 	}
 	ok := fuzzer.Fuzz()
