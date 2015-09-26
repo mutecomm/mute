@@ -2,6 +2,8 @@
 package hashchain
 
 import (
+	"bytes"
+
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 )
@@ -17,7 +19,20 @@ func SplitEntry(entry string) (hash, typ, nonce, hashID, crUID, uidIndex []byte,
 		return nil, nil, nil, nil, nil, nil, err
 	}
 	if len(e) != 153 {
-		return nil, nil, nil, nil, nil, nil, log.Errorf("entry '%s' does not have byte length 153 (but %d)", entry, len(e))
+		return nil, nil, nil, nil, nil, nil,
+			log.Errorf("hashchain: entry '%s' does not have byte length 153 (but %d)", entry, len(e))
 	}
-	return e[:32], e[32:33], e[33:41], e[41:73], e[73:121], e[121:], nil
+	// HASH(entry[n]) | TYPE | NONCE | HashID | CrUID | UIDIndex
+	hash = e[:32]
+	typ = e[32:33]
+	nonce = e[33:41]
+	hashID = e[41:73]
+	crUID = e[73:121]
+	uidIndex = e[121:]
+	// check type
+	if !bytes.Equal(typ, Type) {
+		return nil, nil, nil, nil, nil, nil,
+			log.Errorf("hashchain: wrong type 0x%x (should be 0x%x)", typ, Type)
+	}
+	return
 }
