@@ -33,7 +33,7 @@ type KeyEntry struct {
 // InitDHKey initializes the KeyEntry with a key for ECDHE25519.
 //
 // TODO: InitDHKey has to be separated, should only end up in mutecrypt and
-// not in nutekeyd.
+// not in mutekeyd.
 func (ke *KeyEntry) InitDHKey(rand io.Reader) error {
 	var err error
 	ke.CIPHERSUITE = DefaultCiphersuite
