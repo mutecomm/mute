@@ -16,11 +16,13 @@ type server struct {
 	url  string
 }
 
-type serverList []server
+// A ServerList is a list of servers.
+type ServerList []server
 
-func ParseServers(servers string) serverList {
+// ParseServers parses a string describing a list of servers.
+func ParseServers(servers string) ServerList {
 	serversF := strings.Fields(strings.Replace(servers, ";", " ", -1))
-	allserv := make(serverList, 0, len(serversF))
+	allserv := make(ServerList, 0, len(serversF))
 	for _, x := range serversF {
 		z := strings.Fields(strings.Replace(x, ",", " ", -1))
 		if len(z) > 1 {
@@ -32,7 +34,8 @@ func ParseServers(servers string) serverList {
 	return allserv
 }
 
-func (sl serverList) MakeStrings() []string {
+// MakeStrings returns all URLs in the ServerList.
+func (sl ServerList) MakeStrings() []string {
 	slice := make([]string, len(sl))
 	for i, s := range sl {
 		slice[i] = s.url
@@ -49,7 +52,8 @@ func randomize(s []string) []string {
 	return ret
 }
 
-func (sl serverList) Order() []string {
+// Order orders the ServerList according to priority.
+func (sl ServerList) Order() []string {
 	var ret [][]string
 	var cur, val []string
 	var prio int
@@ -74,14 +78,14 @@ func (sl serverList) Order() []string {
 	return val
 }
 
-func (sl serverList) Len() int {
+func (sl ServerList) Len() int {
 	return len(sl)
 }
 
-func (sl serverList) Swap(i, j int) {
+func (sl ServerList) Swap(i, j int) {
 	sl[i], sl[j] = sl[j], sl[i]
 }
 
-func (sl serverList) Less(i, j int) bool {
+func (sl ServerList) Less(i, j int) bool {
 	return sl[i].prio < sl[j].prio
 }
