@@ -17,7 +17,16 @@ import (
 	"github.com/ronperry/cryptoedge/eccutil"
 )
 
-var database = "root@/spendbook"
+func init() {
+	// Travis doesn't use a password for MySQL, but locally we do
+	if os.Getenv("TRAVIS") == "true" {
+		database = "root@/spendbook"
+	} else {
+		database = "root:root@/spendbook"
+	}
+}
+
+var database string
 var sqliteDB = path.Join(os.TempDir(), "keypoolDB-"+strconv.FormatInt(times.Now(), 10)+".db")
 
 func TestGenerator(t *testing.T) {

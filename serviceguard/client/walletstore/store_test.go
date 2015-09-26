@@ -17,7 +17,16 @@ import (
 
 const testExpire = int64(24 * 3600 * 14)
 
-var testDB = "root@/wallet"
+func init() {
+	// Travis doesn't use a password for MySQL, but locally we do
+	if os.Getenv("TRAVIS") == "true" {
+		testDB = "root@/wallet"
+	} else {
+		testDB = "root:root@/wallet"
+	}
+}
+
+var testDB string
 var sqliteDB = path.Join(os.TempDir(), "walletDB-"+strconv.FormatInt(times.Now(), 10)+".db")
 var testOwnerPub = [ed25519.PublicKeySize]byte{0x00, 0x01, 0x02}
 var testOwnerPriv = [ed25519.PrivateKeySize]byte{0x00, 0x02, 0x02}
