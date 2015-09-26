@@ -21,7 +21,7 @@ do
 done
 
 # call `go test` for every directory with _test.go files
-echo "go testestt"
+echo "go test"
 for dir in $(find -name '*_test.go' -printf '%h\n' | sort -u)
 do
   go test -cover $dir
