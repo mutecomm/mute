@@ -43,35 +43,34 @@ func (pfsPreference PFSPreference) String() string {
 	return pfsPreferences[pfsPreference]
 }
 
-// TODO: document everything with stuff from spec
 type preferences struct {
-	FORWARDSEC   string
-	CIPHERSUITES string
+	FORWARDSEC   string   // forward security preference
+	CIPHERSUITES []string // list of ciphersuites, ordered from most preferred to least preferred.
 }
 
 type chainlink struct {
-	URI         []string
-	LAST        string
+	URI         []string // URI(s) of the foreign key hashchain
+	LAST        string   // last entry of the foreign key hashchain
 	AUTHORATIVE bool
-	DOMAINS     []string
-	IDENTITY    string
+	DOMAINS     []string // list of domains that are served currently
+	IDENTITY    string   // own Identity in the foreign key hashchain
 }
 
 type uidContent struct {
-	VERSION     string
-	MSGCOUNT    uint64
-	NOTAFTER    uint64
-	NOTBEFORE   uint64
-	MIXADDRESS  string
-	NYMADDRESS  string
-	IDENTITY    string
-	SIGKEY      KeyEntry
-	PUBKEYS     []KeyEntry
-	SIGESCROW   KeyEntry
-	LASTENTRY   string
-	REPOURIS    []string
-	PREFERENCES preferences
-	CHAINLINK   chainlink
+	VERSION     string      // the protocol version
+	MSGCOUNT    uint64      // must increase for each message
+	NOTAFTER    uint64      // time after which the key(s) should not be used anymore
+	NOTBEFORE   uint64      // time before which the key(s) should not be used yet
+	MIXADDRESS  string      // fully qualified address of mix to use as last hop
+	NYMADDRESS  string      // a valid NymAddress
+	IDENTITY    string      // identity/pseudonym claimed (including domain)
+	SIGKEY      KeyEntry    // used to sign UIDContent and to authenticate future UIDMessages
+	PUBKEYS     []KeyEntry  // for static key content confidentiality
+	SIGESCROW   KeyEntry    // used to optionally authenticate future UIDMessage
+	LASTENTRY   string      // last known key hashchain entry
+	REPOURIS    []string    // URIs of KeyInit Repositories to publish KeyInit messages
+	PREFERENCES preferences // PFS preference
+	CHAINLINK   chainlink   // used only for "linking chains and key repositories"
 }
 
 // Message is a UIDMessage to be sent from user to key server.
@@ -146,7 +145,7 @@ func Create(
 	// TODO: LASTENTRY
 	// TODO: REPOURIS
 	msg.UIDCONTENT.PREFERENCES.FORWARDSEC = pfsPreference.String()
-	msg.UIDCONTENT.PREFERENCES.CIPHERSUITES = DefaultCiphersuite
+	msg.UIDCONTENT.PREFERENCES.CIPHERSUITES = []string{DefaultCiphersuite}
 	// TODO: CHAINLINK
 
 	// TODO: ESCROWSIGNATURE
