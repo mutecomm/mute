@@ -1,0 +1,217 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with ASCIIToSVG (http://9vx.org/~dho/a2s/) -->
+<svg width="1080px" height="1248px" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <filter id="dsFilter" width="150%" height="150%">
+      <feOffset result="offOut" in="SourceGraphic" dx="3" dy="3"/>
+      <feColorMatrix result="matrixOut" in="offOut" type="matrix" values="0.2 0 0 0 0 0 0.2 0 0 0 0 0 0.2 0 0 0 0 0 1 0"/>
+      <feBlend in="SourceGraphic" in2="matrixOut" mode="normal"/>
+    </filter>
+    <marker id="iPointer"
+      viewBox="0 0 10 10" refX="5" refY="5" 
+      markerUnits="strokeWidth"
+      markerWidth="8" markerHeight="7"
+      orient="auto">
+      <path d="M 10 0 L 10 10 L 0 5 z" />
+    </marker>
+    <marker id="Pointer"
+      viewBox="0 0 10 10" refX="5" refY="5" 
+      markerUnits="strokeWidth"
+      markerWidth="8" markerHeight="7"
+      orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" />
+    </marker>
+  </defs><g id="boxes" stroke="black" stroke-width="2" fill="none" >
+<g id="groupPC">
+	<path id="pathPC" d="M 96.294019968 14.883720928 L 96.294019968 79.37984448 C 96.28807122 82.32306896 95.81647572 85.65260832 99.651002436 85.40966016 L 139.02039828 85.40966016 C 143.075862 93.37011056 120.15775332 90.71571616 115.10013276 90.85271344 C 114.72287148 110.903752 126.80737488 117.52432064 146.5223472 116.85596512 C 166.54161708 117.5843056 179.71436196 111.14270176 178.86533184 91.03478064 C 174.42506736 91.23511392 149.59008288 93.1144952 153.09751248 85.10663968 L 197.62504956 85.10663968 C 200.57340312 85.07057344 201.3652116 83.3571952 201.13369092 80.84789344 L 201.13369092 15.813953504 C 201.08741724 13.908590688 199.30531896 11.373014064 196.38933732 10.89388288 L 100.181063088 10.89388288 C 97.961056236 10.945748848 96.14664414 11.558437008 96.294019968 14.883720928 Z " filter="url(#dsFilter)" fill="#fff"  />
+	<text x="125.1" y="60.8" id="text0" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >mute </text>
+
+</g>
+<g id="groupServer">
+	<path id="pathServer" d="M 646.0473798 261.0767744 C 713.5523253 109.8791168 779.7110733 135.0767552 878.6958147 246.048416 C 989.8165944 151.0475936 1105.3971621 371.2230656 1032.7251096 587.9227136 C 1128.7591911 767.4741824 1035.7931133 1062.2479232 958.9194171 1008.6899264 C 999.0790965 1113.6888512 881.8976844 1315.3850624 764.778321 1125.1523648 C 606.756141 1304.8599104 555.4877544 1145.597792 538.5477357 989.9055872 C 417.3050583 926.0077664 499.2572808 558.8534624 530.6089392 505.2719168 C 436.4146107 336.6989408 570.6323406 146.7800864 646.0473798 261.0767744 Z " filter="url(#dsFilter)" fill="#fff"  />
+	<text x="638.1" y="460.8" id="text15" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >JSON- </text>
+
+	<text x="638.1" y="476.8" id="text17" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >RPC </text>
+
+	<text x="854.1" y="572.8" id="text25" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >JSON-RPC </text>
+
+	<text x="854.1" y="588.8" id="text27" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >(check for </text>
+
+	<text x="863.1" y="604.8" id="text29" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >double spend) </text>
+
+	<text x="710.1" y="812.8" id="text38" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >LMTP or pipe-filter </text>
+
+	<text x="710.1" y="940.8" id="text42" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >SMTP </text>
+
+</g>
+<g id="groupDB">
+	<path id="pathDB" d="M 256.5 248 L 256.5 312 A 36 12 0 0 0 328.5 312 V 248 A 36 12 0 0 0 256.5 248 Z " filter="url(#dsFilter)" fill="#fff"  />
+	<path id="pathDB" d="M 256.5 248 A 36 12 0 0 0 328.5 248 "  />
+	<text x="269.1" y="284.8" id="text5" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >msgDB </text>
+
+</g>
+<g id="groupDB">
+	<path id="pathDB" d="M 733.5 248 L 733.5 312 A 36 12 0 0 0 805.5 312 V 248 A 36 12 0 0 0 733.5 248 Z " filter="url(#dsFilter)" fill="#fff"  />
+	<path id="pathDB" d="M 733.5 248 A 36 12 0 0 0 805.5 248 "  />
+	<text x="746.1" y="284.8" id="text7" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >mntDB </text>
+
+</g>
+<g id="group10">
+	<path id="path10" filter="url(#dsFilter)" fill="#fff" d="M 94.5 312 L 202.5 312 L 202.5 408 L 94.5 408 Z" />
+	<text x="107.1" y="364.8" id="text10" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >mutectrl </text>
+
+</g>
+<g id="group14">
+	<path id="path14" filter="url(#dsFilter)" fill="#fff" d="M 571.5 312 L 679.5 312 L 679.5 408 L 571.5 408 Z" />
+	<text x="584.1" y="364.8" id="text14" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >muteser- </text>
+
+	<text x="584.1" y="380.8" id="text14" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >viceguard </text>
+
+</g>
+<g id="groupDB">
+	<path id="pathDB" d="M 256.5 456 L 256.5 520 A 36 12 0 0 0 328.5 520 V 456 A 36 12 0 0 0 256.5 456 Z " filter="url(#dsFilter)" fill="#fff"  />
+	<path id="pathDB" d="M 256.5 456 A 36 12 0 0 0 328.5 456 "  />
+	<text x="269.1" y="492.8" id="text19" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >keyDB </text>
+
+</g>
+<g id="group29">
+	<path id="path29" filter="url(#dsFilter)" fill="#fff" d="M 733.5 450 Q 733.5 440 743.5 440 L 795.5 440 Q 805.5 440 805.5 450 L 805.5 510 Q 805.5 520 795.5 520 L 743.5 520 Q 733.5 520 733.5 510 Z" />
+	<text x="746.1" y="476.8" id="text29" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >hash- </text>
+
+	<text x="746.1" y="492.8" id="text29" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >chain </text>
+
+</g>
+<g id="group31">
+	<path id="path31" filter="url(#dsFilter)" fill="#fff" d="M 94.5 520 L 202.5 520 L 202.5 616 L 94.5 616 Z" />
+	<text x="107.1" y="572.8" id="text31" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >mutecrypt </text>
+
+</g>
+<g id="group35">
+	<path id="path35" filter="url(#dsFilter)" fill="#fff" d="M 571.5 520 L 679.5 520 L 679.5 616 L 571.5 616 Z" />
+	<text x="584.1" y="572.8" id="text35" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >mutekeyd </text>
+
+</g>
+<g id="group44">
+	<path id="path44" filter="url(#dsFilter)" fill="#fff" d="M 733.5 658 Q 733.5 648 743.5 648 L 795.5 648 Q 805.5 648 805.5 658 L 805.5 718 Q 805.5 728 795.5 728 L 743.5 728 Q 733.5 728 733.5 718 Z" />
+	<text x="746.1" y="684.8" id="text44" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >mix- </text>
+
+	<text x="746.1" y="700.8" id="text44" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >dir </text>
+
+</g>
+<g id="group46">
+	<path id="path46" filter="url(#dsFilter)" fill="#fff" d="M 94.5 728 L 202.5 728 L 202.5 824 L 94.5 824 Z" />
+	<text x="107.1" y="780.8" id="text46" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >muteproto </text>
+
+</g>
+<g id="group48">
+	<path id="path48" filter="url(#dsFilter)" fill="#fff" d="M 571.5 728 L 679.5 728 L 679.5 824 L 571.5 824 Z" />
+	<text x="584.1" y="780.8" id="text48" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >mutemixd </text>
+
+</g>
+<g id="group59">
+	<path id="path59" filter="url(#dsFilter)" fill="#fff" d="M 733.5 824 L 841.5 824 L 841.5 920 L 733.5 920 Z" />
+	<text x="764.1" y="876.8" id="text59" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >smtpd </text>
+
+</g>
+<g id="group65">
+	<path id="path65" filter="url(#dsFilter)" fill="#fff" d="M 571.5 920 L 679.5 920 L 679.5 1016 L 571.5 1016 Z" />
+	<text x="584.1" y="972.8" id="text65" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >muteaccd </text>
+
+</g>
+<g id="group73">
+	<path id="path73" filter="url(#dsFilter)" fill="#fff" d="M 733.5 1026 Q 733.5 1016 743.5 1016 L 795.5 1016 Q 805.5 1016 805.5 1026 L 805.5 1086 Q 805.5 1096 795.5 1096 L 743.5 1096 Q 733.5 1096 733.5 1086 Z" />
+	<text x="746.1" y="1052.8" id="text73" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >mail- </text>
+
+	<text x="746.1" y="1068.8" id="text73" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >boxes </text>
+
+</g>
+</g>
+<g id="lines" stroke="black" stroke-width="2" fill="none" >
+<g id="group805">
+	<path id="path805" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 85.5 344 L 4.5 344 L 4.5 1112 L 472.5 1112 L 625.5 1112 L 625.5 1032 " />
+</g>
+<g id="group806">
+	<path id="path806" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 85.5 360 L 31.5 360 L 31.5 872 L 148.5 872 L 472.5 872 L 625.5 872 L 625.5 840 " />
+</g>
+<g id="group807">
+	<path id="path807" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 85.5 376 L 58.5 376 L 58.5 776 L 85.5 776 " />
+</g>
+<g id="group1338">
+	<path id="path1338" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 148.5 136 L 148.5 296 " />
+</g>
+<g id="group1356">
+	<path id="path1356" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 148.5 424 L 148.5 504 " />
+</g>
+<g id="group1382">
+	<path id="path1382" marker-start="url(#iPointer)" d="M 148.5 840 L 148.5 872 L 148.5 968 L 472.5 968 L 562.5 968 " />
+</g>
+<g id="group1897">
+	<path id="path1897" d="M 211.5 344 L 247.5 280 " />
+</g>
+<g id="group1898">
+	<path id="path1898" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 211.5 360 L 472.5 360 L 562.5 360 " />
+</g>
+<g id="group1910">
+	<path id="path1910" d="M 211.5 552 L 247.5 488 " />
+</g>
+<g id="group1911">
+	<path id="path1911" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 211.5 568 L 472.5 568 L 562.5 568 " />
+</g>
+<g id="group1924">
+	<path id="path1924" marker-end="url(#Pointer)" d="M 211.5 776 L 472.5 776 L 562.5 776 " />
+</g>
+<g id="group5490">
+	<path id="path5490" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 625.5 424 L 625.5 504 " />
+</g>
+<g id="group6031">
+	<path id="path6031" d="M 688.5 344 L 724.5 280 " />
+</g>
+<g id="group6032">
+	<path id="path6032" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 688.5 360 L 841.5 360 L 841.5 776 L 688.5 776 " />
+</g>
+<g id="group6044">
+	<path id="path6044" d="M 688.5 552 L 724.5 488 " />
+</g>
+<g id="group6057">
+	<path id="path6057" d="M 688.5 760 L 724.5 696 " />
+</g>
+<g id="group6059">
+	<path id="path6059" marker-end="url(#Pointer)" d="M 688.5 792 L 724.5 856 " />
+</g>
+<g id="group6069">
+	<path id="path6069" marker-start="url(#iPointer)" d="M 688.5 952 L 724.5 888 " />
+</g>
+<g id="group6071">
+	<path id="path6071" d="M 688.5 984 L 724.5 1048 " />
+</g>
+</g>
+<g id="text" fill="black" style="font-family:LMMono10,monospace;font-size:15.2px" >
+<text x="215.1" y="60.8" id="text1" fill="#000" >(app or</text>
+<text x="224.1" y="76.8" id="text2" fill="#000" >browser)</text>
+<text x="161.1" y="188.8" id="text3" fill="#000" >HTTP &amp; </text>
+<text x="161.1" y="204.8" id="text4" fill="#000" >JSON-RPC </text>
+<text x="341.1" y="284.8" id="text6" fill="#000" >(tokens &amp; </text>
+<text x="350.1" y="300.8" id="text8" fill="#000" >contacts) </text>
+<text x="314.1" y="380.8" id="text11" fill="#000" >JSON-RPC </text>
+<text x="269.1" y="396.8" id="text13" fill="#000" >(token management) </text>
+<text x="161.1" y="460.8" id="text14" fill="#000" >stdin/ </text>
+<text x="161.1" y="476.8" id="text16" fill="#000" >stdout </text>
+<text x="341.1" y="492.8" id="text20" fill="#000" >(hash- </text>
+<text x="350.1" y="508.8" id="text22" fill="#000" >chain) </text>
+<text x="314.1" y="588.8" id="text26" fill="#000" >JSON-RPC </text>
+<text x="278.1" y="604.8" id="text28" fill="#000" >(key management) </text>
+<text x="71.1" y="668.8" id="text30" fill="#000" >stdin/ </text>
+<text x="71.1" y="684.8" id="text31" fill="#000" >stdout </text>
+<text x="332.1" y="796.8" id="text36" fill="#000" >SMTP </text>
+<text x="260.1" y="812.8" id="text37" fill="#000" >(outgoing messages) </text>
+<text x="314.1" y="892.8" id="text40" fill="#000" >JSON-RPC </text>
+<text x="269.1" y="908.8" id="text41" fill="#000" >(revoke messages) </text>
+<text x="314.1" y="988.8" id="text44" fill="#000" >SMTP-ATRN </text>
+<text x="269.1" y="1004.8" id="text45" fill="#000" >(incoming messages) </text>
+<text x="314.1" y="1132.8" id="text48" fill="#000" >JSON-RPC </text>
+<text x="260.1" y="1148.8" id="text49" fill="#000" >(account management) </text>
+</g>
+</svg>

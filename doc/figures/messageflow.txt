@@ -1,0 +1,59 @@
+               #-----------#                                                   #-----------#
+               |[PC]       |                                                   |[PC]       |
+               |   Alice   |                                                   |    Bob    |
+               |           |                                                   |           |
+               |           |                                                   |           |
+               |           |                                                   |           |
+               #-----------#                                                   #-----------#
+                     |                                                               ^
+                     | mutectrl                                             mutectrl |
+                     v                                                               |
+             .---------------.                                               .---------------.
+             |               |                                               |               |
+             |   cleartext   |                                               |   cleartext   |
+             | (+attachment) |                                               | (+attachment) |
+             |               |                                               |               |
+             '---------------'                                               '---------------'
+                     |                                                               ^
+                     | mutectrl                                             mutectrl |
+                     v                                                               |
+             .---------------.                                               .---------------.
+             |               |                                               |               |
+             | MIME multipart|                                               | MIME multipart|
+             |    message    |                                               |    message    |
+             |               |                                               |               |
+             '---------------'                                               '---------------'
+                     |     \                                                   ^     ^     ^
+              /      |      \ mutectrl                               mutectrl /      |      \
+             /       v       \                                               /       |       \
+.---------. v   .---------.   v .---------.                     .---------. /   .---------.   \ .---------.
+|  chunk  |     |  chunk  |     |  chunk  |                     |  chunk  |     |  chunk  |     |  chunk  |
+|   1/n   | ... |   m/n   | ... |   n/n   |                     |   1/n   | ... |   m/n   | ... |   n/n   |
+'---------'     '---------'     '---------'                     '---------'     '---------'     '---------'
+     |               |               |                               ^               ^               ^
+     |               |               | mutecrypt           mutecrypt |               |               |
+     v               v               v                               |               |               |
+.---------.     .---------.     .---------.                     .---------.     .---------.     .---------.
+|encrypted|     |encrypted|     |encrypted|                     |encrypted|     |encrypted|     |encrypted|
+|  chunk  | ... |  chunk  | ... |  chunk  |                     |  chunk  | ... |  chunk  | ... |  chunk  |
+'---------'     '---------'     '---------'                     '---------'     '---------'     '---------'
+     |               |               |                               ^               ^               ^
+     |               |               | mutectrl             mutectrl |               |               |
+     v               v               v                               |               |               |
+.---------.     .---------.     .---------.                     .---------.     .---------.     .---------.
+|   mix   |     |   mix   |     |   mix   |                     | account |     | account |     | account |
+|envelope | ... |envelope | ... |envelope |                     |envelope | ... |envelope | ... |envelope |
+'---------'     '---------'     '---------'                     '---------'     '---------'     '---------'
+           \         |                                                     ^         ^          ^
+            \        |         /                                            \        |         /
+             \       v        / muteproto                          muteproto \       |        /
+              v #----------# v                                                \ #----------# /
+                |          |                                                    |          |
+                |          |                                                    |          |
+                | mutemixd |--------------------------------------------------> | muteaccd |
+                |          |    .---------.     .---------.     .---------.     |          |
+                |          |    | account |     | account |     | account |     |          |
+                #----------#    |envelope | ... |envelope | ... |envelope |     #----------#
+                                '---------'     '---------'     '---------'
+
+[PC]: {"a2s:type":"computer","a2s:delref":true}
