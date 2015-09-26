@@ -22,8 +22,10 @@ func printCode(w io.Writer, release bool, commit, date string) {
 		fmt.Fprintf(w, "// DO NOT EDIT AND DO NOT COMMIT TO REPOSITORY!\n")
 		fmt.Fprintf(w, "\n")
 		fmt.Fprintf(w, "const (\n")
+		fmt.Fprintf(w, "\t// Commit is the git commit hash.\n")
 		fmt.Fprintf(w, "\tCommit = \"%s\"\n", commit)
-		fmt.Fprintf(w, "\tDate   = \"%s\"\n", date)
+		fmt.Fprintf(w, "\t// Date is the git commit date.\n")
+		fmt.Fprintf(w, "\tDate = \"%s\"\n", date)
 		fmt.Fprintf(w, ")\n")
 	}
 }
