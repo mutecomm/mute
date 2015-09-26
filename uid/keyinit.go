@@ -13,9 +13,9 @@ import (
 
 // A SessionAnchor contains the keys for perfect forward secrecy.
 type SessionAnchor struct {
-	MIXADDRESS string
-	NYMADDRESS string
-	PFKEYS     []KeyEntry
+	MIXADDRESS string     // fully qualified address of mix to use as last hop to user
+	NYMADDRESS string     // a valid NymAddress
+	PFKEYS     []KeyEntry // for ephemeral/forward secure key agreement
 }
 
 type contents struct {
@@ -26,14 +26,14 @@ type contents struct {
 	FALLBACK          bool   // determines if the key may serve as a fallback key
 	SIGKEYHASH        string // SHA512(UIDMessage.UIDContent.SIGKEY.HASH)
 	REPOURI           string // URI of the corresponding KeyInit repository
-	SESSIONANCHOR     string // encrypted
+	SESSIONANCHOR     string // SESSIONANCHOR = AES256_CTR(key=UIDMessage.UIDContent.SIGKEY.HASH, SessionAnchor)
 	SESSIONANCHORHASH string // before encryption
 }
 
 // A KeyInit message contains short-term keys.
 type KeyInit struct {
 	CONTENTS  contents
-	SIGNATURE string
+	SIGNATURE string // signature of contents by UIDMessage.UIDContent.SIGKEY
 }
 
 // The number of seconds the NOTAFTER field of a KeyInit message can be in the

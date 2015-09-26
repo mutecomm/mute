@@ -61,7 +61,7 @@ type uidContent struct {
 	MSGCOUNT    uint64      // must increase for each message
 	NOTAFTER    uint64      // time after which the key(s) should not be used anymore
 	NOTBEFORE   uint64      // time before which the key(s) should not be used yet
-	MIXADDRESS  string      // fully qualified address of mix to use as last hop
+	MIXADDRESS  string      // fully qualified address of mix to use as last hop to user
 	NYMADDRESS  string      // a valid NymAddress
 	IDENTITY    string      // identity/pseudonym claimed (including domain)
 	SIGKEY      KeyEntry    // used to sign UIDContent and to authenticate future UIDMessages
