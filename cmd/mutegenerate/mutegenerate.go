@@ -6,7 +6,9 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/mutecomm/mute/util/git"
 )
@@ -28,6 +30,27 @@ func printCode(w io.Writer, release bool, commit, date string) {
 		fmt.Fprintf(w, "\tDate = \"%s\"\n", date)
 		fmt.Fprintf(w, ")\n")
 	}
+}
+
+func commitChanged(output, commit string) bool {
+	// ignore all errors
+	fc, err := ioutil.ReadFile(output)
+	if err != nil {
+		return true
+	}
+	lines := strings.Split(string(fc), "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "Commit = \"") {
+			line = strings.TrimPrefix(line, "Commit = \"")
+			line = strings.TrimSuffix(line, "\"")
+			if line == commit {
+				return false
+			}
+			return true
+		}
+	}
+	return true
 }
 
 func fatal(err error) {
@@ -58,6 +81,10 @@ func main() {
 	}
 	outfp := os.Stdout
 	if *output != "" {
+		if !commitChanged(*output, commit) {
+			// nothing to write
+			return
+		}
 		outfp, err = os.Create(*output)
 		if err != nil {
 			fatal(err)
