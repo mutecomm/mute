@@ -4,8 +4,14 @@ env: GO15VENDOREXPERIMENT=1
 before_install:
   - mysql -u root -e 'CREATE DATABASE spendbook;'
   - mysql -u root -e 'CREATE DATABASE wallet;'
-  - go get github.com/mutecomm/mute/cmd/mutegenerate
-  - go generate -v ./release
+install:
+  - go get -v golang.org/x/tools/cmd/goimports
+  - go get -v github.com/golang/lint/golint
 script:
+  - mkdir $GOPATH/src/github.com/mutecomm
+  - ln -s `pwd` $GOPATH/src/github.com/mutecomm/mute
+  - cd $GOPATH/src/github.com/mutecomm/mute
+  - go install -v ./cmd/mutegenerate
+  - go generate -v ./release
   - go install -v ./cmd/...
-  - go test -v ./...
+  - ./test.sh
