@@ -1,5 +1,19 @@
 #!/bin/sh -e
 
+# make sure we test in $GOPATH/src/github.com/mutecomm/mute on Travis
+if [ "$TRAVIS" = "true" ] && [ `pwd` != $GOPATH/src/github.com/mutecomm/mute ]
+then
+  mkdir $GOPATH/src/github.com/mutecomm
+  ln -s `pwd` $GOPATH/src/github.com/mutecomm/mute
+  cd $GOPATH/src/github.com/mutecomm/mute
+fi
+
+# compile everything
+echo "compile"
+go install -v ./cmd/mutegenerate
+go generate ./release
+go install -v ./cmd/...
+
 # call source code checker for each directory except doc/ and vendor/
 dirs=`ls -d */ | grep -v doc | grep -v vendor`
 echo "goimports"

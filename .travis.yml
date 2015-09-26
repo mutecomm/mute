@@ -9,10 +9,4 @@ install:
   - go get -v github.com/golang/lint/golint
   - go get -v github.com/gorilla/rpc/v2
 script:
-  - mkdir $GOPATH/src/github.com/mutecomm
-  - ln -s `pwd` $GOPATH/src/github.com/mutecomm/mute
-  - cd $GOPATH/src/github.com/mutecomm/mute
-  - go install -v ./cmd/mutegenerate
-  - go generate -v ./release
-  - go install -v ./cmd/...
   - ./test.sh
