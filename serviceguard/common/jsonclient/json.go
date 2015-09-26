@@ -1,4 +1,4 @@
-// Package jsonclient contains a JSON-RPC over HTTPS client for mute.
+// Package jsonclient contains a JSON-RPC over HTTPS client for Mute.
 package jsonclient
 
 import (

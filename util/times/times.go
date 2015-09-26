@@ -1,4 +1,4 @@
-// Package times contains time utility functions for mute.
+// Package times contains time utility functions for Mute.
 package times
 
 import (

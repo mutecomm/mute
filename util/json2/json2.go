@@ -1,4 +1,4 @@
-// Package json2 contains a JSON-RPC over HTTPS client for mute.
+// Package json2 contains a JSON-RPC over HTTPS client for Mute.
 package json2
 
 import (

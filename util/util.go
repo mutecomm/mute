@@ -1,4 +1,4 @@
-// Package util contains utility functions for mute.
+// Package util contains utility functions for Mute.
 package util
 
 import (
