@@ -287,7 +287,7 @@ struct UIDMessage {
     SIGESCROW: Entry of type KeyEntry (see above). Used to optionally
                authenticate future UIDMessages for this Identity. Failover for
                a lost SIGKEY. May be zero-value.
-    LASTENTRY: Last Key Hashchain entry known. String.
+    LASTENTRY: Last known Key Hashchain entry. String.
 
     REPOURIS: URIs of KeyInit Repositories to be used to publish KeyInit
               messages. Array of strings.
@@ -298,18 +298,18 @@ struct UIDMessage {
                   initiate a message via a forward secure mechanism, "optional"
                   allows for degrading the first message to be not forward
                   secure.
-      CIPHERSUITES: Comma-separated list of ciphersuites, ordered from
-                    most-preferred to least preferred. String. May be
-                    zero-value. [future preferences may be added]
+      CIPHERSUITES: List of ciphersuites, ordered from most preferred to least
+                    preferred. Arra of strings. May be zero-value.
+                    [future preferences may be added]
     }
 
     struct CHAINLINK {
-      URI: URI(s) of the foreign key hashchain. Array of String. May be zero-value.
+      URI: URI(s) of the foreign key hashchain. Array of strings. May be zero-value.
       LAST: Last entry of the foreign key hashchain. String.
             May be zero-value if URI is zero.
       AUTHORATIVE: Boolean true/false.
-      DOMAINS: comma-separated list of domains that are served currently.
-               String. Must be zero unless AUTHORATIVE is true and URI is set.
+      DOMAINS: List of domains that are served currently. Array of strings.
+               Must be zero unless AUTHORATIVE is true and URI is set.
       IDENTITY: Own Identity in the foreign key hashchain. String. May be
                 zero-value if URI is zero. Currently unused (must be zero).
     }
@@ -667,11 +667,11 @@ Biased selection/deletion:
 #### Forward Secrecy Preference
 
 If no more KeyInit messages are available from the KeyInit repository but the
-`FORWARDSEC` (see below) setting of the user is "Mandatory", then the peer has
+`FORWARDSEC` (see below) setting of the user is "mandatory", then the peer has
 to initiate a session via synchronous prekeying (see [message
 protocol](https://github.com/mutecomm/mute/blob/master/doc/messages.md)).
 If the KeyInit message returned by the KeyInit repository is the fallback
-message and the `FORWARDSEC` setting of the user is "Strict", then the peer must
+message and the `FORWARDSEC` setting of the user is "strict", then the peer must
 either retry until he receives a unique message or he must initiate a session
 via synchronous prekeying.
 If the KeyInit message returned is shared (`FALLBACK==true`) and `FOWARDWARDSEC`
