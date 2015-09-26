@@ -91,15 +91,15 @@ type Message struct {
 
 // Entry describes a key server entry.
 type Entry struct {
-	UIDMESSAGEENCRYPTED string
-	HASHCHAINENTRY      string
-	HASHCHAINPOS        uint64
+	UIDMESSAGEENCRYPTED string // encrypted version of UIDMessage
+	HASHCHAINENTRY      string // corresponding key hashchain entry
+	HASHCHAINPOS        uint64 // position of key hashchain entry
 }
 
 // A MessageReply indicates a successful reply from key server.
 type MessageReply struct {
 	ENTRY           Entry
-	SERVERSIGNATURE string
+	SERVERSIGNATURE string // signature over Entry by keyserver's signature key
 }
 
 // Create creates a new UID message for the given userID and self-signs it.
