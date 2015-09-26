@@ -6,7 +6,7 @@ import (
 
 // CKDF (Cheap Key Derivation Function) generates two keys k1 and k2 from the
 // given nonce. Specification:
-// https://github.com/mutecomm/mute/blob/master/doc/keyserver.md#ckdf-cheap-key-derivation-function
+// https://github.com/mutecomm/mute/blob/master/doc/ciphers.md#ckdf-cheap-key-derivation-function
 //
 // TODO: review!
 func CKDF(nonce []byte) (k1, k2 []byte) {
