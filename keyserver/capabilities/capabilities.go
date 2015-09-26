@@ -19,12 +19,14 @@ var (
 
 // The Capabilities of a Mute key server.
 type Capabilities struct {
-	METHODS               []string
-	DOMAINS               []string
-	KEYREPOSITORYURIS     []string
-	KEYINITREPOSITORYURIS []string
-	KEYHASHCHAINURIS      []string
+	METHODS               []string // methods implemented from specification
+	DOMAINS               []string // domains served
+	KEYREPOSITORYURIS     []string // Key repository URIs
+	KEYINITREPOSITORYURIS []string // KeyInit repository URIs
+	KEYHASHCHAINURIS      []string // Key Hashchain URIs
 	// TODO: last Key Hashchain entry
-	TKNPUBKEY string // public key for key server payment tokens
-	SIGPUBKEY string // TODO: can be more than one key?
+	// LASTENTRY   string      // last Key Hashchain entry
+	TKNPUBKEY string // public wallet key for key server payment tokens
+	// TODO: can be more than one key?
+	SIGPUBKEY string // public signature key(s) of keyserver
 }
