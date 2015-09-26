@@ -94,7 +94,7 @@ relationship is assured.
 
 ### API
 
-The Keyserver is to provide the following public JSON-RPC-API:
+The Keyserver is to provide the following public JSON-RPC API:
 
 
 #### Mandatory
