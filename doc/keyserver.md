@@ -213,11 +213,11 @@ Messages are encoded as JSON according to the global encoding rules (see
 Messages share certain common fields:
 - `VERSION`: The protocol version, as string. E.g. "0.1a".
 - `MSGCOUNT`: Integer that must increase for each message of the same type for
-  the same user. Encoded as JSON decimal.
+  the same user. Encoded as JSON integer.
 - `NOTAFTER`: 64bit unixtime after which the key(s) offered by the message
-  should not be used anymore. Encoded as JSON decimal.
+  should not be used anymore. Encoded as JSON integer.
 - `NOTBEFORE`: 64bit unixtime before which the key(s) offered by the message
-  should not be used yet. Encoded as JSON decimal.
+  should not be used yet. Encoded as JSON integer.
 
 
 #### Lists of cryptographic keys
@@ -265,9 +265,9 @@ To be sent from user to server.
 struct UIDMessage {
   struct UIDContent {
     VERSION: The protocol version, as string. E.g. "0.1a".
-    MSGCOUNT: Integer that must increase for each message of the same type for the same user. Encoded as JSON decimal.
-    NOTAFTER: 64bit unixtime after which the key(s) offered by the message should not be used anymore. Encoded as JSON decimal.
-    NOTBEFORE: 64bit unixtime before which the key(s) offered by the message should not be used yet. Encoded as JSON decimal.
+    MSGCOUNT: Integer that must increase for each message of the same type for the same user. Encoded as JSON integer.
+    NOTAFTER: 64bit unixtime after which the key(s) offered by the message should not be used anymore. Encoded as JSON integer.
+    NOTBEFORE: 64bit unixtime before which the key(s) offered by the message should not be used yet. Encoded as JSON integer.
     MIXADDRESS: Fully qualified address of Mix to use as last hop to user. String.
     NYMADDRESS: A valid NymAddress. Base64.  OPTIONAL. Must be "NULL" if empty.
     IDENTITY: Identity/Pseudonym claimed. Including domain. String.
@@ -563,9 +563,9 @@ settings of the KeyInit messages.
 struct KeyInit{
   struct Contents{
     VERSION: The protocol version, as string. E.g. "0.1a".
-    MSGCOUNT: Integer that must increase for each message of the same type for the same user. Encoded as JSON decimal.
-    NOTAFTER: 64bit unixtime after which the key(s) offered by the message should not be used anymore. Encoded as JSON decimal.
-    NOTBEFORE: 64bit unixtime before which the key(s) offered by the message should not be used yet. Encoded as JSON decimal.
+    MSGCOUNT: Integer that must increase for each message of the same type for the same user. Encoded as JSON integer.
+    NOTAFTER: 64bit unixtime after which the key(s) offered by the message should not be used anymore. Encoded as JSON integer.
+    NOTBEFORE: 64bit unixtime before which the key(s) offered by the message should not be used yet. Encoded as JSON integer.
     FALLBACK: Boolean. true/false. Determines if the key may serve as a fallback key.
     SIGKEYHASH: SHA512(UIDMessage.UIDContent.SIGKEY.HASH)
     REPOURI: URI of this KeyInit Repository. String
