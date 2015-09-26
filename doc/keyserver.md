@@ -139,7 +139,8 @@ Return last Hashchain entry.
 
 `KeyRepository.GetLink(domain)`
 
-Return the Identity and Position of the first Authorative entry for the Chainlink to the domain.  (see below: "Linking chains and key repositories")
+Return the Identity and Position of the first Authorative entry for the
+Chainlink to the domain. (see below: "Linking chains and key repositories")
 
 
 `KeyRepository.CreateUID(UIDMessage[,Token])`
@@ -229,8 +230,10 @@ consisting of:
 
 ```
 struct KeyEntry{
-  CIPHERSUITE. Ciphersuite for which the key may be used. Example: "ECIES25519 KDF3 AES-CTR256 SHA512-HMAC ED25519 ECDHE25519"
-  FUNCTION. Function for which the key may be used in the ciphersuite. Example: "ECIES25519"
+  CIPHERSUITE. Ciphersuite for which the key may be used. Example:
+               "ECIES25519 KDF3 AES-CTR256 SHA512-HMAC ED25519 ECDHE25519"
+  FUNCTION. Function for which the key may be used in the ciphersuite. Example:
+            "ECIES25519"
   HASH. SHA512 hash of PUBKEY.
   PUBKEY. The public key.
 }
@@ -265,42 +268,62 @@ To be sent from user to server.
 struct UIDMessage {
   struct UIDContent {
     VERSION: The protocol version, as string. E.g. "0.1a".
-    MSGCOUNT: Integer that must increase for each message of the same type for the same user. Encoded as JSON integer.
-    NOTAFTER: 64bit unixtime after which the key(s) offered by the message should not be used anymore. Encoded as JSON integer.
-    NOTBEFORE: 64bit unixtime before which the key(s) offered by the message should not be used yet. Encoded as JSON integer.
-    MIXADDRESS: Fully qualified address of Mix to use as last hop to user. String.
-    NYMADDRESS: A valid NymAddress. Base64.  OPTIONAL. Must be "NULL" if empty.
+    MSGCOUNT: Integer that must increase for each message of the same type for
+              the same user. Encoded as JSON integer.
+    NOTAFTER: 64bit unixtime after which the key(s) offered by the message
+              should not be used anymore. Encoded as JSON integer.
+    NOTBEFORE: 64bit unixtime before which the key(s) offered by the message
+               should not be used yet. Encoded as JSON integer.
+    MIXADDRESS: Fully qualified address of Mix to use as last hop to user.
+                String.
+    NYMADDRESS: A valid NymAddress. Base64. OPTIONAL. Must be "NULL" if empty.
     IDENTITY: Identity/Pseudonym claimed. Including domain. String.
-    SIGKEY: Entry of type KeyEntry (see above). Used to sign the UIDContent and to authenticate future UIDMessages for this Identity.
+    SIGKEY: Entry of type KeyEntry (see above). Used to sign the UIDContent and
+            to authenticate future UIDMessages for this Identity.
 
-    PUBKEYS: Array of KeyEntry. For static key content confidentiality. (Must be ECDH/DH capable)
+    PUBKEYS: Array of KeyEntry. For static key content confidentiality.
+             (Must be ECDH/DH capable)
 
-    SIGESCROW: Entry of type KeyEntry (see above). Used to optionally authenticate future UIDMessages for this Identity. Failover for
+    SIGESCROW: Entry of type KeyEntry (see above). Used to optionally
+               authenticate future UIDMessages for this Identity. Failover for
                a lost SIGKEY. May be zero-value.
     LASTENTRY: Last Key Hashchain entry known. String.
 
-    REPOURIS: URIs of KeyInit Repositories to be used to publish KeyInit messages. Array of String.
+    REPOURIS: URIs of KeyInit Repositories to be used to publish KeyInit
+              messages. Array of strings.
 
     struct PREFERENCES {
-      FORWARDSEC: Forward Security preference. Must be "strict", "mandatory" or "optional". "strict" and "mandatory" force the peer to initiate
-                  a message via a forward secure mechanism, "optional" allows for degrading the first message to be not forward secure.
-      CIPHERSUITES: Comma-separated list of ciphersuites, ordered from most-preferred to least preferred. String. May be zero-value.
-                    [future preferences may be added]
+      FORWARDSEC: Forward Security preference. Must be "strict", "mandatory" or
+                  "optional". "strict" and "mandatory" force the peer to
+                  initiate a message via a forward secure mechanism, "optional"
+                  allows for degrading the first message to be not forward
+                  secure.
+      CIPHERSUITES: Comma-separated list of ciphersuites, ordered from
+                    most-preferred to least preferred. String. May be
+                    zero-value. [future preferences may be added]
     }
 
     struct CHAINLINK {
       URI: URI(s) of the foreign key hashchain. Array of String. May be zero-value.
-      LAST: Last entry of the foreign key hashchain. String. May be zero-value if URI is zero.
+      LAST: Last entry of the foreign key hashchain. String.
+            May be zero-value if URI is zero.
       AUTHORATIVE: Boolean true/false.
-      DOMAINS: comma-separated list of domains that are served currently. String. Must be zero unless AUTHORATIVE is true and URI is set.
-      IDENTITY: Own Identity in the foreign key hashchain. String. May be zero-value if URI is zero. Currently unused (must be zero).
+      DOMAINS: comma-separated list of domains that are served currently.
+               String. Must be zero unless AUTHORATIVE is true and URI is set.
+      IDENTITY: Own Identity in the foreign key hashchain. String. May be
+                zero-value if URI is zero. Currently unused (must be zero).
     }
   }
-  ESCROWSIGNATURE: Signature over UIDContent by previous SIGESCROW (see above). Base64 encoded. May be zero-value.
-  USERSIGNATURE: Signature over UIDContent by previous SIGKEY (see above). Base64 encoded. May be zero-value.
-  SELFSIGNATURE: Signature over UIDContent by current SIGKEY (see above). Base64 encoded.
-  LINKAUTHORITY: Signature over UIDContent by key server SIGESCROW in the case of authorative keyserver links (see below: "Linking chains and
-                 key repositories"). Base64 encoded. Must be zero unless an authorative link entry.
+  ESCROWSIGNATURE: Signature over UIDContent by previous SIGESCROW (see above).
+                   Base64 encoded. May be zero-value.
+  USERSIGNATURE: Signature over UIDContent by previous SIGKEY (see above).
+                 Base64 encoded. May be zero-value.
+  SELFSIGNATURE: Signature over UIDContent by current SIGKEY (see above).
+                 Base64 encoded.
+  LINKAUTHORITY: Signature over UIDContent by key server SIGESCROW in the case
+                 of authorative keyserver links (see below: "Linking chains and
+                 key repositories"). Base64 encoded. Must be zero unless an
+                 authorative link entry.
 }
 ```
 
@@ -308,7 +331,8 @@ Successful reply from server;
 ```
 struct UIDMessageReply {
   struct Entry {
-    UIDMessageEncrypted: Encrypted version of UIDMessage. See below: "Storing UIDMessages."
+    UIDMessageEncrypted: Encrypted version of UIDMessage.
+                         See below: "Storing UIDMessages."
     HASHCHAINENTRY: Corresponding Key Hashchain Entry. String.
     HASHCHAINPOS: Integer position of Key Hashchain Entry. Decimal.
   }
@@ -563,10 +587,14 @@ settings of the KeyInit messages.
 struct KeyInit{
   struct Contents{
     VERSION: The protocol version, as string. E.g. "0.1a".
-    MSGCOUNT: Integer that must increase for each message of the same type for the same user. Encoded as JSON integer.
-    NOTAFTER: 64bit unixtime after which the key(s) offered by the message should not be used anymore. Encoded as JSON integer.
-    NOTBEFORE: 64bit unixtime before which the key(s) offered by the message should not be used yet. Encoded as JSON integer.
-    FALLBACK: Boolean. true/false. Determines if the key may serve as a fallback key.
+    MSGCOUNT: Integer that must increase for each message of the same type for
+              the same user. Encoded as JSON integer.
+    NOTAFTER: 64bit unixtime after which the key(s) offered by the message
+              should not be used anymore. Encoded as JSON integer.
+    NOTBEFORE: 64bit unixtime before which the key(s) offered by the message
+               should not be used yet. Encoded as JSON integer.
+    FALLBACK: Boolean. true/false. Determines if the key may serve as a
+              fallback key.
     SIGKEYHASH: SHA512(UIDMessage.UIDContent.SIGKEY.HASH)
     REPOURI: URI of this KeyInit Repository. String
     SESSIONANCHOR: Encrypted SessionAnchor Struct. See below.
@@ -579,7 +607,8 @@ struct KeyInit{
 ```
 struct SessionAnchor{
   MIXADDRESS: Fully qualified address of Mix to use as last hop to user. String.
-  NYMADDRESS: A valid NymAddress. Base64. MUST BE "NULL" IF UIDMessage.UIDContent.NYMADDRESS == NULL
+  NYMADDRESS: A valid NymAddress. Base64.
+              MUST BE "NULL" IF UIDMessage.UIDContent.NYMADDRESS == NULL
   PFKEYS: Array of KeyEntry. For ephemeral/forward secure key agreement.
 }
 SESSIONANCHOR = AES256_CTR(key=UIDMessage.UIDContent.SIGKEY.HASH, SessionAnchor)
