@@ -442,7 +442,7 @@ Key Server computes:
 
 Given: `Identity`, `UIDHash` and `UIDIndex` (see above: "Storing UIDMessages"),
 previous entries.
-- Set `TYPE = 0x02				// Type field for future extensions`
+- Set `TYPE = 0x01				// Type field for future extensions`
 - Create random `NONCE` 64bit
 - Compute `k1, k2 = CKDF(NONCE)`
 - Create `HASH(k1 | identity) = HashID`

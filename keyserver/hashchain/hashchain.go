@@ -7,7 +7,7 @@ import (
 )
 
 // Type denotes the current hash chain type.
-var Type = []byte{0x02}
+var Type = []byte{0x01}
 
 // SplitEntry splits a base64 encoded key hashchain entry. Specification:
 // https://github.com/mutecomm/mute/blob/master/doc/keyserver.md#key-hashchain-operation
