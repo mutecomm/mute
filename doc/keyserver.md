@@ -334,7 +334,7 @@ struct UIDMessageReply {
     UIDMessageEncrypted: Encrypted version of UIDMessage.
                          See below: "Storing UIDMessages."
     HASHCHAINENTRY: Corresponding Key Hashchain Entry. String.
-    HASHCHAINPOS: Integer position of Key Hashchain Entry. Decimal.
+    HASHCHAINPOS: Position of Key Hashchain Entry. Integer.
   }
   SERVERSIGNATURE: Signature over Entry by Keyserver's signature key.
 }
