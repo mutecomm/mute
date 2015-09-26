@@ -9,7 +9,7 @@ import (
 // Type denotes the current hash chain type.
 var Type = []byte{0x02}
 
-// SplitEntry splits a key hashchain entry. Specification:
+// SplitEntry splits a base64 encoded key hashchain entry. Specification:
 // https://github.com/mutecomm/mute/blob/master/doc/keyserver.md#key-hashchain-operation
 func SplitEntry(entry string) (hash, typ, nonce, hashID, crUID, uidIndex []byte, err error) {
 	e, err := base64.Decode(entry)
