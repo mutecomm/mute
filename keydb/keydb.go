@@ -18,7 +18,20 @@ import (
 // - link Sessions to MessageKeys with foreign key?
 // - how to handle old messages keys if a session is updated?
 
+// Version is the current keydb version.
+const Version = "1"
+
+// Entries in KeyValueTable.
 const (
+	DBVersion = "Version" // version string of keydb
+)
+
+const (
+	createQueryKeyValue = `
+  CREATE TABLE KeyValueStore (
+    KeyEntry   TEXT NOT NULL UNIQUE,
+    ValueEntry TEXT NOT NULL
+);`
 	createQueryPrivateUIDs = `
 CREATE TABLE PrivateUIDs (
   ID              INTEGER PRIMARY KEY,
@@ -76,6 +89,9 @@ CREATE TABLE Hashchains (
   POSITION INTEGER NOT NULL,
   ENTRY    TEXT    NOT NULL
 );`
+	updateValueQuery          = "UPDATE KeyValueStore SET ValueEntry=? WHERE KeyEntry=?;"
+	insertValueQuery          = "INSERT INTO KeyValueStore (KeyEntry, ValueEntry) VALUES (?, ?);"
+	getValueQuery             = "SELECT ValueEntry FROM KeyValueStore WHERE KeyEntry=?;"
 	addPrivateUIDQuery        = "INSERT INTO PrivateUIDs (IDENTITY, MSGCOUNT, UIDMessage, SIGPRIVKEY, ENCPRIVKEY, UIDMessageReply) VALUES (?, ?, ?, ?, ?, ?);"
 	addPrivateUIDReplyQuery   = "UPDATE PrivateUIDs SET UIDMessageReply=? WHERE UIDMessage=?;"
 	delPrivateUIDQuery        = "DELETE FROM PrivateUIDs WHERE UIDMessage=?;"
@@ -99,6 +115,9 @@ CREATE TABLE Hashchains (
 // KeyDB is a handle for an encrypted database used to store mute keys.
 type KeyDB struct {
 	encDB                     *sql.DB // handle for encDB
+	updateValueQuery          *sql.Stmt
+	insertValueQuery          *sql.Stmt
+	getValueQuery             *sql.Stmt
 	addPrivateUIDQuery        *sql.Stmt
 	addPrivateUIDReplyQuery   *sql.Stmt
 	delPrivateUIDQuery        *sql.Stmt
@@ -122,7 +141,8 @@ type KeyDB struct {
 // Create returns a new KEY database with the given dbname.
 // It is encrypted by passphrase (processed by a KDF with iter many iterations).
 func Create(dbname string, passphrase []byte, iter int) error {
-	return encdb.Create(dbname, passphrase, iter, []string{
+	err := encdb.Create(dbname, passphrase, iter, []string{
+		createQueryKeyValue,
 		createQueryPrivateUIDs,
 		createQueryPublicUIDs,
 		createQueryPrivateKeyInits,
@@ -131,6 +151,27 @@ func Create(dbname string, passphrase []byte, iter int) error {
 		createQueryMessageKeys,
 		createQueryHashchains,
 	})
+	if err != nil {
+		return err
+	}
+	keyDB, err := Open(dbname, passphrase)
+	if err != nil {
+		return err
+	}
+	defer keyDB.Close()
+	if err := keyDB.AddValue(DBVersion, Version); err != nil {
+		return err
+	}
+	return nil
+}
+
+// version returns the version of keyDB.
+func (keyDB *KeyDB) version() (string, error) {
+	version, err := keyDB.GetValue(DBVersion)
+	if err != nil {
+		return "", err
+	}
+	return version, nil
 }
 
 // Open opens the key database with dbname and passphrase.
@@ -139,6 +180,15 @@ func Open(dbname string, passphrase []byte) (*KeyDB, error) {
 	var err error
 	keyDB.encDB, err = encdb.Open(dbname, passphrase)
 	if err != nil {
+		return nil, err
+	}
+	if keyDB.updateValueQuery, err = keyDB.encDB.Prepare(updateValueQuery); err != nil {
+		return nil, err
+	}
+	if keyDB.insertValueQuery, err = keyDB.encDB.Prepare(insertValueQuery); err != nil {
+		return nil, err
+	}
+	if keyDB.getValueQuery, err = keyDB.encDB.Prepare(getValueQuery); err != nil {
 		return nil, err
 	}
 	if keyDB.addPrivateUIDQuery, err = keyDB.encDB.Prepare(addPrivateUIDQuery); err != nil {
@@ -210,7 +260,7 @@ func Rekey(dbname string, oldPassphrase, newPassphrase []byte, newIter int) erro
 	return encdb.Rekey(dbname, oldPassphrase, newPassphrase, newIter)
 }
 
-// Status returns the autoVacuum mode and freelistCount of msgDB.
+// Status returns the autoVacuum mode and freelistCount of keyDB.
 func (keyDB *KeyDB) Status() (
 	autoVacuum string,
 	freelistCount int64,

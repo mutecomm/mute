@@ -40,6 +40,22 @@ func createDB() (tmpdir string, keyDB *KeyDB, err error) {
 	return
 }
 
+func TestHelper(t *testing.T) {
+	tmpdir, keyDB, err := createDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tmpdir)
+	defer keyDB.Close()
+	version, err := keyDB.version()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if version != Version {
+		t.Errorf("keyDB.version() != %s", Version)
+	}
+}
+
 func TestRekey(t *testing.T) {
 	tmpdir, err := ioutil.TempDir("", "keydb_test")
 	if err != nil {
