@@ -210,6 +210,13 @@ func (msg *Message) Check() error {
 	if err := identity.IsMapped(msg.UIDContent.IDENTITY); err != nil {
 		return log.Error(err)
 	}
+	// check SIGKEY
+	if msg.UIDContent.SIGKEY.CIPHERSUITE != DefaultCiphersuite {
+		return log.Error("uid: UIDContent.SIGKEY.CIPHERSUITE != DefaultCiphersuite")
+	}
+	if msg.UIDContent.SIGKEY.FUNCTION != "ED25519" {
+		return log.Error("uid: UIDContent.SIGKEY.FUNCTION != \"ED25519\"")
+	}
 	// version 1.0 specific checks
 	return msg.checkV1_0()
 }
