@@ -497,6 +497,25 @@ func New() *CtrlEngine {
 						ce.err = ce.dbIncremental(c, int64(c.Int("pages")))
 					},
 				},
+				{
+					Name:  "version",
+					Usage: "Show DB version",
+					Before: func(c *cli.Context) error {
+						if len(c.Args()) > 0 {
+							return log.Errorf("superfluous argument(s): %s",
+								strings.Join(c.Args(), " "))
+						}
+						if err := ce.prepare(c, true); err != nil {
+							return err
+						}
+						return nil
+					},
+					Action: func(c *cli.Context) {
+						outputfp := os.NewFile(uintptr(c.GlobalInt("output-fd")),
+							"output-fd")
+						ce.err = ce.dbVersion(c, outputfp)
+					},
+				},
 			},
 		},
 		{

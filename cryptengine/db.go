@@ -114,3 +114,13 @@ func (ce *CryptEngine) dbVacuum(autoVacuumMode string) error {
 func (ce *CryptEngine) dbIncremental(pagesToRemove int64) error {
 	return ce.keyDB.Incremental(pagesToRemove)
 }
+
+func (ce *CryptEngine) dbVersion(w io.Writer) error {
+	version, err := ce.keyDB.Version()
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(w, "keydb:\n")
+	fmt.Fprintf(w, "version=%s\n", version)
+	return nil
+}

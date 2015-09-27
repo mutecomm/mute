@@ -358,3 +358,44 @@ func (ce *CtrlEngine) dbIncremental(c *cli.Context, pagesToRemove int64) error {
 	}
 	return nil
 }
+
+func mutecryptDBVersion(c *cli.Context, w io.Writer, passphrase []byte) error {
+	args := []string{
+		"--homedir", c.GlobalString("homedir"),
+		"--loglevel", c.GlobalString("loglevel"),
+		"--logdir", c.GlobalString("logdir"),
+		"db", "version",
+	}
+	cmd := exec.Command("mutecrypt", args...)
+	cmd.Stdout = w
+	var errbuf bytes.Buffer
+	cmd.Stderr = &errbuf
+	ppR, ppW, err := os.Pipe()
+	if err != nil {
+		return err
+	}
+	defer ppR.Close()
+	ppW.Write(passphrase)
+	ppW.Close()
+	cmd.ExtraFiles = append(cmd.ExtraFiles, ppR)
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+	if err := cmd.Wait(); err != nil {
+		return fmt.Errorf("%s: %s", err, errbuf.String())
+	}
+	return nil
+}
+
+func (ce *CtrlEngine) dbVersion(c *cli.Context, w io.Writer) error {
+	version, err := ce.msgDB.Version()
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(w, "msgdb:\n")
+	fmt.Fprintf(w, "version=%s\n", version)
+	if err := mutecryptDBVersion(c, w, ce.passphrase); err != nil {
+		return log.Error(err)
+	}
+	return nil
+}

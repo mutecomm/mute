@@ -47,7 +47,7 @@ func TestHelper(t *testing.T) {
 	}
 	defer os.RemoveAll(tmpdir)
 	defer keyDB.Close()
-	version, err := keyDB.version()
+	version, err := keyDB.Version()
 	if err != nil {
 		t.Fatal(err)
 	}

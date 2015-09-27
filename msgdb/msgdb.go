@@ -278,8 +278,8 @@ func Create(dbname string, passphrase []byte, iter int) error {
 	return nil
 }
 
-// version returns the version of msgDB.
-func (msgDB *MsgDB) version() (string, error) {
+// Version returns the current version of msgDB.
+func (msgDB *MsgDB) Version() (string, error) {
 	version, err := msgDB.GetValue(DBVersion)
 	if err != nil {
 		return "", err

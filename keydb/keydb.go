@@ -166,8 +166,8 @@ func Create(dbname string, passphrase []byte, iter int) error {
 	return nil
 }
 
-// version returns the version of keyDB.
-func (keyDB *KeyDB) version() (string, error) {
+// Version returns the current version of keyDB.
+func (keyDB *KeyDB) Version() (string, error) {
 	version, err := keyDB.GetValue(DBVersion)
 	if err != nil {
 		return "", err
