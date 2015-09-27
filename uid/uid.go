@@ -27,6 +27,7 @@ import (
 //
 //   - UIDContent.PREFERENCES.FORWARDSEC must be "strict".
 //   - UIDContent.PUBKEYS contains exactly one ECDHE25519 key for the default ciphersuite.
+//   - UIDContent.SIGESCROW must be zero-value.
 const ProtocolVersion = "1.0"
 
 // PFSPreference representes a PFS preference.
@@ -184,6 +185,13 @@ func (msg *Message) checkV1_0() error {
 	}
 	if msg.UIDContent.PUBKEYS[0].FUNCTION != "ECDHE25519" {
 		return log.Error("uid: UIDContent.PUBKEYS[0].FUNCTION != \"ECDHE25519\"")
+	}
+	// UIDContent.SIGESCROW must be zero-value.
+	if msg.UIDContent.SIGESCROW.CIPHERSUITE != "" ||
+		msg.UIDContent.SIGESCROW.FUNCTION != "" ||
+		msg.UIDContent.SIGESCROW.HASH != "" ||
+		msg.UIDContent.SIGESCROW.PUBKEY != "" {
+		return log.Error("uid: UIDContent.SIGESCROW must be zero-value")
 	}
 	return nil
 }
