@@ -16,6 +16,7 @@ import (
 
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
+	"github.com/mutecomm/mute/keyserver/hashchain"
 	"github.com/mutecomm/mute/msg"
 	"github.com/mutecomm/mute/uid"
 	"github.com/mutecomm/mute/util"
@@ -92,11 +93,13 @@ func TestPrivateUID(t *testing.T) {
 	}
 	defer os.RemoveAll(tmpdir)
 	defer keyDB.Close()
-	alice, err := uid.Create("alice@mute.berlin", false, "", "", uid.Strict, cipher.RandReader)
+	alice, err := uid.Create("alice@mute.berlin", false, "", "", uid.Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}
-	bob, err := uid.Create("bob@mute.one", false, "", "", uid.Strict, cipher.RandReader)
+	bob, err := uid.Create("bob@mute.one", false, "", "", uid.Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -179,11 +182,13 @@ func TestPublicUID(t *testing.T) {
 	}
 	defer os.RemoveAll(tmpdir)
 	defer keyDB.Close()
-	a1, err := uid.Create("alice@mute.berlin", false, "", "", uid.Strict, cipher.RandReader)
+	a1, err := uid.Create("alice@mute.berlin", false, "", "", uid.Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}
-	a2, err := uid.Create("alice@mute.berlin", false, "", "", uid.Strict, cipher.RandReader)
+	a2, err := uid.Create("alice@mute.berlin", false, "", "", uid.Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -219,7 +224,8 @@ func TestPrivateKeyInit(t *testing.T) {
 	}
 	defer os.RemoveAll(tmpdir)
 	defer keyDB.Close()
-	msg, err := uid.Create("keydb@mute.berlin", false, "", "", uid.Strict, cipher.RandReader)
+	msg, err := uid.Create("keydb@mute.berlin", false, "", "", uid.Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -253,7 +259,8 @@ func TestPublicKeyInit(t *testing.T) {
 	}
 	defer os.RemoveAll(tmpdir)
 	defer keyDB.Close()
-	msg, err := uid.Create("keydb@mute.berlin", false, "", "", uid.Strict, cipher.RandReader)
+	msg, err := uid.Create("keydb@mute.berlin", false, "", "", uid.Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -357,7 +364,7 @@ func TestSessions(t *testing.T) {
 	}
 }
 
-var hashchain = []string{
+var testHashchain = []string{
 	"fL50mQtsX4/YSme3gheDTwDrvCYMYhn6A7C0nD101KAC9PP4h6aT9PgvWYD4kNkJI2nV8WThXG11Rd4Lc6uhVMOKDBBeP3140//ovQ0xALyZqlSB3Elfh1drb/CuFPFpxpkiZn12VgsY+da7o8TG0moycB66vBqwNsghTak87La6PY9MX7lPHfcdVSlFZPH3fJyxzh3060dK",
 	"5u+0soN4VL5eozvRFDefcvmnSXgYmqSurB/UNsFf0HMCWdSBJxuuVzGefoKFXhgaae5FBE8lVOyQYc6WQnl1nXTN0MWfWixRloS0kkikyr+MlLdN9WHUWDAxHriJg+NrnpB/s9LGeCO0J+PMhd+pG8dpVW42o0WZJxHjisP+nm26ixzYOmPxe3AhhspfK8IPbIUndhLp7rJy",
 	"4iUBVqUhQ4ZeB8drUjv6jQOXKg+ovqGKu9YZcXr2UbECEKedm1TmVFrVaQYDZL5XYOADFV8zXO7pjwM5bcK18l7A0eoiOw6bE15uzWJvqJJpAcBRx0cL3sSJUXWYivCgav0Yrm/+eczsgyvtBgXzD6bICo/6jb1SDc5a6uN3hM95/SnSkMoJFnfWX1AMc6V3djC0UVqXGZHa",
@@ -371,7 +378,7 @@ func TestHashchain(t *testing.T) {
 	}
 	defer os.RemoveAll(tmpdir)
 	defer keyDB.Close()
-	for i, v := range hashchain {
+	for i, v := range testHashchain {
 		if err := keyDB.AddHashChainEntry("mute.berlin", uint64(i), v); err != nil {
 			t.Fatal(err)
 		}
@@ -393,7 +400,7 @@ func TestHashchain(t *testing.T) {
 	if found {
 		t.Error("entry should not exist")
 	}
-	for i, v := range hashchain {
+	for i, v := range testHashchain {
 		entry, err := keyDB.GetHashChainEntry("mute.berlin", uint64(i))
 		if err != nil {
 			t.Fatal(err)
@@ -406,7 +413,7 @@ func TestHashchain(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if last != hashchain[len(hashchain)-1] {
+	if last != testHashchain[len(testHashchain)-1] {
 		t.Errorf("last hash chain entry differs")
 	}
 	_, err = keyDB.GetLastHashChainEntry("gmail.rocks")

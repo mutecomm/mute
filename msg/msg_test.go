@@ -13,6 +13,7 @@ import (
 	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
+	"github.com/mutecomm/mute/keyserver/hashchain"
 	"github.com/mutecomm/mute/uid"
 	"github.com/mutecomm/mute/util/fuzzer"
 	"github.com/mutecomm/mute/util/msgs"
@@ -26,11 +27,13 @@ func discardSession(identity, partner, rootKeyHash, chainKey string,
 
 func encrypt(sign bool, flipUIDs bool) (sender *uid.Message, recipient *uid.Message,
 	w bytes.Buffer, recipientTemp *uid.KeyEntry, privateKey string, err error) {
-	sender, err = uid.Create("alice@mute.berlin", false, "", "", uid.Strict, cipher.RandReader)
+	sender, err = uid.Create("alice@mute.berlin", false, "", "", uid.Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		return
 	}
-	recipient, err = uid.Create("bob@mute.berlin", false, "", "", uid.Strict, cipher.RandReader)
+	recipient, err = uid.Create("bob@mute.berlin", false, "", "", uid.Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		return
 	}
