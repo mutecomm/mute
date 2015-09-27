@@ -14,7 +14,6 @@ type Capabilities struct {
 	KEYINITREPOSITORYURIS []string // KeyInit repository URIs
 	KEYHASHCHAINURIS      []string // Key Hashchain URIs
 	KEYHASHCHAINENTRY     string   // last Key Hashchain entry
-	KEYHASHCHAINPOSITION  uint64   // last Key Hashchain position
 	TKNPUBKEY             string   // public wallet key for key server payment tokens
 	// TODO: can be more than one key?
 	SIGPUBKEY string // public signature key(s) of keyserver

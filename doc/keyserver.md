@@ -108,7 +108,6 @@ Return keyserver capabilities:
 - KeyInit Repository URIs
 - Key Hashchain URIs
 - last Key Hashchain entry
-- last Key Hashchain position
 - public wallet key of keyserver
 - public signature key(s) of keyserver
 
