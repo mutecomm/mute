@@ -28,17 +28,17 @@ const ProtocolVersion = "1.0"
 type PFSPreference int
 
 const (
-	// Strict PFS preference.
-	Strict PFSPreference = iota
 	// Mandatory PFS preference.
-	Mandatory
+	Mandatory PFSPreference = iota
+	// Strict PFS preference.
+	Strict
 	// Optional PFS preference.
 	Optional
 )
 
 var pfsPreferences = []string{
-	"strict",
 	"mandatory",
+	"strict",
 	"optional",
 }
 
