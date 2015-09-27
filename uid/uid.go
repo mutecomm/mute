@@ -125,7 +125,7 @@ func Create(
 	var err error
 	// check user ID (identity)
 	if err := identity.IsMapped(userID); err != nil {
-		return nil, err
+		return nil, log.Error(err)
 	}
 	msg.UIDContent.VERSION = ProtocolVersion
 	msg.UIDContent.MSGCOUNT = 0                            // TODO: first UIDMessage
@@ -194,6 +194,9 @@ func (msg *Message) Check() error {
 			return log.Errorf("uid: NYMADDRESS must be null, if FORWARDSEC is not \"%s\"",
 				optional)
 		}
+	}
+	if err := identity.IsMapped(msg.UIDContent.IDENTITY); err != nil {
+		return log.Error(err)
 	}
 	// version 1.0 specific checks
 	return msg.checkV1_0()
