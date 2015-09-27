@@ -11,6 +11,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"io"
+	"reflect"
 
 	"github.com/fatih/structs"
 	"github.com/mutecomm/mute/cipher"
@@ -29,6 +30,7 @@ import (
 //   - UIDContent.PREFERENCES.FORWARDSEC must be "strict".
 //   - UIDContent.PUBKEYS contains exactly one ECDHE25519 key for the default ciphersuite.
 //   - UIDContent.SIGESCROW must be zero-value.
+//   - UIDContent.CHAINLINK must be zero-value.
 const ProtocolVersion = "1.0"
 
 // PFSPreference representes a PFS preference.
@@ -162,7 +164,7 @@ func Create(
 	// TODO: REPOURIS
 	msg.UIDContent.PREFERENCES.FORWARDSEC = pfsPreference.String()
 	msg.UIDContent.PREFERENCES.CIPHERSUITES = []string{DefaultCiphersuite}
-	// TODO: CHAINLINK
+	// TODO: CHAINLINK (later protocol version)
 
 	// TODO: ESCROWSIGNATURE
 	// TODO: USERSIGNATURE
@@ -197,6 +199,10 @@ func (msg *Message) checkV1_0() error {
 		msg.UIDContent.SIGESCROW.HASH != "" ||
 		msg.UIDContent.SIGESCROW.PUBKEY != "" {
 		return log.Error("uid: UIDContent.SIGESCROW must be zero-value")
+	}
+	// UIDContent.CHAINLINK must be zero-value
+	if !reflect.DeepEqual(msg.UIDContent.CHAINLINK, chainlink{}) {
+		return log.Error("uid UIDContent.CHAINLINK must be zero-value")
 	}
 	return nil
 }
