@@ -11,10 +11,14 @@ import (
 	"github.com/mutecomm/mute/encdb"
 )
 
+// Version is the current msgdb version.
+const Version = "1"
+
 // Entries in KeyValueTable.
 const (
-	WalletKey = "WalletKey" // 64-byte private Ed25519 wallet key, base64 encoded.
-	ActiveUID = "ActiveUID" // the active UID.
+	DBVersion = "Version"   // version string of msgdb
+	WalletKey = "WalletKey" // 64-byte private Ed25519 wallet key, base64 encoded
+	ActiveUID = "ActiveUID" // the active UID
 )
 
 const (
@@ -248,7 +252,7 @@ type MsgDB struct {
 // Create returns a new message database with the given dbname.
 // It is encrypted by passphrase (processed by a KDF with iter many iterations).
 func Create(dbname string, passphrase []byte, iter int) error {
-	return encdb.Create(dbname, passphrase, iter, []string{
+	err := encdb.Create(dbname, passphrase, iter, []string{
 		createQueryKeyValue,
 		createQueryNyms,
 		createQueryContacts,
@@ -260,6 +264,27 @@ func Create(dbname string, passphrase []byte, iter int) error {
 		createQueryInQueue,
 		createMessageIDCache,
 	})
+	if err != nil {
+		return err
+	}
+	msgDB, err := Open(dbname, passphrase)
+	if err != nil {
+		return err
+	}
+	defer msgDB.Close()
+	if err := msgDB.AddValue(DBVersion, Version); err != nil {
+		return err
+	}
+	return nil
+}
+
+// version returns the version of msgDB.
+func (msgDB *MsgDB) version() (string, error) {
+	version, err := msgDB.GetValue(DBVersion)
+	if err != nil {
+		return "", err
+	}
+	return version, nil
 }
 
 // Open opens the message database with dbname and passphrase.

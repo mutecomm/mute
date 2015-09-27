@@ -40,6 +40,13 @@ func TestHelper(t *testing.T) {
 	if msgDB.DB() != msgDB.encDB {
 		t.Error("msgDB.DB() != msgDB.encDB")
 	}
+	version, err := msgDB.version()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if version != Version {
+		t.Errorf("msgDB.version() != %s", Version)
+	}
 }
 
 func TestRekey(t *testing.T) {
