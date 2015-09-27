@@ -11,10 +11,12 @@ import (
 
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
+	"github.com/mutecomm/mute/keyserver/hashchain"
 )
 
 func TestUIDMessage(t *testing.T) {
-	uid, err := Create("test@mute.berlin", false, "", "", Strict, cipher.RandReader)
+	uid, err := Create("test@mute.berlin", false, "", "", Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -64,7 +66,8 @@ func TestUIDMessage(t *testing.T) {
 }
 
 func TestIncrementCheck(t *testing.T) {
-	uid, err := Create("test@mute.berlin", false, "", "", Strict, cipher.RandReader)
+	uid, err := Create("test@mute.berlin", false, "", "", Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,7 +88,8 @@ func TestIncrementCheck(t *testing.T) {
 }
 
 func TestSelfSig(t *testing.T) {
-	uid, err := Create("test@mute.berlin", false, "", "", Strict, cipher.RandReader)
+	uid, err := Create("test@mute.berlin", false, "", "", Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -105,7 +109,8 @@ func TestSelfSig(t *testing.T) {
 }
 
 func TestUserSig(t *testing.T) {
-	uid, err := Create("test@mute.berlin", false, "", "", Strict, cipher.RandReader)
+	uid, err := Create("test@mute.berlin", false, "", "", Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -129,16 +134,19 @@ func TestUserSig(t *testing.T) {
 }
 
 func TestEscrow(t *testing.T) {
-	if _, err := Create("test@mute.berlin", true, "", "", Strict, cipher.RandReader); err != nil {
+	if _, err := Create("test@mute.berlin", true, "", "", Strict,
+		hashchain.TestEntry, cipher.RandReader); err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestCreateFail(t *testing.T) {
-	if _, err := Create("test@mute.berlin", false, "", "", Strict, cipher.RandFail); err == nil {
+	if _, err := Create("test@mute.berlin", false, "", "", Strict,
+		hashchain.TestEntry, cipher.RandFail); err == nil {
 		t.Error("should fail")
 	}
-	if _, err := Create("test@mute.berlin", true, "", "", Strict, io.LimitReader(cipher.RandReader, 1)); err == nil {
+	if _, err := Create("test@mute.berlin", true, "", "", Strict,
+		hashchain.TestEntry, io.LimitReader(cipher.RandReader, 1)); err == nil {
 		t.Error("should fail")
 	}
 	if _, err := NewJSON(""); err == nil {
@@ -150,7 +158,8 @@ func TestCreateFail(t *testing.T) {
 }
 
 func TestUIDMessageReply(t *testing.T) {
-	uid, err := Create("alice@mute.berlin", false, "", "", Strict, cipher.RandReader)
+	uid, err := Create("alice@mute.berlin", false, "", "", Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -216,7 +225,8 @@ func TestUIDMessageReply(t *testing.T) {
 }
 
 func TestNonceSignature(t *testing.T) {
-	msg, err := Create("test@mute.berlin", false, "", "", Strict, cipher.RandReader)
+	msg, err := Create("test@mute.berlin", false, "", "", Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -236,7 +246,8 @@ func TestNonceSignature(t *testing.T) {
 }
 
 func TestSigKeyHash(t *testing.T) {
-	msg, err := Create("alice@mute.berlin", false, "", "", Strict, cipher.RandReader)
+	msg, err := Create("alice@mute.berlin", false, "", "", Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}

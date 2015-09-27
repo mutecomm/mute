@@ -16,6 +16,7 @@ import (
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode"
 	"github.com/mutecomm/mute/encode/base64"
+	"github.com/mutecomm/mute/keyserver/hashchain"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/uid/identity"
 	"github.com/mutecomm/mute/util/times"
@@ -121,6 +122,7 @@ func Create(
 	sigescrow bool,
 	mixaddress, nymaddress string,
 	pfsPreference PFSPreference,
+	lastEntry string,
 	rand io.Reader,
 ) (*Message, error) {
 	var msg Message
@@ -153,7 +155,10 @@ func Create(
 			return nil, err
 		}
 	}
-	// TODO: LASTENTRY
+	if _, _, _, _, _, _, err := hashchain.SplitEntry(lastEntry); err != nil {
+		return nil, err
+	}
+	msg.UIDContent.LASTENTRY = lastEntry
 	// TODO: REPOURIS
 	msg.UIDContent.PREFERENCES.FORWARDSEC = pfsPreference.String()
 	msg.UIDContent.PREFERENCES.CIPHERSUITES = []string{DefaultCiphersuite}
@@ -224,6 +229,11 @@ func (msg *Message) Check() error {
 	}
 	if msg.UIDContent.SIGKEY.FUNCTION != "ED25519" {
 		return log.Error("uid: UIDContent.SIGKEY.FUNCTION != \"ED25519\"")
+	}
+	// make sure LASTENTRY is parseable
+	_, _, _, _, _, _, err := hashchain.SplitEntry(msg.UIDContent.LASTENTRY)
+	if err != nil {
+		return err
 	}
 	// version 1.0 specific checks
 	return msg.checkV1_0()

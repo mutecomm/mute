@@ -10,13 +10,15 @@ import (
 
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
+	"github.com/mutecomm/mute/keyserver/hashchain"
 	"github.com/mutecomm/mute/util/times"
 	"golang.org/x/crypto/curve25519"
 )
 
 func TestKeyEntry(t *testing.T) {
 	// create UID message
-	msg, err := Create("alice@mute.berlin", false, "", "", Strict, cipher.RandReader)
+	msg, err := Create("alice@mute.berlin", false, "", "", Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}

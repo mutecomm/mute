@@ -24,13 +24,18 @@ func (ce *CryptEngine) generate(
 	outputfp *os.File,
 ) error {
 	// map pseudonym
-	id, err := identity.Map(pseudonym)
+	id, domain, err := identity.MapPlus(pseudonym)
 	if err != nil {
 		return err
 	}
 	// create new UID
 	// TODO: allow different PFS preferences
-	uid, err := uid.Create(id, false, "", "", uid.Strict, cipher.RandReader)
+	lastEntry, err := ce.keyDB.GetLastHashChainEntry(domain)
+	if err != nil {
+		return err
+	}
+	uid, err := uid.Create(id, false, "", "", uid.Strict, lastEntry,
+		cipher.RandReader)
 	if err != nil {
 		return err
 	}

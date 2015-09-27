@@ -13,11 +13,13 @@ import (
 	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
+	"github.com/mutecomm/mute/keyserver/hashchain"
 	"github.com/mutecomm/mute/util/times"
 )
 
 func TestKeyInitSuccess(t *testing.T) {
-	msg, err := Create("test@mute.berlin", false, "", "", Strict, cipher.RandReader)
+	msg, err := Create("test@mute.berlin", false, "", "", Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -63,7 +65,8 @@ func TestKeyInitSuccess(t *testing.T) {
 }
 
 func TestExpired(t *testing.T) {
-	msg, err := Create("test@mute.berlin", false, "", "", Strict, cipher.RandReader)
+	msg, err := Create("test@mute.berlin", false, "", "", Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -84,7 +87,8 @@ func TestExpired(t *testing.T) {
 }
 
 func TestKeyInitFailure(t *testing.T) {
-	msg, err := Create("test@mute.berlin", false, "", "", Strict, cipher.RandReader)
+	msg, err := Create("test@mute.berlin", false, "", "", Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -120,11 +124,13 @@ func TestKeyInitFailure(t *testing.T) {
 }
 
 func TestVerifyFailure(t *testing.T) {
-	msg, err := Create("test@mute.berlin", false, "", "", Strict, cipher.RandReader)
+	msg, err := Create("test@mute.berlin", false, "", "", Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}
-	other, err := Create("other@mute.berlin", false, "", "", Strict, cipher.RandReader)
+	other, err := Create("other@mute.berlin", false, "", "", Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -176,7 +182,8 @@ func TestVerifyFailure(t *testing.T) {
 }
 
 func TestVerifySrvSigfailure(t *testing.T) {
-	msg, err := Create("test@mute.berlin", false, "", "", Strict, cipher.RandReader)
+	msg, err := Create("test@mute.berlin", false, "", "", Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -214,7 +221,8 @@ func TestVerifySrvSigfailure(t *testing.T) {
 
 func TestSessionAnchor(t *testing.T) {
 	// create UID message
-	msg, err := Create("alice@mute.berlin", false, "", "", Strict, cipher.RandReader)
+	msg, err := Create("alice@mute.berlin", false, "", "", Strict,
+		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}

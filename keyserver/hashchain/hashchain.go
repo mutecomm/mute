@@ -12,6 +12,9 @@ import (
 	"github.com/mutecomm/mute/log"
 )
 
+// TestEntry is a parseable hashchain entry for tests.
+const TestEntry = "PxIx7lxwcKB3vmPLGzqm3alBCBkHbD89qRBWs7+N8yMB6QEQSe7yf4BrMISdYWeF/Ycm7tKzb6q8LZgdjtTHHAFSkuD/Q3aUITVhT19g5WKwEZ1TlMH0n7ymEEVVhW/PtEDOO/uMoEOKTTvwQp6QA2NE1GYYqhzBtQNHawFtw5NUnupGnDV+QqpJrSUoe/vkXnWZfDiY9Q1W"
+
 // Type denotes the current hash chain type.
 var Type = []byte{0x01}
 
@@ -20,7 +23,7 @@ var Type = []byte{0x01}
 func SplitEntry(entry string) (hash, typ, nonce, hashID, crUID, uidIndex []byte, err error) {
 	e, err := base64.Decode(entry)
 	if err != nil {
-		return nil, nil, nil, nil, nil, nil, err
+		return nil, nil, nil, nil, nil, nil, log.Error(err)
 	}
 	if len(e) != 153 {
 		return nil, nil, nil, nil, nil, nil,
