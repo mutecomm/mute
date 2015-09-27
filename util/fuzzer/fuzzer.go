@@ -1,3 +1,7 @@
+// Copyright (c) 2015 Mute Communications Ltd.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 // Package fuzzer provides a sequential fuzzer for testing purposes.
 package fuzzer
 

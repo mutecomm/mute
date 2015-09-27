@@ -1,3 +1,7 @@
+// Copyright (c) 2015 Mute Communications Ltd.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 // mutegenerate can be used by go:generate to generate code that includes the
 // current git HEAD commit hash and date as constants.
 package main

@@ -1,3 +1,7 @@
+// Copyright (c) 2015 Mute Communications Ltd.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 // Package json2 contains a JSON-RPC over HTTPS client for Mute.
 package json2
 

@@ -1,3 +1,7 @@
+// Copyright (c) 2015 Mute Communications Ltd.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 // Package signkeys implements key generation and verification methods for keys suitable for blind signature creation
 package signkeys
 

@@ -1,3 +1,7 @@
+// Copyright (c) 2015 Mute Communications Ltd.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 // Package client implements a serviceguard client with wallet backend. It offers methods to
 // fetch tokens from the walletserver, reissue tokens for use with services and receive tokens as a service.
 // It furthermore implements functions for wallet housekeeping.

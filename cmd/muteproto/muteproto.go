@@ -1,3 +1,7 @@
+// Copyright (c) 2015 Mute Communications Ltd.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 // muteproto implements the Mute message protocol for sending and receiving
 // encrypted messages.
 package main

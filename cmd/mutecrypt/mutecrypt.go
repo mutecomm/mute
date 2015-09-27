@@ -1,3 +1,7 @@
+// Copyright (c) 2015 Mute Communications Ltd.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 // mutecrypt is the crypt tool for Mute which handles message encryption, message decryption and key management.
 package main
 

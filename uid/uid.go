@@ -1,3 +1,7 @@
+// Copyright (c) 2015 Mute Communications Ltd.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 // Package uid defines user IDs in Mute and necessary long-term and short-term
 // key material.
 package uid
