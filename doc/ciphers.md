@@ -39,9 +39,8 @@ ECIES25519 KDF3 AES-CTR256 SHA512-HMAC ED25519 ECDHE25519
 
 ### Encodings
 
-- Base64 (message encoding, UID-Message encoding). Included in Go.
-- HEX.
-- Decimal Integer.
+- Base64 (message encoding, UID-Message encoding).
+- Hexadecimal encoding.
 
 
 ### CKDF: cheap key derivation function
