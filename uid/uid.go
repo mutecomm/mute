@@ -25,7 +25,8 @@ import (
 //
 // Version 1.0 has the following peculiarities:
 //
-//   - UIDContent.PREFERENCES.FORWARDSEC must be "strict"
+//   - UIDContent.PREFERENCES.FORWARDSEC must be "strict".
+//   - UIDContent.PUBKEYS contains exactly one ECDHE25519 key for the default ciphersuite.
 const ProtocolVersion = "1.0"
 
 // PFSPreference representes a PFS preference.
@@ -172,6 +173,17 @@ func (msg *Message) checkV1_0() error {
 	strict := Strict.String()
 	if msg.UIDContent.PREFERENCES.FORWARDSEC != strict {
 		return log.Errorf("uid: FORWARDSEC must be \"%s\"", strict)
+	}
+	// UIDContent.PUBKEYS contains exactly one ECDHE25519 key for the default
+	// ciphersuite
+	if len(msg.UIDContent.PUBKEYS) != 1 {
+		return log.Error("uid: UIDContent.PUBKEYS must contain exactly one key")
+	}
+	if msg.UIDContent.PUBKEYS[0].CIPHERSUITE != DefaultCiphersuite {
+		return log.Error("uid: UIDContent.PUBKEYS[0].CIPHERSUITE != DefaultCiphersuite")
+	}
+	if msg.UIDContent.PUBKEYS[0].FUNCTION != "ECDHE25519" {
+		return log.Error("uid: UIDContent.PUBKEYS[0].FUNCTION != \"ECDHE25519\"")
 	}
 	return nil
 }
