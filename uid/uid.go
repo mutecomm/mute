@@ -22,6 +22,10 @@ import (
 )
 
 // The current version of the protocol.
+//
+// Version 1.0 has the following peculiarities:
+//
+//   - UIDContent.PREFERENCES.FORWARDSEC must be "strict"
 const ProtocolVersion = "1.0"
 
 // PFSPreference representes a PFS preference.
@@ -123,6 +127,7 @@ func Create(
 	if err := identity.IsMapped(userID); err != nil {
 		return nil, err
 	}
+	msg.UIDContent.VERSION = ProtocolVersion
 	msg.UIDContent.MSGCOUNT = 0                            // TODO: first UIDMessage
 	msg.UIDContent.NOTAFTER = uint64(times.OneYearLater()) // TODO: make this settable!
 	msg.UIDContent.NOTBEFORE = 0                           // TODO: make this settable
@@ -162,10 +167,36 @@ func Create(
 	return &msg, nil
 }
 
+func (msg *Message) checkV1_0() error {
+	// UIDContent.PREFERENCES.FORWARDSEC must be "strict"
+	strict := Strict.String()
+	if msg.UIDContent.PREFERENCES.FORWARDSEC != strict {
+		return log.Errorf("uid: FORWARDSEC must be \"%s\"", strict)
+	}
+	return nil
+}
+
 // Check that the content of the UID message is consistent with it's version.
 func (msg *Message) Check() error {
-	// TODO: implement
-	return nil
+	// we only support version 1.0 at this stage
+	if msg.UIDContent.VERSION != "1.0" {
+		return log.Errorf("uid: unknown UIDContentVersion: %s",
+			msg.UIDContent.VERSION)
+	}
+	// generic checks
+	optional := Optional.String()
+	if msg.UIDContent.PREFERENCES.FORWARDSEC != optional {
+		if msg.UIDContent.MIXADDRESS != "" {
+			return log.Errorf("uid: MIXADDRESS must be null, if FORWARDSEC is not \"%s\"",
+				optional)
+		}
+		if msg.UIDContent.NYMADDRESS != "" {
+			return log.Errorf("uid: NYMADDRESS must be null, if FORWARDSEC is not \"%s\"",
+				optional)
+		}
+	}
+	// version 1.0 specific checks
+	return msg.checkV1_0()
 }
 
 // Encrypt encryptes the given UID message.

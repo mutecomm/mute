@@ -276,8 +276,9 @@ struct UIDMessage {
     NOTBEFORE: 64bit unixtime before which the key(s) offered by the message
                should not be used yet. Encoded as JSON integer.
     MIXADDRESS: Fully qualified address of Mix to use as last hop to user.
-                String.
-    NYMADDRESS: A valid NymAddress. Base64. OPTIONAL. Must be "NULL" if empty.
+                String. Must be "NULL", if FORWARDSEC is not "optional".
+    NYMADDRESS: A valid NymAddress. Base64. OPTIONAL.
+                Must be "NULL", if FORWARDSEC is not "optional".
     IDENTITY: Identity/Pseudonym claimed. Including domain. String.
     SIGKEY: Entry of type KeyEntry (see above). Used to sign the UIDContent and
             to authenticate future UIDMessages for this Identity.

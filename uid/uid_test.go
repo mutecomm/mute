@@ -18,6 +18,9 @@ func TestUIDMessage(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if err := uid.Check(); err != nil {
+		t.Error(err)
+	}
 	if uid.Localpart() != "test" {
 		t.Errorf("wrong localpart")
 	}
