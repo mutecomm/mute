@@ -162,6 +162,12 @@ func Create(
 	return &msg, nil
 }
 
+// Check that the content of the UID message is consistent with it's version.
+func (msg *Message) Check() error {
+	// TODO: implement
+	return nil
+}
+
 // Encrypt encryptes the given UID message.
 func (msg *Message) Encrypt() (UIDHash, UIDIndex []byte, UIDMessageEncrypted string) {
 	Message := msg.JSON()
