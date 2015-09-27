@@ -238,7 +238,7 @@ func (ce *CryptEngine) verifyServerSig(
 	position uint64,
 ) error {
 	// For the first keyserver message we do not need to verify the server signature
-	if uid.Localpart() == "keyserver" && uid.UIDCONTENT.MSGCOUNT == 0 {
+	if uid.Localpart() == "keyserver" && uid.UIDContent.MSGCOUNT == 0 {
 		return nil
 	}
 
@@ -252,7 +252,7 @@ func (ce *CryptEngine) verifyServerSig(
 	}
 
 	// Verify server signature
-	if err := msgReply.VerifySrvSig(uid, srvUID.UIDCONTENT.SIGKEY.PUBKEY); err != nil {
+	if err := msgReply.VerifySrvSig(uid, srvUID.UIDContent.SIGKEY.PUBKEY); err != nil {
 		return log.Error(err)
 	}
 	return nil

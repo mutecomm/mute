@@ -52,7 +52,7 @@ func (ce *CryptEngine) addKeyInit(pseudonym, mixaddress, nymaddress, token strin
 	log.Infof("cryptengine: returned sigpubkey: %s", caps.SIGPUBKEY)
 	// call server
 	content := make(map[string]interface{})
-	content["SigPubKey"] = msg.UIDCONTENT.SIGKEY.PUBKEY
+	content["SigPubKey"] = msg.UIDContent.SIGKEY.PUBKEY
 	content["KeyInits"] = kis
 	content["Tokens"] = tokens
 	reply, err := client.JSONRPCRequest("KeyInitRepository.AddKeyInit", content)
@@ -62,7 +62,7 @@ func (ce *CryptEngine) addKeyInit(pseudonym, mixaddress, nymaddress, token strin
 	// verify server signatures
 	sigs, ok := reply["Signatures"].([]interface{})
 	if !ok {
-		return log.Errorf("cryptengine: could not add key inits for '%s'", msg.UIDCONTENT.IDENTITY)
+		return log.Errorf("cryptengine: could not add key inits for '%s'", msg.UIDContent.IDENTITY)
 	}
 	if len(kis) != len(sigs) {
 		return log.Error("cryptengine: number of returned signatures does not equal number of sent key init messages")
@@ -155,7 +155,7 @@ func (ce *CryptEngine) flushKeyInit(pseudonym string) error {
 	// call server
 	content := make(map[string]interface{})
 	nonce, signature := msg.SignNonce()
-	content["SigPubKey"] = msg.UIDCONTENT.SIGKEY.PUBKEY
+	content["SigPubKey"] = msg.UIDContent.SIGKEY.PUBKEY
 	content["Nonce"] = nonce
 	content["Signature"] = signature
 	_, err = client.JSONRPCRequest("KeyInitRepository.FlushKeyInit", content)

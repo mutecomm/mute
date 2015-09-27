@@ -277,7 +277,7 @@ func (msg *Message) KeyInit(
 	keyInit.CONTENTS.NOTAFTER = notafter
 	keyInit.CONTENTS.NOTBEFORE = notbefore
 	keyInit.CONTENTS.FALLBACK = fallback
-	keyHash, err := base64.Decode(msg.UIDCONTENT.SIGKEY.HASH)
+	keyHash, err := base64.Decode(msg.UIDContent.SIGKEY.HASH)
 	if err != nil {
 		return nil, "", "", err
 	}
@@ -293,7 +293,7 @@ func (msg *Message) KeyInit(
 	keyInit.CONTENTS.SESSIONANCHORHASH = sah
 	// sign KeyInit: the content doesn't have to be hashed, because Ed25519 is
 	// already taking care of that.
-	sig := msg.UIDCONTENT.SIGKEY.ed25519Key.Sign(keyInit.CONTENTS.json())
+	sig := msg.UIDContent.SIGKEY.ed25519Key.Sign(keyInit.CONTENTS.json())
 	keyInit.SIGNATURE = base64.Encode(sig)
 	ki = &keyInit
 	return

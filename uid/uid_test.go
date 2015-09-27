@@ -95,7 +95,7 @@ func TestSelfSig(t *testing.T) {
 		t.Error("should fail")
 	}
 	uid.SELFSIGNATURE = ""
-	uid.UIDCONTENT.SIGKEY.PUBKEY = "!"
+	uid.UIDContent.SIGKEY.PUBKEY = "!"
 	if err := uid.VerifySelfSig(); err == nil {
 		t.Error("should fail")
 	}
@@ -119,7 +119,7 @@ func TestUserSig(t *testing.T) {
 		t.Error("should fail")
 	}
 	up.USERSIGNATURE = ""
-	uid.UIDCONTENT.SIGKEY.PUBKEY = "!"
+	uid.UIDContent.SIGKEY.PUBKEY = "!"
 	if err := up.VerifyUserSig(uid); err == nil {
 		t.Error("should fail")
 	}
@@ -218,16 +218,16 @@ func TestNonceSignature(t *testing.T) {
 		t.Fatal(err)
 	}
 	nonce, signature := msg.SignNonce()
-	if err := VerifyNonce(msg.UIDCONTENT.SIGKEY.PUBKEY, nonce, signature); err != nil {
+	if err := VerifyNonce(msg.UIDContent.SIGKEY.PUBKEY, nonce, signature); err != nil {
 		t.Error(err)
 	}
-	if err := VerifyNonce(msg.UIDCONTENT.SIGKEY.PUBKEY, nonce, "!"); err == nil {
+	if err := VerifyNonce(msg.UIDContent.SIGKEY.PUBKEY, nonce, "!"); err == nil {
 		t.Error("should fail")
 	}
 	if err := VerifyNonce("!", nonce, signature); err == nil {
 		t.Error("should fail")
 	}
-	if err := VerifyNonce(msg.UIDCONTENT.SIGKEY.PUBKEY, nonce+1, signature); err != ErrInvalidNonceSig {
+	if err := VerifyNonce(msg.UIDContent.SIGKEY.PUBKEY, nonce+1, signature); err != ErrInvalidNonceSig {
 		t.Error("should fail")
 	}
 }

@@ -57,7 +57,7 @@ func newHeader(sender, recipient *uid.Message,
 		SenderIdentityPub:           *sender.PubKey(),
 		NextSenderSessionPub:        nextSenderSessionPub,
 		NextRecipientSessionPubSeen: nextRecipientSessionPubSeen,
-		NymAddress:                  sender.UIDCONTENT.NYMADDRESS,
+		NymAddress:                  sender.UIDContent.NYMADDRESS,
 		MaxDelay:                    0, // TODO
 		SenderSessionCount:          0, // TODO
 		SenderMessageCount:          0, // TODO

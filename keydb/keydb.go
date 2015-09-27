@@ -287,8 +287,8 @@ func (keyDB *KeyDB) Incremental(pages int64) error {
 // AddPrivateUID adds a private uid to keyDB.
 func (keyDB *KeyDB) AddPrivateUID(msg *uid.Message) error {
 	_, err := keyDB.addPrivateUIDQuery.Exec(
-		msg.UIDCONTENT.IDENTITY,
-		msg.UIDCONTENT.MSGCOUNT,
+		msg.UIDContent.IDENTITY,
+		msg.UIDContent.MSGCOUNT,
 		msg.JSON(),
 		msg.PrivateSigKey(),
 		msg.PrivateEncKey(),
@@ -477,8 +477,8 @@ func (keyDB *KeyDB) GetPublicKeyInit(sigKeyHash string) (*uid.KeyInit, error) {
 // keyDB.
 func (keyDB *KeyDB) AddPublicUID(msg *uid.Message, position uint64) error {
 	_, err := keyDB.addPublicUIDQuery.Exec(
-		msg.UIDCONTENT.IDENTITY,
-		msg.UIDCONTENT.MSGCOUNT,
+		msg.UIDContent.IDENTITY,
+		msg.UIDContent.MSGCOUNT,
 		position,
 		msg.JSON(),
 	)

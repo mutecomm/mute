@@ -80,7 +80,7 @@ type uidContent struct {
 // Message is a UIDMessage to be sent from user to key server.
 // It represents a user ID in Mute and contains long-term keys.
 type Message struct {
-	UIDCONTENT uidContent
+	UIDContent uidContent
 	// Signature over UIDContent by previous SIGESCROW.
 	ESCROWSIGNATURE string
 	// Signature over UIDContent by previous SIGKEY.
@@ -123,39 +123,39 @@ func Create(
 	if err := identity.IsMapped(userID); err != nil {
 		return nil, err
 	}
-	msg.UIDCONTENT.MSGCOUNT = 0                            // TODO: first UIDMessage
-	msg.UIDCONTENT.NOTAFTER = uint64(times.OneYearLater()) // TODO: make this settable!
-	msg.UIDCONTENT.NOTBEFORE = 0                           // TODO: make this settable
+	msg.UIDContent.MSGCOUNT = 0                            // TODO: first UIDMessage
+	msg.UIDContent.NOTAFTER = uint64(times.OneYearLater()) // TODO: make this settable!
+	msg.UIDContent.NOTBEFORE = 0                           // TODO: make this settable
 	if pfsPreference == Optional {
-		msg.UIDCONTENT.MIXADDRESS = mixaddress
-		msg.UIDCONTENT.NYMADDRESS = nymaddress
+		msg.UIDContent.MIXADDRESS = mixaddress
+		msg.UIDContent.NYMADDRESS = nymaddress
 	} else {
-		msg.UIDCONTENT.MIXADDRESS = ""
-		msg.UIDCONTENT.NYMADDRESS = ""
+		msg.UIDContent.MIXADDRESS = ""
+		msg.UIDContent.NYMADDRESS = ""
 	}
-	msg.UIDCONTENT.IDENTITY = userID
-	if err = msg.UIDCONTENT.SIGKEY.initSigKey(rand); err != nil {
+	msg.UIDContent.IDENTITY = userID
+	if err = msg.UIDContent.SIGKEY.initSigKey(rand); err != nil {
 		return nil, err
 	}
-	msg.UIDCONTENT.PUBKEYS = make([]KeyEntry, 1)
-	if err := msg.UIDCONTENT.PUBKEYS[0].InitDHKey(rand); err != nil {
+	msg.UIDContent.PUBKEYS = make([]KeyEntry, 1)
+	if err := msg.UIDContent.PUBKEYS[0].InitDHKey(rand); err != nil {
 		return nil, err
 	}
 	if sigescrow {
-		if err = msg.UIDCONTENT.SIGESCROW.initSigKey(rand); err != nil {
+		if err = msg.UIDContent.SIGESCROW.initSigKey(rand); err != nil {
 			return nil, err
 		}
 	}
 	// TODO: LASTENTRY
 	// TODO: REPOURIS
-	msg.UIDCONTENT.PREFERENCES.FORWARDSEC = pfsPreference.String()
-	msg.UIDCONTENT.PREFERENCES.CIPHERSUITES = []string{DefaultCiphersuite}
+	msg.UIDContent.PREFERENCES.FORWARDSEC = pfsPreference.String()
+	msg.UIDContent.PREFERENCES.CIPHERSUITES = []string{DefaultCiphersuite}
 	// TODO: CHAINLINK
 
 	// TODO: ESCROWSIGNATURE
 	// TODO: USERSIGNATURE
 
-	selfsig := msg.UIDCONTENT.SIGKEY.ed25519Key.Sign(msg.UIDCONTENT.JSON())
+	selfsig := msg.UIDContent.SIGKEY.ed25519Key.Sign(msg.UIDContent.JSON())
 	msg.SELFSIGNATURE = base64.Encode(selfsig)
 
 	// TODO: LINKAUTHORITY
@@ -186,32 +186,32 @@ func (msg *Message) Encrypt() (UIDHash, UIDIndex []byte, UIDMessageEncrypted str
 
 // Identity returns the identity of the UID message msg.
 func (msg *Message) Identity() string {
-	return msg.UIDCONTENT.IDENTITY
+	return msg.UIDContent.IDENTITY
 }
 
 // SigKeyHash returns the SIGKEYHASH which corresponds to the given UID message.
 func (msg *Message) SigKeyHash() (string, error) {
-	return SigKeyHash(msg.UIDCONTENT.SIGKEY.HASH)
+	return SigKeyHash(msg.UIDContent.SIGKEY.HASH)
 }
 
 // SigPubKey returns the public signature key which corresponds to the given
 // UID message.
 func (msg *Message) SigPubKey() string {
-	return msg.UIDCONTENT.SIGKEY.PUBKEY
+	return msg.UIDContent.SIGKEY.PUBKEY
 }
 
 // PubHash returns the public key hash which corresponds to the given UID message.
 func (msg *Message) PubHash() string {
 	// at the moment we only support one ciphersuite, therefore the index is hard-coded
 	// TODO: check function
-	return msg.UIDCONTENT.PUBKEYS[0].HASH
+	return msg.UIDContent.PUBKEYS[0].HASH
 }
 
 // PubKey returns the public key for the given UID message.
 func (msg *Message) PubKey() *KeyEntry {
 	// at the moment we only support one ciphersuite, therefore the index is hard-coded
 	// TODO: check function
-	return &msg.UIDCONTENT.PUBKEYS[0]
+	return &msg.UIDContent.PUBKEYS[0]
 }
 
 // PublicKey decodes the 32-byte public key from the given UID message and
@@ -319,14 +319,14 @@ func (reply *MessageReply) JSON() []byte {
 func (msg *Message) VerifySelfSig() error {
 	var ed25519Key cipher.Ed25519Key
 	// get content
-	content := msg.UIDCONTENT.JSON()
+	content := msg.UIDContent.JSON()
 	// get self-signature
 	selfsig, err := base64.Decode(msg.SELFSIGNATURE)
 	if err != nil {
 		return err
 	}
 	// create ed25519 key
-	pubKey, err := base64.Decode(msg.UIDCONTENT.SIGKEY.PUBKEY)
+	pubKey, err := base64.Decode(msg.UIDContent.SIGKEY.PUBKEY)
 	if err != nil {
 		return err
 	}
@@ -344,18 +344,18 @@ func (msg *Message) VerifySelfSig() error {
 func (msg *Message) VerifyUserSig(preMsg *Message) error {
 	var ed25519Key cipher.Ed25519Key
 	// check message counter
-	if preMsg.UIDCONTENT.MSGCOUNT+1 != msg.UIDCONTENT.MSGCOUNT {
+	if preMsg.UIDContent.MSGCOUNT+1 != msg.UIDContent.MSGCOUNT {
 		return log.Error(ErrIncrement)
 	}
 	// get content
-	content := msg.UIDCONTENT.JSON()
+	content := msg.UIDContent.JSON()
 	// get self-signature
 	selfsig, err := base64.Decode(msg.USERSIGNATURE)
 	if err != nil {
 		return err
 	}
 	// create ed25519 key
-	pubKey, err := base64.Decode(preMsg.UIDCONTENT.SIGKEY.PUBKEY)
+	pubKey, err := base64.Decode(preMsg.UIDContent.SIGKEY.PUBKEY)
 	if err != nil {
 		return err
 	}
@@ -372,19 +372,19 @@ func (msg *Message) VerifyUserSig(preMsg *Message) error {
 // PrivateSigKey returns the base64 encoded private signature key of the UID
 // message.
 func (msg *Message) PrivateSigKey() string {
-	return base64.Encode(msg.UIDCONTENT.SIGKEY.PrivateKey64()[:])
+	return base64.Encode(msg.UIDContent.SIGKEY.PrivateKey64()[:])
 }
 
 // PublicSigKey32 returns the 32-byte public signature key of the given UID
 // message and returns it.
 func (msg *Message) PublicSigKey32() *[32]byte {
-	return msg.UIDCONTENT.SIGKEY.PublicKey32()
+	return msg.UIDContent.SIGKEY.PublicKey32()
 }
 
 // PrivateSigKey64 returns the 64-byte private signature key of the given UID
 // message.
 func (msg *Message) PrivateSigKey64() *[64]byte {
-	return msg.UIDCONTENT.SIGKEY.PrivateKey64()
+	return msg.UIDContent.SIGKEY.PrivateKey64()
 }
 
 // SetPrivateSigKey sets the private signature key to the given base64 encoded
@@ -394,25 +394,25 @@ func (msg *Message) SetPrivateSigKey(privkey string) error {
 	if err != nil {
 		return err
 	}
-	return msg.UIDCONTENT.SIGKEY.setPrivateKey(key)
+	return msg.UIDContent.SIGKEY.setPrivateKey(key)
 }
 
 // PrivateEncKey returns the base64 encoded private encryption key of the
 // given UID message.
 func (msg *Message) PrivateEncKey() string {
-	return base64.Encode(msg.UIDCONTENT.PUBKEYS[0].PrivateKey32()[:])
+	return base64.Encode(msg.UIDContent.PUBKEYS[0].PrivateKey32()[:])
 }
 
 // PublicEncKey32 decodes the 32-byte public encryption key of the given UID
 // message and returns it.
 func (msg *Message) PublicEncKey32() *[32]byte {
-	return msg.UIDCONTENT.PUBKEYS[0].PublicKey32()
+	return msg.UIDContent.PUBKEYS[0].PublicKey32()
 }
 
 // PrivateEncKey32 decodes the 32-byte private encryption key of the given UID
 // message and returns it.
 func (msg *Message) PrivateEncKey32() *[32]byte {
-	return msg.UIDCONTENT.PUBKEYS[0].PrivateKey32()
+	return msg.UIDContent.PUBKEYS[0].PrivateKey32()
 }
 
 // SetPrivateEncKey sets the private encryption key to the given base64 encoded
@@ -422,12 +422,12 @@ func (msg *Message) SetPrivateEncKey(privkey string) error {
 	if err != nil {
 		return err
 	}
-	return msg.UIDCONTENT.PUBKEYS[0].setPrivateKey(key)
+	return msg.UIDContent.PUBKEYS[0].setPrivateKey(key)
 }
 
 // Localpart returns the localpart of the uid identity.
 func (msg *Message) Localpart() string {
-	lp, _, err := identity.Split(msg.UIDCONTENT.IDENTITY)
+	lp, _, err := identity.Split(msg.UIDContent.IDENTITY)
 	if err != nil {
 		// UID messages have to be valid
 		panic(log.Critical(err))
@@ -437,7 +437,7 @@ func (msg *Message) Localpart() string {
 
 // Domain returns the domain of the uid identity.
 func (msg *Message) Domain() string {
-	_, domain, err := identity.Split(msg.UIDCONTENT.IDENTITY)
+	_, domain, err := identity.Split(msg.UIDContent.IDENTITY)
 	if err != nil {
 		// UID messages have to be valid
 		panic(log.Critical(err))
@@ -452,20 +452,20 @@ func (msg *Message) Update(rand io.Reader) (*Message, error) {
 	// copy
 	up = *msg
 	// increase counter
-	up.UIDCONTENT.MSGCOUNT++
+	up.UIDContent.MSGCOUNT++
 	// update signature key
-	if err := up.UIDCONTENT.SIGKEY.initSigKey(rand); err != nil {
+	if err := up.UIDContent.SIGKEY.initSigKey(rand); err != nil {
 		return nil, err
 	}
-	err := up.UIDCONTENT.PUBKEYS[0].setPrivateKey(msg.UIDCONTENT.PUBKEYS[0].PrivateKey32()[:])
+	err := up.UIDContent.PUBKEYS[0].setPrivateKey(msg.UIDContent.PUBKEYS[0].PrivateKey32()[:])
 	if err != nil {
 		return nil, err
 	}
 	// self-signature
-	selfsig := up.UIDCONTENT.SIGKEY.ed25519Key.Sign(up.UIDCONTENT.JSON())
+	selfsig := up.UIDContent.SIGKEY.ed25519Key.Sign(up.UIDContent.JSON())
 	up.SELFSIGNATURE = base64.Encode(selfsig)
 	// sign with previous key
-	prevsig := msg.UIDCONTENT.SIGKEY.ed25519Key.Sign(up.UIDCONTENT.JSON())
+	prevsig := msg.UIDContent.SIGKEY.ed25519Key.Sign(up.UIDContent.JSON())
 	up.USERSIGNATURE = base64.Encode(prevsig)
 	return &up, nil
 }
@@ -473,7 +473,7 @@ func (msg *Message) Update(rand io.Reader) (*Message, error) {
 // SignNonce signs the current time as nonce and returns it.
 func (msg *Message) SignNonce() (nonce uint64, signature string) {
 	nonce = uint64(times.Now())
-	signature = base64.Encode(msg.UIDCONTENT.SIGKEY.ed25519Key.Sign(encode.ToByte8(nonce)))
+	signature = base64.Encode(msg.UIDContent.SIGKEY.ed25519Key.Sign(encode.ToByte8(nonce)))
 	return
 }
 
