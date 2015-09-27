@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// Package roundrobin implements the round-robin server selection used in the
+// configclient package.
 package roundrobin
 
 import (

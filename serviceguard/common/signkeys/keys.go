@@ -2,7 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package signkeys implements key generation and verification methods for keys suitable for blind signature creation
+// Package signkeys implements key generation and verification methods for
+// keys suitable for blind signature creation.
 package signkeys
 
 import (
@@ -20,21 +21,22 @@ import (
 )
 
 var (
-	// ErrNoSigner is returned if a generator is missing a private key for signing its keys
+	// ErrNoSigner is returned if a generator is missing a private key for
+	// signing its keys.
 	ErrNoSigner = errors.New("keygen: No signer")
 )
 
 const (
-	// DefaultExpireTime is the duration for which a key is considered valid
+	// DefaultExpireTime is the duration for which a key is considered valid.
 	DefaultExpireTime = 2592000 // one month
 )
 
 const (
-	// KeyIDSize is the size of a keyID
+	// KeyIDSize is the size of a keyID.
 	KeyIDSize = sha256.Size
 )
 
-// KeyGenerator implements a signing key generator and a verifyer
+// KeyGenerator implements a signing key generator and a verifier.
 type KeyGenerator struct {
 	Curve      *eccutil.Curve // Curve and hash for all keys
 	ExpireTime int64          // Expire duration to set on generation
@@ -43,7 +45,8 @@ type KeyGenerator struct {
 	PrivateKey *[ed25519.PrivateKeySize]byte
 }
 
-// New returns a new key generator. The Usage and URL of the generator must be explicitely set
+// New returns a new key generator. The Usage and URL of the generator must be
+// explicitely set.
 func New(curve func() elliptic.Curve, rand io.Reader, hash func([]byte) []byte) *KeyGenerator {
 	kg := new(KeyGenerator)
 	kg.Curve = eccutil.SetCurve(curve, rand, hash)
@@ -51,13 +54,13 @@ func New(curve func() elliptic.Curve, rand io.Reader, hash func([]byte) []byte) 
 	return kg
 }
 
-// KeyPair represents a keypair
+// KeyPair represents a keypair.
 type KeyPair struct {
 	PublicKey  PublicKey
 	PrivateKey []byte // Private key
 }
 
-// PublicKey represents the public components of a key
+// PublicKey represents the public components of a key.
 type PublicKey struct {
 	KeyID     [KeyIDSize]byte             // The KeyID (hash) of this key
 	PublicKey eccutil.Point               // Public key of PrivateKey
@@ -67,7 +70,8 @@ type PublicKey struct {
 	Signature [ed25519.SignatureSize]byte // Signature of key
 }
 
-// PublicKeyMarshal is an intermediate representation of a public key to fix limitations of ASN1
+// PublicKeyMarshal is an intermediate representation of a public key to fix
+// limitations of ASN1.
 type PublicKeyMarshal struct {
 	KeyID                  []byte
 	PublicKeyX, PublicKeyY []byte
@@ -77,7 +81,7 @@ type PublicKeyMarshal struct {
 	Signature              []byte
 }
 
-// Marshal a public key to ASN1
+// Marshal a public key to ASN1.
 func (pk PublicKey) Marshal() ([]byte, error) {
 	pkm := PublicKeyMarshal{
 		KeyID:      pk.KeyID[:],
@@ -91,7 +95,7 @@ func (pk PublicKey) Marshal() ([]byte, error) {
 	return asn1.Marshal(pkm)
 }
 
-// Unmarshal fills the public key with d
+// Unmarshal fills the public key with d.
 func (pk *PublicKey) Unmarshal(d []byte) (*PublicKey, error) {
 	if pk == nil {
 		pk = new(PublicKey)
@@ -111,7 +115,7 @@ func (pk *PublicKey) Unmarshal(d []byte) (*PublicKey, error) {
 	return pk, nil
 }
 
-// Verify verifies a public key using SignaturePublicKey
+// Verify verifies a public key using SignaturePublicKey.
 func (pk PublicKey) Verify(SignaturePublicKey *[ed25519.PublicKeySize]byte) bool {
 	tcalc := pk.CalcKeyID()
 	if tcalc != pk.KeyID {
@@ -120,7 +124,7 @@ func (pk PublicKey) Verify(SignaturePublicKey *[ed25519.PublicKeySize]byte) bool
 	return ed25519.Verify(SignaturePublicKey, tcalc[:], &pk.Signature)
 }
 
-// CalcKeyID returns the sha256 of the key components
+// CalcKeyID returns the sha256 of the key components.
 func (pk *PublicKey) CalcKeyID() [sha256.Size]byte {
 	var keyIDImage []byte
 	keyIDImage = append(keyIDImage, pk.PublicKey.X.Bytes()...)
@@ -133,7 +137,7 @@ func (pk *PublicKey) CalcKeyID() [sha256.Size]byte {
 	return sha256.Sum256(keyIDImage)
 }
 
-// GenKey generates a new key structure
+// GenKey generates a new key structure.
 func (kg KeyGenerator) GenKey() (*KeyPair, error) {
 	if kg.PrivateKey == nil {
 		return nil, ErrNoSigner

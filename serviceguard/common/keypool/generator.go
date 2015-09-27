@@ -41,7 +41,7 @@ type (
 	LoadKeysCallbackFunc func(keypool *KeyPool) error
 )
 
-// KeyPool implements a key pool configuration
+// KeyPool implements a key pool configuration.
 type KeyPool struct {
 	Generator     *signkeys.KeyGenerator
 	KeyDir        string                                           // Where to save keys
@@ -62,7 +62,7 @@ type KeyPool struct {
 	LoadKeysCallback LoadKeysCallbackFunc
 }
 
-// New returns a new KeyPool. The generator may require additional settings (Usage, Expire). Those should be set before calling New
+// New returns a new KeyPool. The generator may require additional settings (Usage, Expire). Those should be set before calling New.
 func New(generator *signkeys.KeyGenerator) *KeyPool {
 	kp := new(KeyPool)
 	kp.Generator = generator
@@ -72,14 +72,14 @@ func New(generator *signkeys.KeyGenerator) *KeyPool {
 	return kp
 }
 
-// AddVerifyKey adds key to the list of verification keys
+// AddVerifyKey adds key to the list of verification keys.
 func (kp *KeyPool) AddVerifyKey(key *[ed25519.PublicKeySize]byte) {
 	kp.mapMutex.Lock()
 	defer kp.mapMutex.Unlock()
 	kp.VerifyPubKeys[*key] = true
 }
 
-// ListVerifyKeys lists all known verification keys
+// ListVerifyKeys lists all known verification keys.
 func (kp KeyPool) ListVerifyKeys() [][ed25519.PublicKeySize]byte {
 	kp.mapMutex.Lock()
 	defer kp.mapMutex.Unlock()
@@ -90,7 +90,7 @@ func (kp KeyPool) ListVerifyKeys() [][ed25519.PublicKeySize]byte {
 	return ret
 }
 
-// HasVerifyKey verifies that a verification key exists
+// HasVerifyKey verifies that a verification key exists.
 func (kp *KeyPool) HasVerifyKey(key *[ed25519.PublicKeySize]byte, nolock bool) bool {
 	if !nolock {
 		kp.mapMutex.RLock()
@@ -100,7 +100,7 @@ func (kp *KeyPool) HasVerifyKey(key *[ed25519.PublicKeySize]byte, nolock bool) b
 	return ok
 }
 
-// Lookup a public key from keypool
+// Lookup a public key from keypool.
 func (kp *KeyPool) Lookup(keyid [signkeys.KeyIDSize]byte) (*signkeys.PublicKey, error) {
 	kp.mapMutex.RLock()
 	defer kp.mapMutex.RUnlock()
@@ -144,7 +144,7 @@ func (kp KeyPool) SaveKey(keyid [signkeys.KeyIDSize]byte) error {
 	return kp.SaveKeyUnsafe(keyid)
 }
 
-// SaveKeyUnsafe writes keyid to the keydir. Unsafe. No mutex. Only within callbacks
+// SaveKeyUnsafe writes keyid to the keydir. Unsafe. No mutex. Only within callbacks.
 func (kp KeyPool) SaveKeyUnsafe(keyid [signkeys.KeyIDSize]byte) error {
 	key, err := kp.lookup(keyid)
 	if err != nil {
@@ -153,7 +153,7 @@ func (kp KeyPool) SaveKeyUnsafe(keyid [signkeys.KeyIDSize]byte) error {
 	return kp.WriteKey(key)
 }
 
-// Current returns the current key and the previous key
+// Current returns the current key and the previous key.
 func (kp *KeyPool) Current() (*signkeys.KeyPair, *signkeys.KeyPair, error) {
 	if kp.Generator.PrivateKey == nil {
 		return nil, nil, ErrNoGenerator
@@ -187,19 +187,19 @@ func (kp *KeyPool) Current() (*signkeys.KeyPair, *signkeys.KeyPair, error) {
 	return kp.currentKey, kp.previousKey, nil
 }
 
-// LoadKey adds a single key to the keypool
+// LoadKey adds a single key to the keypool.
 func (kp *KeyPool) LoadKey(loadKey *signkeys.PublicKey) (*[signkeys.KeyIDSize]byte, error) {
 	kp.mapMutex.Lock()
 	defer kp.mapMutex.Unlock()
 	return kp.loadKey(loadKey)
 }
 
-// LoadKeyUnsafe adds a single key to the keypool. Without Mutex. be careful. only for use in callback
+// LoadKeyUnsafe adds a single key to the keypool. Without Mutex. be careful. only for use in callback.
 func (kp *KeyPool) LoadKeyUnsafe(loadKey *signkeys.PublicKey) (*[signkeys.KeyIDSize]byte, error) {
 	return kp.loadKey(loadKey)
 }
 
-// loadKey adds a single key to the keypool. Without lock
+// loadKey adds a single key to the keypool. Without lock.
 func (kp *KeyPool) loadKey(loadKey *signkeys.PublicKey) (*[signkeys.KeyIDSize]byte, error) {
 	if kp.Generator.Usage != "" && loadKey.Usage != kp.Generator.Usage {
 		// Don't load if usage is a mismatch
@@ -248,7 +248,7 @@ func (kp KeyPool) WriteKey(key *signkeys.PublicKey) error {
 	return nil
 }
 
-// RegisterStorage registers a storage backend
+// RegisterStorage registers a storage backend.
 func (kp *KeyPool) RegisterStorage(fetchFunc FetchKeyCallBackFunc, writeFunc WriteKeyCallbackFunc, loadFunc LoadKeysCallbackFunc) {
 	if fetchFunc != nil {
 		oldFetch := kp.FetchKeyCallBack

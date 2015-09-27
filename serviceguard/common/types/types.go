@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package types implements types shared between client and server(s)
+// Package types implements types shared between client and server(s).
 package types
 
 import (
@@ -17,23 +17,25 @@ import (
 )
 
 var (
-	// ErrSignerNeeded signals that a packet verification failed because no public key was present but the packet
-	// was signed.
+	// ErrSignerNeeded signals that a packet verification failed because no
+	// public key was present but the packet was signed.
 	ErrSignerNeeded = errors.New("types: Signer needed for verification")
-	// ErrBadSignature signals that a packet signature did not verify
+	// ErrBadSignature signals that a packet signature did not verify.
 	ErrBadSignature = errors.New("types: Bad signature")
-	// ErrWrongSigner signals that the signer to be verified is not the signer of the packet
+	// ErrWrongSigner signals that the signer to be verified is not the signer
+	// of the packet.
 	ErrWrongSigner = errors.New("types: Wrong signer")
 )
 
 const (
-	// CallTypeReissue identifies a Reissue call
+	// CallTypeReissue identifies a Reissue call.
 	CallTypeReissue = iota
-	// CallTypeSpend identifies a Spend call
+	// CallTypeSpend identifies a Spend call.
 	CallTypeSpend
 )
 
-// Params contains the public parameters, encrypted private parameters, and PublicKey
+// Params contains the public parameters, encrypted private parameters, and
+// PublicKey.
 type Params struct {
 	PublicKey     []byte
 	PublicParams  jjm.BlindingParamClient
@@ -41,18 +43,19 @@ type Params struct {
 	CanReissue    bool
 }
 
-// Backend describes a backend. Type is filename/dburl, Value is the content itself
+// Backend describes a backend. Type is filename/dburl, Value is the content
+// itself.
 type Backend struct {
 	Type  string
 	Value interface{}
 }
 
-// Marshal a parameter set
+// Marshal a parameter set.
 func (p Params) Marshal() ([]byte, error) {
 	return asn1.Marshal(p)
 }
 
-// UnmarshalParams converts the output of GetParams into usable types
+// UnmarshalParams converts the output of GetParams into usable types.
 func UnmarshalParams(d []byte) (pubKey *signkeys.PublicKey, pubParams *jjm.BlindingParamClient, privateParams []byte, canReissue bool, err error) {
 	p := new(Params)
 	_, err = asn1.Unmarshal(d, p)
@@ -66,7 +69,7 @@ func UnmarshalParams(d []byte) (pubKey *signkeys.PublicKey, pubParams *jjm.Blind
 	return pubkey, &p.PublicParams, p.PrivateParams, p.CanReissue, nil
 }
 
-// ReissuePacket is a packet sent to the service guard to reissue a token
+// ReissuePacket is a packet sent to the service guard to reissue a token.
 type ReissuePacket struct {
 	CallType   int32
 	Token      []byte // The old token
@@ -75,12 +78,12 @@ type ReissuePacket struct {
 	Signature  []byte // Signature by owner of Token (or 0x00 if no owner)
 }
 
-// Marshal the packet into a byte slice
+// Marshal the packet into a byte slice.
 func (p ReissuePacket) Marshal() ([]byte, error) {
 	return asn1.Marshal(p)
 }
 
-// Unmarshal a byte slice into a packet
+// Unmarshal a byte slice into a packet.
 func (p *ReissuePacket) Unmarshal(d []byte) (*ReissuePacket, error) {
 	if p == nil {
 		p = new(ReissuePacket)
@@ -92,12 +95,14 @@ func (p *ReissuePacket) Unmarshal(d []byte) (*ReissuePacket, error) {
 	return p, nil
 }
 
-// Hash returns the hash of the packet excluding Signature
+// Hash returns the hash of the packet excluding Signature.
 func (p ReissuePacket) Hash() [sha256.Size]byte {
 	return sha256.Sum256(p.Image())
 }
 
-// Image returns the signature image for a packet. The image are the hashes of the entries, appened. This allows proof from journal without recording too much data.
+// Image returns the signature image for a packet. The image are the hashes of
+// the entries, appened. This allows proof from journal without recording too
+// much data.
 func (p ReissuePacket) Image() []byte {
 	calltype := make([]byte, 8)
 	binary.BigEndian.PutUint32(calltype, uint32(p.CallType))
@@ -111,7 +116,7 @@ func (p ReissuePacket) Image() []byte {
 	return image
 }
 
-// Sign a ReissuePacket
+// Sign a ReissuePacket.
 func (p *ReissuePacket) Sign(privkey *[ed25519.PrivateKeySize]byte) {
 	if privkey == nil {
 		p.Signature = []byte{0x00}
@@ -123,7 +128,7 @@ func (p *ReissuePacket) Sign(privkey *[ed25519.PrivateKeySize]byte) {
 	return
 }
 
-// Verify a packet signature using pubkey
+// Verify a packet signature using pubkey.
 func (p ReissuePacket) Verify(pubkey *[ed25519.PublicKeySize]byte) error {
 	var sig [ed25519.SignatureSize]byte
 	if len(p.Signature) != 1 && pubkey == nil { // Packet is signed but no public key is givem
@@ -140,7 +145,7 @@ func (p ReissuePacket) Verify(pubkey *[ed25519.PublicKeySize]byte) error {
 	return ErrBadSignature
 }
 
-// ReissuePacketPrivate contains the private elements of a reissue request
+// ReissuePacketPrivate contains the private elements of a reissue request.
 type ReissuePacketPrivate struct {
 	PublicKey   []byte // The public key of the issuer as contained in params.
 	Factors     []byte // The blinding factors. Needed for unblinding after signature.
@@ -150,12 +155,12 @@ type ReissuePacketPrivate struct {
 	CanReissue  bool   // Will a further reissue be possible?
 }
 
-// Marshal struct into []byte
+// Marshal struct into []byte.
 func (r ReissuePacketPrivate) Marshal() ([]byte, error) {
 	return asn1.Marshal(r)
 }
 
-// Unmarshal []byte into ReissuePacketPrivate
+// Unmarshal []byte into ReissuePacketPrivate.
 func (r *ReissuePacketPrivate) Unmarshal(d []byte) (*ReissuePacketPrivate, error) {
 	if r == nil {
 		r = new(ReissuePacketPrivate)
@@ -167,14 +172,14 @@ func (r *ReissuePacketPrivate) Unmarshal(d []byte) (*ReissuePacketPrivate, error
 	return r, nil
 }
 
-// SpendPacket is a packet for issuing a spend call
+// SpendPacket is a packet for issuing a spend call.
 type SpendPacket struct {
 	CallType  int32
 	Token     []byte // The old token
 	Signature []byte // Signature by owner of Token (or 0x00 if no owner)
 }
 
-// Image returns the image of the SpendPacket for signing
+// Image returns the image of the SpendPacket for signing.
 func (s *SpendPacket) Image() []byte {
 	calltype := make([]byte, 8)
 	binary.BigEndian.PutUint32(calltype, uint32(s.CallType))
@@ -182,7 +187,7 @@ func (s *SpendPacket) Image() []byte {
 	return h[:]
 }
 
-// Sign a SpendPacket
+// Sign a SpendPacket.
 func (s *SpendPacket) Sign(privkey *[ed25519.PrivateKeySize]byte) {
 	if privkey == nil {
 		s.Signature = []byte{0x00}
@@ -194,7 +199,7 @@ func (s *SpendPacket) Sign(privkey *[ed25519.PrivateKeySize]byte) {
 	return
 }
 
-// Verify a SpendPacket
+// Verify a SpendPacket.
 func (s *SpendPacket) Verify(pubkey *[ed25519.PublicKeySize]byte) error {
 	var sig [ed25519.SignatureSize]byte
 	if len(s.Signature) != 1 && pubkey == nil { // Packet is signed but no public key is givem
@@ -211,12 +216,12 @@ func (s *SpendPacket) Verify(pubkey *[ed25519.PublicKeySize]byte) error {
 	return ErrBadSignature
 }
 
-// Marshal struct into []byte
+// Marshal struct into []byte.
 func (s SpendPacket) Marshal() ([]byte, error) {
 	return asn1.Marshal(s)
 }
 
-// Unmarshal []byte into SpendPacket
+// Unmarshal []byte into SpendPacket.
 func (s *SpendPacket) Unmarshal(d []byte) (*SpendPacket, error) {
 	if s == nil {
 		s = new(SpendPacket)

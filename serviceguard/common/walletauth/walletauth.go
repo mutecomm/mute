@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package walletauth implements the wallet authentication scheme
+// Package walletauth implements the wallet authentication scheme.
 package walletauth
 
 import (
@@ -18,27 +18,27 @@ import (
 )
 
 var (
-	// ErrBadToken signals that the token is invalid
+	// ErrBadToken signals that the token is invalid.
 	ErrBadToken = errors.New("walletauth: Bad Token")
-	// ErrBadSignature signals that a token signature does not verify
+	// ErrBadSignature signals that a token signature does not verify.
 	ErrBadSignature = errors.New("walletauth: Bad Signature")
-	// ErrReplay is returned if a replay was detected in authentication
+	// ErrReplay is returned if a replay was detected in authentication.
 	ErrReplay = errors.New("walletauth: Replay on authentication")
 )
 
-// TokenSize is the size of a token
+// TokenSize is the size of a token.
 const TokenSize = 144
 
-// SkewWindow is the resolution of the logintime
+// SkewWindow is the resolution of the logintime.
 const SkewWindow = 3600
 
-// Rand is the random source
+// Rand is the random source.
 var Rand = rand.Reader
 
-// AuthToken is an authentication token
+// AuthToken is an authentication token.
 type AuthToken []byte
 
-// CreateToken generates an authentication token
+// CreateToken generates an authentication token.
 func CreateToken(pubkey *[ed25519.PublicKeySize]byte, privkey *[ed25519.PrivateKeySize]byte, counter uint64) AuthToken {
 	now := uint64(times.Now()) / SkewWindow
 	token := make([]byte, TokenSize)
@@ -51,7 +51,8 @@ func CreateToken(pubkey *[ed25519.PublicKeySize]byte, privkey *[ed25519.PrivateK
 	return token
 }
 
-// CheckToken verifies a token signature and returns publickey, logintime and logincounter
+// CheckToken verifies a token signature and returns publickey, logintime and
+// logincounter.
 func (token AuthToken) CheckToken() (pubkey *[ed25519.PublicKeySize]byte, ltime, lcounter uint64, err error) {
 	var sig [ed25519.SignatureSize]byte
 	if len(token) != TokenSize {
@@ -69,13 +70,14 @@ func (token AuthToken) CheckToken() (pubkey *[ed25519.PublicKeySize]byte, ltime,
 	return pubkey, ltime, lcounter, nil
 }
 
-// Hash returns the hash of the authtoken (for callcache lookup)
+// Hash returns the hash of the authtoken (for callcache lookup).
 func (token AuthToken) Hash() []byte {
 	t := sha256.Sum256([]byte(token))
 	return t[:]
 }
 
-// IsReplay checks if err is a replay error from walletauth and returns an update error and LastCounter.
+// IsReplay checks if err is a replay error from walletauth and returns an
+// update error and LastCounter.
 // If err is no replay error, the original error is returned.
 func IsReplay(err error) (uint64, error) {
 	if err.Error()[:len("ErrReplay: ")] == "ErrReplay: " {

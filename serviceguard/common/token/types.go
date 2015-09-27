@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package token implements token type and handling functions
+// Package token implements token type and handling functions.
 package token
 
 import (
@@ -27,10 +27,10 @@ const (
 	OwnerSize = ed25519.PublicKeySize
 )
 
-// Rand is the random number source
+// Rand is the random number source.
 var Rand = rand.Reader
 
-// Token without signature
+// Token without signature.
 type Token struct {
 	KeyID []byte // The ID of the KeyID, 32 byte
 	Flag  bool   // Flag. 0x01 == verify signature
@@ -43,7 +43,7 @@ type Token struct {
 	ScalarR []byte // R Scalar
 }
 
-// New creates a new Token
+// New creates a new Token.
 func New(KeyID *[signkeys.KeyIDSize]byte, Owner *[ed25519.PublicKeySize]byte) *Token {
 	t := &Token{
 		KeyID: make([]byte, KeyIDSize),
@@ -68,7 +68,7 @@ func New(KeyID *[signkeys.KeyIDSize]byte, Owner *[ed25519.PublicKeySize]byte) *T
 	return t
 }
 
-// Hash returns the hash of the token
+// Hash returns the hash of the token.
 func (t Token) Hash() []byte {
 	h := sha256.New()
 	h.Write(t.KeyID)
@@ -82,7 +82,7 @@ func (t Token) Hash() []byte {
 	return h.Sum(nil)
 }
 
-// Properties returns the owner and keyID of a token
+// Properties returns the owner and keyID of a token.
 func (t Token) Properties() (keyid *[signkeys.KeyIDSize]byte, owner *[ed25519.PublicKeySize]byte) {
 	keyid = new([signkeys.KeyIDSize]byte)
 	if t.Flag == false { // Owner is all zeros, hence, no owner
@@ -95,17 +95,17 @@ func (t Token) Properties() (keyid *[signkeys.KeyIDSize]byte, owner *[ed25519.Pu
 	return
 }
 
-// HasOwner returns true if the Token is owned
+// HasOwner returns true if the Token is owned.
 func (t Token) HasOwner() bool {
 	return t.Flag
 }
 
-// Marshal a token
+// Marshal a token.
 func (t Token) Marshal() ([]byte, error) {
 	return asn1.Marshal(t)
 }
 
-// Unmarshal an encoded token
+// Unmarshal an encoded token.
 func Unmarshal(d []byte) (*Token, error) {
 	t := new(Token)
 	_, err := asn1.Unmarshal(d, t)
@@ -115,7 +115,7 @@ func Unmarshal(d []byte) (*Token, error) {
 	return t, nil
 }
 
-// AddSignature adds the signature to the token
+// AddSignature adds the signature to the token.
 func (t *Token) AddSignature(signature *jjm.ClearSignature) {
 	t.PointRX = signature.PointR.X.Bytes()
 	t.PointRY = signature.PointR.Y.Bytes()
@@ -123,7 +123,7 @@ func (t *Token) AddSignature(signature *jjm.ClearSignature) {
 	t.ScalarS = signature.ScalarS.Bytes()
 }
 
-// GetSignature returns the signature that is part of the token
+// GetSignature returns the signature that is part of the token.
 func (t *Token) GetSignature() *jjm.ClearSignature {
 	ret := new(jjm.ClearSignature)
 	ret.PointR = *eccutil.NewPoint(new(big.Int).SetBytes(t.PointRX), new(big.Int).SetBytes(t.PointRY))
