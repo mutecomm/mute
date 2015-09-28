@@ -97,10 +97,6 @@ func InitMuteFromFile(homedir string) error {
 }
 
 const (
-	// Version is the current Mute version.
-	// We use semantic versioning (http://semver.org/).
-	Version = "0.1.0"
-
 	// DefaultDomain defines the default domain for Mute.
 	DefaultDomain = "mute.berlin"
 	// PubkeyStr is the hex-encoded public key of the configuration server

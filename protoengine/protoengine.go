@@ -14,6 +14,7 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/log"
+	"github.com/mutecomm/mute/release"
 	"github.com/mutecomm/mute/util"
 	"github.com/mutecomm/mute/util/home"
 )
@@ -72,7 +73,7 @@ func New() *ProtoEngine {
 	var pe ProtoEngine
 	pe.app = cli.NewApp()
 	pe.app.Usage = "tool to handle message delivery and retrieval"
-	pe.app.Version = def.Version
+	pe.app.Version = release.Version
 	pe.app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:  "homedir",
