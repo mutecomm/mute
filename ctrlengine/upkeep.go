@@ -136,16 +136,17 @@ func (ce *CtrlEngine) upkeepFetchconf(
 	if err := def.InitMute(&ce.config); err != nil {
 		return err
 	}
+	// format configuration nicely
+	jsn, err = json.MarshalIndent(ce.config, "", "  ")
+	if err != nil {
+		return log.Error(err)
+	}
 	// write new configuration file
 	if err := writeConfigFile(homedir, netDomain, jsn); err != nil {
 		return err
 	}
 	// show new configuration
 	if show {
-		jsn, err := json.MarshalIndent(ce.config, "", "  ")
-		if err != nil {
-			return log.Error(err)
-		}
 		fmt.Fprintf(outfp, string(jsn)+"\n")
 	}
 	return nil
