@@ -45,16 +45,21 @@ func decodeED25519PubKeyBase64(p string) (*[ed25519.PublicKeySize]byte, error) {
 func mutecryptNewUID(
 	c *cli.Context,
 	passphrase []byte,
-	id, domain, mixaddress, nymaddress string,
+	id, domain, host, mixaddress, nymaddress string,
 	client *client.Client,
 ) error {
 	log.Infof("mutecryptNewUID(): id=%s, domain=%s", id, domain)
-	cmd := exec.Command(
-		"mutecrypt",
+	args := []string{
 		"--homedir", c.GlobalString("homedir"),
 		"--loglevel", c.GlobalString("loglevel"),
 		"--logdir", c.GlobalString("logdir"),
-	)
+	}
+	if host != "" {
+		args = append(args,
+			"--keyhost", host,
+			"--keyport", ":3000") // TODO: remove keyport hack!
+	}
+	cmd := exec.Command("mutecrypt", args...)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return err
@@ -112,7 +117,7 @@ func mutecryptNewUID(
 	}
 
 	// get capabilities
-	args := []string{"caps", "show", "--domain", domain}
+	args = []string{"caps", "show", "--domain", domain}
 	if host := c.String("host"); host != "" {
 		args = append(args, "--host", host)
 	}
@@ -269,7 +274,11 @@ func mutecryptNewUID(
 	return nil
 }
 
-func (ce *CtrlEngine) uidNew(c *cli.Context, minDelay, maxDelay int32) error {
+func (ce *CtrlEngine) uidNew(
+	c *cli.Context,
+	minDelay, maxDelay int32,
+	host string,
+) error {
 	// make sure the ID is well-formed
 	unmapped := c.String("id")
 	id, domain, err := identity.MapPlus(unmapped)
@@ -279,7 +288,7 @@ func (ce *CtrlEngine) uidNew(c *cli.Context, minDelay, maxDelay int32) error {
 
 	// sync corresponding hashchain
 	if id != "keyserver" {
-		if err := ce.upkeepHashchain(c, domain); err != nil {
+		if err := ce.upkeepHashchain(c, domain, c.String("host")); err != nil {
 			return err
 		}
 	}
@@ -322,8 +331,8 @@ func (ce *CtrlEngine) uidNew(c *cli.Context, minDelay, maxDelay int32) error {
 	}
 
 	// generate UID
-	err = mutecryptNewUID(c, ce.passphrase, id, domain, mixaddress, nymaddress,
-		ce.client)
+	err = mutecryptNewUID(c, ce.passphrase, id, domain, host, mixaddress,
+		nymaddress, ce.client)
 	if err != nil {
 		return err
 	}

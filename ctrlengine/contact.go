@@ -43,7 +43,9 @@ func mutecryptAddContact(
 		"--logdir", c.GlobalString("logdir"),
 	}
 	if host != "" {
-		args = append(args, "--keyhost", host)
+		args = append(args,
+			"--keyhost", host,
+			"--keyport", ":3000") // TODO: remove keyport hack!
 	}
 	cmd := exec.Command("mutecrypt", args...)
 

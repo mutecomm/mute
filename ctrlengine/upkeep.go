@@ -382,14 +382,25 @@ func (ce *CtrlEngine) upkeepAccounts(
 	return nil
 }
 
-func mutecryptHashchainSync(c *cli.Context, domain string, passphrase []byte) error {
+func mutecryptHashchainSync(
+	c *cli.Context,
+	domain, host string,
+	passphrase []byte,
+) error {
 	args := []string{
 		"--homedir", c.GlobalString("homedir"),
 		"--loglevel", c.GlobalString("loglevel"),
 		"--logdir", c.GlobalString("logdir"),
+	}
+	if host != "" {
+		args = append(args,
+			"--keyhost", host,
+			"--keyport", ":3000") // TODO: remove keyport hack!
+	}
+	args = append(args,
 		"hashchain", "sync",
 		"--domain", domain,
-	}
+	)
 	cmd := exec.Command("mutecrypt", args...)
 	var errbuf bytes.Buffer
 	cmd.Stderr = &errbuf
@@ -407,14 +418,25 @@ func mutecryptHashchainSync(c *cli.Context, domain string, passphrase []byte) er
 	return nil
 }
 
-func mutecryptHashchainVerify(c *cli.Context, domain string, passphrase []byte) error {
+func mutecryptHashchainVerify(
+	c *cli.Context,
+	domain, host string,
+	passphrase []byte,
+) error {
 	args := []string{
 		"--homedir", c.GlobalString("homedir"),
 		"--loglevel", c.GlobalString("loglevel"),
 		"--logdir", c.GlobalString("logdir"),
+	}
+	if host != "" {
+		args = append(args,
+			"--keyhost", host,
+			"--keyport", ":3000") // TODO: remove keyport hack!
+	}
+	args = append(args,
 		"hashchain", "sync",
 		"--domain", domain,
-	}
+	)
 	cmd := exec.Command("mutecrypt", args...)
 	var errbuf bytes.Buffer
 	cmd.Stderr = &errbuf
@@ -432,14 +454,19 @@ func mutecryptHashchainVerify(c *cli.Context, domain string, passphrase []byte) 
 	return nil
 }
 
-func (ce *CtrlEngine) upkeepHashchain(c *cli.Context, domain string) error {
+func (ce *CtrlEngine) upkeepHashchain(
+	c *cli.Context,
+	domain, host string,
+) error {
 	// sync hashchain
-	if err := mutecryptHashchainSync(c, domain, ce.passphrase); err != nil {
+	err := mutecryptHashchainSync(c, domain, host, ce.passphrase)
+	if err != nil {
 		return err
 	}
 	// verify hashchain
 	// TODO: we only have to verify the new part, not the whole hashchain!
-	if err := mutecryptHashchainVerify(c, domain, ce.passphrase); err != nil {
+	err = mutecryptHashchainVerify(c, domain, host, ce.passphrase)
+	if err != nil {
 		return err
 	}
 	return nil

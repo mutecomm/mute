@@ -554,7 +554,7 @@ Tries to register a new user ID with the corresponding key server.
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.uidNew(c, int32(c.Int("mindelay")),
-							int32(c.Int("maxdelay")))
+							int32(c.Int("maxdelay")), c.String("host"))
 					},
 				},
 				{
@@ -1189,6 +1189,7 @@ Tries to register a new user ID with the corresponding key server.
 							Name:  "domain",
 							Usage: "key server domain",
 						},
+						hostFlag,
 					},
 					Before: func(c *cli.Context) error {
 						if len(c.Args()) > 0 {
@@ -1204,7 +1205,8 @@ Tries to register a new user ID with the corresponding key server.
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						ce.err = ce.upkeepHashchain(c, c.String("domain"))
+						ce.err = ce.upkeepHashchain(c, c.String("domain"),
+							c.String("host"))
 					},
 				},
 			},
