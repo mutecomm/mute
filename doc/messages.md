@@ -319,3 +319,8 @@ done, shifting all headers not necessary for transport to the encrypted body.
     outer-header: 8. HMAC
       HMAC
 ```
+
+
+### 8. Message flow
+
+![Message flow](https://rawgit.com/mutecomm/mute/master/doc/figures/messageflow.svg)

@@ -76,3 +76,8 @@ Explanations:
 - _Primary member_: This is the user-/dataset-specific content, not the metadata
   describing it. In the case of a key this would be the key's content, not the
   ciphersuit/algorithm used.
+
+
+### Architecture overview
+
+![Mute architecture](https://rawgit.com/mutecomm/mute/master/doc/figures/architecture.svg)
