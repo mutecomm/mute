@@ -1181,6 +1181,32 @@ Tries to register a new user ID with the corresponding key server.
 							c.String("period"), c.String("remaining"), statfp)
 					},
 				},
+				{
+					Name:  "hashchain",
+					Usage: "Sync and verify hashchain for the given domain.",
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "domain",
+							Usage: "key server domain",
+						},
+					},
+					Before: func(c *cli.Context) error {
+						if len(c.Args()) > 0 {
+							return log.Errorf("superfluous argument(s): %s",
+								strings.Join(c.Args(), " "))
+						}
+						if !c.IsSet("domain") {
+							return log.Error("option --domain is mandatory")
+						}
+						if err := ce.prepare(c, true); err != nil {
+							return err
+						}
+						return nil
+					},
+					Action: func(c *cli.Context) {
+						ce.err = ce.upkeepHashchain(c, c.String("domain"))
+					},
+				},
 			},
 		},
 		{

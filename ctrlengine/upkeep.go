@@ -5,6 +5,7 @@
 package ctrlengine
 
 import (
+	"bytes"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -378,5 +379,68 @@ func (ce *CtrlEngine) upkeepAccounts(
 		return err
 	}
 
+	return nil
+}
+
+func mutecryptHashchainSync(c *cli.Context, domain string, passphrase []byte) error {
+	args := []string{
+		"--homedir", c.GlobalString("homedir"),
+		"--loglevel", c.GlobalString("loglevel"),
+		"--logdir", c.GlobalString("logdir"),
+		"hashchain", "sync",
+		"--domain", domain,
+	}
+	cmd := exec.Command("mutecrypt", args...)
+	var errbuf bytes.Buffer
+	cmd.Stderr = &errbuf
+	ppR, ppW, err := os.Pipe()
+	if err != nil {
+		return err
+	}
+	defer ppR.Close()
+	ppW.Write(passphrase)
+	ppW.Close()
+	cmd.ExtraFiles = append(cmd.ExtraFiles, ppR)
+	if err := cmd.Run(); err != nil {
+		return log.Error(err)
+	}
+	return nil
+}
+
+func mutecryptHashchainVerify(c *cli.Context, domain string, passphrase []byte) error {
+	args := []string{
+		"--homedir", c.GlobalString("homedir"),
+		"--loglevel", c.GlobalString("loglevel"),
+		"--logdir", c.GlobalString("logdir"),
+		"hashchain", "sync",
+		"--domain", domain,
+	}
+	cmd := exec.Command("mutecrypt", args...)
+	var errbuf bytes.Buffer
+	cmd.Stderr = &errbuf
+	ppR, ppW, err := os.Pipe()
+	if err != nil {
+		return err
+	}
+	defer ppR.Close()
+	ppW.Write(passphrase)
+	ppW.Close()
+	cmd.ExtraFiles = append(cmd.ExtraFiles, ppR)
+	if err := cmd.Run(); err != nil {
+		return log.Error(err)
+	}
+	return nil
+}
+
+func (ce *CtrlEngine) upkeepHashchain(c *cli.Context, domain string) error {
+	// sync hashchain
+	if err := mutecryptHashchainSync(c, domain, ce.passphrase); err != nil {
+		return err
+	}
+	// verify hashchain
+	// TODO: we only have to verify the new part, not the whole hashchain!
+	if err := mutecryptHashchainVerify(c, domain, ce.passphrase); err != nil {
+		return err
+	}
 	return nil
 }
