@@ -277,6 +277,13 @@ func (ce *CtrlEngine) uidNew(c *cli.Context, minDelay, maxDelay int32) error {
 		return err
 	}
 
+	// sync corresponding hashchain
+	if id != "keyserver" {
+		if err := ce.upkeepHashchain(c, domain); err != nil {
+			return err
+		}
+	}
+
 	// TODO: check that ID has not been registered already (by the same or other user)
 
 	// get token from wallet
