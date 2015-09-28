@@ -157,8 +157,14 @@ func Create(
 			return nil, err
 		}
 	}
-	if _, _, _, _, _, _, err := hashchain.SplitEntry(lastEntry); err != nil {
-		return nil, err
+	// make sure LASTENTRY is parseable for a non-keyserver localpart.
+	// For keyservers the LASTENTRY can be empty, iff this is the first entry
+	// in the hashchain.
+	lp, _, _ := identity.Split(msg.UIDContent.IDENTITY)
+	if lp != "keyserver" {
+		if _, _, _, _, _, _, err := hashchain.SplitEntry(lastEntry); err != nil {
+			return nil, err
+		}
 	}
 	msg.UIDContent.LASTENTRY = lastEntry
 	// TODO: REPOURIS
@@ -236,10 +242,15 @@ func (msg *Message) Check() error {
 	if msg.UIDContent.SIGKEY.FUNCTION != "ED25519" {
 		return log.Error("uid: UIDContent.SIGKEY.FUNCTION != \"ED25519\"")
 	}
-	// make sure LASTENTRY is parseable
-	_, _, _, _, _, _, err := hashchain.SplitEntry(msg.UIDContent.LASTENTRY)
-	if err != nil {
-		return err
+	// make sure LASTENTRY is parseable for a non-keyserver localpart.
+	// For keyservers the LASTENTRY can be empty, iff this is the first entry
+	// in the hashchain.
+	lp, _, _ := identity.Split(msg.UIDContent.IDENTITY)
+	if lp != "keyserver" {
+		_, _, _, _, _, _, err := hashchain.SplitEntry(msg.UIDContent.LASTENTRY)
+		if err != nil {
+			return err
+		}
 	}
 	// version 1.0 specific checks
 	return msg.checkV1_0()

@@ -20,7 +20,7 @@ import (
 // generate a new nym and store it in keydb.
 func (ce *CryptEngine) generate(
 	pseudonym string,
-	keyServer bool,
+	keyserver bool,
 	outputfp *os.File,
 ) error {
 	// map pseudonym
@@ -30,16 +30,20 @@ func (ce *CryptEngine) generate(
 	}
 	// create new UID
 	// TODO: allow different PFS preferences
-	lastEntry, err := ce.keyDB.GetLastHashChainEntry(domain)
-	if err != nil {
-		return err
+	var lastEntry string
+	if !keyserver {
+		// no lastEntry, because this will be the first entry in hashchain
+		lastEntry, err = ce.keyDB.GetLastHashChainEntry(domain)
+		if err != nil {
+			return err
+		}
 	}
 	uid, err := uid.Create(id, false, "", "", uid.Strict, lastEntry,
 		cipher.RandReader)
 	if err != nil {
 		return err
 	}
-	if !keyServer {
+	if !keyserver {
 		// store UID in keyDB
 		if err := ce.keyDB.AddPrivateUID(uid); err != nil {
 			return err
@@ -51,7 +55,7 @@ func (ce *CryptEngine) generate(
 			return err
 		}
 		fmt.Fprintln(outputfp, out.String())
-		if keyServer {
+		if keyserver {
 			fmt.Fprintf(outputfp, "{\"PRIVSIGKEY\": \"%s\"}\n", uid.PrivateSigKey())
 		}
 	}
