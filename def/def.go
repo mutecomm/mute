@@ -140,33 +140,6 @@ const (
 	// message and key database.
 	KDFIterationsDB = 64000
 
-	// HashChainChannelSize defines the default buffer size for the hash chain
-	// input channel.
-	HashChainChannelSize = 1000
-	// KeyStoreChannelSize defines the default buffer size for the key store
-	// input channel.
-	KeyStoreChannelSize = 1000
-	// KeyInitStoreChannelSize defines the default buffer size for the key init
-	// store input channel.
-	KeyInitStoreChannelSize = 1000
-	// MessagePoolChannelSize defines the default buffer size for the message
-	// pool input channel.
-	MessagePoolChannelSize = 1000
-
-	// Hostmutekeyd defines the default host for mutekeyd.
-	Hostmutekeyd = "mute.berlin"
-	// Hostmutemixd defines the default host for mutemixd.
-	Hostmutemixd = "mute.berlin"
-	// Hostmuteaccd defines the default host for muteaccd.
-	Hostmuteaccd = "mute.berlin"
-
-	// Portmutekeyd defines the default port for mutekeyd.
-	Portmutekeyd = ":3000"
-	// Portmutemixd defines the default port for mutemixd.
-	Portmutemixd = ":3001"
-	// Portmuteaccd defines the default port for muteaccd.
-	Portmuteaccd = ":3002"
-
 	// MinDelay defines the default minimum delay setting for messages to mix.
 	MinDelay = int32(120)
 
