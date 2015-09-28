@@ -170,11 +170,6 @@ func New() *CryptEngine {
 			Name:  "keyhost",
 			Usage: "alternative hostname for key server",
 		},
-		cli.StringFlag{
-			Name:  "keyport",
-			Value: def.Portmutekeyd,
-			Usage: "key server port",
-		},
 		cli.IntFlag{
 			Name:  "input-fd",
 			Value: 0,
