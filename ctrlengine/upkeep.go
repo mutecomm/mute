@@ -402,7 +402,7 @@ func mutecryptHashchainSync(c *cli.Context, domain string, passphrase []byte) er
 	ppW.Close()
 	cmd.ExtraFiles = append(cmd.ExtraFiles, ppR)
 	if err := cmd.Run(); err != nil {
-		return log.Error(err)
+		return log.Errorf("%s: %s", err, errbuf.String())
 	}
 	return nil
 }
@@ -427,7 +427,7 @@ func mutecryptHashchainVerify(c *cli.Context, domain string, passphrase []byte) 
 	ppW.Close()
 	cmd.ExtraFiles = append(cmd.ExtraFiles, ppR)
 	if err := cmd.Run(); err != nil {
-		return log.Error(err)
+		return log.Errorf("%s: %s", err, errbuf.String())
 	}
 	return nil
 }
