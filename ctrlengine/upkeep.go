@@ -112,21 +112,24 @@ func (ce *CtrlEngine) upkeepFetchconf(
 	show bool,
 	outfp, statfp io.Writer,
 ) error {
-	log.Infof("fetch config for domain '%s'", def.DefaultDomain)
-	fmt.Fprintf(statfp, "fetch config for domain '%s'\n", def.DefaultDomain)
-	publicKey, _ := hex.DecodeString(def.PubkeyStr)
-	ce.config.PublicKey = publicKey
-	ce.config.URLList = "10," + def.ConfigURL
-	ce.config.Timeout = 0 // use default timeout
-	err := ce.config.Update()
+	netDomain, pubkeyStr, configURL := def.ConfigParams()
+	log.Infof("fetch config for '%s'", netDomain)
+	fmt.Fprintf(statfp, "fetch config for '%s'\n", netDomain)
+	publicKey, err := hex.DecodeString(pubkeyStr)
 	if err != nil {
+		log.Error(err)
+	}
+	ce.config.PublicKey = publicKey
+	ce.config.URLList = "10," + configURL
+	ce.config.Timeout = 0 // use default timeout
+	if err := ce.config.Update(); err != nil {
 		return log.Error(err)
 	}
 	jsn, err := json.Marshal(ce.config)
 	if err != nil {
 		return log.Error(err)
 	}
-	if err := msgDB.AddValue(def.DefaultDomain, string(jsn)); err != nil {
+	if err := msgDB.AddValue(netDomain, string(jsn)); err != nil {
 		return err
 	}
 	// apply new configuration
@@ -134,7 +137,7 @@ func (ce *CtrlEngine) upkeepFetchconf(
 		return err
 	}
 	// write new configuration file
-	if err := writeConfigFile(homedir, def.DefaultDomain, jsn); err != nil {
+	if err := writeConfigFile(homedir, netDomain, jsn); err != nil {
 		return err
 	}
 	// show new configuration

@@ -115,7 +115,8 @@ func (ce *CtrlEngine) prepare(c *cli.Context, openMsgDB bool) error {
 		}
 
 		// read default config
-		jsn, err := ce.msgDB.GetValue(def.DefaultDomain)
+		netDomain, _, _ := def.ConfigParams()
+		jsn, err := ce.msgDB.GetValue(netDomain)
 		if err != nil {
 			return err
 		}

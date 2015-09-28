@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"io/ioutil"
+	"os"
 	"path"
 
 	"github.com/agl/ed25519"
@@ -81,11 +82,31 @@ func InitMute(config *configclient.Config) error {
 	return nil
 }
 
+// ConfigParams returns the configuration parameters netDomain, pubkeyStr,
+// and configURL depending on the environment variable MUTETESTNET.
+// If MUTETESTNET is set to "1" or "true", the configuration parameters for
+// the testnet are returned.
+// Otherwise the parameters for the main net are returned.
+func ConfigParams() (netDomain, pubkeyStr, configURL string) {
+	testnet := os.Getenv("MUTETESTNET")
+	if testnet == "true" || testnet == "1" {
+		netDomain = "testnet@" + TestnetDefaultDomain
+		pubkeyStr = TestnetPubkeyStr
+		configURL = TestnetConfigURL
+	} else {
+		netDomain = "mainnet@" + MainnetDefaultDomain
+		pubkeyStr = MainnetPubkeyStr
+		configURL = MainnetConfigURL
+	}
+	return
+}
+
 // InitMuteFromFile initializes Mute with the config file from
-// homedir/config/mute.berlin.
+// homedir/config/.
 func InitMuteFromFile(homedir string) error {
 	configdir := path.Join(homedir, "config")
-	jsn, err := ioutil.ReadFile(path.Join(configdir, DefaultDomain))
+	netDomain, _, _ := ConfigParams()
+	jsn, err := ioutil.ReadFile(path.Join(configdir, netDomain))
 	if err != nil {
 		return log.Error(err)
 	}
@@ -97,13 +118,23 @@ func InitMuteFromFile(homedir string) error {
 }
 
 const (
-	// DefaultDomain defines the default domain for Mute.
-	DefaultDomain = "mute.berlin"
-	// PubkeyStr is the hex-encoded public key of the configuration server
+	// MainnetDefaultDomain defines the default domain for Mute (mainnet).
+	MainnetDefaultDomain = "mute.one"
+	// MainnetPubkeyStr is the hex-encoded public key of the configuration server
+	// (mainnet).
+	MainnetPubkeyStr = "13cff7a4f0f2ec57097bb3b99bddf458cc33458e7937787444820e72a62aee1f"
+	// MainnetConfigURL defines the URL of the  of the configuration server
+	// (mainnet).
+	MainnetConfigURL = "cfg.mute.one"
+
+	// TestnetDefaultDomain defines the default domain for Mute (testnet).
+	TestnetDefaultDomain = "mute.berlin"
+	// TestnetPubkeyStr is the hex-encoded public key of the configuration server
 	// (testnet).
-	PubkeyStr = "f6b5289bbe4bfc678b1f670b3b2a4bc837f052108092ca926d09f7afca9f485f"
-	// ConfigURL defines the URL of the  of the configuration server (testnet).
-	ConfigURL = "127.0.0.1:3080"
+	TestnetPubkeyStr = "f6b5289bbe4bfc678b1f670b3b2a4bc837f052108092ca926d09f7afca9f485f"
+	// TestnetConfigURL defines the URL of the  of the configuration server
+	// (testnet).
+	TestnetConfigURL = "127.0.0.1:3080"
 
 	// KDFIterationsDB defines the default number of KDF iterations for the
 	// message and key database.
