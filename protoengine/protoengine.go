@@ -84,11 +84,6 @@ func New() *ProtoEngine {
 			Name:  "acchost",
 			Usage: "alternative hostname for account server",
 		},
-		cli.StringFlag{
-			Name:  "accport",
-			Value: def.Portmuteaccd,
-			Usage: "account server port",
-		},
 		cli.IntFlag{
 			Name:  "input-fd",
 			Value: 0,
