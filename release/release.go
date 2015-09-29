@@ -7,6 +7,7 @@ package release
 
 import (
 	"fmt"
+	"math/big"
 
 	"github.com/codegangsta/cli"
 )
@@ -23,3 +24,9 @@ func PrintVersion(c *cli.Context) {
 	fmt.Fprintf(c.App.Writer, "commit %s\n", Commit)
 	fmt.Fprintf(c.App.Writer, "Date:   %s\n", Date)
 }
+
+// Hack to enforce that we compile with at least Go 1.5.
+// We need Go 1.5 (with environment variable GO15VENDOREXPERIMENT set to 1) to
+// enforce compiling with the sources in vendor/ instead of pulling in external
+// libraries. Otherwise it is impossible to make any security guarantees.
+var _ big.Float

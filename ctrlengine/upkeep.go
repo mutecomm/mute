@@ -155,15 +155,17 @@ func (ce *CtrlEngine) upkeepFetchconf(
 
 func updateMuteFromSource(outfp, statfp io.Writer, commit string) error {
 	fmt.Fprintf(statfp, "updating Mute from source...\n")
-	dir, err := exec.LookPath(os.Args[0])
+	binary, err := exec.LookPath(os.Args[0])
 	if err != nil {
 		return err
 	}
-	// TODO: change path when release was done on github.com
-	dir = path.Join(dir, "..", "..")
+	fmt.Fprintf(statfp, "...binary path: %s\n", binary)
+
+	// change to source directory github.com/mutecomm/mute
+	dir := path.Join(path.Dir(binary), "..", "src", "github.com", "mutecomm", "mute")
 
 	// git status --porcelain
-	fmt.Fprintf(statfp, "$ git status --porcelain\n")
+	fmt.Fprintf(statfp, "$ git status --porcelain (CWD=%s)\n", dir)
 	if err := git.Status(dir, statfp); err != nil {
 		return log.Error(err)
 	}
@@ -196,16 +198,22 @@ func updateMuteFromSource(outfp, statfp io.Writer, commit string) error {
 		detached = true
 	}
 
+	// go install -v mute/cmd/mutegenerate
+	fmt.Fprintf(statfp, "$ go install -v ./cmd/mutegenerate\n")
+	if err := gotool.Install(dir, "./cmd/mutegenerate", outfp, statfp); err != nil {
+		return log.Error(err)
+	}
+
 	// go generate -v mute/util/release
-	fmt.Fprintf(statfp, "$ go generate -v mute/util/release\n")
-	err = gotool.Generate(dir, "mute/util/release", outfp, statfp)
+	fmt.Fprintf(statfp, "$ go generate -v ./release\n")
+	err = gotool.Generate(dir, "./release", outfp, statfp)
 	if err != nil {
 		return log.Error(err)
 	}
 
 	// go install -v mute/cmd/...
-	fmt.Fprintf(statfp, "$ go install -v mute/cmd/...\n")
-	if err := gotool.Install(dir, "mute/cmd/...", outfp, statfp); err != nil {
+	fmt.Fprintf(statfp, "$ go install -v ./cmd/...\n")
+	if err := gotool.Install(dir, "./cmd/...", outfp, statfp); err != nil {
 		return log.Error(err)
 	}
 
@@ -298,7 +306,8 @@ func (ce *CtrlEngine) upkeepUpdate(
 			}
 		}
 	*/
-	return nil
+	// after a successful we exit
+	return errExit
 }
 
 func (ce *CtrlEngine) upkeepAccounts(

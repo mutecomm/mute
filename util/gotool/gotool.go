@@ -7,6 +7,7 @@ package gotool
 
 import (
 	"io"
+	"os"
 	"os/exec"
 )
 
@@ -27,6 +28,8 @@ func Generate(dir, arg string, outfp, statfp io.Writer) error {
 // Install executes `go install -v` in directory dir.
 func Install(dir, arg string, outfp, statfp io.Writer) error {
 	cmd := exec.Command("go", "install", "-v", arg)
+	// make sure GO15VENDOREXPERIMENT is set to 1
+	cmd.Env = append(os.Environ(), "GO15VENDOREXPERIMENT=1")
 	if dir != "" {
 		cmd.Dir = dir
 	}
