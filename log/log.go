@@ -17,15 +17,6 @@ import (
 
 var logger seelog.LoggerInterface
 
-// Options defines logging command-line options.
-//
-// TODO: remove
-type Options struct {
-	LogLevel   string `long:"loglevel" description:"Logging level {trace, debug, info, warn, error, critical}" default:"info"`
-	LogDir     string `long:"logdir" description:"Directory to log output"`
-	LogConsole bool   `long:"logconsole" description:"Enable logging to console"`
-}
-
 func init() {
 	// disable logger by default
 	logger = seelog.Disabled
@@ -79,13 +70,6 @@ func Init(logLevel, cmdPrefix, logDir string, logToConsole bool) error {
 	// log info about running binary
 	Infof("%s started (built with %s %s for %s/%s)", os.Args[0], runtime.Compiler, runtime.Version(), runtime.GOOS, runtime.GOARCH)
 	return nil
-}
-
-// InitOpts initializes the Mute logging framework to the given logging level and
-// logfile. If the given level is invalid or the initialization fails, an
-// error is returned.
-func InitOpts(opts *Options, cmdPrefix string) error {
-	return Init(opts.LogLevel, cmdPrefix, opts.LogDir, opts.LogConsole)
 }
 
 // Flush flushes all the messages in the logger.
