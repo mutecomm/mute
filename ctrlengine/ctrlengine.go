@@ -1321,6 +1321,25 @@ Tries to register a new user ID with the corresponding key server.
 						ce.err = ce.walletPubkey(outfp)
 					},
 				},
+				{
+					Name:  "balance",
+					Usage: "Show balance key of wallet",
+					Before: func(c *cli.Context) error {
+						if len(c.Args()) > 0 {
+							return log.Errorf("superfluous argument(s): %s",
+								strings.Join(c.Args(), " "))
+						}
+						if err := ce.prepare(c, true); err != nil {
+							return err
+						}
+						return nil
+					},
+					Action: func(c *cli.Context) {
+						outfp := os.NewFile(uintptr(c.GlobalInt("output-fd")),
+							"output-fd")
+						ce.err = ce.walletBalance(outfp)
+					},
+				},
 			},
 		},
 		{

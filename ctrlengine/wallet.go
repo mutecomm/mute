@@ -31,3 +31,16 @@ func (ce *CtrlEngine) walletPubkey(w io.Writer) error {
 	}
 	return nil
 }
+
+func (ce *CtrlEngine) walletBalance(w io.Writer) error {
+	msgSelf := ce.client.GetBalanceOwn("Message")
+	msgNonSelf := ce.client.GetBalance("Message", nil)
+	uidSelf := ce.client.GetBalanceOwn("UID")
+	uidNonSelf := ce.client.GetBalance("UID", nil)
+	accSelf := ce.client.GetBalanceOwn("Account")
+	accNonSelf := ce.client.GetBalance("Account", nil)
+	fmt.Fprintf(w, "Message: self:%8d; non-self:%8d; total=%8d\n", msgSelf, msgNonSelf, msgSelf+msgNonSelf)
+	fmt.Fprintf(w, "UID:     self:%8d; non-self:%8d; total=%8d\n", uidSelf, uidNonSelf, uidSelf+uidNonSelf)
+	fmt.Fprintf(w, "Account: self:%8d; non-self:%8d; total=%8d\n", accSelf, accNonSelf, accSelf+accNonSelf)
+	return nil
+}
