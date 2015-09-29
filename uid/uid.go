@@ -30,6 +30,7 @@ import (
 //   - UIDContent.PREFERENCES.FORWARDSEC must be "strict".
 //   - UIDContent.PUBKEYS contains exactly one ECDHE25519 key for the default ciphersuite.
 //   - UIDContent.SIGESCROW must be zero-value.
+//   - UIDContent.REPOURIS contains one entry which is the domain of UIDContent.IDENTITY.
 //   - UIDContent.CHAINLINK must be zero-value.
 const ProtocolVersion = "1.0"
 
@@ -160,14 +161,18 @@ func Create(
 	// make sure LASTENTRY is parseable for a non-keyserver localpart.
 	// For keyservers the LASTENTRY can be empty, iff this is the first entry
 	// in the hashchain.
-	lp, _, _ := identity.Split(msg.UIDContent.IDENTITY)
+	lp, domain, _ := identity.Split(msg.UIDContent.IDENTITY)
 	if lp != "keyserver" {
 		if _, _, _, _, _, _, err := hashchain.SplitEntry(lastEntry); err != nil {
 			return nil, err
 		}
 	}
 	msg.UIDContent.LASTENTRY = lastEntry
-	// TODO: REPOURIS
+
+	// set REPOURIS to the domain of UIDContent.IDENTITY
+	// TODO: support different KeyInit repository configurations
+	msg.UIDContent.REPOURIS = []string{domain}
+
 	msg.UIDContent.PREFERENCES.FORWARDSEC = pfsPreference.String()
 	msg.UIDContent.PREFERENCES.CIPHERSUITES = []string{DefaultCiphersuite}
 
@@ -209,9 +214,17 @@ func (msg *Message) checkV1_0() error {
 		msg.UIDContent.SIGESCROW.PUBKEY != "" {
 		return log.Error("uid: UIDContent.SIGESCROW must be zero-value")
 	}
+	// UIDContent.REPOURIS contains one entry which is the domain of
+	// UIDContent.IDENTITY
+	_, domain, _ := identity.Split(msg.UIDContent.IDENTITY)
+	if len(msg.UIDContent.REPOURIS) != 1 ||
+		msg.UIDContent.REPOURIS[0] != domain {
+		return log.Error("uid: UIDContent.REPOURIS must contain one entry (domain of identity)")
+	}
+
 	// UIDContent.CHAINLINK must be zero-value
 	if !reflect.DeepEqual(msg.UIDContent.CHAINLINK, chainlink{}) {
-		return log.Error("uid UIDContent.CHAINLINK must be zero-value")
+		return log.Error("uid: UIDContent.CHAINLINK must be zero-value")
 	}
 	return nil
 }
