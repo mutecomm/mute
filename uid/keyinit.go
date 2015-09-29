@@ -283,7 +283,7 @@ func (msg *Message) KeyInit(
 	}
 	keyInit.CONTENTS.SIGKEYHASH = base64.Encode(cipher.SHA512(keyHash))
 
-	// Make sure REPOURIS is set to the first REPOURI of UIDContent.REPOURIS
+	// make sure REPOURIS is set to the first REPOURI of UIDContent.REPOURIS
 	// TODO: support different KeyInit repository configurations
 	if repoURI != msg.UIDContent.REPOURIS[0] {
 		return nil, "", "",
