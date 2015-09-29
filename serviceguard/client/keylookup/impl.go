@@ -13,9 +13,9 @@ import (
 
 	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/serviceguard/common/constants"
-	"github.com/mutecomm/mute/serviceguard/common/jsonclient"
 	"github.com/mutecomm/mute/serviceguard/common/keypool"
 	"github.com/mutecomm/mute/serviceguard/common/signkeys"
+	"github.com/mutecomm/mute/util/jsonclient"
 )
 
 var (

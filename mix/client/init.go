@@ -10,7 +10,7 @@ import (
 	"github.com/mutecomm/mute/mix/mixcrypt"
 	"github.com/mutecomm/mute/mix/nymaddr"
 	"github.com/mutecomm/mute/mix/smtpclient"
-	"github.com/mutecomm/mute/serviceguard/common/jsonclient"
+	"github.com/mutecomm/mute/util/jsonclient"
 )
 
 // MaxMessageSize is the maximum size a message may have.

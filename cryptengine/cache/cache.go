@@ -14,8 +14,8 @@ import (
 
 	"github.com/mutecomm/mute/keyserver/capabilities"
 	"github.com/mutecomm/mute/log"
-	"github.com/mutecomm/mute/serviceguard/common/jsonclient"
 	"github.com/mutecomm/mute/util"
+	"github.com/mutecomm/mute/util/jsonclient"
 )
 
 // A Cache caches key server capabilities and clients used for mutecrypt's
