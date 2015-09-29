@@ -134,7 +134,7 @@ func Create(
 		return nil, log.Error(err)
 	}
 	msg.UIDContent.VERSION = ProtocolVersion
-	msg.UIDContent.MSGCOUNT = 0                            // TODO: first UIDMessage
+	msg.UIDContent.MSGCOUNT = 0                            // this is the first UIDMessage
 	msg.UIDContent.NOTAFTER = uint64(times.OneYearLater()) // TODO: make this settable!
 	msg.UIDContent.NOTBEFORE = 0                           // TODO: make this settable
 	if pfsPreference == Optional {
@@ -170,15 +170,18 @@ func Create(
 	// TODO: REPOURIS
 	msg.UIDContent.PREFERENCES.FORWARDSEC = pfsPreference.String()
 	msg.UIDContent.PREFERENCES.CIPHERSUITES = []string{DefaultCiphersuite}
+
 	// TODO: CHAINLINK (later protocol version)
 
-	// TODO: ESCROWSIGNATURE
-	// TODO: USERSIGNATURE
+	// theses signatures are always empty for messages the first UIDMessage
+	msg.ESCROWSIGNATURE = ""
+	msg.USERSIGNATURE = ""
 
 	selfsig := msg.UIDContent.SIGKEY.ed25519Key.Sign(msg.UIDContent.JSON())
 	msg.SELFSIGNATURE = base64.Encode(selfsig)
 
 	// TODO: LINKAUTHORITY
+
 	return &msg, nil
 }
 
