@@ -59,8 +59,12 @@ func InitMute(config *configclient.Config) error {
 	if err != nil {
 		return err
 	}
+
 	// set CA cert
 	CACert = config.CACert
+
+	// set configuration map
+	ConfigMap = config.Map
 
 	// muteaccd owner
 	var owner string
@@ -157,6 +161,9 @@ const (
 
 // CACert is the default certificate authority used for Mute.
 var CACert []byte
+
+// ConfigMap is the configuration map.
+var ConfigMap map[string]string
 
 // AccdOwner is the wallet owner public key of the Mute account daemon.
 var AccdOwner *[ed25519.PublicKeySize]byte

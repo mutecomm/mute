@@ -9,9 +9,8 @@ package cache
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"path"
 
+	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/keyserver/capabilities"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/util"
@@ -42,15 +41,17 @@ func newClient(domain, port, altHost, homedir string) (*jsonclient.URLClient, er
 	if altHost != "" {
 		host = altHost
 	} else {
-		host = domain
+		key := "keyserver." + domain
+		keyserver, ok := def.ConfigMap[key]
+		if !ok {
+			return nil,
+				log.Errorf("cache: no configuration for %s found", key)
+		}
+		host = keyserver
 	}
 	// create client
 	url := "https://" + host + port + "/"
-	cert, err := ioutil.ReadFile(path.Join(homedir, "certs", domain))
-	if err != nil {
-		return nil, err
-	}
-	client, err := jsonclient.New(url, cert)
+	client, err := jsonclient.New(url, def.CACert)
 	if err != nil {
 		return nil, err
 	}
