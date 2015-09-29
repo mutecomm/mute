@@ -134,7 +134,7 @@ func (ce *CtrlEngine) prepare(c *cli.Context, openMsgDB bool) error {
 				return log.Error("ctrlengine: cannot fetch in --offline mode")
 			}
 			statfp := os.NewFile(uintptr(c.Int("status-fd")), "status-fd")
-			fmt.Fprintf(statfp, "no system config found")
+			fmt.Fprintf(statfp, "no system config found\n")
 			err := ce.upkeepFetchconf(ce.msgDB, c.GlobalString("homedir"),
 				false, nil, statfp)
 			if err != nil {
