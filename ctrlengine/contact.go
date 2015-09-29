@@ -45,7 +45,7 @@ func mutecryptAddContact(
 	if host != "" {
 		args = append(args,
 			"--keyhost", host,
-			"--keyport", ":3000") // TODO: remove keyport hack!
+			"--keyport", ":8080") // TODO: remove keyport hack!
 	}
 	cmd := exec.Command("mutecrypt", args...)
 

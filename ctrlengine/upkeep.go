@@ -395,7 +395,7 @@ func mutecryptHashchainSync(
 	if host != "" {
 		args = append(args,
 			"--keyhost", host,
-			"--keyport", ":3000") // TODO: remove keyport hack!
+			"--keyport", ":8080") // TODO: remove keyport hack!
 	}
 	args = append(args,
 		"hashchain", "sync",
@@ -431,7 +431,7 @@ func mutecryptHashchainVerify(
 	if host != "" {
 		args = append(args,
 			"--keyhost", host,
-			"--keyport", ":3000") // TODO: remove keyport hack!
+			"--keyport", ":8080") // TODO: remove keyport hack!
 	}
 	args = append(args,
 		"hashchain", "sync",
