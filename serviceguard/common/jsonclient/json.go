@@ -17,8 +17,8 @@ import (
 )
 
 var (
-	// ErrCertLoad signals a loading error of the certificate
-	ErrCertLoad = errors.New("json: Certificate load failed")
+	// ErrCertLoad signals a loading error of the certificate.
+	ErrCertLoad = errors.New("jsonclient: certificate load failed")
 )
 
 // URLClient is a client for JSON-RPC over HTTPS calls.
@@ -28,7 +28,8 @@ type URLClient struct {
 }
 
 // New creates a new JSON-RPC over HTTPS client which uses the given
-// certificate file to communicate with the server if the scheme of the URL is https.
+// certificate file to communicate with the server if the scheme of the URL is
+// https.
 func New(URL string, cert []byte) (*URLClient, error) {
 	var pool *x509.CertPool
 	transport := new(http.Transport)
