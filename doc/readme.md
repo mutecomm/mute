@@ -49,7 +49,9 @@ reads the passphrase from stdin):
 mutectrl --passphrase-fd 0 db create
 ```
 
-This also fetches the necessary configuration settings from our config server and prints your public wallet key (you can always print your wallet key with `mutectrl wallet pubkey`).
+This also fetches the necessary configuration settings from our config server
+and prints your `WALLETPUBKEY` (you can always print your wallet key with
+`mutectrl wallet pubkey`).
 
 To be able to use Mute we have to charge your wallet. For now, this is
 absolutely **free of charge**. Just send an email to `frank@cryptogroup.net`
@@ -59,6 +61,14 @@ connect the used tokens to your wallet pubkey**!
 
 
 ### Example usage
+
+For the following commands you either have to enter your passphrase every time:
+
+```
+exec 3<`tty`; mutectrl ...
+```
+
+Or you can use the [interactive mode](#interactive-mode) described below.
 
 To be able to send and receive messages you have to create a unique _user ID_
 (UID) for the `@mute.one` domain first:
