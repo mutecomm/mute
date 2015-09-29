@@ -114,6 +114,9 @@ func (ce *CtrlEngine) dbCreate(
 	if err := createKeyDB(c, passphrase); err != nil {
 		return err
 	}
+	// status
+	fmt.Fprintf(statusfp, "database files created\n")
+	log.Info("database files created")
 	// determine private walletKey
 	walletKey := c.String("walletkey")
 	if walletKey == "" {
