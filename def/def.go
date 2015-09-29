@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"time"
 
 	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/configclient"
@@ -157,6 +158,17 @@ const (
 	// MinMaxDelay defines the minimum maximum delay setting for messages to
 	// mix.
 	MinMaxDelay = 2
+
+	// FetchconfMinDuration defines the minimum duration between automatic
+	// configuration fetches.
+	FetchconfMinDuration = 24 * time.Hour // 24h
+
+	// FetchconfMaxDuration defines the maximum duration between automatic
+	// configuration fetches.
+	FetchconfMaxDuration = 7 * 24 * time.Hour // 7d
+
+	// UpdateDuration defines the maximum duration before an enforced update.
+	UpdateDuration = 14 * 24 * time.Second // 14d
 )
 
 // CACert is the default certificate authority used for Mute.

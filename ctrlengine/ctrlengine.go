@@ -11,7 +11,9 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/agl/ed25519"
 	"github.com/codegangsta/cli"
@@ -25,6 +27,7 @@ import (
 	"github.com/mutecomm/mute/serviceguard/client/trivial"
 	"github.com/mutecomm/mute/util"
 	"github.com/mutecomm/mute/util/bzero"
+	"github.com/mutecomm/mute/util/git"
 	"github.com/mutecomm/mute/util/home"
 	"github.com/peterh/liner"
 )
@@ -120,25 +123,81 @@ func (ce *CtrlEngine) prepare(c *cli.Context, openMsgDB bool) error {
 		if err != nil {
 			return err
 		}
+		statfp := os.NewFile(uintptr(c.Int("status-fd")), "status-fd")
 		if jsn != "" {
 			if err := json.Unmarshal([]byte(jsn), &ce.config); err != nil {
 				return err
 			}
-			// apply new configuration
+			// apply old configuration
 			if err := def.InitMute(&ce.config); err != nil {
 				return err
+			}
+			// fetch new configuration, if last fetch is older than 24h
+			timestr, err := ce.msgDB.GetValue("time." + netDomain)
+			if err != nil {
+				return err
+			}
+			if timestr != "" {
+				t, err := strconv.ParseInt(timestr, 10, 64)
+				if err != nil {
+					return log.Error(err)
+				}
+				last := time.Now().Sub(time.Unix(t, 0))
+				if last > def.FetchconfMinDuration {
+					if offline {
+						if last > def.FetchconfMaxDuration {
+							return log.Error("ctrlengine: configuration is outdated, please run without --offline")
+						}
+						log.Warn("ctrlengine: cannot fetch outdated config in --offline mode")
+						fmt.Fprintf(statfp, "ctrlengine: cannot fetch outdated config in --offline mode\n")
+					} else {
+						// update config
+						err := ce.upkeepFetchconf(ce.msgDB, c.GlobalString("homedir"),
+							false, nil, statfp)
+						if err != nil {
+							return err
+						}
+					}
+				}
 			}
 		} else {
 			// no config found, fetch it
 			if offline {
-				return log.Error("ctrlengine: cannot fetch in --offline mode")
+				return log.Error("ctrlengine: cannot fetch config in --offline mode")
 			}
-			statfp := os.NewFile(uintptr(c.Int("status-fd")), "status-fd")
 			fmt.Fprintf(statfp, "no system config found\n")
 			err := ce.upkeepFetchconf(ce.msgDB, c.GlobalString("homedir"),
 				false, nil, statfp)
 			if err != nil {
 				return err
+			}
+		}
+
+		// check for updates, if necessary
+		commit := ce.config.Map["release.Commit"]
+		if release.Commit != commit {
+			// parse release date
+			tRelease, err := time.Parse(git.Date, ce.config.Map["release.Date"])
+			if err != nil {
+				return err
+			}
+			// parse binary date
+			tBinary, err := time.Parse(git.Date, release.Date)
+			if err != nil {
+				return err
+			}
+			// switch to UTC
+			tRelease = tRelease.UTC()
+			tBinary = tBinary.UTC()
+			// compare dates
+			if !tBinary.Before(tRelease) {
+				// binary is newer than release -> do nothing
+			} else if tBinary.Add(def.UpdateDuration).Before(tRelease) {
+				// binary is totally outdated -> force update
+				return log.Error("ctrlengine: software is outdated, you have to update with `mutectrl upkeep update`")
+			} else {
+				// new version available -> inform user
+				fmt.Fprintf(statfp, "ctrlengine: software available, please update with `mutectrl upkeep update`\n")
 			}
 		}
 

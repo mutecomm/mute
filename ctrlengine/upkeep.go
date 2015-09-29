@@ -14,6 +14,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"strconv"
 	"time"
 
 	"github.com/codegangsta/cli"
@@ -131,6 +132,10 @@ func (ce *CtrlEngine) upkeepFetchconf(
 		return log.Error(err)
 	}
 	if err := msgDB.AddValue(netDomain, string(jsn)); err != nil {
+		return err
+	}
+	err = msgDB.AddValue("time."+netDomain, strconv.FormatInt(times.Now(), 10))
+	if err != nil {
 		return err
 	}
 	// apply new configuration
