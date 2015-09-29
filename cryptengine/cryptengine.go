@@ -267,34 +267,38 @@ func New() *CryptEngine {
 							c.GlobalInt("passphrase-fd"))
 					},
 				},
-				{
-					Name:  "status",
-					Usage: "Show DB status",
-					Before: func(c *cli.Context) error {
-						if len(c.Args()) > 0 {
-							return log.Errorf("superfluous argument(s): %s",
-								strings.Join(c.Args(), " "))
-						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
+				/*
+					{
+						Name:  "status",
+						Usage: "Show DB status",
+						Before: func(c *cli.Context) error {
+							if len(c.Args()) > 0 {
+								return log.Errorf("superfluous argument(s): %s",
+									strings.Join(c.Args(), " "))
+							}
+							if err := ce.prepare(c, true); err != nil {
+								return err
+							}
+							return nil
+						},
+						Action: func(c *cli.Context) {
+							outputfp := os.NewFile(uintptr(c.GlobalInt("output-fd")),
+								"output-fd")
+							ce.err = ce.dbStatus(outputfp)
+						},
 					},
-					Action: func(c *cli.Context) {
-						outputfp := os.NewFile(uintptr(c.GlobalInt("output-fd")),
-							"output-fd")
-						ce.err = ce.dbStatus(outputfp)
-					},
-				},
+				*/
 				{
 					Name:  "vacuum",
 					Usage: "Do full DB rebuild (VACUUM)",
-					Flags: []cli.Flag{
-						cli.StringFlag{
-							Name:  "auto-vacuum",
-							Usage: "also change auto_vacuum mode (possible modes: NONE, FULL, INCREMENTAL)",
+					/*
+						Flags: []cli.Flag{
+							cli.StringFlag{
+								Name:  "auto-vacuum",
+								Usage: "also change auto_vacuum mode (possible modes: NONE, FULL, INCREMENTAL)",
+							},
 						},
-					},
+					*/
 					Before: func(c *cli.Context) error {
 						if len(c.Args()) > 0 {
 							return log.Errorf("superfluous argument(s): %s",
@@ -306,32 +310,34 @@ func New() *CryptEngine {
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						ce.err = ce.dbVacuum(c.String("auto-vacuum"))
+						ce.err = ce.dbVacuum("FULL")
 					},
 				},
-				{
-					Name:  "incremental",
-					Usage: "Remove free pages in auto_vacuum=INCREMENTAL mode",
-					Flags: []cli.Flag{
-						cli.IntFlag{
-							Name:  "pages",
-							Usage: "number of pages to remove (default: all)",
+				/*
+					{
+						Name:  "incremental",
+						Usage: "Remove free pages in auto_vacuum=INCREMENTAL mode",
+						Flags: []cli.Flag{
+							cli.IntFlag{
+								Name:  "pages",
+								Usage: "number of pages to remove (default: all)",
+							},
+						},
+						Before: func(c *cli.Context) error {
+							if len(c.Args()) > 0 {
+								return log.Errorf("superfluous argument(s): %s",
+									strings.Join(c.Args(), " "))
+							}
+							if err := ce.prepare(c, true); err != nil {
+								return err
+							}
+							return nil
+						},
+						Action: func(c *cli.Context) {
+							ce.err = ce.dbIncremental(int64(c.Int("pages")))
 						},
 					},
-					Before: func(c *cli.Context) error {
-						if len(c.Args()) > 0 {
-							return log.Errorf("superfluous argument(s): %s",
-								strings.Join(c.Args(), " "))
-						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
-					},
-					Action: func(c *cli.Context) {
-						ce.err = ce.dbIncremental(int64(c.Int("pages")))
-					},
-				},
+				*/
 				{
 					Name:  "version",
 					Usage: "Show DB version",
