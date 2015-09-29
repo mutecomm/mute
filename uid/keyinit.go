@@ -249,12 +249,12 @@ func (msg *Message) sessionAnchor(
 // notafter is the unixtime after which the key(s) should not be used anymore.
 // notbefore is the unixtime before which the key(s) should not be used yet.
 // fallback determines if the key may serve as a fallback key.
-// repouri is URI of the corresponding KeyInit repository.
+// repoURI is URI of the corresponding KeyInit repository.
 // Necessary randomness is read from rand.
 func (msg *Message) KeyInit(
 	msgcount, notafter, notbefore uint64,
 	fallback bool,
-	repouri, mixaddress, nymaddress string,
+	repoURI, mixaddress, nymaddress string,
 	rand io.Reader,
 ) (ki *KeyInit, pubKeyHash, privateKey string, err error) {
 	var keyInit KeyInit
@@ -282,7 +282,15 @@ func (msg *Message) KeyInit(
 		return nil, "", "", err
 	}
 	keyInit.CONTENTS.SIGKEYHASH = base64.Encode(cipher.SHA512(keyHash))
-	keyInit.CONTENTS.REPOURI = repouri
+
+	// Make sure REPOURIS is set to the first REPOURI of UIDContent.REPOURIS
+	// TODO: support different KeyInit repository configurations
+	if repoURI != msg.UIDContent.REPOURIS[0] {
+		return nil, "", "",
+			log.Error("uri: repoURI differs from msg.UIDContent.REPOURIS[0]")
+	}
+	keyInit.CONTENTS.REPOURI = repoURI
+
 	// create SessionAnchor
 	sa, sah, pubKeyHash, privateKey, err := msg.sessionAnchor(keyHash,
 		mixaddress, nymaddress, rand)
