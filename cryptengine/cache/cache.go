@@ -9,25 +9,26 @@ package cache
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"path"
 
 	"github.com/mutecomm/mute/keyserver/capabilities"
 	"github.com/mutecomm/mute/log"
+	"github.com/mutecomm/mute/serviceguard/common/jsonclient"
 	"github.com/mutecomm/mute/util"
-	"github.com/mutecomm/mute/util/json2"
 )
 
 // A Cache caches key server capabilities and clients used for mutecrypt's
 // cryptengine.
 type Cache struct {
-	clients      map[string]*json2.Client              // maps domain to JSON-RPC client
+	clients      map[string]*jsonclient.URLClient      // maps domain to JSON-RPC client
 	capabilities map[string]*capabilities.Capabilities // maps domain to
 }
 
 // New returns a new cache.
 func New() *Cache {
 	return &Cache{
-		clients:      make(map[string]*json2.Client),
+		clients:      make(map[string]*jsonclient.URLClient),
 		capabilities: make(map[string]*capabilities.Capabilities),
 	}
 }
@@ -35,7 +36,7 @@ func New() *Cache {
 // newClient creats a new JSON-RPC client for the key server at domain on
 // port. If altHost is defined, it is used as the alternate hostname for the
 // given domain name. homedir is used to load key server certificates.
-func newClient(domain, port, altHost, homedir string) (*json2.Client, error) {
+func newClient(domain, port, altHost, homedir string) (*jsonclient.URLClient, error) {
 	// determine used host string
 	var host string
 	if altHost != "" {
@@ -44,7 +45,12 @@ func newClient(domain, port, altHost, homedir string) (*json2.Client, error) {
 		host = domain
 	}
 	// create client
-	client, err := json2.NewClient(path.Join(homedir, "certs", domain), host, port)
+	url := "https://" + host + port + "/"
+	cert, err := ioutil.ReadFile(path.Join(homedir, "certs", domain))
+	if err != nil {
+		return nil, err
+	}
+	client, err := jsonclient.New(url, cert)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +98,7 @@ func (c *Cache) Set(domain, port, altHost, homedir string) error {
 // domain, port, altHost, and homedir parameters.
 func (c *Cache) Get(
 	domain, port, altHost, homedir, requiredMethod string,
-) (*json2.Client, *capabilities.Capabilities, error) {
+) (*jsonclient.URLClient, *capabilities.Capabilities, error) {
 	// check/set cache
 	caps := c.capabilities[domain]
 	if caps == nil {
