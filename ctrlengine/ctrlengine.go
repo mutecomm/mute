@@ -61,6 +61,27 @@ type CtrlEngine struct {
 	config     configclient.Config
 }
 
+func (ce *CtrlEngine) translateError(err error) error {
+	switch err {
+	case client.ErrNoUser:
+		var walletPubkey string
+		var pk []byte
+		privkey, err := ce.msgDB.GetValue(msgdb.WalletKey)
+		if err == nil {
+			pk, err = base64.Decode(privkey)
+		}
+		if err == nil {
+			walletPubkey = base64.Encode(pk[32:])
+		}
+		return fmt.Errorf("Unfortunately, you do not have tokens, yet!\n"+
+			"Please send your \n"+
+			"WALLETPUBKEY\t%s\n"+
+			"per email to frank@cryptogroup.net and stay tuned!", walletPubkey)
+	default:
+		return err
+	}
+}
+
 func startWallet(msgDB *msgdb.MsgDB, offline bool) (*client.Client, error) {
 	// get wallet key
 	wk, err := msgDB.GetValue(msgdb.WalletKey)
@@ -107,8 +128,9 @@ func (ce *CtrlEngine) prepare(c *cli.Context, openMsgDB bool) error {
 	}
 
 	// open MsgDB, if necessary
-	offline := c.GlobalBool("offline")
 	if openMsgDB {
+		offline := c.GlobalBool("offline")
+		// TODO: extract block as method
 		if ce.msgDB == nil {
 			err := ce.openMsgDB(c.GlobalString("homedir"),
 				c.GlobalInt("passphrase-fd"), c.GlobalInt("status-fd"))
@@ -298,7 +320,7 @@ func (ce *CtrlEngine) loop(c *cli.Context) {
 				return
 			}
 			// command execution failed -> issue status and continue
-			fmt.Fprintln(statusfp, ce.err)
+			fmt.Fprintln(statusfp, ce.translateError(ce.err))
 			ce.err = nil
 		} else {
 			log.Info("command successful")
@@ -1328,7 +1350,7 @@ func (ce *CtrlEngine) Start(args []string) error {
 		return err
 	}
 	if ce.err != nil {
-		return ce.err
+		return ce.translateError(ce.err)
 	}
 	return nil
 }
