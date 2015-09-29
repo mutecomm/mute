@@ -37,20 +37,19 @@ func New() *Cache {
 // given domain name. homedir is used to load key server certificates.
 func newClient(domain, port, altHost, homedir string) (*jsonclient.URLClient, error) {
 	// determine used host string
-	var host string
+	var url string
 	if altHost != "" {
-		host = altHost
+		url = "https://" + altHost + port + "/"
 	} else {
+		var ok bool
 		key := "keyserver." + domain
-		keyserver, ok := def.ConfigMap[key]
+		url, ok = def.ConfigMap[key]
 		if !ok {
 			return nil,
 				log.Errorf("cache: no configuration for %s found", key)
 		}
-		host = keyserver
 	}
 	// create client
-	url := "https://" + host + port + "/"
 	client, err := jsonclient.New(url, def.CACert)
 	if err != nil {
 		return nil, err
