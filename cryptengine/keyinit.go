@@ -28,7 +28,7 @@ func (ce *CryptEngine) addKeyInit(pseudonym, mixaddress, nymaddress, token strin
 	}
 	// TODO: fix parameter!
 	ki, pubKeyHash, privateKey, err := msg.KeyInit(1,
-		uint64(times.NinetyDaysLater()), 0, false, domain, mixaddress,
+		uint64(times.NinetyDaysLater()), 0, true, domain, mixaddress,
 		nymaddress, cipher.RandReader)
 	if err != nil {
 		return err
