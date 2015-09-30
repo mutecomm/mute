@@ -42,7 +42,7 @@ func (c *Client) WalletToken(usage string, owner *[ed25519.PublicKeySize]byte) (
 	c.packetClient.Keypool.SaveKey(*keyid)
 	// If we have params this is not renewable
 	renewable := false
-	if params == nil {
+	if params == nil || len(params) == 0 {
 		renewable = true
 	} else {
 		// Unless the params state otherwise....
