@@ -24,7 +24,7 @@ func TestKeyInitSuccess(t *testing.T) {
 		t.Fatal(err)
 	}
 	// success
-	ki, _, _, err := msg.KeyInit(1, uint64(times.NinetyDaysLater()), 0, false,
+	ki, _, _, err := msg.KeyInit(0, uint64(times.NinetyDaysLater()), 0, false,
 		"mute.berlin", "", "", cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
@@ -33,10 +33,10 @@ func TestKeyInitSuccess(t *testing.T) {
 		t.Error(err)
 	}
 	// getter methods
-	if ki.MsgCount() != ki.CONTENTS.MSGCOUNT {
+	if ki.MsgCount() != ki.Contents.MSGCOUNT {
 		t.Error("msgCount mismatch")
 	}
-	if ki.SigKeyHash() != ki.CONTENTS.SIGKEYHASH {
+	if ki.SigKeyHash() != ki.Contents.SIGKEYHASH {
 		t.Error("sigKeyHash mismatch")
 	}
 	// JSON conversion
@@ -177,8 +177,8 @@ func TestVerifyFailure(t *testing.T) {
 		t.Error("should fail")
 	}
 	// invalid times
-	ki2.CONTENTS.MSGCOUNT = 1
-	ki2.CONTENTS.NOTAFTER = 0
+	ki2.Contents.MSGCOUNT = 1
+	ki2.Contents.NOTAFTER = 0
 	if err := ki2.Verify(uris, other.UIDContent.SIGKEY.PUBKEY); err != ErrInvalidTimes {
 		t.Error("should fail")
 	}
