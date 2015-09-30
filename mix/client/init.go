@@ -35,7 +35,7 @@ var (
 var DefaultClientFactory = jsonclient.New
 
 // DefaultAccountServer is the URL of the account server round-robin.
-var DefaultAccountServer = "accounts.serviceguard.chavpn.net"
+var DefaultAccountServer = "rr.accounts.mute.one"
 
 // DefaultSender is the sender address for client messages.
 var DefaultSender = "client@mute.berlin"
