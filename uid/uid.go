@@ -24,14 +24,20 @@ import (
 )
 
 // The current version of the protocol.
+// Version 1.0 has the following peculiarities.
 //
-// Version 1.0 has the following peculiarities:
+// For UIDMessage:
 //
 //   - UIDContent.PREFERENCES.FORWARDSEC must be "strict".
 //   - UIDContent.PUBKEYS contains exactly one ECDHE25519 key for the default ciphersuite.
 //   - UIDContent.SIGESCROW must be zero-value.
 //   - UIDContent.REPOURIS contains one entry which is the domain of UIDContent.IDENTITY.
 //   - UIDContent.CHAINLINK must be zero-value.
+//
+// For KeyInit:
+//
+//   - Contents.MSGCOUNT must be 0.
+//
 const ProtocolVersion = "1.0"
 
 // PFSPreference representes a PFS preference.

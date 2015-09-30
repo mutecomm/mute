@@ -307,6 +307,14 @@ func (msg *Message) KeyInit(
 	return
 }
 
+func (ki *KeyInit) checkV1_0() error {
+	// Contents.MSGCOUNT must be 0.
+	if ki.Contents.MSGCOUNT != 0 {
+		return log.Error("uid: ki.Contents.MSGCOUNT must be 0")
+	}
+	return nil
+}
+
 // Check that the content of KeyInit is consistent with it's version.
 func (ki *KeyInit) Check() error {
 	// we only support version 1.0 at this stage
@@ -314,5 +322,6 @@ func (ki *KeyInit) Check() error {
 		return log.Errorf("uid: unknown Contents.VERSION: %s",
 			ki.Contents.VERSION)
 	}
-	return nil
+	// version 1.0 specific checks
+	return ki.checkV1_0()
 }
