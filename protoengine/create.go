@@ -42,9 +42,9 @@ func (pe *ProtoEngine) create(
 		Token:          token,
 		NymAddress:     na,
 		Message:        message,
-		SMTPPort:       2025,                          // TODO: allow to set SMTPPort
-		SmartHost:      "mix.serviceguard.chavpn.net", // TODO: allow to set SmartHost
-		CACert:         def.CACert,
+		//SMTPPort:       2025,                          // TODO: allow to set SMTPPort
+		//SmartHost:      "mix.serviceguard.chavpn.net", // TODO: allow to set SmartHost
+		CACert: def.CACert,
 	}.Create()
 	if mo.Error != nil {
 		return log.Error(mo.Error)
