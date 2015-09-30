@@ -9,11 +9,16 @@ import (
 
 	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/cipher"
-	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/encode/base64"
+	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/mix/client"
 	"github.com/mutecomm/mute/mix/nymaddr"
 )
+
+// MixAddress defines the mix address.
+//
+// TODO: Allow multiple domains.
+var MixAddress string
 
 // MailboxAddress returns the mailbox address for the given pubkey and server.
 func MailboxAddress(pubkey *[ed25519.PublicKeySize]byte, server string) []byte {
@@ -30,11 +35,14 @@ func NewNymAddress(
 	identity string,
 	pubkey *[ed25519.PublicKeySize]byte,
 	server string,
+	caCert []byte,
 ) (mixaddress, nymaddress string, err error) {
-	// TODO: make mixaddress settable?
-	mixAddresses, err := client.GetMixKeys("mix."+domain, def.CACert)
+	if MixAddress == "" {
+		return "", "", log.Error("util: MixAddress undefined")
+	}
+	mixAddresses, err := client.GetMixKeys(MixAddress, caCert)
 	if err != nil {
-		return "", "", err
+		return "", "", log.Error(err)
 	}
 	tmp := nymaddr.AddressTemplate{
 		Secret:        secret,
@@ -48,11 +56,11 @@ func NewNymAddress(
 	nymAddress, err := tmp.NewAddress(MailboxAddress(pubkey, server),
 		cipher.SHA256([]byte(identity)))
 	if err != nil {
-		return "", "", err
+		return "", "", log.Error(err)
 	}
 	addr, err := nymaddr.ParseAddress(nymAddress)
 	if err != nil {
-		return "", "", err
+		return "", "", log.Error(err)
 	}
 	return string(addr.MixAddress), base64.Encode(nymAddress), nil
 }

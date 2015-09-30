@@ -318,7 +318,7 @@ func (ce *CtrlEngine) uidNew(
 	var pubkey [ed25519.PublicKeySize]byte
 	copy(pubkey[:], privkey[32:])
 	mixaddress, nymaddress, err := util.NewNymAddress(domain, secret[:], expire,
-		singleUse, minDelay, maxDelay, id, &pubkey, server)
+		singleUse, minDelay, maxDelay, id, &pubkey, server, def.CACert)
 	if err != nil {
 		return err
 	}

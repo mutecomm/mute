@@ -21,6 +21,7 @@ import (
 	"github.com/mutecomm/mute/serviceguard/client/guardrpc"
 	"github.com/mutecomm/mute/serviceguard/client/keylookup"
 	"github.com/mutecomm/mute/serviceguard/client/walletrpc"
+	"github.com/mutecomm/mute/util"
 )
 
 // InitMute initializes Mute with the configuration from config.
@@ -36,9 +37,7 @@ func InitMute(config *configclient.Config) error {
 	if !ok {
 		return log.Error("config.Map[\"mixclient.MixAddress\"] undefined")
 	}
-	mixclient.GetMixAddress = func(string) (string, error) {
-		return mixAddress, nil
-	}
+	util.MixAddress = mixAddress
 	mixclient.DefaultAccountServer, ok = config.Map["mixclient.AccountServer"]
 	if !ok {
 		return log.Error("config.Map[\"mixclient.AccountServer\"] undefined")
