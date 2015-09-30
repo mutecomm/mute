@@ -150,25 +150,21 @@ func mutecryptNewUID(
 		fmt.Println(string(jsn))
 	*/
 
-	// owner, err := decodeED25519PubKeyBase64(caps.TKNPUBKEY)
+	owner, err := decodeED25519PubKeyBase64(caps.TKNPUBKEY)
 	if err != nil {
 		return err
 	}
 	// get token from wallet
-	/*
-		token, err := util.WalletGetToken(client, "UID", owner)
-		if err != nil {
-			return err
-		}
-	*/
-	token := []byte("SNAFU")
+	token, err := util.WalletGetToken(client, "UID", owner)
+	if err != nil {
+		return err
+	}
 
 	// try to register UID
 	_, err = io.WriteString(commandWriter, strings.Join([]string{
 		"uid", "register",
 		"--id", id,
-		// "--token", base64.Encode(token.Token) + "\n",
-		"--token", base64.Encode(token) + "\n",
+		"--token", base64.Encode(token.Token) + "\n",
 	}, " "))
 	if err != nil {
 		// client.UnlockToken(token.Hash)
@@ -215,19 +211,16 @@ func mutecryptNewUID(
 	}
 
 	// add KeyInit messages
-	/*
-		token, err := util.WalletGetToken(client, "UID", owner)
-		if err != nil {
-			return err
-		}
-	*/
+	token, err = util.WalletGetToken(client, "Message", owner)
+	if err != nil {
+		return err
+	}
 	_, err = io.WriteString(commandWriter, strings.Join([]string{
 		"keyinit", "add",
 		"--id", id,
 		"--mixaddress", mixaddress,
 		"--nymaddress", nymaddress,
-		// "--token", base64.Encode(token.Token) + "\n",
-		"--token", base64.Encode(token) + "\n",
+		"--token", base64.Encode(token.Token) + "\n",
 	}, " "))
 	if err != nil {
 		// client.UnlockToken(token.Hash)
