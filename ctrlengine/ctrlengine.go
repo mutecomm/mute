@@ -978,14 +978,17 @@ Tries to register a new user ID with the corresponding key server.
 							Name:  "file",
 							Usage: "read message from file",
 						},
-						cli.StringSliceFlag{
-							Name:  "attach",
-							Usage: "file to append as attachment",
-						},
-						cli.BoolFlag{
-							Name:  "permanent-signature",
-							Usage: "add permanent sign. to message",
-						},
+						// TODO: implement options
+						/*
+							cli.StringSliceFlag{
+								Name:  "attach",
+								Usage: "file to append as attachment",
+							},
+							cli.BoolFlag{
+								Name:  "permanent-signature",
+								Usage: "add permanent sign. to message",
+							},
+						*/
 						mindelayFlag,
 						maxdelayFlag,
 					},
