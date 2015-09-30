@@ -25,6 +25,7 @@ import (
 
 // InitMute initializes Mute with the configuration from config.
 func InitMute(config *configclient.Config) error {
+	log.Info("initialize Mute")
 	var ok bool
 	rpcPort := config.Map["mixclient.RPCPort"]
 	if rpcPort != "" {
@@ -33,7 +34,7 @@ func InitMute(config *configclient.Config) error {
 	var mixAddress string
 	mixAddress, ok = config.Map["mixclient.MixAddress"]
 	if !ok {
-		return log.Error("config.Map[\"mixclient.RPCPort\"] undefined")
+		return log.Error("config.Map[\"mixclient.MixAddress\"] undefined")
 	}
 	mixclient.GetMixAddress = func(string) (string, error) {
 		return mixAddress, nil
