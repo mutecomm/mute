@@ -36,7 +36,7 @@ type contents struct {
 
 // A KeyInit message contains short-term keys.
 type KeyInit struct {
-	CONTENTS  contents
+	Contents  contents
 	SIGNATURE string // signature of contents by UIDMessage.UIDContent.SIGKEY
 }
 
@@ -101,12 +101,12 @@ func (ki *KeyInit) JSON() []byte {
 
 // MsgCount returns the message count of the KeyInit message.
 func (ki *KeyInit) MsgCount() uint64 {
-	return ki.CONTENTS.MSGCOUNT
+	return ki.Contents.MSGCOUNT
 }
 
 // SigKeyHash returns the signature key hash of the KeyInit message.
 func (ki *KeyInit) SigKeyHash() string {
-	return ki.CONTENTS.SIGKEYHASH
+	return ki.Contents.SIGKEYHASH
 }
 
 // SessionAnchor returns the decrypted and verified session anchor for KeyInit.
@@ -117,12 +117,12 @@ func (ki *KeyInit) SessionAnchor(sigPubKey string) (*SessionAnchor, error) {
 		return nil, err
 	}
 	keyHash := cipher.SHA512(pubKey)
-	if ki.CONTENTS.SIGKEYHASH != base64.Encode(cipher.SHA512(keyHash)) {
+	if ki.Contents.SIGKEYHASH != base64.Encode(cipher.SHA512(keyHash)) {
 		log.Error(ErrWrongSigKeyHash)
 		return nil, ErrWrongSigKeyHash
 	}
 	// verify that SESSIONANCHORHASH matches decrypted SESSIONANCHOR
-	enc, err := base64.Decode(ki.CONTENTS.SESSIONANCHOR)
+	enc, err := base64.Decode(ki.Contents.SESSIONANCHOR)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +131,7 @@ func (ki *KeyInit) SessionAnchor(sigPubKey string) (*SessionAnchor, error) {
 	if err := json.Unmarshal(txt, &sa); err != nil {
 		return nil, err
 	}
-	if ki.CONTENTS.SESSIONANCHORHASH != base64.Encode(cipher.SHA512(sa.json())) {
+	if ki.Contents.SESSIONANCHORHASH != base64.Encode(cipher.SHA512(sa.json())) {
 		log.Error(ErrSessionAnchor)
 		return nil, ErrSessionAnchor
 	}
@@ -155,7 +155,7 @@ func (ki *KeyInit) KeyEntryECDHE25519(sigPubKey string) (*KeyEntry, error) {
 // Verify verifies that the KeyInit is valid.
 func (ki *KeyInit) Verify(keyInitRepositoryURIs []string, sigPubKey string) error {
 	// The REPOURI points to this KeyInit Repository
-	if !util.ContainsString(keyInitRepositoryURIs, ki.CONTENTS.REPOURI) {
+	if !util.ContainsString(keyInitRepositoryURIs, ki.Contents.REPOURI) {
 		log.Error(ErrRepoURI)
 		return ErrRepoURI
 	}
@@ -166,12 +166,12 @@ func (ki *KeyInit) Verify(keyInitRepositoryURIs []string, sigPubKey string) erro
 	}
 
 	// NOTAFTER and NOTBEFORE are valid
-	if ki.CONTENTS.NOTBEFORE >= ki.CONTENTS.NOTAFTER {
+	if ki.Contents.NOTBEFORE >= ki.Contents.NOTAFTER {
 		log.Error(ErrInvalidTimes)
 		return ErrInvalidTimes
 	}
 	// not expired
-	if ki.CONTENTS.NOTAFTER < uint64(times.Now()) {
+	if ki.Contents.NOTAFTER < uint64(times.Now()) {
 		log.Error(ErrExpired)
 		return ErrExpired
 	}
@@ -189,7 +189,7 @@ func (ki *KeyInit) Verify(keyInitRepositoryURIs []string, sigPubKey string) erro
 	// create ed25519 key
 	ed25519Key.SetPublicKey(pubKey)
 	// verify self-signature
-	if !ed25519Key.Verify(ki.CONTENTS.json(), sig) {
+	if !ed25519Key.Verify(ki.Contents.json(), sig) {
 		log.Error(ErrInvalidKeyInitSig)
 		return ErrInvalidKeyInitSig
 	}
@@ -272,16 +272,16 @@ func (msg *Message) KeyInit(
 		return nil, "", "", ErrFuture
 	}
 	// init
-	keyInit.CONTENTS.VERSION = ProtocolVersion
-	keyInit.CONTENTS.MSGCOUNT = msgcount
-	keyInit.CONTENTS.NOTAFTER = notafter
-	keyInit.CONTENTS.NOTBEFORE = notbefore
-	keyInit.CONTENTS.FALLBACK = fallback
+	keyInit.Contents.VERSION = ProtocolVersion
+	keyInit.Contents.MSGCOUNT = msgcount
+	keyInit.Contents.NOTAFTER = notafter
+	keyInit.Contents.NOTBEFORE = notbefore
+	keyInit.Contents.FALLBACK = fallback
 	keyHash, err := base64.Decode(msg.UIDContent.SIGKEY.HASH)
 	if err != nil {
 		return nil, "", "", err
 	}
-	keyInit.CONTENTS.SIGKEYHASH = base64.Encode(cipher.SHA512(keyHash))
+	keyInit.Contents.SIGKEYHASH = base64.Encode(cipher.SHA512(keyHash))
 
 	// make sure REPOURIS is set to the first REPOURI of UIDContent.REPOURIS
 	// TODO: support different KeyInit repository configurations
@@ -289,7 +289,7 @@ func (msg *Message) KeyInit(
 		return nil, "", "",
 			log.Error("uri: repoURI differs from msg.UIDContent.REPOURIS[0]")
 	}
-	keyInit.CONTENTS.REPOURI = repoURI
+	keyInit.Contents.REPOURI = repoURI
 
 	// create SessionAnchor
 	sa, sah, pubKeyHash, privateKey, err := msg.sessionAnchor(keyHash,
@@ -297,11 +297,11 @@ func (msg *Message) KeyInit(
 	if err != nil {
 		return nil, "", "", err
 	}
-	keyInit.CONTENTS.SESSIONANCHOR = sa
-	keyInit.CONTENTS.SESSIONANCHORHASH = sah
+	keyInit.Contents.SESSIONANCHOR = sa
+	keyInit.Contents.SESSIONANCHORHASH = sah
 	// sign KeyInit: the content doesn't have to be hashed, because Ed25519 is
 	// already taking care of that.
-	sig := msg.UIDContent.SIGKEY.ed25519Key.Sign(keyInit.CONTENTS.json())
+	sig := msg.UIDContent.SIGKEY.ed25519Key.Sign(keyInit.Contents.json())
 	keyInit.SIGNATURE = base64.Encode(sig)
 	ki = &keyInit
 	return
@@ -310,9 +310,9 @@ func (msg *Message) KeyInit(
 // Check that the content of KeyInit is consistent with it's version.
 func (ki *KeyInit) Check() error {
 	// we only support version 1.0 at this stage
-	if ki.CONTENTS.VERSION != "1.0" {
-		return log.Errorf("uid: unknown CONTENTS.VERSION: %s",
-			ki.CONTENTS.VERSION)
+	if ki.Contents.VERSION != "1.0" {
+		return log.Errorf("uid: unknown Contents.VERSION: %s",
+			ki.Contents.VERSION)
 	}
 	return nil
 }
