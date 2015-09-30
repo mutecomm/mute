@@ -167,7 +167,7 @@ func TestSendReceiveRelay(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Send-Along: %s", err)
 	}
-	if nextaddress != "mailbox001@001.mute.berlin" {
+	if nextaddress != "mailbox001@001.mute.one" {
 		t.Error("Bad address expansion")
 	}
 	decMessage, nym, err := ReceiveFromMix(addressTemplate, []byte(recAddress), newMessage)
