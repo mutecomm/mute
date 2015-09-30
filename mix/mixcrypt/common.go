@@ -37,7 +37,7 @@ var (
 )
 
 // The domain of the Mute System
-var MuteSystemDomain = "mute.berlin"
+var MuteSystemDomain = "mute.one"
 
 // Rand is the random source of this package
 var Rand = rand.Reader

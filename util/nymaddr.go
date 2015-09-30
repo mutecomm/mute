@@ -12,6 +12,7 @@ import (
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/mix/client"
+	"github.com/mutecomm/mute/mix/mixcrypt"
 	"github.com/mutecomm/mute/mix/nymaddr"
 )
 
@@ -22,7 +23,8 @@ var MixAddress string
 
 // MailboxAddress returns the mailbox address for the given pubkey and server.
 func MailboxAddress(pubkey *[ed25519.PublicKeySize]byte, server string) []byte {
-	return []byte(hex.EncodeToString(pubkey[:]) + "@" + server)
+	return []byte(hex.EncodeToString(pubkey[:]) + "@" +
+		server[:len(server)-len(mixcrypt.MuteSystemDomain)])
 }
 
 // NewNymAddress generates a new nym address.
