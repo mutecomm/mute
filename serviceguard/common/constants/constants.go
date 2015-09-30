@@ -21,13 +21,13 @@ var (
 	// WalletServerPath is the URI path to the wallet server
 	WalletServerPath = "/wallet/"
 	// WalletServerURL is the URL of the wallet service
-	WalletServerURL = "https://walletserver.serviceguard.chavpn.net" + WalletServerPath
+	WalletServerURL = "https://walletserver.serviceguard.mute.one" + WalletServerPath
 	// KeyLookupURL is the URL of the key lookup service
-	KeyLookupURL = "https://keylookup.serviceguard.chavpn.net" + KeyLookupPath
+	KeyLookupURL = "https://keylookup.serviceguard.mute.one" + KeyLookupPath
 	// KeyPostURL is the URL to post keys to for key lookup registration
-	KeyPostURL = "https://keylookup.serviceguard.chavpn.net" + KeyLookupInternalPath
+	KeyPostURL = "https://keylookup.serviceguard.mute.one" + KeyLookupInternalPath
 	// IssuerURL is the URL template for issuers. Notice the leading dot and trailing slash
-	IssuerURL = "https://.serviceguard.chavpn.net" + IssuerPath
+	IssuerURL = "https://.serviceguard.mute.one" + IssuerPath
 	// AuthTokenRetry defines how often an authToken should be retried by the client on non-final errors
 	AuthTokenRetry = 3
 	// ClientMaxLockAge defines how long a token should be locked at max in the tokenstore
