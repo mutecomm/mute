@@ -233,7 +233,7 @@ func (msg *Message) checkV1_0() error {
 func (msg *Message) Check() error {
 	// we only support version 1.0 at this stage
 	if msg.UIDContent.VERSION != "1.0" {
-		return log.Errorf("uid: unknown UIDContentVersion: %s",
+		return log.Errorf("uid: unknown UIDContent.VERSION: %s",
 			msg.UIDContent.VERSION)
 	}
 	// generic checks

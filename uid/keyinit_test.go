@@ -29,6 +29,9 @@ func TestKeyInitSuccess(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if err := ki.Check(); err != nil {
+		t.Error(err)
+	}
 	// getter methods
 	if ki.MsgCount() != ki.CONTENTS.MSGCOUNT {
 		t.Error("msgCount mismatch")

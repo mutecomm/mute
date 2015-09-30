@@ -306,3 +306,13 @@ func (msg *Message) KeyInit(
 	ki = &keyInit
 	return
 }
+
+// Check that the content of KeyInit is consistent with it's version.
+func (ki *KeyInit) Check() error {
+	// we only support version 1.0 at this stage
+	if ki.CONTENTS.VERSION != "1.0" {
+		return log.Errorf("uid: unknown CONTENTS.VERSION: %s",
+			ki.CONTENTS.VERSION)
+	}
+	return nil
+}
