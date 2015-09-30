@@ -151,33 +151,44 @@ func (ce *CtrlEngine) prepare(c *cli.Context, openMsgDB bool) error {
 				return err
 			}
 			// apply old configuration
-			if err := def.InitMute(&ce.config); err != nil {
-				return err
-			}
-			// fetch new configuration, if last fetch is older than 24h
-			timestr, err := ce.msgDB.GetValue("time." + netDomain)
+			err := def.InitMute(&ce.config)
 			if err != nil {
-				return err
-			}
-			if timestr != "" {
-				t, err := strconv.ParseInt(timestr, 10, 64)
-				if err != nil {
-					return log.Error(err)
+				// init failed -> update config (which will try init again)
+				fmt.Fprintf(statfp, "initialization failed, try to update config\n")
+				if offline {
+					return log.Error("ctrlengine: cannot fetch config in --offline mode, run without")
 				}
-				last := time.Now().Sub(time.Unix(t, 0))
-				if last > def.FetchconfMinDuration {
-					if offline {
-						if last > def.FetchconfMaxDuration {
-							return log.Error("ctrlengine: configuration is outdated, please run without --offline")
-						}
-						log.Warn("ctrlengine: cannot fetch outdated config in --offline mode")
-						fmt.Fprintf(statfp, "ctrlengine: cannot fetch outdated config in --offline mode\n")
-					} else {
-						// update config
-						err := ce.upkeepFetchconf(ce.msgDB, c.GlobalString("homedir"),
-							false, nil, statfp)
-						if err != nil {
-							return err
+				err := ce.upkeepFetchconf(ce.msgDB, c.GlobalString("homedir"),
+					false, nil, statfp)
+				if err != nil {
+					return err
+				}
+			} else {
+				// fetch new configuration, if last fetch is older than 24h
+				timestr, err := ce.msgDB.GetValue("time." + netDomain)
+				if err != nil {
+					return err
+				}
+				if timestr != "" {
+					t, err := strconv.ParseInt(timestr, 10, 64)
+					if err != nil {
+						return log.Error(err)
+					}
+					last := time.Now().Sub(time.Unix(t, 0))
+					if last > def.FetchconfMinDuration {
+						if offline {
+							if last > def.FetchconfMaxDuration {
+								return log.Error("ctrlengine: configuration is outdated, please run without --offline")
+							}
+							log.Warn("ctrlengine: cannot fetch outdated config in --offline mode")
+							fmt.Fprintf(statfp, "ctrlengine: cannot fetch outdated config in --offline mode\n")
+						} else {
+							// update config
+							err := ce.upkeepFetchconf(ce.msgDB, c.GlobalString("homedir"),
+								false, nil, statfp)
+							if err != nil {
+								return err
+							}
 						}
 					}
 				}
