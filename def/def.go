@@ -39,6 +39,14 @@ func InitMute(config *configclient.Config) error {
 	mixclient.GetMixAddress = func(string) (string, error) {
 		return mixAddress, nil
 	}
+	mixclient.DefaultAccountServer, ok = config.Map["mixclient.AccountServer"]
+	if !ok {
+		return log.Error("config.Map[\"mixclient.AccountServer\"] undefined")
+	}
+	mixclient.DefaultSender, ok = config.Map["mixclient.Sender"]
+	if !ok {
+		return log.Error("config.Map[\"mixclient.Sender\"] undefined")
+	}
 	walletrpc.ServiceURL, ok = config.Map["walletrpc.ServiceURL"]
 	if !ok {
 		return log.Error("config.Map[\"walletrpc.ServiceURL\"] undefined")

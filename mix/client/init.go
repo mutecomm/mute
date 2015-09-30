@@ -38,7 +38,7 @@ var DefaultClientFactory = jsonclient.New
 var DefaultAccountServer = "rr.accounts.mute.one"
 
 // DefaultSender is the sender address for client messages.
-var DefaultSender = "client@mute.berlin"
+var DefaultSender = "client@mute.one"
 
 // DefaultTimeOut is the timeout for RPC calls.
 var DefaultTimeOut = 30
