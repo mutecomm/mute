@@ -108,6 +108,9 @@ mutectrl msg read --id your.name@mute.one --msgid X
 
 (add `help` to a command to get help).
 
+Messages are delayed and mixed with other messages on the server, so do not be
+surprised if your message is not delivered instantly.
+
 
 ### Interactive mode
 

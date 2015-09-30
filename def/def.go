@@ -161,11 +161,11 @@ const (
 
 	// MinMinDelay defines the minimum minimum delay setting for messages to
 	// mix.
-	MinMinDelay = 1
+	MinMinDelay = 60
 
 	// MinMaxDelay defines the minimum maximum delay setting for messages to
 	// mix.
-	MinMaxDelay = 2
+	MinMaxDelay = 61
 
 	// FetchconfMinDuration defines the minimum duration between automatic
 	// configuration fetches.
