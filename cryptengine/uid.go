@@ -86,7 +86,6 @@ func (ce *CryptEngine) registerOrUpdate(
 	if err != nil {
 		return err
 	}
-	log.Infof("cryptengine: returned sigpubkey: %s", caps.SIGPUBKEY)
 	// register/update UID with key server
 	content := make(map[string]interface{})
 	content["UIDMessage"] = msg
@@ -117,7 +116,8 @@ func (ce *CryptEngine) registerOrUpdate(
 	}
 
 	// verify reply
-	if err := msgReply.VerifySrvSig(msg, caps.SIGPUBKEY); err != nil {
+	// TODO: keyserver can return more than one SIGPUBKEY
+	if err := msgReply.VerifySrvSig(msg, caps.SIGPUBKEYS[0]); err != nil {
 		return err
 	}
 

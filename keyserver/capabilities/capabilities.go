@@ -15,6 +15,5 @@ type Capabilities struct {
 	KEYHASHCHAINURIS      []string // Key Hashchain URIs
 	KEYHASHCHAINENTRY     string   // last Key Hashchain entry
 	TKNPUBKEY             string   // public wallet key for key server payment tokens
-	// TODO: can be more than one key?
-	SIGPUBKEY string // public signature key(s) of keyserver
+	SIGPUBKEYS            []string // public signature key(s) of keyserver
 }

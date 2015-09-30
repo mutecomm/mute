@@ -49,7 +49,6 @@ func (ce *CryptEngine) addKeyInit(pseudonym, mixaddress, nymaddress, token strin
 	if err != nil {
 		return err
 	}
-	log.Infof("cryptengine: returned sigpubkey: %s", caps.SIGPUBKEY)
 	// call server
 	content := make(map[string]interface{})
 	content["SigPubKey"] = msg.UIDContent.SIGKEY.PUBKEY
@@ -72,7 +71,8 @@ func (ce *CryptEngine) addKeyInit(pseudonym, mixaddress, nymaddress, token strin
 		if !ok {
 			return log.Error("cryptengine: signature is not a string")
 		}
-		if err := ki.VerifySrvSig(sig, caps.SIGPUBKEY); err != nil {
+		// TODO: keyserver can return more than one SIGPUBKEY
+		if err := ki.VerifySrvSig(sig, caps.SIGPUBKEYS[0]); err != nil {
 			return err
 		}
 	}
@@ -106,12 +106,11 @@ func (ce *CryptEngine) fetchKeyInit(pseudonym string) error {
 		return err
 	}
 	// get JSON-RPC client and capabilities
-	client, caps, err := ce.cache.Get(domain, ce.keydPort, ce.keydHost,
+	client, _, err := ce.cache.Get(domain, ce.keydPort, ce.keydHost,
 		ce.homedir, "KeyInitRepository.FetchKeyInit")
 	if err != nil {
 		return err
 	}
-	log.Infof("cryptengine: returned sigpubkey: %s", caps.SIGPUBKEY)
 	// call server
 	content := make(map[string]interface{})
 	content["SigKeyHash"] = sigKeyHash
@@ -146,12 +145,11 @@ func (ce *CryptEngine) flushKeyInit(pseudonym string) error {
 		return err
 	}
 	// get JSON-RPC client and capabilities
-	client, caps, err := ce.cache.Get(domain, ce.keydPort, ce.keydHost,
+	client, _, err := ce.cache.Get(domain, ce.keydPort, ce.keydHost,
 		ce.homedir, "KeyInitRepository.FlushKeyInit")
 	if err != nil {
 		return err
 	}
-	log.Infof("cryptengine: returned sigpubkey: %s", caps.SIGPUBKEY)
 	// call server
 	content := make(map[string]interface{})
 	nonce, signature := msg.SignNonce()
