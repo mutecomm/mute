@@ -1,4 +1,4 @@
-## Mute — secure messaging [![GoDoc](https://godoc.org/github.com/mutecomm/mute?status.png)](http://godoc.org/github.com/mutecomm/mute) [![Build Status](https://travis-ci.org/mutecomm/mute.png)](https://travis-ci.org/mutecomm/mute)
+## Mute — secure messaging — α release [![GoDoc](https://godoc.org/github.com/mutecomm/mute?status.png)](http://godoc.org/github.com/mutecomm/mute) [![Build Status](https://travis-ci.org/mutecomm/mute.png)](https://travis-ci.org/mutecomm/mute)
 
 This is an **alpha** release of Mute — **use at your own risk**!
 At the moment, you can only test the command-line interface `mutectrl`,
