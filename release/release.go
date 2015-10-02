@@ -16,7 +16,7 @@ import (
 
 // Version is the current Mute version.
 // We use semantic versioning (http://semver.org/).
-const Version = "0.2.0"
+const Version = "0.3.0"
 
 // PrintVersion prints version information.
 func PrintVersion(c *cli.Context) {
