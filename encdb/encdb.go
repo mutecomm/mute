@@ -133,7 +133,7 @@ func Open(dbname string, passphrase []byte) (*sql.DB, error) {
 		return nil, log.Error(err)
 	}
 	// test key
-	_, err = db.Exec("select count(*) from sqlite_master")
+	_, err = db.Exec("SELECT count(*) FROM sqlite_master;")
 	if err != nil {
 		return nil, log.Error(err)
 	}

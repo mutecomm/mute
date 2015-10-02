@@ -34,7 +34,7 @@ func TestCreateOpenClose(t *testing.T) {
 
 func TestCreateRekey(t *testing.T) {
 	sqls := []string{
-		"create table Test (ID integer not null primary key, Test text)",
+		"CREATE TABLE Test (ID INTEGER PRIMARY KEY, Test TEXT);",
 	}
 	tmpdir, err := ioutil.TempDir("", "encdb_test")
 	if err != nil {
