@@ -43,7 +43,7 @@ then does she tell Bob about her new Identity.
 
 ### Starting a session: Bob
 
-On hearing about Alice's new Identity, Bob updataes his local Hashchain copy via
+On hearing about Alice's new Identity, Bob updates his local Hashchain copy via
 `KeyRepository.FetchHashChain()` and then searches it exhaustively for Alice's
 Identity. On finding the first entry, he then construct a cache of her signature
 keys and last `UIDIndex`.
