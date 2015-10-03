@@ -91,7 +91,7 @@ This automatically fetches all the necessary key material.
 Now you can add a message to your friend to the outqueue (without actually sending it)
 
 ```
-mutectrl msg add --from your.name@mute.one --to your_friend@mute.one --attach msg.txt
+mutectrl msg add --from your.name@mute.one --to your_friend@mute.one --file msg.txt
 ```
 
 Then send (all) messages from the outqueue:
