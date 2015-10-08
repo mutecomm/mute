@@ -386,7 +386,8 @@ key control loss).
 #### Expiring/rolling key chain
 
 Definitions:
-- `ROLLOVER`: Time after which the blockchain should be considered "non-authorative" by the client. One year.
+- `ROLLOVER`: Time after which the hashchain should be considered
+  "non-authorative" by the client. One year.
 
 Server:
 - New entries should not have a `UIDMessage.UIDContent.NOTAFTER` that is more
