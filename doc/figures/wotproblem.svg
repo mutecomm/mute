@@ -1,0 +1,165 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with ASCIIToSVG (http://9vx.org/~dho/a2s/) -->
+<svg width="675px" height="416px" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <filter id="dsFilter" width="150%" height="150%">
+      <feOffset result="offOut" in="SourceGraphic" dx="3" dy="3"/>
+      <feColorMatrix result="matrixOut" in="offOut" type="matrix" values="0.2 0 0 0 0 0 0.2 0 0 0 0 0 0.2 0 0 0 0 0 1 0"/>
+      <feBlend in="SourceGraphic" in2="matrixOut" mode="normal"/>
+    </filter>
+    <marker id="iPointer"
+      viewBox="0 0 10 10" refX="5" refY="5" 
+      markerUnits="strokeWidth"
+      markerWidth="8" markerHeight="7"
+      orient="auto">
+      <path d="M 10 0 L 10 10 L 0 5 z" />
+    </marker>
+    <marker id="Pointer"
+      viewBox="0 0 10 10" refX="5" refY="5" 
+      markerUnits="strokeWidth"
+      markerWidth="8" markerHeight="7"
+      orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" />
+    </marker>
+  </defs><g id="boxes" stroke="black" stroke-width="2" fill="none" >
+<g id="group0">
+	<path id="path0" filter="url(#dsFilter)" fill="#fff" d="M 76.5 18 Q 76.5 8 86.5 8 L 102.5 8 Q 112.5 8 112.5 18 L 112.5 46 Q 112.5 56 102.5 56 L 86.5 56 Q 76.5 56 76.5 46 Z" />
+</g>
+<g id="group2">
+	<path id="path2" filter="url(#dsFilter)" fill="#fff" d="M 229.5 18 Q 229.5 8 239.5 8 L 255.5 8 Q 265.5 8 265.5 18 L 265.5 46 Q 265.5 56 255.5 56 L 239.5 56 Q 229.5 56 229.5 46 Z" />
+</g>
+<g id="group4">
+	<path id="path4" filter="url(#dsFilter)" fill="#fff" d="M 391.5 18 Q 391.5 8 401.5 8 L 417.5 8 Q 427.5 8 427.5 18 L 427.5 46 Q 427.5 56 417.5 56 L 401.5 56 Q 391.5 56 391.5 46 Z" />
+</g>
+<g id="group6">
+	<path id="path6" filter="url(#dsFilter)" fill="#fff" d="M 607.5 18 Q 607.5 8 617.5 8 L 633.5 8 Q 643.5 8 643.5 18 L 643.5 46 Q 643.5 56 633.5 56 L 617.5 56 Q 607.5 56 607.5 46 Z" />
+</g>
+<g id="group8">
+	<path id="path8" filter="url(#dsFilter)" fill="#fff" d="M 157.5 34 Q 157.5 24 167.5 24 L 183.5 24 Q 193.5 24 193.5 34 L 193.5 62 Q 193.5 72 183.5 72 L 167.5 72 Q 157.5 72 157.5 62 Z" />
+</g>
+<g id="group10">
+	<path id="path10" filter="url(#dsFilter)" fill="#fff" d="M 301.5 34 Q 301.5 24 311.5 24 L 327.5 24 Q 337.5 24 337.5 34 L 337.5 62 Q 337.5 72 327.5 72 L 311.5 72 Q 301.5 72 301.5 62 Z" />
+</g>
+<g id="group28">
+	<path id="path28" filter="url(#dsFilter)" fill="#fff" d="M 112.5 114 Q 112.5 104 122.5 104 L 138.5 104 Q 148.5 104 148.5 114 L 148.5 142 Q 148.5 152 138.5 152 L 122.5 152 Q 112.5 152 112.5 142 Z" />
+</g>
+<g id="group34">
+	<path id="path34" filter="url(#dsFilter)" fill="#fff" d="M 544.5 114 Q 544.5 104 554.5 104 L 570.5 104 Q 580.5 104 580.5 114 L 580.5 142 Q 580.5 152 570.5 152 L 554.5 152 Q 544.5 152 544.5 142 Z" />
+</g>
+<g id="group36">
+	<path id="path36" filter="url(#dsFilter)" fill="#fff" d="M 4.5 130 Q 4.5 120 14.5 120 L 30.5 120 Q 40.5 120 40.5 130 L 40.5 158 Q 40.5 168 30.5 168 L 14.5 168 Q 4.5 168 4.5 158 Z" />
+</g>
+<g id="group55">
+	<path id="path55" filter="url(#dsFilter)" fill="#fff" d="M 76.5 210 Q 76.5 200 86.5 200 L 102.5 200 Q 112.5 200 112.5 210 L 112.5 238 Q 112.5 248 102.5 248 L 86.5 248 Q 76.5 248 76.5 238 Z" />
+</g>
+<g id="group57">
+	<path id="path57" filter="url(#dsFilter)" fill="#fff" d="M 157.5 210 Q 157.5 200 167.5 200 L 183.5 200 Q 193.5 200 193.5 210 L 193.5 238 Q 193.5 248 183.5 248 L 167.5 248 Q 157.5 248 157.5 238 Z" />
+</g>
+<g id="group60">
+	<path id="path60" filter="url(#dsFilter)" fill="#fff" d="M 229.5 210 Q 229.5 200 239.5 200 L 255.5 200 Q 265.5 200 265.5 210 L 265.5 238 Q 265.5 248 255.5 248 L 239.5 248 Q 229.5 248 229.5 238 Z" />
+</g>
+<g id="group62">
+	<path id="path62" filter="url(#dsFilter)" fill="#fff" d="M 373.5 210 Q 373.5 200 383.5 200 L 399.5 200 Q 409.5 200 409.5 210 L 409.5 238 Q 409.5 248 399.5 248 L 383.5 248 Q 373.5 248 373.5 238 Z" />
+</g>
+<g id="group64">
+	<path id="path64" filter="url(#dsFilter)" fill="#fff" d="M 301.5 226 Q 301.5 216 311.5 216 L 327.5 216 Q 337.5 216 337.5 226 L 337.5 254 Q 337.5 264 327.5 264 L 311.5 264 Q 301.5 264 301.5 254 Z" />
+</g>
+<g id="group67">
+	<path id="path67" filter="url(#dsFilter)" fill="#fff" d="M 634.5 226 Q 634.5 216 644.5 216 L 660.5 216 Q 670.5 216 670.5 226 L 670.5 254 Q 670.5 264 660.5 264 L 644.5 264 Q 634.5 264 634.5 254 Z" />
+</g>
+<g id="group81">
+	<path id="path81" filter="url(#dsFilter)" fill="#fff" d="M 490.5 258 Q 490.5 248 500.5 248 L 516.5 248 Q 526.5 248 526.5 258 L 526.5 286 Q 526.5 296 516.5 296 L 500.5 296 Q 490.5 296 490.5 286 Z" />
+</g>
+<g id="group88">
+	<path id="path88" filter="url(#dsFilter)" fill="#fff" d="M 4.5 306 Q 4.5 296 14.5 296 L 30.5 296 Q 40.5 296 40.5 306 L 40.5 334 Q 40.5 344 30.5 344 L 14.5 344 Q 4.5 344 4.5 334 Z" />
+</g>
+<g id="group97">
+	<path id="path97" filter="url(#dsFilter)" fill="#fff" d="M 76.5 338 Q 76.5 328 86.5 328 L 102.5 328 Q 112.5 328 112.5 338 L 112.5 366 Q 112.5 376 102.5 376 L 86.5 376 Q 76.5 376 76.5 366 Z" />
+</g>
+<g id="group99">
+	<path id="path99" filter="url(#dsFilter)" fill="#fff" d="M 229.5 338 Q 229.5 328 239.5 328 L 255.5 328 Q 265.5 328 265.5 338 L 265.5 366 Q 265.5 376 255.5 376 L 239.5 376 Q 229.5 376 229.5 366 Z" />
+</g>
+<g id="group102">
+	<path id="path102" filter="url(#dsFilter)" fill="#fff" d="M 373.5 338 Q 373.5 328 383.5 328 L 399.5 328 Q 409.5 328 409.5 338 L 409.5 366 Q 409.5 376 399.5 376 L 383.5 376 Q 373.5 376 373.5 366 Z" />
+</g>
+<g id="group104">
+	<path id="path104" filter="url(#dsFilter)" fill="#fff" d="M 589.5 338 Q 589.5 328 599.5 328 L 615.5 328 Q 625.5 328 625.5 338 L 625.5 366 Q 625.5 376 615.5 376 L 599.5 376 Q 589.5 376 589.5 366 Z" />
+</g>
+<g id="group108">
+	<path id="path108" filter="url(#dsFilter)" fill="#fff" d="M 157.5 354 Q 157.5 344 167.5 344 L 183.5 344 Q 193.5 344 193.5 354 L 193.5 382 Q 193.5 392 183.5 392 L 167.5 392 Q 157.5 392 157.5 382 Z" />
+</g>
+<g id="group110">
+	<path id="path110" filter="url(#dsFilter)" fill="#fff" d="M 301.5 354 Q 301.5 344 311.5 344 L 327.5 344 Q 337.5 344 337.5 354 L 337.5 382 Q 337.5 392 327.5 392 L 311.5 392 Q 301.5 392 301.5 382 Z" />
+</g>
+</g>
+<g id="lines" stroke="black" stroke-width="2" fill="none" >
+<g id="group195">
+	<path id="path195" marker-end="url(#Pointer)" d="M 22.5 296 L 22.5 232 L 67.5 232 " />
+</g>
+<g id="group402">
+	<path id="path402" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 94.5 264 L 94.5 312 " />
+</g>
+<g id="group624">
+	<path id="path624" marker-end="url(#Pointer)" d="M 175.5 72 L 175.5 126 Q 175.5 136 185.5 136 L 247.5 136 L 319.5 136 L 364.5 136 L 381.5 136 Q 391.5 136 391.5 146 L 391.5 168 L 435.5 168 Q 445.5 168 445.5 178 L 445.5 350 Q 445.5 360 435.5 360 L 418.5 360 " />
+</g>
+<g id="group633">
+	<path id="path633" d="M 175.5 200 L 175.5 178 Q 175.5 168 185.5 168 L 247.5 168 L 319.5 168 L 364.5 168 L 391.5 168 " />
+</g>
+<g id="group642">
+	<path id="path642" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 175.5 328 L 175.5 306 Q 175.5 296 185.5 296 L 247.5 296 L 319.5 296 L 381.5 296 Q 391.5 296 391.5 286 L 391.5 264 " />
+</g>
+<g id="group676">
+	<path id="path676" marker-end="url(#Pointer)" d="M 193.5 40 L 220.5 40 " />
+</g>
+<g id="group689">
+	<path id="path689" marker-end="url(#Pointer)" d="M 193.5 232 L 220.5 232 " />
+</g>
+<g id="group724">
+	<path id="path724" marker-start="url(#iPointer)" d="M 202.5 360 L 229.5 360 " />
+</g>
+<g id="group842">
+	<path id="path842" d="M 247.5 168 L 247.5 136 L 247.5 114 Q 247.5 104 257.5 104 L 319.5 104 L 364.5 104 L 399.5 104 Q 409.5 104 409.5 94 L 409.5 56 " />
+</g>
+<g id="group844">
+	<path id="path844" marker-start="url(#iPointer)" d="M 247.5 184 L 247.5 168 " />
+</g>
+<g id="group849">
+	<path id="path849" marker-start="url(#iPointer)" d="M 247.5 264 L 247.5 296 L 247.5 328 " />
+</g>
+<g id="group899">
+	<path id="path899" marker-end="url(#Pointer)" d="M 265.5 232 L 292.5 232 " />
+</g>
+<g id="group914">
+	<path id="path914" marker-start="url(#iPointer)" d="M 274.5 40 L 301.5 40 " />
+</g>
+<g id="group934">
+	<path id="path934" marker-start="url(#iPointer)" d="M 274.5 360 L 301.5 360 " />
+</g>
+<g id="group1047">
+	<path id="path1047" marker-start="url(#iPointer)" d="M 319.5 88 L 319.5 104 L 319.5 136 L 319.5 168 L 319.5 216 " />
+</g>
+<g id="group1058">
+	<path id="path1058" marker-end="url(#Pointer)" d="M 319.5 264 L 319.5 296 L 319.5 328 " />
+</g>
+<g id="group1109">
+	<path id="path1109" marker-end="url(#Pointer)" d="M 337.5 232 L 364.5 232 " />
+</g>
+<g id="group1144">
+	<path id="path1144" marker-start="url(#iPointer)" d="M 346.5 360 L 373.5 360 " />
+</g>
+<g id="group1175">
+	<path id="path1175" marker-start="url(#iPointer)" d="M 364.5 24 L 364.5 104 L 364.5 136 L 364.5 168 " />
+</g>
+<g id="group1263">
+	<path id="path1263" marker-start="url(#iPointer)" d="M 391.5 184 L 391.5 168 " />
+</g>
+<g id="group1343">
+	<path id="path1343" marker-end="url(#Pointer)" d="M 418.5 216 L 436.5 216 " />
+</g>
+</g>
+<g id="text" fill="black" style="font-family:LMMono10,monospace;font-size:15.2px" >
+</g>
+</svg>

@@ -160,6 +160,11 @@ The `*.db` files are the database files which are encrypted with a random key st
 Make sure you keep backups of **all four** files and do not loose your passphrase!
 
 
+### Articles
+
+- [Solving the key exchange problem](doc/keyexchangeproblem.md)
+
+
 ### Specification documents
 
 - [Overview](doc/overview.md)

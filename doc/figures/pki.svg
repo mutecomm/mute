@@ -1,0 +1,88 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with ASCIIToSVG (http://9vx.org/~dho/a2s/) -->
+<svg width="783px" height="640px" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <filter id="dsFilter" width="150%" height="150%">
+      <feOffset result="offOut" in="SourceGraphic" dx="3" dy="3"/>
+      <feColorMatrix result="matrixOut" in="offOut" type="matrix" values="0.2 0 0 0 0 0 0.2 0 0 0 0 0 0.2 0 0 0 0 0 1 0"/>
+      <feBlend in="SourceGraphic" in2="matrixOut" mode="normal"/>
+    </filter>
+    <marker id="iPointer"
+      viewBox="0 0 10 10" refX="5" refY="5" 
+      markerUnits="strokeWidth"
+      markerWidth="8" markerHeight="7"
+      orient="auto">
+      <path d="M 10 0 L 10 10 L 0 5 z" />
+    </marker>
+    <marker id="Pointer"
+      viewBox="0 0 10 10" refX="5" refY="5" 
+      markerUnits="strokeWidth"
+      markerWidth="8" markerHeight="7"
+      orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" />
+    </marker>
+  </defs><g id="boxes" stroke="black" stroke-width="2" fill="none" >
+<g id="groupDB">
+	<path id="pathDB" d="M 328.5 27.2 L 328.5 104 A 54 14.4 0 0 0 436.5 104 V 27.2 A 54 14.4 0 0 0 328.5 27.2 Z " filter="url(#dsFilter)" fill="#fff"  />
+	<path id="pathDB" d="M 328.5 27.2 A 54 14.4 0 0 0 436.5 27.2 "  />
+	<text x="332.1" y="76.8" id="text0" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >certificate </text>
+
+	<text x="341.1" y="92.8" id="text1" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >authority </text>
+
+</g>
+<g id="groupDB">
+	<path id="pathDB" d="M 328.5 251.2 L 328.5 328 A 54 14.4 0 0 0 436.5 328 V 251.2 A 54 14.4 0 0 0 328.5 251.2 Z " filter="url(#dsFilter)" fill="#fff"  />
+	<path id="pathDB" d="M 328.5 251.2 A 54 14.4 0 0 0 436.5 251.2 "  />
+	<text x="341.1" y="300.8" id="text5" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >Keyserver </text>
+
+	<text x="341.1" y="316.8" id="text6" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >+</text>
+
+	<text x="359.1" y="316.8" id="text7" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >SigKey </text>
+
+</g>
+<g id="groupPC">
+	<path id="pathPC" d="M 24.294019968 509.900332224 L 24.294019968 565.18272384 C 24.28807122 567.70548768 23.81647572 570.55937856 27.651002436 570.35113728 L 67.02039828 570.35113728 C 71.075862 577.17438048 48.15775332 574.89918528 43.10013276 575.01661152 C 42.72287148 592.203216 54.80737488 597.87798912 74.5223472 597.30511296 C 94.54161708 597.9294048 107.71436196 592.40803008 106.86533184 575.17266912 C 102.42506736 575.34438336 77.59008288 576.9552816 81.09751248 570.09140544 L 125.62504956 570.09140544 C 128.57340312 570.06049152 129.3652116 568.5918816 129.13369092 566.44105152 L 129.13369092 510.697674432 C 129.08741724 509.064506304 127.30531896 506.891154912 124.38933732 506.48047104 L 28.181063088 506.48047104 C 25.961056236 506.524927584 24.14664414 507.050088864 24.294019968 509.900332224 Z " filter="url(#dsFilter)" fill="#fff"  />
+	<text x="53.1" y="540.8" id="text20" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >Alice </text>
+
+</g>
+<g id="groupPC">
+	<path id="pathPC" d="M 636.294019968 509.900332224 L 636.294019968 565.18272384 C 636.28807122 567.70548768 635.81647572 570.55937856 639.651002436 570.35113728 L 679.02039828 570.35113728 C 683.075862 577.17438048 660.15775332 574.89918528 655.10013276 575.01661152 C 654.72287148 592.203216 666.80737488 597.87798912 686.5223472 597.30511296 C 706.54161708 597.9294048 719.71436196 592.40803008 718.86533184 575.17266912 C 714.42506736 575.34438336 689.59008288 576.9552816 693.09751248 570.09140544 L 737.62504956 570.09140544 C 740.57340312 570.06049152 741.3652116 568.5918816 741.13369092 566.44105152 L 741.13369092 510.697674432 C 741.08741724 509.064506304 739.30531896 506.891154912 736.38933732 506.48047104 L 640.181063088 506.48047104 C 637.961056236 506.524927584 636.14664414 507.050088864 636.294019968 509.900332224 Z " filter="url(#dsFilter)" fill="#fff"  />
+	<text x="674.1" y="540.8" id="text21" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >Bob </text>
+
+</g>
+</g>
+<g id="lines" stroke="black" stroke-width="2" fill="none" >
+<g id="group374">
+	<path id="path374" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 76.5 488 L 76.5 296 L 310.5 296 " />
+</g>
+<g id="group697">
+	<path id="path697" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 148.5 536 L 616.5 536 " />
+</g>
+<g id="group1712">
+	<path id="path1712" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 382.5 136 L 382.5 216 " />
+</g>
+<g id="group2042">
+	<path id="path2042" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 454.5 296 L 688.5 296 L 688.5 488 " />
+</g>
+</g>
+<g id="text" fill="black" style="font-family:LMMono10,monospace;font-size:15.2px" >
+<text x="188.1" y="188.8" id="text3" fill="#000" >CA signs Keyserver's </text>
+<text x="395.1" y="188.8" id="text4" fill="#000" >signature key (SigKey)</text>
+<text x="35.1" y="380.8" id="text8" fill="#000" >get </text>
+<text x="89.1" y="380.8" id="text9" fill="#000" >Bob's key </text>
+<text x="575.1" y="380.8" id="text10" fill="#000" >get Alice's </text>
+<text x="701.1" y="380.8" id="text11" fill="#000" >key</text>
+<text x="-0.9" y="412.8" id="text12" fill="#000" >returns </text>
+<text x="89.1" y="412.8" id="text13" fill="#000" >signed key for Bob </text>
+<text x="476.1" y="412.8" id="text14" fill="#000" >returns signed key for </text>
+<text x="701.1" y="412.8" id="text15" fill="#000" >Alice </text>
+<text x="8.1" y="444.8" id="text16" fill="#000" >verify </text>
+<text x="89.1" y="444.8" id="text17" fill="#000" >Keyserver's signature </text>
+<text x="512.1" y="444.8" id="text18" fill="#000" >verify Keyserver's </text>
+<text x="701.1" y="444.8" id="text19" fill="#000" >signature</text>
+<text x="305.1" y="556.8" id="text22" fill="#000" >encrypted message </text>
+</g>
+</svg>

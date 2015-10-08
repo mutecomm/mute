@@ -1,0 +1,37 @@
+                                #-----------#
+                                |[DB]       |
+                                |           |
+                                |           |
+      +-----------------------> | Keyserver | <-----------------------+
+      |                         |           |                         |
+      |                         #-----------#                         |
+      |                                                               |
+      |                                                               |
+  get | Bob's key                                         get Alice's | key
+      | (signed by                                        (signed by  |
+      |  Trent)                                            Trent)     |
+      |                                                               |
+      v                                                               v
+#-----------#                                                   #-----------#
+|[PC]       |                                                   |[PC]       |
+|   Alice   | <-----------------------------------------------> |    Bob    |
+|           |                 encrypted messages                |           |
+|           |                                                   |           |
+|           |                                                   |           |
+#-----------#                                                   #-----------#
+      ^                                                               ^
+      :                                                               :
+      :                                                               :
+      :                                                               :
+      :                                                               :
+      :                         #-----------#                         :
+      :                         |[PC]       |                         :
+      +=======================> |   Trent   | <=======================+
+         Alice trusts Trent     |           |     Bob trusts Trent
+                                |           |                          
+                                |           |                         
+                                #-----------#                      
+
+
+[DB]: {"a2s:type":"storage","a2s:delref":true}
+[PC]: {"a2s:type":"computer","a2s:delref":true}

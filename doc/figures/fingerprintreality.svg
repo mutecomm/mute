@@ -1,0 +1,74 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with ASCIIToSVG (http://9vx.org/~dho/a2s/) -->
+<svg width="693px" height="496px" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <filter id="dsFilter" width="150%" height="150%">
+      <feOffset result="offOut" in="SourceGraphic" dx="3" dy="3"/>
+      <feColorMatrix result="matrixOut" in="offOut" type="matrix" values="0.2 0 0 0 0 0 0.2 0 0 0 0 0 0.2 0 0 0 0 0 1 0"/>
+      <feBlend in="SourceGraphic" in2="matrixOut" mode="normal"/>
+    </filter>
+    <marker id="iPointer"
+      viewBox="0 0 10 10" refX="5" refY="5" 
+      markerUnits="strokeWidth"
+      markerWidth="8" markerHeight="7"
+      orient="auto">
+      <path d="M 10 0 L 10 10 L 0 5 z" />
+    </marker>
+    <marker id="Pointer"
+      viewBox="0 0 10 10" refX="5" refY="5" 
+      markerUnits="strokeWidth"
+      markerWidth="8" markerHeight="7"
+      orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" />
+    </marker>
+  </defs><g id="boxes" stroke="black" stroke-width="2" fill="none" >
+<g id="groupDB">
+	<path id="pathDB" d="M 292.5 27.2 L 292.5 104 A 54 14.4 0 0 0 400.5 104 V 27.2 A 54 14.4 0 0 0 292.5 27.2 Z " filter="url(#dsFilter)" fill="#fff"  />
+	<path id="pathDB" d="M 292.5 27.2 A 54 14.4 0 0 0 400.5 27.2 "  />
+	<text x="305.1" y="76.8" id="text0" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >Keyserver </text>
+
+</g>
+<g id="groupPC">
+	<path id="pathPC" d="M 6.294019968 237.900332224 L 6.294019968 293.18272384 C 6.28807122 295.70548768 5.81647572 298.55937856 9.651002436 298.35113728 L 49.02039828 298.35113728 C 53.075862 305.17438048 30.15775332 302.89918528 25.10013276 303.01661152 C 24.72287148 320.203216 36.80737488 325.87798912 56.5223472 325.30511296 C 76.54161708 325.9294048 89.71436196 320.40803008 88.86533184 303.17266912 C 84.42506736 303.34438336 59.59008288 304.9552816 63.09751248 298.09140544 L 107.62504956 298.09140544 C 110.57340312 298.06049152 111.3652116 296.5918816 111.13369092 294.44105152 L 111.13369092 238.697674432 C 111.08741724 237.064506304 109.30531896 234.891154912 106.38933732 234.48047104 L 10.181063088 234.48047104 C 7.961056236 234.524927584 6.14664414 235.050088864 6.294019968 237.900332224 Z " filter="url(#dsFilter)" fill="#fff"  />
+	<text x="35.1" y="268.8" id="text5" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >Alice </text>
+
+</g>
+<g id="groupPC">
+	<path id="pathPC" d="M 582.294019968 237.900332224 L 582.294019968 293.18272384 C 582.28807122 295.70548768 581.81647572 298.55937856 585.651002436 298.35113728 L 625.02039828 298.35113728 C 629.075862 305.17438048 606.15775332 302.89918528 601.10013276 303.01661152 C 600.72287148 320.203216 612.80737488 325.87798912 632.5223472 325.30511296 C 652.54161708 325.9294048 665.71436196 320.40803008 664.86533184 303.17266912 C 660.42506736 303.34438336 635.59008288 304.9552816 639.09751248 298.09140544 L 683.62504956 298.09140544 C 686.57340312 298.06049152 687.3652116 296.5918816 687.13369092 294.44105152 L 687.13369092 238.697674432 C 687.08741724 237.064506304 685.30531896 234.891154912 682.38933732 234.48047104 L 586.181063088 234.48047104 C 583.961056236 234.524927584 582.14664414 235.050088864 582.294019968 237.900332224 Z " filter="url(#dsFilter)" fill="#fff"  />
+	<text x="620.1" y="268.8" id="text6" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >Bob </text>
+
+</g>
+</g>
+<g id="lines" stroke="black" stroke-width="2" fill="none" >
+<g id="group218">
+	<path id="path218" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 58.5 216 L 58.5 72 L 274.5 72 " />
+</g>
+<g id="group226">
+	<path id="path226" stroke-dasharray="5 5" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 58.5 344 L 58.5 392 L 337.5 392 L 634.5 392 L 634.5 344 " />
+</g>
+<g id="group469">
+	<path id="path469" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 130.5 264 L 562.5 264 " />
+</g>
+<g id="group1100">
+	<path id="path1100" d="M 310.5 440 L 337.5 392 L 364.5 344 " />
+</g>
+<g id="group1190">
+	<path id="path1190" d="M 337.5 392 L 364.5 344 " />
+</g>
+<g id="group1450">
+	<path id="path1450" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 418.5 72 L 634.5 72 L 634.5 216 " />
+</g>
+</g>
+<g id="text" fill="black" style="font-family:LMMono10,monospace;font-size:15.2px" >
+<text x="17.1" y="156.8" id="text1" fill="#000" >get </text>
+<text x="71.1" y="156.8" id="text2" fill="#000" >Bob's key </text>
+<text x="521.1" y="156.8" id="text3" fill="#000" >get Alice's </text>
+<text x="647.1" y="156.8" id="text4" fill="#000" >key</text>
+<text x="269.1" y="284.8" id="text7" fill="#000" >encrypted messages </text>
+<text x="233.1" y="412.8" id="text8" fill="#000" >Life gets </text>
+<text x="341.1" y="412.8" id="text9" fill="#000" >in the way!!!</text>
+</g>
+</svg>

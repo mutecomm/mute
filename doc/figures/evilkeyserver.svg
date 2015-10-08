@@ -1,0 +1,86 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with ASCIIToSVG (http://9vx.org/~dho/a2s/) -->
+<svg width="756px" height="384px" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <filter id="dsFilter" width="150%" height="150%">
+      <feOffset result="offOut" in="SourceGraphic" dx="3" dy="3"/>
+      <feColorMatrix result="matrixOut" in="offOut" type="matrix" values="0.2 0 0 0 0 0 0.2 0 0 0 0 0 0.2 0 0 0 0 0 1 0"/>
+      <feBlend in="SourceGraphic" in2="matrixOut" mode="normal"/>
+    </filter>
+    <marker id="iPointer"
+      viewBox="0 0 10 10" refX="5" refY="5" 
+      markerUnits="strokeWidth"
+      markerWidth="8" markerHeight="7"
+      orient="auto">
+      <path d="M 10 0 L 10 10 L 0 5 z" />
+    </marker>
+    <marker id="Pointer"
+      viewBox="0 0 10 10" refX="5" refY="5" 
+      markerUnits="strokeWidth"
+      markerWidth="8" markerHeight="7"
+      orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" />
+    </marker>
+  </defs><g id="boxes" stroke="black" stroke-width="2" fill="none" >
+<g id="groupDB">
+	<path id="pathDB" d="M 328.5 27.2 L 328.5 104 A 54 14.4 0 0 0 436.5 104 V 27.2 A 54 14.4 0 0 0 328.5 27.2 Z " filter="url(#dsFilter)" fill="#fff"  />
+	<path id="pathDB" d="M 328.5 27.2 A 54 14.4 0 0 0 436.5 27.2 "  />
+	<text x="359.1" y="76.8" id="text0" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >Evil </text>
+
+	<text x="341.1" y="92.8" id="text1" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >Keyserver </text>
+
+</g>
+<g id="groupPC">
+	<path id="pathPC" d="M 24.294019968 253.900332224 L 24.294019968 309.18272384 C 24.28807122 311.70548768 23.81647572 314.55937856 27.651002436 314.35113728 L 67.02039828 314.35113728 C 71.075862 321.17438048 48.15775332 318.89918528 43.10013276 319.01661152 C 42.72287148 336.203216 54.80737488 341.87798912 74.5223472 341.30511296 C 94.54161708 341.9294048 107.71436196 336.40803008 106.86533184 319.17266912 C 102.42506736 319.34438336 77.59008288 320.9552816 81.09751248 314.09140544 L 125.62504956 314.09140544 C 128.57340312 314.06049152 129.3652116 312.5918816 129.13369092 310.44105152 L 129.13369092 254.697674432 C 129.08741724 253.064506304 127.30531896 250.891154912 124.38933732 250.48047104 L 28.181063088 250.48047104 C 25.961056236 250.524927584 24.14664414 251.050088864 24.294019968 253.900332224 Z " filter="url(#dsFilter)" fill="#fff"  />
+	<text x="53.1" y="284.8" id="text12" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >Alice </text>
+
+</g>
+<g id="groupPC">
+	<path id="pathPC" d="M 330.294019968 253.900332224 L 330.294019968 309.18272384 C 330.28807122 311.70548768 329.81647572 314.55937856 333.651002436 314.35113728 L 373.02039828 314.35113728 C 377.075862 321.17438048 354.15775332 318.89918528 349.10013276 319.01661152 C 348.72287148 336.203216 360.80737488 341.87798912 380.5223472 341.30511296 C 400.54161708 341.9294048 413.71436196 336.40803008 412.86533184 319.17266912 C 408.42506736 319.34438336 383.59008288 320.9552816 387.09751248 314.09140544 L 431.62504956 314.09140544 C 434.57340312 314.06049152 435.3652116 312.5918816 435.13369092 310.44105152 L 435.13369092 254.697674432 C 435.08741724 253.064506304 433.30531896 250.891154912 430.38933732 250.48047104 L 334.181063088 250.48047104 C 331.961056236 250.524927584 330.14664414 251.050088864 330.294019968 253.900332224 Z " filter="url(#dsFilter)" fill="#fff"  />
+	<text x="368.1" y="284.8" id="text13" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >Eve </text>
+
+</g>
+<g id="groupPC">
+	<path id="pathPC" d="M 636.294019968 253.900332224 L 636.294019968 309.18272384 C 636.28807122 311.70548768 635.81647572 314.55937856 639.651002436 314.35113728 L 679.02039828 314.35113728 C 683.075862 321.17438048 660.15775332 318.89918528 655.10013276 319.01661152 C 654.72287148 336.203216 666.80737488 341.87798912 686.5223472 341.30511296 C 706.54161708 341.9294048 719.71436196 336.40803008 718.86533184 319.17266912 C 714.42506736 319.34438336 689.59008288 320.9552816 693.09751248 314.09140544 L 737.62504956 314.09140544 C 740.57340312 314.06049152 741.3652116 312.5918816 741.13369092 310.44105152 L 741.13369092 254.697674432 C 741.08741724 253.064506304 739.30531896 250.891154912 736.38933732 250.48047104 L 640.181063088 250.48047104 C 637.961056236 250.524927584 636.14664414 251.050088864 636.294019968 253.900332224 Z " filter="url(#dsFilter)" fill="#fff"  />
+	<text x="674.1" y="284.8" id="text14" fill="#000" stroke="none" style="font-family:LMMono10,monospace;font-size:15.2px" >Bob </text>
+
+</g>
+</g>
+<g id="lines" stroke="black" stroke-width="2" fill="none" >
+<g id="group232">
+	<path id="path232" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 76.5 232 L 76.5 72 L 310.5 72 " />
+</g>
+<g id="group426">
+	<path id="path426" marker-end="url(#Pointer)" d="M 148.5 264 L 310.5 264 " />
+</g>
+<g id="group429">
+	<path id="path429" marker-start="url(#iPointer)" d="M 148.5 312 L 319.5 312 " />
+</g>
+<g id="group1230">
+	<path id="path1230" marker-start="url(#iPointer)" marker-end="url(#Pointer)" d="M 454.5 72 L 688.5 72 L 688.5 232 " />
+</g>
+<g id="group1242">
+	<path id="path1242" marker-end="url(#Pointer)" d="M 454.5 264 L 616.5 264 " />
+</g>
+<g id="group1245">
+	<path id="path1245" marker-start="url(#iPointer)" d="M 454.5 312 L 625.5 312 " />
+</g>
+</g>
+<g id="text" fill="black" style="font-family:LMMono10,monospace;font-size:15.2px" >
+<text x="35.1" y="156.8" id="text2" fill="#000" >get </text>
+<text x="89.1" y="156.8" id="text3" fill="#000" >Bob's key </text>
+<text x="575.1" y="156.8" id="text4" fill="#000" >get Alice's </text>
+<text x="701.1" y="156.8" id="text5" fill="#000" >key</text>
+<text x="-0.9" y="188.8" id="text6" fill="#000" >returns </text>
+<text x="89.1" y="188.8" id="text7" fill="#000" >Eve's key for Bob </text>
+<text x="485.1" y="188.8" id="text8" fill="#000" >returns Eve's key for </text>
+<text x="701.1" y="188.8" id="text9" fill="#000" >Alice </text>
+<text x="152.1" y="252.8" id="text10" fill="#000" >Eve's key for Bob </text>
+<text x="494.1" y="252.8" id="text11" fill="#000" >Bob's key </text>
+<text x="179.1" y="300.8" id="text15" fill="#000" >Alice's key </text>
+<text x="449.1" y="300.8" id="text16" fill="#000" >Eve's key for Alice </text>
+</g>
+</svg>

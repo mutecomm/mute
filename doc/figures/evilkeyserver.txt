@@ -1,0 +1,25 @@
+                                    #-----------#
+                                    |[DB]       |
+                                    |           |
+                                    |           |
+        +-------------------------> |   Evil    | <-------------------------+
+        |                           | Keyserver |                           |
+        |                           #-----------#                           |
+        |                                                                   |
+        |                                                                   |
+    get | Bob's key                                             get Alice's | key
+        |                                                                   |
+returns | Eve's key for Bob                           returns Eve's key for | Alice 
+        |                                                                   |
+        |                                                                   |
+        v                                                                   v
+  #-----------#  Eve's key for Bob  #-----------#      Bob's key      #-----------#
+  |[PC]       | ------------------> |[PC]       | ------------------> |[PC]       |
+  |   Alice   |                     |    Eve    |                     |    Bob    |
+  |           |     Alice's key     |           | Eve's key for Alice |           |
+  |           | <------------------ |           | <------------------ |           |
+  |           |                     |           |                     |           |
+  #-----------#                     #-----------#                     #-----------#
+
+[DB]: {"a2s:type":"storage","a2s:delref":true}
+[PC]: {"a2s:type":"computer","a2s:delref":true}

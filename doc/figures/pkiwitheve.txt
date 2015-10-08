@@ -1,0 +1,41 @@
+                                    #-----------#                     #-----------#
+                                    |[DB]       |                     |[PC]       |
+                                    |           |                     |    Eve    |
+                                    |           | <================== |           |
+                                    |certificate|                     |           |
+                                    | authority |                     |           |
+                                    #-----------#                     #-----------#
+                                                                         :
+                                          ^                              :
+                                          |                              : 
+                                          |                              : Eve steals
+                     CA signs Keyserver's | signature key (SigKey)       : CA's and/or
+                                          |                              : Keyserver's
+                                          v                              : SigKey(s)
+                                    #-----------#                        :
+                                    |[DB]       |                        :
+                                    |           | <======================+
+                                    |           |                            
+        +-------------------------> | Keyserver | <-------------------------+
+        |                           | + SigKey  |                           |
+        |                           #-----------#                           |
+        |                                                                   |
+        |                                                                   |
+    get | Bob's key                                             get Alice's | key
+        |                                                                   |
+returns | signed key for Bob                         returns signed key for | Alice 
+        |                                                                   |
+ verify | Keyserver's signature                          verify Keyserver's | signature
+        |                                                                   |
+        |                                                                   |
+        v                                                                   v
+  #-----------#                                                       #-----------#
+  |[PC]       |                                                       |[PC]       |
+  |   Alice   | <---------------------------------------------------> |    Bob    |
+  |           |                   encrypted message                   |           |
+  |           |                                                       |           |
+  |           |                                                       |           |
+  #-----------#                                                       #-----------#
+
+[DB]: {"a2s:type":"storage","a2s:delref":true}
+[PC]: {"a2s:type":"computer","a2s:delref":true}
