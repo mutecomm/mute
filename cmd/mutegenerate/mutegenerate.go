@@ -15,11 +15,13 @@ import (
 	"os"
 	"strings"
 
+	"github.com/mutecomm/mute/def/version"
 	"github.com/mutecomm/mute/util/git"
 )
 
 func printCode(w io.Writer, release bool, commit, date string) {
 	if release {
+		fmt.Fprintf(w, "  \"release.Version\": \"%s\",\n", version.Number)
 		fmt.Fprintf(w, "  \"release.Commit\": \"%s\",\n", commit)
 		fmt.Fprintf(w, "  \"release.Date\": \"%s\"\n", date)
 	} else {
