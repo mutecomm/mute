@@ -14,10 +14,6 @@ import (
 
 //go:generate mutegenerate -o head.go
 
-// Version is the current Mute version.
-// We use semantic versioning (http://semver.org/).
-const Version = "0.3.0"
-
 // PrintVersion prints version information.
 func PrintVersion(c *cli.Context) {
 	fmt.Fprintf(c.App.Writer, "%v version %v\n", c.App.Name, c.App.Version)

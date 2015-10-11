@@ -19,6 +19,7 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/mutecomm/mute/configclient"
 	"github.com/mutecomm/mute/def"
+	"github.com/mutecomm/mute/def/version"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msgdb"
@@ -369,7 +370,7 @@ func New() *CtrlEngine {
 	var ce CtrlEngine
 	ce.app = cli.NewApp()
 	ce.app.Usage = "tool that handles message DB, contacts, and tokens."
-	ce.app.Version = release.Version
+	ce.app.Version = version.Number
 	ce.app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:  "homedir",

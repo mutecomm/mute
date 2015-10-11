@@ -16,9 +16,9 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/mutecomm/mute/cryptengine/cache"
 	"github.com/mutecomm/mute/def"
+	"github.com/mutecomm/mute/def/version"
 	"github.com/mutecomm/mute/keydb"
 	"github.com/mutecomm/mute/log"
-	"github.com/mutecomm/mute/release"
 	"github.com/mutecomm/mute/util"
 	"github.com/mutecomm/mute/util/bzero"
 	"github.com/mutecomm/mute/util/home"
@@ -155,7 +155,7 @@ func New() *CryptEngine {
 	var ce CryptEngine
 	ce.app = cli.NewApp()
 	ce.app.Usage = "tool to handle message encryption/decryption and key management"
-	ce.app.Version = release.Version
+	ce.app.Version = version.Number
 	ce.app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:  "homedir",
