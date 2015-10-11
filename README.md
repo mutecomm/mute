@@ -35,9 +35,9 @@ sure that Mute uses the external dependencies from the `vendor/` directory.
 To install `mutectrl` execute the following three commands:
 
 ```
-go install -v github.com/mutecomm/mute/cmd/mutegenerate
+go get -u -v github.com/mutecomm/mute/cmd/mutegenerate
 go generate -v github.com/mutecomm/mute/release
-go install -v github.com/mutecomm/mute/cmd/...
+go get -u -v github.com/mutecomm/mute/cmd/...
 ```
 
 
