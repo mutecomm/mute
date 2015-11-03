@@ -12,8 +12,6 @@ import (
 	"github.com/codegangsta/cli"
 )
 
-//go:generate mutegenerate -o head.go
-
 // PrintVersion prints version information.
 func PrintVersion(c *cli.Context) {
 	fmt.Fprintf(c.App.Writer, "%v version %v\n", c.App.Name, c.App.Version)
