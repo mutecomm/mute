@@ -23,7 +23,7 @@ import (
 	"github.com/mutecomm/mute/util/times"
 )
 
-// The current version of the protocol.
+// ProtocolVersion defines the current version of the protocol.
 // Version 1.0 has the following peculiarities.
 //
 // For UIDMessage:

@@ -12,7 +12,7 @@ import (
 	"github.com/mutecomm/mute/log"
 )
 
-// Default ciphersuite:
+// DefaultCiphersuite defines the default ciphersuite:
 //   Static Key Agreement: NaCL
 //   Key derivation function: KDF3
 //   Symmetric encryption: AES-256 in counter mode

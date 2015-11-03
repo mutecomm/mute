@@ -36,16 +36,16 @@ var (
 	ErrBadSystem = errors.New("mixcrypt: Bad system")
 )
 
-// The domain of the Mute System
+// MuteSystemDomain is the domain of the Mute System.
 var MuteSystemDomain = "mute.one"
 
-// Rand is the random source of this package
+// Rand is the random source of this package.
 var Rand = rand.Reader
 
 // time source, for debugging
 var timeNow = func() int64 { return times.Now() }
 
-// KeySize is the size of a public/private key
+// KeySize is the size of a public/private key.
 const KeySize = 32
 
 const (
@@ -55,5 +55,5 @@ const (
 	MessageTypeRelay
 )
 
-// KeyFunc is a function that returns a private key for a public key, or nil
+// KeyFunc is a function that returns a private key for a public key, or nil.
 type KeyFunc func(*[KeySize]byte) *[KeySize]byte

@@ -40,8 +40,8 @@ type KeyInit struct {
 	SIGNATURE string // signature of contents by UIDMessage.UIDContent.SIGKEY
 }
 
-// The number of seconds the NOTAFTER field of a KeyInit message can be in the
-// future.
+// MaxNotAfter defines the number of seconds the NOTAFTER field of a KeyInit
+// message can be in the future.
 const MaxNotAfter = uint64(90 * 24 * 60 * 60) // 90 days
 
 // NewJSONKeyInit returns a new KeyInit message initialized with the parameters
