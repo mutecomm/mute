@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
 
 	"github.com/codegangsta/cli"
 	"github.com/mutecomm/mute/cryptengine/cache"
@@ -176,17 +177,17 @@ func New() *CryptEngine {
 		},
 		cli.IntFlag{
 			Name:  "input-fd",
-			Value: 0,
+			Value: int(syscall.Stdin),
 			Usage: "input file descriptor",
 		},
 		cli.IntFlag{
 			Name:  "output-fd",
-			Value: 1,
+			Value: int(syscall.Stdout),
 			Usage: "output file descriptor",
 		},
 		cli.IntFlag{
 			Name:  "status-fd",
-			Value: 2,
+			Value: int(syscall.Stderr),
 			Usage: "status file descriptor",
 		},
 		cli.IntFlag{
