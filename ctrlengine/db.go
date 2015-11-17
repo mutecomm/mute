@@ -13,6 +13,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"syscall"
 
 	"github.com/agl/ed25519"
 	"github.com/codegangsta/cli"
@@ -25,7 +26,7 @@ import (
 
 func createKeyDB(c *cli.Context, passphrase []byte) error {
 	cmd := exec.Command("mutecrypt",
-		"--passphrase-fd", "0",
+		"--passphrase-fd", strconv.FormatUint(uint64(syscall.Stdin), 10),
 		"--homedir", c.GlobalString("homedir"),
 		"--loglevel", c.GlobalString("loglevel"),
 		"--logdir", c.GlobalString("logdir"),
