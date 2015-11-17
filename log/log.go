@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/cihub/seelog"
 )
@@ -45,8 +46,9 @@ func Init(logLevel, cmdPrefix, logDir string, logToConsole bool) error {
 	}
 	var file string
 	if logDir != "" {
+		execBase := strings.TrimSuffix(filepath.Base(os.Args[0]), ".exe")
 		file = fmt.Sprintf("<rollingfile type=\"size\" filename=\"%s\" maxsize=\"10485760\" maxrolls=\"3\" />",
-			filepath.Join(logDir, os.Args[0]+".log"))
+			filepath.Join(logDir, execBase+".log"))
 	}
 	config := `
 <seelog type="adaptive" mininterval="2000000" maxinterval="100000000"
