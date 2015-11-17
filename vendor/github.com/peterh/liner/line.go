@@ -90,6 +90,14 @@ const (
 )
 
 func (s *State) refresh(prompt []rune, buf []rune, pos int) error {
+	if s.multiLineMode {
+		return s.refreshMultiLine(prompt, buf, pos)
+	} else {
+		return s.refreshSingleLine(prompt, buf, pos)
+	}
+}
+
+func (s *State) refreshSingleLine(prompt []rune, buf []rune, pos int) error {
 	s.cursorPos(0)
 	_, err := fmt.Print(string(prompt))
 	if err != nil {
@@ -143,6 +151,82 @@ func (s *State) refresh(prompt []rune, buf []rune, pos int) error {
 		s.cursorPos(pLen + pos)
 	}
 	return err
+}
+
+func (s *State) refreshMultiLine(prompt []rune, buf []rune, pos int) error {
+	promptColumns := countMultiLineGlyphs(prompt, s.columns, 0)
+	totalColumns := countMultiLineGlyphs(buf, s.columns, promptColumns)
+	totalRows := (totalColumns + s.columns - 1) / s.columns
+	maxRows := s.maxRows
+	if totalRows > s.maxRows {
+		s.maxRows = totalRows
+	}
+	cursorRows := s.cursorRows
+	if cursorRows == 0 {
+		cursorRows = 1
+	}
+
+	/* First step: clear all the lines used before. To do so start by
+	* going to the last row. */
+	if maxRows-cursorRows > 0 {
+		s.moveDown(maxRows - cursorRows)
+	}
+
+	/* Now for every row clear it, go up. */
+	for i := 0; i < maxRows-1; i++ {
+		s.cursorPos(0)
+		s.eraseLine()
+		s.moveUp(1)
+	}
+
+	/* Clean the top line. */
+	s.cursorPos(0)
+	s.eraseLine()
+
+	/* Write the prompt and the current buffer content */
+	if _, err := fmt.Print(string(prompt)); err != nil {
+		return err
+	}
+	if _, err := fmt.Print(string(buf)); err != nil {
+		return err
+	}
+
+	/* If we are at the very end of the screen with our prompt, we need to
+	 * emit a newline and move the prompt to the first column. */
+	cursorColumns := countMultiLineGlyphs(buf[:pos], s.columns, promptColumns)
+	if cursorColumns == totalColumns && totalColumns%s.columns == 0 {
+		s.emitNewLine()
+		s.cursorPos(0)
+		totalRows++
+		if totalRows > s.maxRows {
+			s.maxRows = totalRows
+		}
+	}
+
+	/* Move cursor to right position. */
+	cursorRows = (cursorColumns + s.columns) / s.columns
+	if s.cursorRows > 0 && totalRows-cursorRows > 0 {
+		s.moveUp(totalRows - cursorRows)
+	}
+	/* Set column. */
+	s.cursorPos(cursorColumns % s.columns)
+
+	s.cursorRows = cursorRows
+	return nil
+}
+
+func (s *State) refreshMultiLineCancelled(prompt []rune, buf []rune, pos int) {
+	columns := countMultiLineGlyphs(prompt, s.columns, 0)
+	columns = countMultiLineGlyphs(buf[:pos], s.columns, columns)
+	columns += 2 // ^C
+	cursorRows := (columns + s.columns) / s.columns
+	if s.maxRows-cursorRows > 0 {
+		for i := 0; i < s.maxRows-cursorRows; i++ {
+			fmt.Println() // always moves the cursor down or scrolls the window up as needed
+		}
+	}
+	s.maxRows = 1
+	s.cursorRows = 0
 }
 
 func longestCommonPrefix(strs []string) string {
@@ -613,6 +697,9 @@ mainLoop:
 				s.refresh(p, line, pos)
 			case ctrlC: // reset
 				fmt.Println("^C")
+				if s.multiLineMode {
+					s.refreshMultiLineCancelled(p, line, pos)
+				}
 				if s.ctrlCAborts {
 					return "", ErrPromptAborted
 				}
@@ -697,7 +784,7 @@ mainLoop:
 			case 0, 28, 29, 30, 31:
 				fmt.Print(beep)
 			default:
-				if pos == len(line) && len(p)+len(line) < s.columns-1 {
+				if pos == len(line) && !s.multiLineMode && countGlyphs(p)+countGlyphs(line) < s.columns-1 {
 					line = append(line, v)
 					fmt.Printf("%c", v)
 					pos++
@@ -799,6 +886,19 @@ mainLoop:
 				pos = 0
 			case end: // End of line
 				pos = len(line)
+			case winch: // Window change
+				if s.multiLineMode {
+					if s.maxRows-s.cursorRows > 0 {
+						s.moveDown(s.maxRows - s.cursorRows)
+					}
+					for i := 0; i < s.maxRows-1; i++ {
+						s.cursorPos(0)
+						s.eraseLine()
+						s.moveUp(1)
+					}
+					s.maxRows = 1
+					s.cursorRows = 1
+				}
 			}
 			s.refresh(p, line, pos)
 		}
@@ -870,6 +970,9 @@ mainLoop:
 				}
 			case ctrlC:
 				fmt.Println("^C")
+				if s.multiLineMode {
+					s.refreshMultiLineCancelled(p, line, pos)
+				}
 				if s.ctrlCAborts {
 					return "", ErrPromptAborted
 				}
