@@ -372,7 +372,11 @@ func (ce *CtrlEngine) uidEdit(unmappedID, fullName string) error {
 	return nil
 }
 
-func (ce *CtrlEngine) uidActive(c *cli.Context) error {
+func (ce *CtrlEngine) uidActive(
+	c *cli.Context,
+	outputFD uintptr,
+	outputFP io.Writer,
+) error {
 	active, err := ce.msgDB.GetValue(msgdb.ActiveUID)
 	if err != nil {
 		return err
@@ -380,10 +384,8 @@ func (ce *CtrlEngine) uidActive(c *cli.Context) error {
 	if active == "" {
 		return errors.New("ctrlengine: no active nym in DB")
 	}
-	outputFD := c.GlobalInt("output-fd")
 	log.Infof("write active nym to fd %d", outputFD)
-	fp := os.NewFile(uintptr(outputFD), "output-fd")
-	fmt.Fprintln(fp, active)
+	fmt.Fprintln(outputFP, active)
 	return nil
 }
 

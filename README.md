@@ -48,7 +48,7 @@ database files with a passphrase. The following command does just that (and
 reads the passphrase from stdin):
 
 ```
-mutectrl --passphrase-fd 0 db create
+mutectrl --passphrase-fd stdin db create
 ```
 
 This also fetches the necessary configuration settings from our config server

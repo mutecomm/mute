@@ -7,16 +7,15 @@ package protoengine
 
 import (
 	"errors"
-	"os"
 	"path/filepath"
 	"strings"
-	"syscall"
 
 	"github.com/codegangsta/cli"
 	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/def/version"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/util"
+	"github.com/mutecomm/mute/util/descriptors"
 	"github.com/mutecomm/mute/util/home"
 )
 
@@ -34,19 +33,18 @@ var (
 
 // ProtoEngine abstracts a muteproto command engine.
 type ProtoEngine struct {
-	accdHost string
-	accdPort string
-	homedir  string
-	outputfp *os.File
-	app      *cli.App
-	err      error
+	fileTable *descriptors.Table
+	accdHost  string
+	accdPort  string
+	homedir   string
+	app       *cli.App
+	err       error
 }
 
 func (pe *ProtoEngine) prepare(c *cli.Context) error {
 	pe.accdHost = c.GlobalString("acchost")
 	pe.accdPort = c.GlobalString("accport")
 	pe.homedir = c.GlobalString("homedir")
-	pe.outputfp = os.NewFile(uintptr(c.GlobalInt("output-fd")), "output-fd")
 
 	// create the necessary directories if they don't already exist
 	err := util.CreateDirs(c.GlobalString("homedir"), c.GlobalString("logdir"))
@@ -54,9 +52,15 @@ func (pe *ProtoEngine) prepare(c *cli.Context) error {
 		return err
 	}
 
-	// init logging framework
+	// initialize logging framework
 	err = log.Init(c.GlobalString("loglevel"), "proto",
 		c.GlobalString("logdir"), c.GlobalBool("logconsole"))
+	if err != nil {
+		return err
+	}
+
+	// initialize file descriptors
+	pe.fileTable, err = descriptors.NewTable(c)
 	if err != nil {
 		return err
 	}
@@ -85,31 +89,11 @@ func New() *ProtoEngine {
 			Name:  "acchost",
 			Usage: "alternative hostname for account server",
 		},
-		cli.IntFlag{
-			Name:  "input-fd",
-			Value: int(syscall.Stdin),
-			Usage: "input file descriptor",
-		},
-		cli.IntFlag{
-			Name:  "output-fd",
-			Value: int(syscall.Stdout),
-			Usage: "output file descriptor",
-		},
-		cli.IntFlag{
-			Name:  "status-fd",
-			Value: int(syscall.Stderr),
-			Usage: "status file descriptor",
-		},
-		cli.IntFlag{
-			Name:  "passphrase-fd",
-			Value: 3,
-			Usage: "passphrase file descriptor",
-		},
-		cli.IntFlag{
-			Name:  "command-fd",
-			Value: 4,
-			Usage: "command file descriptor",
-		},
+		descriptors.InputFDFlag,
+		descriptors.OutputFDFlag,
+		descriptors.StatusFDFlag,
+		descriptors.PassphraseFDFlag,
+		descriptors.CommandFDFlag,
 		cli.StringFlag{
 			Name:  "loglevel",
 			Value: "info",
@@ -165,11 +149,10 @@ func New() *ProtoEngine {
 				return nil
 			},
 			Action: func(c *cli.Context) {
-				inputfp := os.NewFile(uintptr(c.GlobalInt("input-fd")), "input-fd")
-				outputfp := os.NewFile(uintptr(c.GlobalInt("output-fd")), "output-fd")
-				pe.err = pe.create(outputfp, int32(c.Int("mindelay")),
-					int32(c.Int("maxdelay")), c.String("token"),
-					c.String("nymaddress"), inputfp)
+				pe.err = pe.create(pe.fileTable.OutputFP,
+					int32(c.Int("mindelay")), int32(c.Int("maxdelay")),
+					c.String("token"), c.String("nymaddress"),
+					pe.fileTable.InputFP)
 			},
 		},
 		{
@@ -182,9 +165,7 @@ func New() *ProtoEngine {
 				return nil
 			},
 			Action: func(c *cli.Context) {
-				inputfp := os.NewFile(uintptr(c.GlobalInt("input-fd")), "input-fd")
-				statusfp := os.NewFile(uintptr(c.GlobalInt("status-fd")), "output-fd")
-				pe.err = pe.deliver(statusfp, inputfp)
+				pe.err = pe.deliver(pe.fileTable.StatusFP, pe.fileTable.InputFP)
 			},
 		},
 		{
@@ -210,12 +191,9 @@ func New() *ProtoEngine {
 				return nil
 			},
 			Action: func(c *cli.Context) {
-				outputfp := os.NewFile(uintptr(c.GlobalInt("output-fd")), "output-fd")
-				statusfp := os.NewFile(uintptr(c.GlobalInt("status-fd")), "status-fd")
-				commandfp := os.NewFile(uintptr(c.GlobalInt("command-fd")), "command-fd")
-				pe.err = pe.fetch(outputfp, statusfp, c.String("server"),
-					int64(c.Int("last-message-time")),
-					c.GlobalInt("passphrase-fd"), commandfp)
+				pe.err = pe.fetch(pe.fileTable.OutputFP, pe.fileTable.StatusFP,
+					c.String("server"), int64(c.Int("last-message-time")),
+					pe.fileTable.CommandFP)
 			},
 		},
 	}

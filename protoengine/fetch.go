@@ -23,12 +23,11 @@ func (pe *ProtoEngine) fetch(
 	status io.Writer,
 	server string,
 	lastMessageTime int64,
-	passfd int,
 	command io.Reader,
 ) error {
 	// read passphrase
-	log.Infof("read passphrase from fd %d", passfd)
-	pks, err := util.Readline(passfd, "passphrase-fd")
+	log.Infof("read passphrase from fd %d", pe.fileTable.PassphraseFD)
+	pks, err := util.Readline(pe.fileTable.PassphraseFP)
 	if err != nil {
 		return err
 	}

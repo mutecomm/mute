@@ -9,7 +9,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"os"
 	"path/filepath"
 
 	"github.com/mutecomm/mute/keydb"
@@ -18,12 +17,11 @@ import (
 )
 
 // create a new KeyDB.
-func (ce *CryptEngine) create(homedir string, iterations, passphraseFD int) error {
+func (ce *CryptEngine) dbCreate(homedir string, iterations int) error {
 	keydbname := filepath.Join(homedir, "keys")
 	// read passphrase
-	log.Infof("read passphrase from fd %d", passphraseFD)
-	fp := os.NewFile(uintptr(passphraseFD), "passphrase-fd")
-	scanner := bufio.NewScanner(fp)
+	log.Infof("read passphrase from fd %d", ce.fileTable.PassphraseFD)
+	scanner := bufio.NewScanner(ce.fileTable.PassphraseFP)
 	var passphrase []byte
 	defer bzero.Bytes(passphrase)
 	if scanner.Scan() {
@@ -32,7 +30,7 @@ func (ce *CryptEngine) create(homedir string, iterations, passphraseFD int) erro
 		return log.Error(err)
 	}
 	// read passphrase again
-	log.Infof("read passphrase from fd %d again", passphraseFD)
+	log.Infof("read passphrase from fd %d again", ce.fileTable.PassphraseFD)
 	var passphrase2 []byte
 	defer bzero.Bytes(passphrase2)
 	if scanner.Scan() {
@@ -53,12 +51,11 @@ func (ce *CryptEngine) create(homedir string, iterations, passphraseFD int) erro
 }
 
 // rekey a KeyDB.
-func (ce *CryptEngine) rekey(homedir string, iterations, passphraseFD int) error {
+func (ce *CryptEngine) dbRekey(homedir string, iterations int) error {
 	keydbname := filepath.Join(homedir, "keys")
 	// read old passphrase
-	log.Infof("read old passphrase from fd %d", passphraseFD)
-	fp := os.NewFile(uintptr(passphraseFD), "passphrase-fd")
-	scanner := bufio.NewScanner(fp)
+	log.Infof("read old passphrase from fd %d", ce.fileTable.PassphraseFD)
+	scanner := bufio.NewScanner(ce.fileTable.PassphraseFP)
 	var oldPassphrase []byte
 	defer bzero.Bytes(oldPassphrase)
 	if scanner.Scan() {
@@ -67,7 +64,7 @@ func (ce *CryptEngine) rekey(homedir string, iterations, passphraseFD int) error
 		return log.Error(err)
 	}
 	// read new passphrase
-	log.Infof("read new passphrase from fd %d", passphraseFD)
+	log.Infof("read new passphrase from fd %d", ce.fileTable.PassphraseFD)
 	var newPassphrase []byte
 	defer bzero.Bytes(newPassphrase)
 	if scanner.Scan() {
@@ -76,7 +73,7 @@ func (ce *CryptEngine) rekey(homedir string, iterations, passphraseFD int) error
 		return log.Error(err)
 	}
 	// read new passphrase again
-	log.Infof("read new passphrase from fd %d again", passphraseFD)
+	log.Infof("read new passphrase from fd %d again", ce.fileTable.PassphraseFD)
 	var newPassphrase2 []byte
 	defer bzero.Bytes(newPassphrase2)
 	if scanner.Scan() {

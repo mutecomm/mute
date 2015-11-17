@@ -9,10 +9,8 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
-	"syscall"
 
 	"github.com/codegangsta/cli"
 	"github.com/mutecomm/mute/cryptengine/cache"
@@ -22,6 +20,7 @@ import (
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/util"
 	"github.com/mutecomm/mute/util/bzero"
+	"github.com/mutecomm/mute/util/descriptors"
 	"github.com/mutecomm/mute/util/home"
 )
 
@@ -39,17 +38,15 @@ var (
 
 // CryptEngine abstracts a mutecrypt command engine.
 type CryptEngine struct {
-	prepared bool
-	keydHost string
-	keydPort string
-	homedir  string
-	outputfp *os.File
-
-	keyDB *keydb.KeyDB
-	cache *cache.Cache
-
-	app *cli.App
-	err error
+	prepared  bool
+	fileTable *descriptors.Table
+	keydHost  string
+	keydPort  string
+	homedir   string
+	keyDB     *keydb.KeyDB
+	cache     *cache.Cache
+	app       *cli.App
+	err       error
 }
 
 func (ce *CryptEngine) prepare(c *cli.Context, openKeyDB bool) error {
@@ -57,7 +54,6 @@ func (ce *CryptEngine) prepare(c *cli.Context, openKeyDB bool) error {
 		ce.keydHost = c.GlobalString("keyhost")
 		ce.keydPort = c.GlobalString("keyport")
 		ce.homedir = c.GlobalString("homedir")
-		ce.outputfp = os.NewFile(uintptr(c.GlobalInt("output-fd")), "output-fd")
 
 		// create the necessary directories if they don't already exist
 		err := util.CreateDirs(c.GlobalString("homedir"), c.GlobalString("logdir"))
@@ -68,6 +64,12 @@ func (ce *CryptEngine) prepare(c *cli.Context, openKeyDB bool) error {
 		// initialize logging framework
 		err = log.Init(c.GlobalString("loglevel"), "crypt",
 			c.GlobalString("logdir"), c.GlobalBool("logconsole"))
+		if err != nil {
+			return err
+		}
+
+		// initialize file descriptors
+		ce.fileTable, err = descriptors.NewTable(c)
 		if err != nil {
 			return err
 		}
@@ -85,7 +87,7 @@ func (ce *CryptEngine) prepare(c *cli.Context, openKeyDB bool) error {
 	// open KeyDB, if necessary
 	if openKeyDB {
 		if ce.keyDB == nil && !c.GlobalBool("keyserver") {
-			if err := ce.openKeyDB(c.GlobalInt("passphrase-fd")); err != nil {
+			if err := ce.openKeyDB(); err != nil {
 				return err
 			}
 		}
@@ -106,11 +108,9 @@ func (ce *CryptEngine) loop(c *cli.Context) {
 	log.Info("cryptengine: starting")
 
 	// run command(s)
-	cmdfd := c.Int("command-fd")
-	log.Infof("read commands from fd %d", cmdfd)
-	statusfp := os.NewFile(uintptr(c.Int("status-fd")), "status-fd")
+	log.Infof("read commands from fd %d", ce.fileTable.CommandFD)
 
-	scanner := bufio.NewScanner(os.NewFile(uintptr(cmdfd), "command-fd"))
+	scanner := bufio.NewScanner(ce.fileTable.CommandFP)
 
 	for scanner.Scan() {
 		args := []string{ce.app.Name}
@@ -124,25 +124,25 @@ func (ce *CryptEngine) loop(c *cli.Context) {
 		if err := ce.app.Run(args); err != nil {
 			// command execution failed -> issue status and continue
 			log.Infof("command execution failed (app): %s", err)
-			fmt.Fprintln(statusfp, err)
+			fmt.Fprintln(ce.fileTable.StatusFP, err)
 			continue
 		}
 		if ce.err != nil {
 			if ce.err == errExit {
 				// exit requested -> return
 				log.Info("cryptengine: stopping (exit requested)")
-				fmt.Fprintln(statusfp, "QUITTING")
+				fmt.Fprintln(ce.fileTable.StatusFP, "QUITTING")
 				ce.err = nil
 				return
 			}
 			// command execution failed -> issue status and continue
 			log.Infof("command execution failed (cmd): %s", ce.err)
-			fmt.Fprintln(statusfp, ce.err)
+			fmt.Fprintln(ce.fileTable.StatusFP, ce.err)
 			ce.err = nil
 		} else {
 			log.Info("command successful")
 		}
-		fmt.Fprintln(statusfp, "READY.")
+		fmt.Fprintln(ce.fileTable.StatusFP, "READY.")
 	}
 	if err := scanner.Err(); err != nil {
 		ce.err = log.Errorf("cryptengine: %s", err)
@@ -175,31 +175,11 @@ func New() *CryptEngine {
 			Name:  "keyport",
 			Usage: "alternative port for key server",
 		},
-		cli.IntFlag{
-			Name:  "input-fd",
-			Value: int(syscall.Stdin),
-			Usage: "input file descriptor",
-		},
-		cli.IntFlag{
-			Name:  "output-fd",
-			Value: int(syscall.Stdout),
-			Usage: "output file descriptor",
-		},
-		cli.IntFlag{
-			Name:  "status-fd",
-			Value: int(syscall.Stderr),
-			Usage: "status file descriptor",
-		},
-		cli.IntFlag{
-			Name:  "passphrase-fd",
-			Value: 3,
-			Usage: "passphrase file descriptor",
-		},
-		cli.IntFlag{
-			Name:  "command-fd",
-			Value: 4,
-			Usage: "command file descriptor",
-		},
+		descriptors.InputFDFlag,
+		descriptors.OutputFDFlag,
+		descriptors.StatusFDFlag,
+		descriptors.PassphraseFDFlag,
+		descriptors.CommandFDFlag,
 		cli.StringFlag{
 			Name:  "loglevel",
 			Value: "info",
@@ -243,8 +223,8 @@ func New() *CryptEngine {
 						return ce.prepare(c, false)
 					},
 					Action: func(c *cli.Context) {
-						ce.err = ce.create(c.GlobalString("homedir"), c.Int("iterations"),
-							c.GlobalInt("passphrase-fd"))
+						ce.err = ce.dbCreate(c.GlobalString("homedir"),
+							c.Int("iterations"))
 					},
 				},
 				{
@@ -264,8 +244,8 @@ func New() *CryptEngine {
 						return ce.prepare(c, false)
 					},
 					Action: func(c *cli.Context) {
-						ce.err = ce.rekey(c.GlobalString("homedir"), c.Int("iterations"),
-							c.GlobalInt("passphrase-fd"))
+						ce.err = ce.dbRekey(c.GlobalString("homedir"),
+							c.Int("iterations"))
 					},
 				},
 				/*
@@ -283,9 +263,7 @@ func New() *CryptEngine {
 							return nil
 						},
 						Action: func(c *cli.Context) {
-							outputfp := os.NewFile(uintptr(c.GlobalInt("output-fd")),
-								"output-fd")
-							ce.err = ce.dbStatus(outputfp)
+							ce.err = ce.dbStatus(ce.fileTable.OutputFP)
 						},
 					},
 				*/
@@ -353,9 +331,7 @@ func New() *CryptEngine {
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						outputfp := os.NewFile(uintptr(c.GlobalInt("output-fd")),
-							"output-fd")
-						ce.err = ce.dbVersion(outputfp)
+						ce.err = ce.dbVersion(ce.fileTable.OutputFP)
 					},
 				},
 			},
@@ -455,7 +431,7 @@ register the UID message with the keyserver yet.
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.generate(c.String("id"), c.GlobalBool("keyserver"),
-							ce.outputfp)
+							ce.fileTable.OutputFP)
 					},
 				},
 				{
@@ -595,9 +571,7 @@ Delete a user ID (registered or unregistered).
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						outfp := os.NewFile(uintptr(c.GlobalInt("output-fd")),
-							"output-fd")
-						ce.err = ce.listUIDs(outfp)
+						ce.err = ce.listUIDs(ce.fileTable.OutputFP)
 					},
 				},
 			},
@@ -846,11 +820,9 @@ Delete a user ID (registered or unregistered).
 				return nil
 			},
 			Action: func(c *cli.Context) {
-				inputfp := os.NewFile(uintptr(c.GlobalInt("input-fd")), "input-fd")
-				outputfp := os.NewFile(uintptr(c.GlobalInt("output-fd")), "output-fd")
-				statusfp := os.NewFile(uintptr(c.GlobalInt("status-fd")), "status-fd")
-				ce.err = ce.encrypt(outputfp, c.String("from"), c.String("to"),
-					c.Bool("sign"), inputfp, statusfp)
+				ce.err = ce.encrypt(ce.fileTable.OutputFP, c.String("from"),
+					c.String("to"), c.Bool("sign"), ce.fileTable.InputFP,
+					ce.fileTable.StatusFP)
 			},
 		},
 		{
@@ -866,10 +838,8 @@ Delete a user ID (registered or unregistered).
 				return nil
 			},
 			Action: func(c *cli.Context) {
-				inputfp := os.NewFile(uintptr(c.GlobalInt("input-fd")), "input-fd")
-				outputfp := os.NewFile(uintptr(c.GlobalInt("output-fd")), "output-fd")
-				statusfp := os.NewFile(uintptr(c.GlobalInt("status-fd")), "status-fd")
-				ce.err = ce.decrypt(outputfp, inputfp, statusfp)
+				ce.err = ce.decrypt(ce.fileTable.OutputFP, ce.fileTable.InputFP,
+					ce.fileTable.StatusFP)
 			},
 		},
 		{
@@ -906,10 +876,10 @@ func (ce *CryptEngine) Start(args []string) error {
 	return nil
 }
 
-func (ce *CryptEngine) openKeyDB(passfd int) error {
+func (ce *CryptEngine) openKeyDB() error {
 	// read passphrase
-	log.Infof("read passphrase from fd %d", passfd)
-	passphrase, err := util.Readline(passfd, "passphrase-fd")
+	log.Infof("read passphrase from fd %d", ce.fileTable.PassphraseFD)
+	passphrase, err := util.Readline(ce.fileTable.PassphraseFP)
 	if err != nil {
 		return err
 	}

@@ -26,11 +26,10 @@ func Fatal(err error) {
 	os.Exit(1)
 }
 
-// Readline reads a single line from the file descriptor fd with given name.
-// It closes the file descriptor afterwards.
-// Make sure you do not call it multiple times on the same fd!
-func Readline(fd int, name string) ([]byte, error) {
-	fp := os.NewFile(uintptr(fd), name)
+// Readline reads a single line from the file pointer fp with given name.
+// It closes the file pointer afterwards.
+// Make sure you do not call it multiple times on the same file pointer!
+func Readline(fp *os.File) ([]byte, error) {
 	defer fp.Close()
 	scanner := bufio.NewScanner(fp)
 	var line []byte

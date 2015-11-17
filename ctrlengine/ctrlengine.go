@@ -9,11 +9,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/agl/ed25519"
@@ -29,6 +27,7 @@ import (
 	"github.com/mutecomm/mute/serviceguard/client/trivial"
 	"github.com/mutecomm/mute/util"
 	"github.com/mutecomm/mute/util/bzero"
+	"github.com/mutecomm/mute/util/descriptors"
 	"github.com/mutecomm/mute/util/git"
 	"github.com/mutecomm/mute/util/home"
 	"github.com/peterh/liner"
@@ -54,13 +53,14 @@ var (
 // CtrlEngine abstracts a mutectrl command engine.
 type CtrlEngine struct {
 	prepared   bool
+	fileTable  *descriptors.Table
 	state      int
 	msgDB      *msgdb.MsgDB
 	passphrase []byte
-	app        *cli.App
 	client     *client.Client // service guard client
-	err        error
 	config     configclient.Config
+	app        *cli.App
+	err        error
 }
 
 func (ce *CtrlEngine) translateError(err error) error {
@@ -120,8 +120,15 @@ func (ce *CtrlEngine) prepare(c *cli.Context, openMsgDB bool) error {
 			return err
 		}
 
+		// initialize logging framework
 		err = log.Init(c.GlobalString("loglevel"), "ctrl ",
 			c.GlobalString("logdir"), c.GlobalBool("logconsole"))
+		if err != nil {
+			return err
+		}
+
+		// initialize file descriptors
+		ce.fileTable, err = descriptors.NewTable(c)
 		if err != nil {
 			return err
 		}
@@ -134,8 +141,7 @@ func (ce *CtrlEngine) prepare(c *cli.Context, openMsgDB bool) error {
 		offline := c.GlobalBool("offline")
 		// TODO: extract block as method
 		if ce.msgDB == nil {
-			err := ce.openMsgDB(c.GlobalString("homedir"),
-				c.GlobalInt("passphrase-fd"), c.GlobalInt("status-fd"))
+			err := ce.openMsgDB(c.GlobalString("homedir"))
 			if err != nil {
 				return err
 			}
@@ -147,7 +153,6 @@ func (ce *CtrlEngine) prepare(c *cli.Context, openMsgDB bool) error {
 		if err != nil {
 			return err
 		}
-		statfp := os.NewFile(uintptr(c.Int("status-fd")), "status-fd")
 		if jsn != "" {
 			if err := json.Unmarshal([]byte(jsn), &ce.config); err != nil {
 				return err
@@ -156,12 +161,13 @@ func (ce *CtrlEngine) prepare(c *cli.Context, openMsgDB bool) error {
 			err := def.InitMute(&ce.config)
 			if err != nil {
 				// init failed -> update config (which will try init again)
-				fmt.Fprintf(statfp, "initialization failed, try to update config\n")
+				fmt.Fprintf(ce.fileTable.StatusFP,
+					"initialization failed, try to update config\n")
 				if offline {
 					return log.Error("ctrlengine: cannot fetch config in --offline mode, run without")
 				}
 				err := ce.upkeepFetchconf(ce.msgDB, c.GlobalString("homedir"),
-					false, nil, statfp)
+					false, nil, ce.fileTable.StatusFP)
 				if err != nil {
 					return err
 				}
@@ -183,11 +189,12 @@ func (ce *CtrlEngine) prepare(c *cli.Context, openMsgDB bool) error {
 								return log.Error("ctrlengine: configuration is outdated, please run without --offline")
 							}
 							log.Warn("ctrlengine: cannot fetch outdated config in --offline mode")
-							fmt.Fprintf(statfp, "ctrlengine: cannot fetch outdated config in --offline mode\n")
+							fmt.Fprintf(ce.fileTable.StatusFP,
+								"ctrlengine: cannot fetch outdated config in --offline mode\n")
 						} else {
 							// update config
 							err := ce.upkeepFetchconf(ce.msgDB, c.GlobalString("homedir"),
-								false, nil, statfp)
+								false, nil, ce.fileTable.StatusFP)
 							if err != nil {
 								return err
 							}
@@ -200,9 +207,9 @@ func (ce *CtrlEngine) prepare(c *cli.Context, openMsgDB bool) error {
 			if offline {
 				return log.Error("ctrlengine: cannot fetch config in --offline mode")
 			}
-			fmt.Fprintf(statfp, "no system config found\n")
+			fmt.Fprintf(ce.fileTable.StatusFP, "no system config found\n")
 			err := ce.upkeepFetchconf(ce.msgDB, c.GlobalString("homedir"),
-				false, nil, statfp)
+				false, nil, ce.fileTable.StatusFP)
 			if err != nil {
 				return err
 			}
@@ -232,7 +239,8 @@ func (ce *CtrlEngine) prepare(c *cli.Context, openMsgDB bool) error {
 				return log.Error("ctrlengine: software is outdated, you have to update with `mutectrl upkeep update`")
 			} else {
 				// new version available -> inform user
-				fmt.Fprintf(statfp, "ctrlengine: software available, please update with `mutectrl upkeep update`\n")
+				fmt.Fprintf(ce.fileTable.StatusFP, "ctrlengine: software "+
+					"available, please update with `mutectrl upkeep update`\n")
 			}
 		}
 
@@ -265,6 +273,7 @@ var (
 
 // loop runs the CtrlEngine in a loop and reads commands from the file
 // descriptor command-fd.
+// TODO: actually read from command-fd!
 func (ce *CtrlEngine) loop(c *cli.Context) {
 	if len(c.Args()) > 0 {
 		ce.err = fmt.Errorf("ctrlengine: unknown command '%s', try 'help'",
@@ -277,7 +286,6 @@ func (ce *CtrlEngine) loop(c *cli.Context) {
 	interactive = true
 
 	// run command(s)
-	statusfp := os.NewFile(uintptr(c.Int("status-fd")), "status-fd")
 	line = liner.NewLiner()
 	defer line.Close()
 	line.SetCtrlCAborts(true)
@@ -299,12 +307,12 @@ func (ce *CtrlEngine) loop(c *cli.Context) {
 		if active == "" {
 			active = "none"
 		}
-		fmt.Fprintf(statusfp, "active user ID: %s\n", active)
-		fmt.Fprintln(statusfp, "READY.")
+		fmt.Fprintf(ce.fileTable.StatusFP, "active user ID: %s\n", active)
+		fmt.Fprintln(ce.fileTable.StatusFP, "READY.")
 		ln, err := line.Prompt("")
 		if err != nil {
 			if err == liner.ErrPromptAborted {
-				fmt.Fprintf(statusfp, "aborting...\n")
+				fmt.Fprintf(ce.fileTable.StatusFP, "aborting...\n")
 			}
 			log.Info("ctrlengine: stopping (error)")
 			log.Error(err)
@@ -322,7 +330,7 @@ func (ce *CtrlEngine) loop(c *cli.Context) {
 		if err := ce.app.Run(args); err != nil {
 			// command execution failed -> issue status and continue
 			log.Infof("command execution failed (app): %s", err)
-			fmt.Fprintln(statusfp, err)
+			fmt.Fprintln(ce.fileTable.StatusFP, err)
 			continue
 		}
 		if ce.err != nil {
@@ -333,7 +341,7 @@ func (ce *CtrlEngine) loop(c *cli.Context) {
 				return
 			}
 			// command execution failed -> issue status and continue
-			fmt.Fprintln(statusfp, ce.translateError(ce.err))
+			fmt.Fprintln(ce.fileTable.StatusFP, ce.translateError(ce.err))
 			ce.err = nil
 		} else {
 			log.Info("command successful")
@@ -378,31 +386,11 @@ func New() *CtrlEngine {
 			Value: defaultHomeDir,
 			Usage: "set home directory",
 		},
-		cli.IntFlag{
-			Name:  "input-fd",
-			Value: int(syscall.Stdin),
-			Usage: "input file descriptor",
-		},
-		cli.IntFlag{
-			Name:  "output-fd",
-			Value: int(syscall.Stdout),
-			Usage: "output file descriptor",
-		},
-		cli.IntFlag{
-			Name:  "status-fd",
-			Value: int(syscall.Stderr),
-			Usage: "status file descriptor",
-		},
-		cli.IntFlag{
-			Name:  "passphrase-fd",
-			Value: 3,
-			Usage: "passphrase file descriptor",
-		},
-		cli.IntFlag{
-			Name:  "command-fd",
-			Value: 4,
-			Usage: "command file descriptor",
-		},
+		descriptors.InputFDFlag,
+		descriptors.OutputFDFlag,
+		descriptors.StatusFDFlag,
+		descriptors.PassphraseFDFlag,
+		descriptors.CommandFDFlag,
 		cli.BoolFlag{
 			Name:  "offline",
 			Usage: "use offline mode",
@@ -427,13 +415,6 @@ func New() *CtrlEngine {
 	}
 	ce.app.After = func(c *cli.Context) error {
 		// TODO: close all file descriptors?
-		/*
-			os.NewFile(uintptr(c.Int("input-fd")), "input-fd").Close()
-			os.NewFile(uintptr(c.Int("status-fd")), "status-fd").Close()
-			os.NewFile(uintptr(c.Int("passphrase-fd")), "passphrase-fd").Close()
-			os.NewFile(uintptr(c.Int("command-fd")), "command-fd").Close()
-			os.NewFile(uintptr(c.Int("output-fd")), "output-fd").Close()
-		*/
 		return nil
 	}
 	ce.app.Action = func(c *cli.Context) {
@@ -498,12 +479,8 @@ func New() *CtrlEngine {
 						return ce.prepare(c, false)
 					},
 					Action: func(c *cli.Context) {
-						outfp := os.NewFile(uintptr(c.GlobalInt("output-fd")),
-							"output-fd")
-						statusfp := os.NewFile(uintptr(c.GlobalInt("status-fd")),
-							"status-fd")
-						ce.err = ce.dbCreate(outfp, statusfp,
-							c.GlobalString("homedir"), c)
+						ce.err = ce.dbCreate(ce.fileTable.OutputFP,
+							ce.fileTable.StatusFP, c.GlobalString("homedir"), c)
 					},
 				},
 				{
@@ -523,9 +500,7 @@ func New() *CtrlEngine {
 						return ce.prepare(c, false)
 					},
 					Action: func(c *cli.Context) {
-						statusfp := os.NewFile(uintptr(c.GlobalInt("status-fd")),
-							"status-fd")
-						ce.err = ce.dbRekey(statusfp, c)
+						ce.err = ce.dbRekey(ce.fileTable.StatusFP, c)
 					},
 				},
 				/*
@@ -543,9 +518,7 @@ func New() *CtrlEngine {
 							return nil
 						},
 						Action: func(c *cli.Context) {
-							outputfp := os.NewFile(uintptr(c.GlobalInt("output-fd")),
-								"output-fd")
-							ce.err = ce.dbStatus(c, outputfp)
+							ce.err = ce.dbStatus(c, ce.fileTable.OutputFP)
 						},
 					},
 				*/
@@ -613,9 +586,7 @@ func New() *CtrlEngine {
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						outputfp := os.NewFile(uintptr(c.GlobalInt("output-fd")),
-							"output-fd")
-						ce.err = ce.dbVersion(c, outputfp)
+						ce.err = ce.dbVersion(c, ce.fileTable.OutputFP)
 					},
 				},
 			},
@@ -693,7 +664,8 @@ Tries to register a new user ID with the corresponding key server.
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						ce.err = ce.uidActive(c)
+						ce.err = ce.uidActive(c, ce.fileTable.OutputFD,
+							ce.fileTable.OutputFP)
 					},
 				},
 				{
@@ -741,9 +713,8 @@ Tries to register a new user ID with the corresponding key server.
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						statfp := os.NewFile(uintptr(c.GlobalInt("status-fd")),
-							"status-fd")
-						ce.err = ce.uidDelete(c, c.String("id"), c.Bool("force"), statfp)
+						ce.err = ce.uidDelete(c, c.String("id"), c.Bool("force"),
+							ce.fileTable.StatusFP)
 					},
 				},
 				{
@@ -759,9 +730,7 @@ Tries to register a new user ID with the corresponding key server.
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						outfp := os.NewFile(uintptr(c.GlobalInt("output-fd")),
-							"output-fd")
-						ce.err = ce.uidList(outfp)
+						ce.err = ce.uidList(ce.fileTable.OutputFP)
 					},
 				},
 			},
@@ -940,9 +909,7 @@ Tries to register a new user ID with the corresponding key server.
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						outfp := os.NewFile(uintptr(c.GlobalInt("output-fd")),
-							"output-fd")
-						ce.err = ce.contactList(outfp, ce.getID(c))
+						ce.err = ce.contactList(ce.fileTable.OutputFP, ce.getID(c))
 					},
 				},
 				{
@@ -964,9 +931,8 @@ Tries to register a new user ID with the corresponding key server.
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						outfp := os.NewFile(uintptr(c.GlobalInt("output-fd")),
-							"output-fd")
-						ce.err = ce.contactBlacklist(outfp, ce.getID(c))
+						ce.err = ce.contactBlacklist(ce.fileTable.OutputFP,
+							ce.getID(c))
 					},
 				},
 			},
@@ -1025,13 +991,11 @@ Tries to register a new user ID with the corresponding key server.
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						inputfp := os.NewFile(uintptr(c.GlobalInt("input-fd")),
-							"input-fd")
 						ce.err = ce.msgAdd(c, ce.getID(c), c.String("to"),
 							c.String("file"), c.Bool("permanent-signature"),
 							c.StringSlice("attach"),
 							int32(c.Int("mindelay")), int32(c.Int("maxdelay")),
-							line, inputfp)
+							line, ce.fileTable.InputFP)
 					},
 				},
 				{
@@ -1101,9 +1065,7 @@ Tries to register a new user ID with the corresponding key server.
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						outputfp := os.NewFile(uintptr(c.GlobalInt("output-fd")),
-							"output-fd")
-						ce.err = ce.msgList(outputfp, ce.getID(c))
+						ce.err = ce.msgList(ce.fileTable.OutputFP, ce.getID(c))
 					},
 				},
 				{
@@ -1132,9 +1094,7 @@ Tries to register a new user ID with the corresponding key server.
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						outputfp := os.NewFile(uintptr(c.GlobalInt("output-fd")),
-							"output-fd")
-						ce.err = ce.msgRead(outputfp, ce.getID(c),
+						ce.err = ce.msgRead(ce.fileTable.OutputFP, ce.getID(c),
 							int64(c.Int("msgid")))
 					},
 				},
@@ -1171,10 +1131,8 @@ Tries to register a new user ID with the corresponding key server.
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						statfp := os.NewFile(uintptr(c.GlobalInt("status-fd")),
-							"status-fd")
 						ce.err = ce.upkeepAll(c, ce.getID(c),
-							c.String("period"), statfp)
+							c.String("period"), ce.fileTable.StatusFP)
 					},
 				},
 				{
@@ -1183,7 +1141,7 @@ Tries to register a new user ID with the corresponding key server.
 					Flags: []cli.Flag{
 						cli.BoolFlag{
 							Name:  "show",
-							Usage: "Show config on output-fp",
+							Usage: "Show config on output-fd",
 						},
 					},
 					Before: func(c *cli.Context) error {
@@ -1197,13 +1155,9 @@ Tries to register a new user ID with the corresponding key server.
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						outfp := os.NewFile(uintptr(c.GlobalInt("output-fd")),
-							"output-fd")
-						statfp := os.NewFile(uintptr(c.GlobalInt("status-fd")),
-							"status-fd")
 						ce.err = ce.upkeepFetchconf(ce.msgDB,
-							c.GlobalString("homedir"), c.Bool("show"), outfp,
-							statfp)
+							c.GlobalString("homedir"), c.Bool("show"),
+							ce.fileTable.OutputFP, ce.fileTable.StatusFP)
 					},
 				},
 				{
@@ -1237,13 +1191,9 @@ Tries to register a new user ID with the corresponding key server.
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						outfp := os.NewFile(uintptr(c.GlobalInt("output-fd")),
-							"output-fd")
-						statfp := os.NewFile(uintptr(c.GlobalInt("status-fd")),
-							"status-fd")
 						ce.err = ce.upkeepUpdate(c.GlobalString("homedir"),
 							/* c.Bool("source"), c.Bool("binary"), */
-							outfp, statfp)
+							ce.fileTable.OutputFP, ce.fileTable.StatusFP)
 					},
 				},
 				{
@@ -1278,10 +1228,9 @@ Tries to register a new user ID with the corresponding key server.
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						statfp := os.NewFile(uintptr(c.GlobalInt("status-fd")),
-							"status-fd")
 						ce.err = ce.upkeepAccounts(ce.getID(c),
-							c.String("period"), c.String("remaining"), statfp)
+							c.String("period"), c.String("remaining"),
+							ce.fileTable.StatusFP)
 					},
 				},
 				{
@@ -1332,9 +1281,7 @@ Tries to register a new user ID with the corresponding key server.
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						outfp := os.NewFile(uintptr(c.GlobalInt("output-fd")),
-							"output-fd")
-						ce.err = ce.walletPubkey(outfp)
+						ce.err = ce.walletPubkey(ce.fileTable.OutputFP)
 					},
 				},
 				{
@@ -1351,9 +1298,7 @@ Tries to register a new user ID with the corresponding key server.
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						outfp := os.NewFile(uintptr(c.GlobalInt("output-fd")),
-							"output-fd")
-						ce.err = ce.walletBalance(outfp)
+						ce.err = ce.walletBalance(ce.fileTable.OutputFP)
 					},
 				},
 			},
@@ -1403,21 +1348,17 @@ func decodeWalletKey(p string) (*[ed25519.PrivateKeySize]byte, error) {
 
 func (ce *CtrlEngine) openMsgDB(
 	homedir string,
-	passfd, statusfd int,
 ) error {
 	// read passphrase
-	statusfp := os.NewFile(uintptr(statusfd), "status-fd")
-	fmt.Fprintf(statusfp, "read passphrase from fd %d\n", passfd)
-	log.Infof("read passphrase from fd %d", passfd)
+	fmt.Fprintf(ce.fileTable.StatusFP, "read passphrase from fd %d\n",
+		ce.fileTable.PassphraseFD)
+	log.Infof("read passphrase from fd %d", ce.fileTable.PassphraseFD)
 	var err error
-	ce.passphrase, err = util.Readline(passfd, "passphrase-fd")
+	ce.passphrase, err = util.Readline(ce.fileTable.PassphraseFP)
 	if err != nil {
 		return err
 	}
 	log.Info("done")
-	// TODO: close passphrase-fd after reading from it?
-	// rekey probably doesn't work anymore
-	// os.NewFile(uintptr(passfd), "").Close()
 
 	// open msgDB
 	msgdbname := filepath.Join(homedir, "msgs")

@@ -13,7 +13,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
-	"syscall"
 
 	"github.com/agl/ed25519"
 	"github.com/codegangsta/cli"
@@ -26,8 +25,8 @@ import (
 
 func createKeyDB(c *cli.Context, w io.Writer, passphrase []byte) error {
 	args := []string{
-		"--output-fd", strconv.Itoa(c.GlobalInt("output-fd")),
-		"--passphrase-fd", strconv.FormatUint(uint64(syscall.Stdin), 10),
+		"--output-fd", c.GlobalString("output-fd"),
+		"--passphrase-fd", "stdin",
 		"--homedir", c.GlobalString("homedir"),
 		"--loglevel", c.GlobalString("loglevel"),
 		"--logdir", c.GlobalString("logdir"),
@@ -75,11 +74,10 @@ func (ce *CtrlEngine) dbCreate(
 ) error {
 	msgdbname := filepath.Join(c.GlobalString("homedir"), "msgs")
 	// read passphrase
-	passphraseFD := c.GlobalInt("passphrase-fd")
-	fmt.Fprintf(statusfp, "read passphrase from fd %d\n", passphraseFD)
-	log.Infof("read passphrase from fd %d", passphraseFD)
-	fp := os.NewFile(uintptr(passphraseFD), "passphrase-fd")
-	scanner := bufio.NewScanner(fp)
+	fmt.Fprintf(statusfp, "read passphrase from fd %d\n",
+		ce.fileTable.PassphraseFD)
+	log.Infof("read passphrase from fd %d", ce.fileTable.PassphraseFD)
+	scanner := bufio.NewScanner(ce.fileTable.PassphraseFP)
 	var passphrase []byte
 	defer bzero.Bytes(passphrase)
 	if scanner.Scan() {
@@ -89,8 +87,9 @@ func (ce *CtrlEngine) dbCreate(
 	}
 	log.Info("done")
 	// read passphrase again
-	fmt.Fprintf(statusfp, "read passphrase from fd %d again\n", passphraseFD)
-	log.Infof("read passphrase from fd %d again", passphraseFD)
+	fmt.Fprintf(statusfp, "read passphrase from fd %d again\n",
+		ce.fileTable.PassphraseFD)
+	log.Infof("read passphrase from fd %d again", ce.fileTable.PassphraseFD)
 	var passphrase2 []byte
 	defer bzero.Bytes(passphrase2)
 	if scanner.Scan() {
@@ -150,7 +149,7 @@ func (ce *CtrlEngine) dbCreate(
 
 func rekeyKeyDB(c *cli.Context, oldPassphrase, newPassphrase []byte) error {
 	cmd := exec.Command("mutecrypt",
-		"--passphrase-fd", "0",
+		"--passphrase-fd", "stdin",
 		"--homedir", c.GlobalString("homedir"),
 		"--loglevel", c.GlobalString("loglevel"),
 		"--logdir", c.GlobalString("logdir"),
@@ -189,11 +188,10 @@ func rekeyKeyDB(c *cli.Context, oldPassphrase, newPassphrase []byte) error {
 func (ce *CtrlEngine) dbRekey(statusfp io.Writer, c *cli.Context) error {
 	msgdbname := filepath.Join(c.GlobalString("homedir"), "msgs")
 	// read old passphrase
-	passphraseFD := c.GlobalInt("passphrase-fd")
-	fmt.Fprintf(statusfp, "read old passphrase from fd %d\n", passphraseFD)
-	log.Infof("read old passphrase from fd %d", passphraseFD)
-	fp := os.NewFile(uintptr(passphraseFD), "passphrase-fd")
-	scanner := bufio.NewScanner(fp)
+	fmt.Fprintf(statusfp, "read old passphrase from fd %d\n",
+		ce.fileTable.PassphraseFD)
+	log.Infof("read old passphrase from fd %d", ce.fileTable.PassphraseFD)
+	scanner := bufio.NewScanner(ce.fileTable.PassphraseFP)
 	var oldPassphrase []byte
 	defer bzero.Bytes(oldPassphrase)
 	if scanner.Scan() {
@@ -203,8 +201,9 @@ func (ce *CtrlEngine) dbRekey(statusfp io.Writer, c *cli.Context) error {
 	}
 	log.Info("done")
 	// read new passphrase
-	fmt.Fprintf(statusfp, "read new passphrase from fd %d\n", passphraseFD)
-	log.Infof("read new passphrase from fd %d", passphraseFD)
+	fmt.Fprintf(statusfp, "read new passphrase from fd %d\n",
+		ce.fileTable.PassphraseFD)
+	log.Infof("read new passphrase from fd %d", ce.fileTable.PassphraseFD)
 	var newPassphrase []byte
 	defer bzero.Bytes(newPassphrase)
 	if scanner.Scan() {
@@ -214,8 +213,9 @@ func (ce *CtrlEngine) dbRekey(statusfp io.Writer, c *cli.Context) error {
 	}
 	log.Info("done")
 	// read new passphrase again
-	fmt.Fprintf(statusfp, "read new passphrase from fd %d again\n", passphraseFD)
-	log.Infof("read new passphrase from fd %d again", passphraseFD)
+	fmt.Fprintf(statusfp, "read new passphrase from fd %d again\n",
+		ce.fileTable.PassphraseFD)
+	log.Infof("read new passphrase from fd %d again", ce.fileTable.PassphraseFD)
 	var newPassphrase2 []byte
 	defer bzero.Bytes(newPassphrase2)
 	if scanner.Scan() {
