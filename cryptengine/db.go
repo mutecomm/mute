@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
+	"path/filepath"
 
 	"github.com/mutecomm/mute/keydb"
 	"github.com/mutecomm/mute/log"
@@ -19,7 +19,7 @@ import (
 
 // create a new KeyDB.
 func (ce *CryptEngine) create(homedir string, iterations, passphraseFD int) error {
-	keydbname := path.Join(homedir, "keys")
+	keydbname := filepath.Join(homedir, "keys")
 	// read passphrase
 	log.Infof("read passphrase from fd %d", passphraseFD)
 	fp := os.NewFile(uintptr(passphraseFD), "passphrase-fd")
@@ -54,7 +54,7 @@ func (ce *CryptEngine) create(homedir string, iterations, passphraseFD int) erro
 
 // rekey a KeyDB.
 func (ce *CryptEngine) rekey(homedir string, iterations, passphraseFD int) error {
-	keydbname := path.Join(homedir, "keys")
+	keydbname := filepath.Join(homedir, "keys")
 	// read old passphrase
 	log.Infof("read old passphrase from fd %d", passphraseFD)
 	fp := os.NewFile(uintptr(passphraseFD), "passphrase-fd")

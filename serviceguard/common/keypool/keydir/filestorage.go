@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path"
+	"path/filepath"
 
 	"github.com/mutecomm/mute/serviceguard/common/keypool"
 	"github.com/mutecomm/mute/serviceguard/common/signkeys"
@@ -29,7 +29,7 @@ func Add(kp *keypool.KeyPool, keyDir string) error {
 func writeKeyToDir(keyDir string) keypool.WriteKeyCallbackFunc {
 	return func(keyid []byte, usage string, marshalledKey []byte) error {
 		// Write key to file in keyDir
-		err := ioutil.WriteFile(path.Join(keyDir, fmt.Sprintf("%x.pubkey", keyid)), marshalledKey, 0600)
+		err := ioutil.WriteFile(filepath.Join(keyDir, fmt.Sprintf("%x.pubkey", keyid)), marshalledKey, 0600)
 		if err != nil {
 			return err
 		}
@@ -45,7 +45,7 @@ func loadKeysFromDir(keyDir string) keypool.LoadKeysCallbackFunc {
 			return err
 		}
 		for _, file := range files {
-			d, err := ioutil.ReadFile(path.Join(keyDir, file.Name()))
+			d, err := ioutil.ReadFile(filepath.Join(keyDir, file.Name()))
 			if err != nil {
 				return err
 			}

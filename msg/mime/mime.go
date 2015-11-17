@@ -14,7 +14,7 @@ import (
 	"mime/multipart"
 	"net/mail"
 	"net/textproto"
-	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -89,11 +89,11 @@ func multipartMIME(
 	// write attachments
 	for _, attachment := range attachments {
 		mh = make(textproto.MIMEHeader)
-		base := path.Base(attachment.Filename)
+		base := filepath.Base(attachment.Filename)
 		if attachment.ContentType != "" {
 			mh.Add("Content-Type", attachment.ContentType)
 		} else {
-			ct := mime.TypeByExtension(path.Ext(base))
+			ct := mime.TypeByExtension(filepath.Ext(base))
 			if ct != "" {
 				mh.Add("Content-Type", ct)
 			} else {

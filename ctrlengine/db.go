@@ -11,7 +11,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"path"
+	"path/filepath"
 	"strconv"
 
 	"github.com/agl/ed25519"
@@ -63,7 +63,7 @@ func (ce *CtrlEngine) dbCreate(
 	homedir string,
 	c *cli.Context,
 ) error {
-	msgdbname := path.Join(c.GlobalString("homedir"), "msgs")
+	msgdbname := filepath.Join(c.GlobalString("homedir"), "msgs")
 	// read passphrase
 	passphraseFD := c.GlobalInt("passphrase-fd")
 	fmt.Fprintf(statusfp, "read passphrase from fd %d\n", passphraseFD)
@@ -177,7 +177,7 @@ func rekeyKeyDB(c *cli.Context, oldPassphrase, newPassphrase []byte) error {
 
 // rekey MsgDB and KeyDB.
 func (ce *CtrlEngine) dbRekey(statusfp io.Writer, c *cli.Context) error {
-	msgdbname := path.Join(c.GlobalString("homedir"), "msgs")
+	msgdbname := filepath.Join(c.GlobalString("homedir"), "msgs")
 	// read old passphrase
 	passphraseFD := c.GlobalInt("passphrase-fd")
 	fmt.Fprintf(statusfp, "read old passphrase from fd %d\n", passphraseFD)

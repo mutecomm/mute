@@ -8,7 +8,7 @@ package protoengine
 import (
 	"errors"
 	"os"
-	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/codegangsta/cli"
@@ -27,7 +27,7 @@ const (
 
 var (
 	defaultHomeDir = home.AppDataDir("mute", false)
-	defaultLogDir  = path.Join(defaultHomeDir, "log")
+	defaultLogDir  = filepath.Join(defaultHomeDir, "log")
 	errExit        = errors.New("cryptengine: requests exit")
 )
 

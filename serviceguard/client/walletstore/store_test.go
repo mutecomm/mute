@@ -9,7 +9,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 	"strconv"
 	"testing"
 
@@ -31,7 +31,7 @@ func init() {
 }
 
 var testDB string
-var sqliteDB = path.Join(os.TempDir(), "walletDB-"+strconv.FormatInt(times.Now(), 10)+".db")
+var sqliteDB = filepath.Join(os.TempDir(), "walletDB-"+strconv.FormatInt(times.Now(), 10)+".db")
 var testOwnerPub = [ed25519.PublicKeySize]byte{0x00, 0x01, 0x02}
 var testOwnerPriv = [ed25519.PrivateKeySize]byte{0x00, 0x02, 0x02}
 var testNewOwnerPub = [ed25519.PublicKeySize]byte{0x00, 0x03, 0x02}

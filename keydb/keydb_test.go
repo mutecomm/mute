@@ -11,7 +11,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"path"
+	"path/filepath"
 	"testing"
 
 	"github.com/mutecomm/mute/cipher"
@@ -29,7 +29,7 @@ func createDB() (tmpdir string, keyDB *KeyDB, err error) {
 	if err != nil {
 		return "", nil, err
 	}
-	dbname := path.Join(tmpdir, "keydb")
+	dbname := filepath.Join(tmpdir, "keydb")
 	passphrase := []byte(cipher.RandPass(cipher.RandReader))
 	if err := Create(dbname, passphrase, 64000); err != nil {
 		return "", nil, err
@@ -63,7 +63,7 @@ func TestRekey(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	dbname := path.Join(tmpdir, "keydb")
+	dbname := filepath.Join(tmpdir, "keydb")
 	passphrase := []byte(cipher.RandPass(cipher.RandReader))
 	if err := Create(dbname, passphrase, 64000); err != nil {
 		t.Fatal(err)

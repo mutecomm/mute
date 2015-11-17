@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"io/ioutil"
 	"os"
-	"path"
+	"path/filepath"
 	"testing"
 )
 
@@ -18,7 +18,7 @@ func TestGenerateRead(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	keyfile := path.Join(tmpdir, "keyfile_test.key")
+	keyfile := filepath.Join(tmpdir, "keyfile_test.key")
 	// generate keyfile
 	gkey, err := generateKeyfile(keyfile, passphrase, iter)
 	if err != nil {
@@ -41,7 +41,7 @@ func TestMultipleGenerates(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	keyfile := path.Join(tmpdir, "keyfile_test.key")
+	keyfile := filepath.Join(tmpdir, "keyfile_test.key")
 	if _, err := generateKeyfile(keyfile, passphrase, iter); err != nil {
 		t.Fatal(err)
 	}
@@ -56,7 +56,7 @@ func TestFailingRead(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	keyfile := path.Join(tmpdir, "keyfile_test.key")
+	keyfile := filepath.Join(tmpdir, "keyfile_test.key")
 	if _, err := readKeyfile(keyfile, passphrase); err == nil {
 		t.Fatal("read should fail")
 	}
@@ -68,7 +68,7 @@ func TestInvalidIterRead(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	keyfile := path.Join(tmpdir, "keyfile_test.key")
+	keyfile := filepath.Join(tmpdir, "keyfile_test.key")
 	fp, err := os.Create(keyfile)
 	if err != nil {
 		t.Fatal(err)
@@ -92,7 +92,7 @@ func bogusElementRead(t *testing.T, size int) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	keyfile := path.Join(tmpdir, "keyfile_test.key")
+	keyfile := filepath.Join(tmpdir, "keyfile_test.key")
 	fp, err := os.Create(keyfile)
 	if err != nil {
 		t.Fatal(err)
@@ -125,7 +125,7 @@ func TestInvalidIterGenerate(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	keyfile := path.Join(tmpdir, "keyfile_test.key")
+	keyfile := filepath.Join(tmpdir, "keyfile_test.key")
 	// generate keyfile
 	if _, err := generateKeyfile(keyfile, passphrase, -1); err == nil {
 		t.Fatalf("generate should fail")

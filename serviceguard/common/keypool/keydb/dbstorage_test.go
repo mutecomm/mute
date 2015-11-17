@@ -9,7 +9,7 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"os"
-	"path"
+	"path/filepath"
 	"strconv"
 	"testing"
 
@@ -31,7 +31,7 @@ func init() {
 }
 
 var database string
-var sqliteDB = path.Join(os.TempDir(), "keypoolDB-"+strconv.FormatInt(times.Now(), 10)+".db")
+var sqliteDB = filepath.Join(os.TempDir(), "keypoolDB-"+strconv.FormatInt(times.Now(), 10)+".db")
 
 func TestGenerator(t *testing.T) {
 	pubkey, privkey, _ := ed25519.GenerateKey(rand.Reader)

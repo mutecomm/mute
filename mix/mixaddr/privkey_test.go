@@ -7,7 +7,7 @@ package mixaddr
 import (
 	"crypto/rand"
 	"os"
-	"path"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -15,7 +15,7 @@ import (
 	"github.com/mutecomm/mute/util/times"
 )
 
-var testDir = path.Join(os.TempDir(), "testkeys")
+var testDir = filepath.Join(os.TempDir(), "testkeys")
 
 func TestKeyList(t *testing.T) {
 	now := times.Now()

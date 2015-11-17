@@ -13,7 +13,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"path"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -96,16 +96,16 @@ func (ce *CtrlEngine) upkeepAll(
 }
 
 func writeConfigFile(homedir, domain string, config []byte) error {
-	configdir := path.Join(homedir, "config")
+	configdir := filepath.Join(homedir, "config")
 	if err := os.MkdirAll(configdir, 0700); err != nil {
 		return log.Error(err)
 	}
-	tmpfile := path.Join(configdir, domain+".new")
+	tmpfile := filepath.Join(configdir, domain+".new")
 	os.Remove(tmpfile) // ignore error
 	if err := ioutil.WriteFile(tmpfile, config, 0700); err != nil {
 		return log.Error(err)
 	}
-	return os.Rename(tmpfile, path.Join(configdir, domain))
+	return os.Rename(tmpfile, filepath.Join(configdir, domain))
 }
 
 func (ce *CtrlEngine) upkeepFetchconf(
@@ -167,7 +167,7 @@ func updateMuteFromSource(outfp, statfp io.Writer, commit string) error {
 	fmt.Fprintf(statfp, "...binary path: %s\n", binary)
 
 	// change to source directory github.com/mutecomm/mute
-	dir := path.Join(path.Dir(binary), "..", "src", "github.com", "mutecomm", "mute")
+	dir := filepath.Join(filepath.Dir(binary), "..", "src", "github.com", "mutecomm", "mute")
 
 	// git status --porcelain
 	fmt.Fprintf(statfp, "$ git status --porcelain (CWD=%s)\n", dir)
@@ -291,8 +291,8 @@ func (ce *CtrlEngine) upkeepUpdate(
 			if err != nil {
 				return err
 			}
-			dir = path.Join(dir, "..")
-			cmd := exec.Command(path.Join(dir, "mutegenerate"), "-t")
+			dir = filepath.Join(dir, "..")
+			cmd := exec.Command(filepath.Join(dir, "mutegenerate"), "-t")
 			if err := cmd.Run(); err != nil {
 				binary = true
 			} else {

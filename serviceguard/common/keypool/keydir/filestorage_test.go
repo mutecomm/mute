@@ -8,7 +8,7 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"os"
-	"path"
+	"path/filepath"
 	"testing"
 
 	"github.com/agl/ed25519"
@@ -20,7 +20,7 @@ import (
 var keydirectory string
 
 func init() {
-	keydirectory = path.Join(os.TempDir(), "serviceguard_test", "keydir")
+	keydirectory = filepath.Join(os.TempDir(), "serviceguard_test", "keydir")
 	os.MkdirAll(keydirectory, 0700)
 }
 

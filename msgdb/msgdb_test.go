@@ -7,7 +7,7 @@ package msgdb
 import (
 	"io/ioutil"
 	"os"
-	"path"
+	"path/filepath"
 	"testing"
 
 	"github.com/mutecomm/mute/cipher"
@@ -18,7 +18,7 @@ func createDB() (tmpdir string, msgDB *MsgDB, err error) {
 	if err != nil {
 		return "", nil, err
 	}
-	dbname := path.Join(tmpdir, "msgdb")
+	dbname := filepath.Join(tmpdir, "msgdb")
 	passphrase := []byte(cipher.RandPass(cipher.RandReader))
 	if err := Create(dbname, passphrase, 64000); err != nil {
 		return "", nil, err
@@ -55,7 +55,7 @@ func TestRekey(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	dbname := path.Join(tmpdir, "msgdb")
+	dbname := filepath.Join(tmpdir, "msgdb")
 	passphrase := []byte(cipher.RandPass(cipher.RandReader))
 	if err := Create(dbname, passphrase, 64000); err != nil {
 		t.Fatal(err)

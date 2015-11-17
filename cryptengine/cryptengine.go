@@ -10,7 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/codegangsta/cli"
@@ -32,7 +32,7 @@ const (
 
 var (
 	defaultHomeDir = home.AppDataDir("mute", false)
-	defaultLogDir  = path.Join(defaultHomeDir, "log")
+	defaultLogDir  = filepath.Join(defaultHomeDir, "log")
 	errExit        = errors.New("cryptengine: requests exit")
 )
 
@@ -915,7 +915,7 @@ func (ce *CryptEngine) openKeyDB(passfd int) error {
 	defer bzero.Bytes(passphrase)
 	log.Info("done")
 	// open keyDB
-	keydbname := path.Join(ce.homedir, "keys")
+	keydbname := filepath.Join(ce.homedir, "keys")
 	log.Infof("open keyDB %s", keydbname)
 	ce.keyDB, err = keydb.Open(keydbname, passphrase)
 	if err != nil {

@@ -10,7 +10,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"path"
+	"path/filepath"
 	"strconv"
 	"sync"
 	"time"
@@ -241,7 +241,7 @@ func (kl *KeyList) AddKey() {
 }
 
 func (kl *KeyList) saveKeys() {
-	file := path.Join(kl.Safedir, "keys."+strconv.FormatInt(timeNow(), 10))
+	file := filepath.Join(kl.Safedir, "keys."+strconv.FormatInt(timeNow(), 10))
 	ioutil.WriteFile(file, kl.marshal(), 0600)
 }
 

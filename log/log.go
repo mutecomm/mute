@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
+	"path/filepath"
 	"runtime"
 
 	"github.com/cihub/seelog"
@@ -46,7 +46,7 @@ func Init(logLevel, cmdPrefix, logDir string, logToConsole bool) error {
 	var file string
 	if logDir != "" {
 		file = fmt.Sprintf("<rollingfile type=\"size\" filename=\"%s\" maxsize=\"10485760\" maxrolls=\"3\" />",
-			path.Join(logDir, os.Args[0]+".log"))
+			filepath.Join(logDir, os.Args[0]+".log"))
 	}
 	config := `
 <seelog type="adaptive" mininterval="2000000" maxinterval="100000000"

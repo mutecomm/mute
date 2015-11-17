@@ -10,7 +10,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
-	"path"
+	"path/filepath"
 	"time"
 
 	"github.com/agl/ed25519"
@@ -117,9 +117,9 @@ func ConfigParams() (netDomain, pubkeyStr, configURL string) {
 // InitMuteFromFile initializes Mute with the config file from
 // homedir/config/.
 func InitMuteFromFile(homedir string) error {
-	configdir := path.Join(homedir, "config")
+	configdir := filepath.Join(homedir, "config")
 	netDomain, _, _ := ConfigParams()
-	jsn, err := ioutil.ReadFile(path.Join(configdir, netDomain))
+	jsn, err := ioutil.ReadFile(filepath.Join(configdir, netDomain))
 	if err != nil {
 		return log.Error(err)
 	}

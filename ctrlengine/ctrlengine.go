@@ -10,7 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -46,7 +46,7 @@ const (
 
 var (
 	defaultHomeDir = home.AppDataDir("mute", false)
-	defaultLogDir  = path.Join(defaultHomeDir, "log")
+	defaultLogDir  = filepath.Join(defaultHomeDir, "log")
 	errExit        = errors.New("cryptengine: requests exit")
 )
 
@@ -1419,7 +1419,7 @@ func (ce *CtrlEngine) openMsgDB(
 	// os.NewFile(uintptr(passfd), "").Close()
 
 	// open msgDB
-	msgdbname := path.Join(homedir, "msgs")
+	msgdbname := filepath.Join(homedir, "msgs")
 	log.Infof("open msgDB %s", msgdbname)
 	ce.msgDB, err = msgdb.Open(msgdbname, ce.passphrase)
 	if err != nil {

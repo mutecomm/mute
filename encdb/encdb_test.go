@@ -7,7 +7,7 @@ package encdb
 import (
 	"io/ioutil"
 	"os"
-	"path"
+	"path/filepath"
 	"testing"
 )
 
@@ -21,7 +21,7 @@ func TestCreateOpenClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	dbname := path.Join(tmpdir, "encdb_test")
+	dbname := filepath.Join(tmpdir, "encdb_test")
 	if err = Create(dbname, passphrase, iter, nil); err != nil {
 		t.Fatal(err)
 	}
@@ -41,7 +41,7 @@ func TestCreateRekey(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	dbname := path.Join(tmpdir, "encdb_test")
+	dbname := filepath.Join(tmpdir, "encdb_test")
 	if err = Create(dbname, passphrase, iter, sqls); err != nil {
 		t.Fatal(err)
 	}
@@ -60,7 +60,7 @@ func TestCreateRekeyFailPass(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	dbname := path.Join(tmpdir, "encdb_test")
+	dbname := filepath.Join(tmpdir, "encdb_test")
 	if err = Create(dbname, passphrase, iter, sqls); err != nil {
 		t.Fatal(err)
 	}
@@ -78,7 +78,7 @@ func TestCreateRekeyFailIter(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	dbname := path.Join(tmpdir, "encdb_test")
+	dbname := filepath.Join(tmpdir, "encdb_test")
 	if err = Create(dbname, passphrase, iter, sqls); err != nil {
 		t.Fatal(err)
 	}
@@ -96,7 +96,7 @@ func TestCreateFailSQL(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	dbname := path.Join(tmpdir, "encdb_test")
+	dbname := filepath.Join(tmpdir, "encdb_test")
 	if err = Create(dbname, passphrase, iter, sqls); err == nil {
 		t.Fatalf("create should fail")
 	}
@@ -108,7 +108,7 @@ func TestCreateFailIter(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	dbname := path.Join(tmpdir, "encdb_test")
+	dbname := filepath.Join(tmpdir, "encdb_test")
 	if err = Create(dbname, passphrase, -1, nil); err == nil {
 		t.Fatalf("create should fail")
 	}
@@ -123,7 +123,7 @@ func TestCreateOpenFailPass(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	dbname := path.Join(tmpdir, "encdb_test")
+	dbname := filepath.Join(tmpdir, "encdb_test")
 	if err = Create(dbname, passphrase, iter, sqls); err != nil {
 		t.Fatal(err)
 	}
@@ -138,7 +138,7 @@ func TestCreateOpenFailKeyfile(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	dbname := path.Join(tmpdir, "encdb_test")
+	dbname := filepath.Join(tmpdir, "encdb_test")
 	if err = Create(dbname, passphrase, iter, nil); err != nil {
 		t.Fatal(err)
 	}
@@ -158,7 +158,7 @@ func TestMultipleCreates(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	dbname := path.Join(tmpdir, "encdb_test")
+	dbname := filepath.Join(tmpdir, "encdb_test")
 	if err = Create(dbname, passphrase, iter, nil); err != nil {
 		t.Fatal(err)
 	}
@@ -177,7 +177,7 @@ func TestMissingDBFile(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	dbname := path.Join(tmpdir, "encdb_test")
+	dbname := filepath.Join(tmpdir, "encdb_test")
 	if err = Create(dbname, passphrase, iter, nil); err != nil {
 		t.Fatal(err)
 	}
@@ -194,7 +194,7 @@ func TestMissingKeyFile(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	dbname := path.Join(tmpdir, "encdb_test")
+	dbname := filepath.Join(tmpdir, "encdb_test")
 	if err = Create(dbname, passphrase, iter, nil); err != nil {
 		t.Fatal(err)
 	}
@@ -211,7 +211,7 @@ func TestCorruptDBFile(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	dbname := path.Join(tmpdir, "encdb_test")
+	dbname := filepath.Join(tmpdir, "encdb_test")
 	if err = Create(dbname, passphrase, iter, nil); err != nil {
 		t.Fatal(err)
 	}
@@ -235,7 +235,7 @@ func TestUpkeep(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpdir)
-	dbname := path.Join(tmpdir, "encdb_test")
+	dbname := filepath.Join(tmpdir, "encdb_test")
 	if err = Create(dbname, passphrase, iter, nil); err != nil {
 		t.Fatal(err)
 	}
