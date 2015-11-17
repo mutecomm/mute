@@ -24,19 +24,28 @@ import (
 	"github.com/mutecomm/mute/util/bzero"
 )
 
-func createKeyDB(c *cli.Context, passphrase []byte) error {
-	cmd := exec.Command("mutecrypt",
+func createKeyDB(c *cli.Context, w io.Writer, passphrase []byte) error {
+	args := []string{
+		"--output-fd", strconv.Itoa(c.GlobalInt("output-fd")),
 		"--passphrase-fd", strconv.FormatUint(uint64(syscall.Stdin), 10),
 		"--homedir", c.GlobalString("homedir"),
 		"--loglevel", c.GlobalString("loglevel"),
 		"--logdir", c.GlobalString("logdir"),
+	}
+	if c.GlobalBool("logconsole") {
+		args = append(args, "--logconsole")
+	}
+	args = append(args,
 		"db", "create",
-		"--iterations", strconv.Itoa(c.Int("iterations")))
+		"--iterations", strconv.Itoa(c.Int("iterations")),
+	)
+	cmd := exec.Command("mutecrypt", args...)
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return err
 	}
 	var errbuf bytes.Buffer
+	cmd.Stdout = w
 	cmd.Stderr = &errbuf
 	if err := cmd.Start(); err != nil {
 		return err
@@ -112,7 +121,7 @@ func (ce *CtrlEngine) dbCreate(
 	}
 	// create keyDB
 	log.Info("create keyDB")
-	if err := createKeyDB(c, passphrase); err != nil {
+	if err := createKeyDB(c, w, passphrase); err != nil {
 		return err
 	}
 	// status
