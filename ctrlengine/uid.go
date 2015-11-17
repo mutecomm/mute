@@ -435,7 +435,7 @@ func (ce *CtrlEngine) uidDelete(
 	c *cli.Context,
 	unmappedID string,
 	force bool,
-	statfp *os.File,
+	statfp io.Writer,
 ) error {
 	mappedID, err := identity.Map(unmappedID)
 	if err != nil {
@@ -503,7 +503,7 @@ func (ce *CtrlEngine) uidDelete(
 	return nil
 }
 
-func (ce *CtrlEngine) uidList(outfp *os.File) error {
+func (ce *CtrlEngine) uidList(outfp io.Writer) error {
 	nyms, err := ce.msgDB.GetNyms(false)
 	if err != nil {
 		return err

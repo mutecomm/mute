@@ -226,7 +226,7 @@ func add(
 	return nil
 }
 
-func get(outfp *os.File, msgDB *msgdb.MsgDB, id string, blocked bool) error {
+func get(outfp io.Writer, msgDB *msgdb.MsgDB, id string, blocked bool) error {
 	// get list of mapped contacts
 	contacts, err := msgDB.GetContacts(id, blocked)
 	if err != nil {
@@ -344,7 +344,7 @@ func (ce *CtrlEngine) contactUnblock(id, contact string) error {
 	return nil
 }
 
-func (ce *CtrlEngine) contactList(outfp *os.File, id string) error {
+func (ce *CtrlEngine) contactList(outfp io.Writer, id string) error {
 	idMapped, err := identity.Map(id)
 	if err != nil {
 		return err
@@ -352,7 +352,7 @@ func (ce *CtrlEngine) contactList(outfp *os.File, id string) error {
 	return get(outfp, ce.msgDB, idMapped, false)
 }
 
-func (ce *CtrlEngine) contactBlacklist(outfp *os.File, id string) error {
+func (ce *CtrlEngine) contactBlacklist(outfp io.Writer, id string) error {
 	idMapped, err := identity.Map(id)
 	if err != nil {
 		return err
