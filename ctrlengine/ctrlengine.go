@@ -1162,7 +1162,8 @@ Tries to register a new user ID with the corresponding key server.
 				},
 				{
 					Name:  "update",
-					Usage: "Update Mute binaries (from source or download binaries)",
+					Usage: "Update Mute binaries (from source)",
+					// TODO: "Update Mute binaries (from source or download binaries)",
 					/*
 						Flags: []cli.Flag{
 							cli.BoolFlag{
