@@ -250,6 +250,8 @@ func (ce *CtrlEngine) prepare(c *cli.Context, openMsgDB bool) error {
 		ce.prepared = true
 	}
 
+	log.Infof("prepare(openMsgDB=%s)", strconv.FormatBool(openMsgDB))
+
 	// open MsgDB, if necessary
 	if openMsgDB {
 		homedir := c.GlobalString("homedir")
