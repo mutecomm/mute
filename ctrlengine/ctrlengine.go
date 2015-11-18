@@ -226,7 +226,10 @@ func startWallet(msgDB *msgdb.MsgDB, offline bool) (*client.Client, error) {
 	return client, nil
 }
 
-func (ce *CtrlEngine) prepare(c *cli.Context, openMsgDB bool) error {
+func (ce *CtrlEngine) prepare(
+	c *cli.Context,
+	openMsgDB, checkUpdates bool,
+) error {
 	if !ce.prepared {
 		// create the necessary directories if they don't already exist
 		err := util.CreateDirs(c.GlobalString("homedir"), c.GlobalString("logdir"))
@@ -271,8 +274,10 @@ func (ce *CtrlEngine) prepare(c *cli.Context, openMsgDB bool) error {
 		}
 
 		// check for updates, if necessary
-		if err := ce.checkUpdates(); err != nil {
-			return err
+		if checkUpdates {
+			if err := ce.checkUpdates(); err != nil {
+				return err
+			}
 		}
 
 		// start wallet
@@ -443,14 +448,14 @@ func New() *CtrlEngine {
 		},
 	}
 	ce.app.Before = func(c *cli.Context) error {
-		return ce.prepare(c, false)
+		return ce.prepare(c, false, false)
 	}
 	ce.app.After = func(c *cli.Context) error {
 		// TODO: close all file descriptors?
 		return nil
 	}
 	ce.app.Action = func(c *cli.Context) {
-		if err := ce.prepare(c, true); err != nil {
+		if err := ce.prepare(c, true, true); err != nil {
 			util.Fatal(err)
 		}
 		ce.loop(c)
@@ -508,7 +513,7 @@ func New() *CtrlEngine {
 						if len(c.Args()) > 0 {
 							return log.Errorf("superfluous argument(s): %s", strings.Join(c.Args(), " "))
 						}
-						return ce.prepare(c, false)
+						return ce.prepare(c, false, false)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.dbCreate(ce.fileTable.OutputFP,
@@ -529,7 +534,7 @@ func New() *CtrlEngine {
 						if len(c.Args()) > 0 {
 							return log.Errorf("superfluous argument(s): %s", strings.Join(c.Args(), " "))
 						}
-						return ce.prepare(c, false)
+						return ce.prepare(c, false, false)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.dbRekey(ce.fileTable.StatusFP, c)
@@ -544,7 +549,7 @@ func New() *CtrlEngine {
 								return log.Errorf("superfluous argument(s): %s",
 									strings.Join(c.Args(), " "))
 							}
-							if err := ce.prepare(c, true); err != nil {
+							if err := ce.prepare(c, true, true); err != nil {
 								return err
 							}
 							return nil
@@ -570,7 +575,7 @@ func New() *CtrlEngine {
 							return log.Errorf("superfluous argument(s): %s",
 								strings.Join(c.Args(), " "))
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -594,7 +599,7 @@ func New() *CtrlEngine {
 								return log.Errorf("superfluous argument(s): %s",
 									strings.Join(c.Args(), " "))
 							}
-							if err := ce.prepare(c, true); err != nil {
+							if err := ce.prepare(c, true, true); err != nil {
 								return err
 							}
 							return nil
@@ -612,7 +617,7 @@ func New() *CtrlEngine {
 							return log.Errorf("superfluous argument(s): %s",
 								strings.Join(c.Args(), " "))
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -650,7 +655,7 @@ Tries to register a new user ID with the corresponding key server.
 						if err := checkDelayArgs(c); err != nil {
 							return err
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -674,7 +679,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -690,7 +695,7 @@ Tries to register a new user ID with the corresponding key server.
 						if len(c.Args()) > 0 {
 							return log.Errorf("superfluous argument(s): %s", strings.Join(c.Args(), " "))
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -713,7 +718,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -739,7 +744,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -756,7 +761,7 @@ Tries to register a new user ID with the corresponding key server.
 						if len(c.Args()) > 0 {
 							return log.Errorf("superfluous argument(s): %s", strings.Join(c.Args(), " "))
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -793,7 +798,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !c.IsSet("contact") {
 							return log.Error("option --contact is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -822,7 +827,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !c.IsSet("contact") {
 							return log.Error("option --contact is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -852,7 +857,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !c.IsSet("contact") {
 							return log.Error("option --contact is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -882,7 +887,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !c.IsSet("contact") {
 							return log.Error("option --contact is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -912,7 +917,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !c.IsSet("contact") {
 							return log.Error("option --contact is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -935,7 +940,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !interactive && !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -957,7 +962,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !interactive && !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -1017,7 +1022,7 @@ Tries to register a new user ID with the corresponding key server.
 						if err := checkDelayArgs(c); err != nil {
 							return err
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -1044,7 +1049,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !interactive && !c.IsSet("all") && !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -1068,7 +1073,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !interactive && !c.IsSet("all") && !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -1091,7 +1096,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !interactive && !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -1120,7 +1125,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !c.IsSet("msgid") {
 							return log.Error("option --msgid is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -1157,7 +1162,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !c.IsSet("period") {
 							return log.Error("option --period is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -1181,7 +1186,7 @@ Tries to register a new user ID with the corresponding key server.
 							return log.Errorf("superfluous argument(s): %s",
 								strings.Join(c.Args(), " "))
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -1218,7 +1223,7 @@ Tries to register a new user ID with the corresponding key server.
 								return log.Error("options --source and --binary exclude each other")
 							}
 						*/
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, false); err != nil {
 							return err
 						}
 						return nil
@@ -1255,7 +1260,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !c.IsSet("period") {
 							return log.Error("option --period is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -1284,7 +1289,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !c.IsSet("domain") {
 							return log.Error("option --domain is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -1308,7 +1313,7 @@ Tries to register a new user ID with the corresponding key server.
 							return log.Errorf("superfluous argument(s): %s",
 								strings.Join(c.Args(), " "))
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -1325,7 +1330,7 @@ Tries to register a new user ID with the corresponding key server.
 							return log.Errorf("superfluous argument(s): %s",
 								strings.Join(c.Args(), " "))
 						}
-						if err := ce.prepare(c, true); err != nil {
+						if err := ce.prepare(c, true, true); err != nil {
 							return err
 						}
 						return nil
@@ -1343,7 +1348,7 @@ Tries to register a new user ID with the corresponding key server.
 				if len(c.Args()) > 0 {
 					return log.Errorf("superfluous argument(s): %s", strings.Join(c.Args(), " "))
 				}
-				if err := ce.prepare(c, false); err != nil {
+				if err := ce.prepare(c, false, false); err != nil {
 					return err
 				}
 				return nil
