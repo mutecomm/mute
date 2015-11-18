@@ -159,6 +159,38 @@ func (ce *CtrlEngine) getConfig(homedir string, offline bool) error {
 	return nil
 }
 
+func (ce *CtrlEngine) checkUpdates() error {
+	commit := ce.config.Map["release.Commit"]
+	if release.Commit != commit {
+		// parse release date
+		tRelease, err := time.Parse(git.Date, ce.config.Map["release.Date"])
+		if err != nil {
+			return err
+		}
+		// parse binary date
+		tBinary, err := time.Parse(git.Date, release.Date)
+		if err != nil {
+			return err
+		}
+		// switch to UTC
+		tRelease = tRelease.UTC()
+		tBinary = tBinary.UTC()
+		// compare dates
+		if !tBinary.Before(tRelease) {
+			// binary is newer than release -> do nothing
+		} else if tBinary.Add(def.UpdateDuration).Before(tRelease) {
+			// binary is totally outdated -> force update
+			return log.Error("ctrlengine: software is outdated, you have to " +
+				"update with `mutectrl upkeep update`")
+		} else {
+			// new version available -> inform user
+			fmt.Fprintf(ce.fileTable.StatusFP, "ctrlengine: software "+
+				"available, please update with `mutectrl upkeep update`\n")
+		}
+	}
+	return nil
+}
+
 func startWallet(msgDB *msgdb.MsgDB, offline bool) (*client.Client, error) {
 	// get wallet key
 	wk, err := msgDB.GetValue(msgdb.WalletKey)
@@ -216,6 +248,7 @@ func (ce *CtrlEngine) prepare(c *cli.Context, openMsgDB bool) error {
 		homedir := c.GlobalString("homedir")
 		offline := c.GlobalBool("offline")
 
+		// open messsage DB, if necessary
 		if ce.msgDB == nil {
 			err := ce.openMsgDB(homedir)
 			if err != nil {
@@ -229,32 +262,8 @@ func (ce *CtrlEngine) prepare(c *cli.Context, openMsgDB bool) error {
 		}
 
 		// check for updates, if necessary
-		commit := ce.config.Map["release.Commit"]
-		if release.Commit != commit {
-			// parse release date
-			tRelease, err := time.Parse(git.Date, ce.config.Map["release.Date"])
-			if err != nil {
-				return err
-			}
-			// parse binary date
-			tBinary, err := time.Parse(git.Date, release.Date)
-			if err != nil {
-				return err
-			}
-			// switch to UTC
-			tRelease = tRelease.UTC()
-			tBinary = tBinary.UTC()
-			// compare dates
-			if !tBinary.Before(tRelease) {
-				// binary is newer than release -> do nothing
-			} else if tBinary.Add(def.UpdateDuration).Before(tRelease) {
-				// binary is totally outdated -> force update
-				return log.Error("ctrlengine: software is outdated, you have to update with `mutectrl upkeep update`")
-			} else {
-				// new version available -> inform user
-				fmt.Fprintf(ce.fileTable.StatusFP, "ctrlengine: software "+
-					"available, please update with `mutectrl upkeep update`\n")
-			}
+		if err := ce.checkUpdates(); err != nil {
+			return err
 		}
 
 		// start wallet
