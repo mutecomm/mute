@@ -254,12 +254,16 @@ func (ce *CtrlEngine) upkeepUpdate(
 	/* source, binary bool, */
 	outfp, statfp io.Writer,
 ) error {
+	log.Info("upkeepUpdate()")
 	// make sure we have the most current config
 	if err := ce.upkeepFetchconf(ce.msgDB, homedir, false, outfp, statfp); err != nil {
 		return err
 	}
 	commit := ce.config.Map["release.Commit"]
+	log.Infof("server: release.Commit: %s", commit)
+	log.Infof("binary: release.Commit: %s", release.Commit)
 	if release.Commit == commit {
+		log.Info("Mute is up-to-date")
 		fmt.Fprintf(statfp, "Mute is up-to-date\n")
 		return nil
 	}
@@ -276,8 +280,11 @@ func (ce *CtrlEngine) upkeepUpdate(
 	// switch to UTC
 	tRelease = tRelease.UTC()
 	tBinary = tBinary.UTC()
+	log.Infof("server: release.Date: %s", tRelease.Format(time.RFC3339))
+	log.Infof("binary: release.Date: %s", tBinary.Format(time.RFC3339))
 	// compare dates
 	if tBinary.After(tRelease) {
+		log.Info("commits differ, but binary is newer than release date")
 		fmt.Fprintf(statfp, "commits differ, but binary is newer than release date\n")
 		fmt.Fprintf(statfp, "are you running a developer version?\n")
 		return nil
@@ -301,6 +308,7 @@ func (ce *CtrlEngine) upkeepUpdate(
 		}
 		if source {
 	*/
+	log.Info("call updateMuteFromSource()")
 	if err := updateMuteFromSource(outfp, statfp, commit); err != nil {
 		return err
 	}
