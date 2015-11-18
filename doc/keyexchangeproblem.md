@@ -76,7 +76,7 @@ man-in-the-middle-attack (MITM) or the keyserver is evil. The problem is always
 the same: Alice doesn't get Bob's public key (and vice versa), but another
 public key where Eve knows the corresponding private key. The resulting
 communication is still encrypted, but for a private key that Eve knows and can
-be used by him to decrypt the encrypted messages.
+be used by her to decrypt the encrypted messages.
 
 
 #### Key exchange: harder than expected
