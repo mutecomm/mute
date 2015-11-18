@@ -779,9 +779,6 @@ Tries to register a new user ID with the corresponding key server.
 				{
 					Name:  "add",
 					Usage: "add new contact to active user ID (-> white list)",
-					Description: `
-Tries to register a new user ID with the corresponding key server.
-`,
 					Flags: []cli.Flag{
 						idFlag,
 						contactFlag,
@@ -840,9 +837,6 @@ Tries to register a new user ID with the corresponding key server.
 				{
 					Name:  "remove",
 					Usage: "remove contact for active user ID (-> gray list)",
-					Description: `
-Tries to register a new user ID with the corresponding key server.
-`,
 					Flags: []cli.Flag{
 						idFlag,
 						contactFlag,
@@ -870,9 +864,6 @@ Tries to register a new user ID with the corresponding key server.
 				{
 					Name:  "block",
 					Usage: "block contact for active user ID (-> black list)",
-					Description: `
-Tries to register a new user ID with the corresponding key server.
-`,
 					Flags: []cli.Flag{
 						idFlag,
 						contactFlag,
@@ -900,9 +891,6 @@ Tries to register a new user ID with the corresponding key server.
 				{
 					Name:  "unblock",
 					Usage: "unblock contact for active user ID (-> white list)",
-					Description: `
-Tries to register a new user ID with the corresponding key server.
-`,
 					Flags: []cli.Flag{
 						idFlag,
 						contactFlag,
