@@ -161,6 +161,9 @@ func (ce *CtrlEngine) getConfig(homedir string, offline bool) error {
 
 func (ce *CtrlEngine) checkUpdates() error {
 	commit := ce.config.Map["release.Commit"]
+	log.Info("checkUpdates()")
+	log.Infof("server: release.Commit: %s", commit)
+	log.Infof("binary: release.Commit: %s", release.Commit)
 	if release.Commit != commit {
 		// parse release date
 		tRelease, err := time.Parse(git.Date, ce.config.Map["release.Date"])
@@ -175,15 +178,20 @@ func (ce *CtrlEngine) checkUpdates() error {
 		// switch to UTC
 		tRelease = tRelease.UTC()
 		tBinary = tBinary.UTC()
+		log.Infof("server: release.Date: %s", tRelease.Format(time.RFC3339))
+		log.Infof("binary: release.Date: %s", tBinary.Format(time.RFC3339))
 		// compare dates
 		if !tBinary.Before(tRelease) {
 			// binary is newer than release -> do nothing
+			log.Info("binary is newer than release -> do nothing")
 		} else if tBinary.Add(def.UpdateDuration).Before(tRelease) {
 			// binary is totally outdated -> force update
+			log.Info("binary is totally outdated -> force update")
 			return log.Error("ctrlengine: software is outdated, you have to " +
 				"update with `mutectrl upkeep update`")
 		} else {
 			// new version available -> inform user
+			log.Info("new version available -> inform user")
 			fmt.Fprintf(ce.fileTable.StatusFP, "ctrlengine: software "+
 				"available, please update with `mutectrl upkeep update`\n")
 		}
