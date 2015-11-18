@@ -84,6 +84,81 @@ func (ce *CtrlEngine) translateError(err error) error {
 	}
 }
 
+func (ce *CtrlEngine) getConfig(homedir string, offline bool) error {
+	// read default config
+	netDomain, _, _ := def.ConfigParams()
+	jsn, err := ce.msgDB.GetValue(netDomain)
+	if err != nil {
+		return err
+	}
+	if jsn != "" {
+		if err := json.Unmarshal([]byte(jsn), &ce.config); err != nil {
+			return err
+		}
+		// apply old configuration
+		err := def.InitMute(&ce.config)
+		if err != nil {
+			// init failed -> update config (which will try init again)
+			fmt.Fprintf(ce.fileTable.StatusFP,
+				"initialization failed, try to update config\n")
+			if offline {
+				return log.Error("ctrlengine: cannot fetch config in " +
+					"--offline mode, run without")
+			}
+			err := ce.upkeepFetchconf(ce.msgDB, homedir, false, nil,
+				ce.fileTable.StatusFP)
+			if err != nil {
+				return err
+			}
+		} else {
+			// fetch new configuration, if last fetch is older than 24h
+			timestr, err := ce.msgDB.GetValue("time." + netDomain)
+			if err != nil {
+				return err
+			}
+			if timestr != "" {
+				t, err := strconv.ParseInt(timestr, 10, 64)
+				if err != nil {
+					return log.Error(err)
+				}
+				last := time.Now().Sub(time.Unix(t, 0))
+				if last > def.FetchconfMinDuration {
+					if offline {
+						if last > def.FetchconfMaxDuration {
+							return log.Error("ctrlengine: configuration is " +
+								"outdated, please run without --offline")
+						}
+						log.Warn("ctrlengine: cannot fetch outdated config " +
+							"in --offline mode")
+						fmt.Fprintf(ce.fileTable.StatusFP,
+							"ctrlengine: cannot fetch outdated config in "+
+								"--offline mode\n")
+					} else {
+						// update config
+						err := ce.upkeepFetchconf(ce.msgDB, homedir, false, nil,
+							ce.fileTable.StatusFP)
+						if err != nil {
+							return err
+						}
+					}
+				}
+			}
+		}
+	} else {
+		// no config found, fetch it
+		if offline {
+			return log.Error("ctrlengine: cannot fetch config in --offline mode")
+		}
+		fmt.Fprintf(ce.fileTable.StatusFP, "no system config found\n")
+		err := ce.upkeepFetchconf(ce.msgDB, homedir, false, nil,
+			ce.fileTable.StatusFP)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func startWallet(msgDB *msgdb.MsgDB, offline bool) (*client.Client, error) {
 	// get wallet key
 	wk, err := msgDB.GetValue(msgdb.WalletKey)
@@ -138,81 +213,19 @@ func (ce *CtrlEngine) prepare(c *cli.Context, openMsgDB bool) error {
 
 	// open MsgDB, if necessary
 	if openMsgDB {
+		homedir := c.GlobalString("homedir")
 		offline := c.GlobalBool("offline")
-		// TODO: extract block as method
+
 		if ce.msgDB == nil {
-			err := ce.openMsgDB(c.GlobalString("homedir"))
+			err := ce.openMsgDB(homedir)
 			if err != nil {
 				return err
 			}
 		}
 
-		// read default config
-		netDomain, _, _ := def.ConfigParams()
-		jsn, err := ce.msgDB.GetValue(netDomain)
-		if err != nil {
+		// get config
+		if err := ce.getConfig(homedir, offline); err != nil {
 			return err
-		}
-		if jsn != "" {
-			if err := json.Unmarshal([]byte(jsn), &ce.config); err != nil {
-				return err
-			}
-			// apply old configuration
-			err := def.InitMute(&ce.config)
-			if err != nil {
-				// init failed -> update config (which will try init again)
-				fmt.Fprintf(ce.fileTable.StatusFP,
-					"initialization failed, try to update config\n")
-				if offline {
-					return log.Error("ctrlengine: cannot fetch config in --offline mode, run without")
-				}
-				err := ce.upkeepFetchconf(ce.msgDB, c.GlobalString("homedir"),
-					false, nil, ce.fileTable.StatusFP)
-				if err != nil {
-					return err
-				}
-			} else {
-				// fetch new configuration, if last fetch is older than 24h
-				timestr, err := ce.msgDB.GetValue("time." + netDomain)
-				if err != nil {
-					return err
-				}
-				if timestr != "" {
-					t, err := strconv.ParseInt(timestr, 10, 64)
-					if err != nil {
-						return log.Error(err)
-					}
-					last := time.Now().Sub(time.Unix(t, 0))
-					if last > def.FetchconfMinDuration {
-						if offline {
-							if last > def.FetchconfMaxDuration {
-								return log.Error("ctrlengine: configuration is outdated, please run without --offline")
-							}
-							log.Warn("ctrlengine: cannot fetch outdated config in --offline mode")
-							fmt.Fprintf(ce.fileTable.StatusFP,
-								"ctrlengine: cannot fetch outdated config in --offline mode\n")
-						} else {
-							// update config
-							err := ce.upkeepFetchconf(ce.msgDB, c.GlobalString("homedir"),
-								false, nil, ce.fileTable.StatusFP)
-							if err != nil {
-								return err
-							}
-						}
-					}
-				}
-			}
-		} else {
-			// no config found, fetch it
-			if offline {
-				return log.Error("ctrlengine: cannot fetch config in --offline mode")
-			}
-			fmt.Fprintf(ce.fileTable.StatusFP, "no system config found\n")
-			err := ce.upkeepFetchconf(ce.msgDB, c.GlobalString("homedir"),
-				false, nil, ce.fileTable.StatusFP)
-			if err != nil {
-				return err
-			}
 		}
 
 		// check for updates, if necessary
@@ -245,6 +258,7 @@ func (ce *CtrlEngine) prepare(c *cli.Context, openMsgDB bool) error {
 		}
 
 		// start wallet
+		var err error
 		ce.client, err = startWallet(ce.msgDB, offline)
 		if err != nil {
 			return err
