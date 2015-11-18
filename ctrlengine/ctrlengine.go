@@ -210,8 +210,6 @@ func startWallet(msgDB *msgdb.MsgDB, offline bool) (*client.Client, error) {
 		return nil, err
 	}
 
-	// TODO: make this configurable
-
 	// create wallet
 	client, err := trivial.New(msgDB.DB(), walletKey, def.CACert)
 	if err != nil {
@@ -224,6 +222,7 @@ func startWallet(msgDB *msgdb.MsgDB, offline bool) (*client.Client, error) {
 			return nil, err
 		}
 	}
+
 	return client, nil
 }
 
