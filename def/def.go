@@ -177,6 +177,10 @@ const (
 
 	// UpdateDuration defines the maximum duration before an enforced update.
 	UpdateDuration = 14 * 24 * time.Hour // 14d
+
+	// WalletGetTokenMaxDuration defines the maximum duration before the
+	// acquisition of a token from the wallet is aborted.
+	WalletGetTokenMaxDuration = 5 * time.Minute // 5m
 )
 
 // CACert is the default certificate authority used for Mute.

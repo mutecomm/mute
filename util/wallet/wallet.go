@@ -9,13 +9,10 @@ import (
 
 	"github.com/agl/ed25519"
 	"github.com/jpillora/backoff"
+	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/serviceguard/client"
 )
-
-// WalletGetTokenMaxDuration defines the maximum duration before the
-// acquisition of a token from the wallet is aborted.
-var WalletGetTokenMaxDuration = 5 * time.Minute // 5m
 
 // GetToken returns a token for the given usage and owner from walletClient.
 // It automatically retries if it gets a client.ErrRetry error.
@@ -42,7 +39,7 @@ func GetToken(
 			if err != client.ErrRetry {
 				break
 			}
-			if total >= WalletGetTokenMaxDuration {
+			if total >= def.WalletGetTokenMaxDuration {
 				// total duration is larger than max duration -> stop trying
 				break
 			}
