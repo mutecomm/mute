@@ -26,6 +26,7 @@ import (
 	"github.com/mutecomm/mute/uid/identity"
 	"github.com/mutecomm/mute/util"
 	"github.com/mutecomm/mute/util/times"
+	"github.com/mutecomm/mute/util/wallet"
 	"github.com/peterh/liner"
 )
 
@@ -294,7 +295,7 @@ func (ce *CtrlEngine) msgSend(
 				// get token from wallet
 				var pubkey [32]byte
 				copy(pubkey[:], addr.TokenPubKey)
-				token, err := util.WalletGetToken(ce.client, "Message", &pubkey)
+				token, err := wallet.GetToken(ce.client, "Message", &pubkey)
 				if err != nil {
 					return err
 				}

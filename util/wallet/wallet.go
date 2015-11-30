@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package util
+package wallet
 
 import (
 	"time"
@@ -17,9 +17,9 @@ import (
 // acquisition of a token from the wallet is aborted.
 var WalletGetTokenMaxDuration = 5 * time.Minute // 5m
 
-// WalletGetToken returns a token for the given usage and owner from
-// walletClient. It automatically retries if it gets a client.ErrRetry error.
-func WalletGetToken(
+// GetToken returns a token for the given usage and owner from walletClient.
+// It automatically retries if it gets a client.ErrRetry error.
+func GetToken(
 	walletClient *client.Client,
 	usage string,
 	owner *[ed25519.PublicKeySize]byte,

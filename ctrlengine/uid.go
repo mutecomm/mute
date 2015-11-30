@@ -29,6 +29,7 @@ import (
 	"github.com/mutecomm/mute/util"
 	"github.com/mutecomm/mute/util/bzero"
 	"github.com/mutecomm/mute/util/times"
+	"github.com/mutecomm/mute/util/wallet"
 )
 
 // TODO: extract method
@@ -155,7 +156,7 @@ func mutecryptNewUID(
 		return err
 	}
 	// get token from wallet
-	token, err := util.WalletGetToken(client, "UID", owner)
+	token, err := wallet.GetToken(client, "UID", owner)
 	if err != nil {
 		return err
 	}
@@ -211,7 +212,7 @@ func mutecryptNewUID(
 	}
 
 	// add KeyInit messages
-	token, err = util.WalletGetToken(client, "Message", owner)
+	token, err = wallet.GetToken(client, "Message", owner)
 	if err != nil {
 		return err
 	}
@@ -289,7 +290,7 @@ func (ce *CtrlEngine) uidNew(
 	// TODO: check that ID has not been registered already (by the same or other user)
 
 	// get token from wallet
-	token, err := util.WalletGetToken(ce.client, def.AccdUsage, def.AccdOwner)
+	token, err := wallet.GetToken(ce.client, def.AccdUsage, def.AccdOwner)
 	if err != nil {
 		return err
 	}

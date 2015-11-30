@@ -24,10 +24,10 @@ import (
 	"github.com/mutecomm/mute/msgdb"
 	"github.com/mutecomm/mute/release"
 	"github.com/mutecomm/mute/uid/identity"
-	"github.com/mutecomm/mute/util"
 	"github.com/mutecomm/mute/util/git"
 	"github.com/mutecomm/mute/util/gotool"
 	"github.com/mutecomm/mute/util/times"
+	"github.com/mutecomm/mute/util/wallet"
 )
 
 type getPastExecution func(mappedID string) (int64, error)
@@ -375,7 +375,7 @@ func (ce *CtrlEngine) upkeepAccounts(
 			}
 		}
 		if times.Now()+int64(remain.Seconds()) >= last {
-			token, err := util.WalletGetToken(ce.client, def.AccdUsage, def.AccdOwner)
+			token, err := wallet.GetToken(ce.client, def.AccdUsage, def.AccdOwner)
 			if err != nil {
 				return err
 			}
