@@ -13,6 +13,10 @@ import (
 	"github.com/mutecomm/mute/serviceguard/client"
 )
 
+// WalletGetTokenMaxDuration defines the maximum duration before the
+// acquisition of a token from the wallet is aborted.
+var WalletGetTokenMaxDuration = 5 * time.Minute // 5m
+
 // WalletGetToken returns a token for the given usage and owner from
 // walletClient. It automatically retries if it gets a client.ErrRetry error.
 func WalletGetToken(
@@ -29,10 +33,17 @@ func WalletGetToken(
 			Factor: 1.5,
 			Jitter: false,
 		}
+		var total time.Duration
 		for {
-			time.Sleep(b.Duration())
+			d := b.Duration()
+			time.Sleep(d)
+			total += d
 			token, err = walletClient.GetToken(usage, owner)
 			if err != client.ErrRetry {
+				break
+			}
+			if total >= WalletGetTokenMaxDuration {
+				// total duration is larger than max duration -> stop trying
 				break
 			}
 			log.Warnf("WalletGetToken(): ErrRetry: %s", walletClient.LastError)
