@@ -176,7 +176,7 @@ const (
 	FetchconfMaxDuration = 7 * 24 * time.Hour // 7d
 
 	// UpdateDuration defines the maximum duration before an enforced update.
-	UpdateDuration = 14 * 24 * time.Second // 14d
+	UpdateDuration = 14 * 24 * time.Hour // 14d
 )
 
 // CACert is the default certificate authority used for Mute.
