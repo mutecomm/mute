@@ -71,6 +71,7 @@ import "C"
 import (
 	"database/sql"
 	"database/sql/driver"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -87,6 +88,10 @@ import (
 // into the database. When parsing a string from a timestamp or
 // datetime column, the formats are tried in order.
 var SQLiteTimestampFormats = []string{
+	// By default, store timestamps with whatever timezone they come with.
+	// When parsed, they will be returned with the same timezone.
+	"2006-01-02 15:04:05.999999999-07:00",
+	"2006-01-02T15:04:05.999999999-07:00",
 	"2006-01-02 15:04:05.999999999",
 	"2006-01-02T15:04:05.999999999",
 	"2006-01-02 15:04:05",
@@ -94,7 +99,6 @@ var SQLiteTimestampFormats = []string{
 	"2006-01-02 15:04",
 	"2006-01-02T15:04",
 	"2006-01-02",
-	"2006-01-02 15:04:05-07:00",
 }
 
 func init() {
@@ -268,7 +272,7 @@ func errorString(err Error) string {
 //   file:test.db?cache=shared&mode=memory
 //   :memory:
 //   file::memory:
-// go-sqlite handle especially query parameters.
+// go-sqlite3 adds the following query parameters to those used by SQLite:
 //   _loc=XXX
 //     Specify location of time format. It's possible to specify "auto".
 //   _busy_timeout=XXX
@@ -276,6 +280,11 @@ func errorString(err Error) string {
 //   _txlock=XXX
 //     Specify locking behavior for transactions.  XXX can be "immediate",
 //     "deferred", "exclusive".
+// go-sqlcipher adds the following query parameters to those used by SQLite:
+//   _pragma_key=XXX
+//     Specify raw PRAGMA key (must be 64 character hex string).
+//   _pragma_cipher_page_size=XXX
+//     Set the PRAGMA cipher_page_size to adjust the page size.
 func (d *SQLiteDriver) Open(dsn string) (driver.Conn, error) {
 	if C.sqlite3_threadsafe() == 0 {
 		return nil, errors.New("sqlite library was not compiled for thread-safe operation")
@@ -285,8 +294,10 @@ func (d *SQLiteDriver) Open(dsn string) (driver.Conn, error) {
 	txlock := "BEGIN"
 	busy_timeout := 5000
 	pos := strings.IndexRune(dsn, '?')
+	var params url.Values
 	if pos >= 1 {
-		params, err := url.ParseQuery(dsn[pos+1:])
+		var err error
+		params, err = url.ParseQuery(dsn[pos+1:])
 		if err != nil {
 			return nil, err
 		}
@@ -335,7 +346,7 @@ func (d *SQLiteDriver) Open(dsn string) (driver.Conn, error) {
 	name := C.CString(dsn)
 	defer C.free(unsafe.Pointer(name))
 	rv := C._sqlite3_open_v2(name, &db,
-		C.SQLITE_OPEN_FULLMUTEX|
+		C.SQLITE_OPEN_NOMUTEX|
 			C.SQLITE_OPEN_READWRITE|
 			C.SQLITE_OPEN_CREATE,
 		nil)
@@ -352,6 +363,34 @@ func (d *SQLiteDriver) Open(dsn string) (driver.Conn, error) {
 	}
 
 	conn := &SQLiteConn{db: db, loc: loc, txlock: txlock}
+
+	// process SQLCipher pragmas encoded in dsn, if necessary
+	if params != nil {
+		// _pragma_key
+		if val := params.Get("_pragma_key"); val != "" {
+			if len(val) != 64 {
+				return nil, errors.New("sqlite3: _pragma_key doesn't have length 64")
+			}
+			if _, err := hex.DecodeString(val); err != nil {
+				return nil, fmt.Errorf("sqlite3: _pragma_key cannot be decoded: %s", err)
+			}
+			query := fmt.Sprintf("PRAGMA key = \"x'%s'\";", val)
+			if _, err := conn.Exec(query, nil); err != nil {
+				return nil, err
+			}
+		}
+		// _pragma_cipher_page_size
+		if val := params.Get("_pragma_cipher_page_size"); val != "" {
+			pageSize, err := strconv.Atoi(val)
+			if err != nil {
+				return nil, fmt.Errorf("sqlite3: _pragma_cipher_page_size cannot be parsed: %s", err)
+			}
+			query := fmt.Sprintf("PRAGMA cipher_page_size = %d;", pageSize)
+			if _, err := conn.Exec(query, nil); err != nil {
+				return nil, err
+			}
+		}
+	}
 
 	if d.ConnectHook != nil {
 		if err := d.ConnectHook(conn); err != nil {
@@ -479,7 +518,7 @@ func (s *SQLiteStmt) bind(args []driver.Value) error {
 			}
 			rv = C._sqlite3_bind_blob(s.s, n, unsafe.Pointer(p), C.int(len(v)))
 		case time.Time:
-			b := []byte(v.UTC().Format(SQLiteTimestampFormats[0]))
+			b := []byte(v.Format(SQLiteTimestampFormats[0]))
 			rv = C._sqlite3_bind_text(s.s, n, (*C.char)(unsafe.Pointer(&b[0])), C.int(len(b)))
 		}
 		if rv != C.SQLITE_OK {
@@ -578,18 +617,15 @@ func (rc *SQLiteRows) Next(dest []driver.Value) error {
 			val := int64(C.sqlite3_column_int64(rc.s.s, C.int(i)))
 			switch rc.decltype[i] {
 			case "timestamp", "datetime", "date":
-				unixTimestamp := strconv.FormatInt(val, 10)
 				var t time.Time
-				if len(unixTimestamp) == 13 {
-					duration, err := time.ParseDuration(unixTimestamp + "ms")
-					if err != nil {
-						return fmt.Errorf("error parsing %s value %d, %s", rc.decltype[i], val, err)
-					}
-					epoch := time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
-					t = epoch.Add(duration)
+				// Assume a millisecond unix timestamp if it's 13 digits -- too
+				// large to be a reasonable timestamp in seconds.
+				if val > 1e12 || val < -1e12 {
+					val *= int64(time.Millisecond) // convert ms to nsec
 				} else {
-					t = time.Unix(val, 0)
+					val *= int64(time.Second) // convert sec to nsec
 				}
+				t = time.Unix(0, val).UTC()
 				if rc.s.c.loc != nil {
 					t = t.In(rc.s.c.loc)
 				}

@@ -19,13 +19,13 @@
 		},
 		{
 			"path": "github.com/codegangsta/cli",
-			"revision": "c75c9d0182a18009e2ab4a7e71457e94c3621384",
-			"revisionTime": "2015-11-15T13:47:47-08:00"
+			"revision": "0302d3914d2a6ad61404584cdae6e6dbc9c03599",
+			"revisionTime": "2015-11-20T13:56:42-08:00"
 		},
 		{
 			"path": "github.com/fatih/structs",
-			"revision": "c701457aaa1ff6709d5e35fccb5c129448e0a37b",
-			"revisionTime": "2015-10-14T12:55:59+03:00"
+			"revision": "9a7733345ff091c5457cb963f498a79ecd0bdbaa",
+			"revisionTime": "2015-11-26T12:33:33+02:00"
 		},
 		{
 			"path": "github.com/go-sql-driver/mysql",
@@ -49,13 +49,13 @@
 		},
 		{
 			"path": "github.com/mutecomm/go-sqlcipher",
-			"revision": "c81b870b72f66b700fc19547e002ba794b424b15",
-			"revisionTime": "2015-11-17T14:58:18Z"
+			"revision": "9314beb63f6081f27550bcaac43d1a95017d4281",
+			"revisionTime": "2015-11-30T00:09:43Z"
 		},
 		{
 			"path": "github.com/peterh/liner",
-			"revision": "ed6151f5256f030dd52859579f3cbad59b2f189f",
-			"revisionTime": "2015-11-11T16:50:31+08:00"
+			"revision": "4d47685ab2fd2dbb46c66b831344d558bc4be5b9",
+			"revisionTime": "2015-11-18T13:38:11+08:00"
 		},
 		{
 			"path": "github.com/ronperry/cryptoedge/eccutil",
@@ -79,38 +79,38 @@
 		},
 		{
 			"path": "golang.org/x/crypto/curve25519",
-			"revision": "346896d57731cb5670b36c6178fc5519f3225980",
-			"revisionTime": "2015-06-18T15:57:31-07:00"
+			"revision": "beef0f4390813b96e8e68fd78570396d0f4751fc",
+			"revisionTime": "2015-11-15T11:40:09-08:00"
 		},
 		{
 			"path": "golang.org/x/crypto/hkdf",
-			"revision": "346896d57731cb5670b36c6178fc5519f3225980",
-			"revisionTime": "2015-06-18T15:57:31-07:00"
+			"revision": "beef0f4390813b96e8e68fd78570396d0f4751fc",
+			"revisionTime": "2015-11-15T11:40:09-08:00"
 		},
 		{
 			"path": "golang.org/x/crypto/nacl/box",
-			"revision": "346896d57731cb5670b36c6178fc5519f3225980",
-			"revisionTime": "2015-06-18T15:57:31-07:00"
+			"revision": "beef0f4390813b96e8e68fd78570396d0f4751fc",
+			"revisionTime": "2015-11-15T11:40:09-08:00"
 		},
 		{
 			"path": "golang.org/x/crypto/nacl/secretbox",
-			"revision": "346896d57731cb5670b36c6178fc5519f3225980",
-			"revisionTime": "2015-06-18T15:57:31-07:00"
+			"revision": "beef0f4390813b96e8e68fd78570396d0f4751fc",
+			"revisionTime": "2015-11-15T11:40:09-08:00"
 		},
 		{
 			"path": "golang.org/x/crypto/pbkdf2",
-			"revision": "346896d57731cb5670b36c6178fc5519f3225980",
-			"revisionTime": "2015-06-18T15:57:31-07:00"
+			"revision": "beef0f4390813b96e8e68fd78570396d0f4751fc",
+			"revisionTime": "2015-11-15T11:40:09-08:00"
 		},
 		{
 			"path": "golang.org/x/crypto/poly1305",
-			"revision": "346896d57731cb5670b36c6178fc5519f3225980",
-			"revisionTime": "2015-06-18T15:57:31-07:00"
+			"revision": "beef0f4390813b96e8e68fd78570396d0f4751fc",
+			"revisionTime": "2015-11-15T11:40:09-08:00"
 		},
 		{
 			"path": "golang.org/x/crypto/salsa20/salsa",
-			"revision": "346896d57731cb5670b36c6178fc5519f3225980",
-			"revisionTime": "2015-06-18T15:57:31-07:00"
+			"revision": "beef0f4390813b96e8e68fd78570396d0f4751fc",
+			"revisionTime": "2015-11-15T11:40:09-08:00"
 		}
 	]
 }
