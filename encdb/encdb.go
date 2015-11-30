@@ -116,6 +116,8 @@ func Open(dbname string, passphrase []byte) (*sql.DB, error) {
 	// open DB
 	dbfile += fmt.Sprintf("?_pragma_key=x'%s'&_pragma_cipher_page_size=4096",
 		hex.EncodeToString(key))
+	// enable foreign key support
+	dbfile += "&_pragma_foreign_keys=on"
 	db, err := sql.Open("sqlite3", dbfile)
 	if err != nil {
 		return nil, log.Error(err)
@@ -123,10 +125,6 @@ func Open(dbname string, passphrase []byte) (*sql.DB, error) {
 	// test key
 	_, err = db.Exec("SELECT count(*) FROM sqlite_master;")
 	if err != nil {
-		return nil, log.Error(err)
-	}
-	// enable foreign key support
-	if _, err := db.Exec("PRAGMA foreign_keys = ON;"); err != nil {
 		return nil, log.Error(err)
 	}
 	return db, nil
