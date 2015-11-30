@@ -75,19 +75,13 @@ func Create(dbname string, passphrase []byte, iter int, createStmts []string) er
 		return err
 	}
 	// create DB
+	dbfile += fmt.Sprintf("?_pragma_key=%s&_pragma_cipher_page_size=4096",
+		hex.EncodeToString(key))
 	db, err := sql.Open("sqlite3", dbfile)
 	if err != nil {
 		return log.Error(err)
 	}
 	defer db.Close()
-	_, err = db.Exec(fmt.Sprintf("PRAGMA key = \"x'%s'\";", hex.EncodeToString(key)))
-	if err != nil {
-		return log.Error(err)
-	}
-	_, err = db.Exec("PRAGMA cipher_page_size = 4096;")
-	if err != nil {
-		return log.Error(err)
-	}
 	_, err = db.Exec("PRAGMA auto_vacuum = FULL;")
 	if err != nil {
 		return log.Error(err)
@@ -120,15 +114,9 @@ func Open(dbname string, passphrase []byte) (*sql.DB, error) {
 		return nil, err
 	}
 	// open DB
+	dbfile += fmt.Sprintf("?_pragma_key=%s&_pragma_cipher_page_size=4096",
+		hex.EncodeToString(key))
 	db, err := sql.Open("sqlite3", dbfile)
-	if err != nil {
-		return nil, log.Error(err)
-	}
-	_, err = db.Exec(fmt.Sprintf("PRAGMA key = \"x'%s'\";", hex.EncodeToString(key)))
-	if err != nil {
-		return nil, log.Error(err)
-	}
-	_, err = db.Exec("PRAGMA cipher_page_size = 4096;")
 	if err != nil {
 		return nil, log.Error(err)
 	}
