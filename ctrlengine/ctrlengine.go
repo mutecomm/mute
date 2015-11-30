@@ -399,14 +399,16 @@ func (ce *CtrlEngine) getID(c *cli.Context) string {
 }
 
 func checkDelayArgs(c *cli.Context) error {
-	if c.Int("mindelay") < def.MinMinDelay {
-		return log.Errorf("--mindelay must be at least %d", def.MinMinDelay)
-	}
-	if c.Int("maxdelay") < def.MinMaxDelay {
-		return log.Errorf("--maxdelay must be at least %d", def.MinMaxDelay)
-	}
-	if c.Int("mindelay") >= c.Int("maxdelay") {
-		return log.Error("--mindelay must be strictly smaller than --maxdelay")
+	if !c.Bool("nodelaycheck") {
+		if c.Int("mindelay") < def.MinMinDelay {
+			return log.Errorf("--mindelay must be at least %d", def.MinMinDelay)
+		}
+		if c.Int("maxdelay") < def.MinMaxDelay {
+			return log.Errorf("--maxdelay must be at least %d", def.MinMaxDelay)
+		}
+		if c.Int("mindelay") >= c.Int("maxdelay") {
+			return log.Error("--mindelay must be strictly smaller than --maxdelay")
+		}
 	}
 	return nil
 }
@@ -489,6 +491,10 @@ func New() *CtrlEngine {
 		Name:  "maxdelay",
 		Value: int(def.MaxDelay),
 		Usage: fmt.Sprintf("maximum delay for mix (min. %ds)", def.MinMaxDelay),
+	}
+	nodelaycheckFlag := cli.BoolFlag{
+		Name:  "nodelaycheck",
+		Usage: "disable delay checks (for testing purposes only!)",
 	}
 	ce.app.Commands = []cli.Command{
 		{
@@ -644,6 +650,7 @@ Tries to register a new user ID with the corresponding key server.
 						hostFlag,
 						mindelayFlag,
 						maxdelayFlag,
+						nodelaycheckFlag,
 					},
 					Before: func(c *cli.Context) error {
 						if len(c.Args()) > 0 {
@@ -995,6 +1002,7 @@ Tries to register a new user ID with the corresponding key server.
 						*/
 						mindelayFlag,
 						maxdelayFlag,
+						nodelaycheckFlag,
 					},
 					Before: func(c *cli.Context) error {
 						if len(c.Args()) > 0 {
