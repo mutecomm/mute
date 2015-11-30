@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// Package wallet defines wallet utility functions.
 package wallet
 
 import (
@@ -16,6 +17,7 @@ import (
 
 // GetToken returns a token for the given usage and owner from walletClient.
 // It automatically retries if it gets a client.ErrRetry error.
+// The maximum retrial duration is defined by def.WalletGetTokenMaxDuration.
 func GetToken(
 	walletClient *client.Client,
 	usage string,
