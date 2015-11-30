@@ -49,8 +49,8 @@
 		},
 		{
 			"path": "github.com/mutecomm/go-sqlcipher",
-			"revision": "9314beb63f6081f27550bcaac43d1a95017d4281",
-			"revisionTime": "2015-11-30T00:09:43Z"
+			"revision": "b71d753b66572c216d5275ee8c53e45245102362",
+			"revisionTime": "2015-11-30T01:04:21Z"
 		},
 		{
 			"path": "github.com/peterh/liner",

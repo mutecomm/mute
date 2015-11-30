@@ -71,7 +71,6 @@ import "C"
 import (
 	"database/sql"
 	"database/sql/driver"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -282,9 +281,11 @@ func errorString(err Error) string {
 //     "deferred", "exclusive".
 // go-sqlcipher adds the following query parameters to those used by SQLite:
 //   _pragma_key=XXX
-//     Specify raw PRAGMA key (must be 64 character hex string).
+//     Specify PRAGMA key.
 //   _pragma_cipher_page_size=XXX
 //     Set the PRAGMA cipher_page_size to adjust the page size.
+//   _pragma_foreign_keys=XXX.
+//     Set the PRAGMA foreign_keys. XXX must be a boolean.
 func (d *SQLiteDriver) Open(dsn string) (driver.Conn, error) {
 	if C.sqlite3_threadsafe() == 0 {
 		return nil, errors.New("sqlite library was not compiled for thread-safe operation")
@@ -368,13 +369,7 @@ func (d *SQLiteDriver) Open(dsn string) (driver.Conn, error) {
 	if params != nil {
 		// _pragma_key
 		if val := params.Get("_pragma_key"); val != "" {
-			if len(val) != 64 {
-				return nil, errors.New("sqlite3: _pragma_key doesn't have length 64")
-			}
-			if _, err := hex.DecodeString(val); err != nil {
-				return nil, fmt.Errorf("sqlite3: _pragma_key cannot be decoded: %s", err)
-			}
-			query := fmt.Sprintf("PRAGMA key = \"x'%s'\";", val)
+			query := fmt.Sprintf("PRAGMA key = \"%s\";", val)
 			if _, err := conn.Exec(query, nil); err != nil {
 				return nil, err
 			}
@@ -386,6 +381,13 @@ func (d *SQLiteDriver) Open(dsn string) (driver.Conn, error) {
 				return nil, fmt.Errorf("sqlite3: _pragma_cipher_page_size cannot be parsed: %s", err)
 			}
 			query := fmt.Sprintf("PRAGMA cipher_page_size = %d;", pageSize)
+			if _, err := conn.Exec(query, nil); err != nil {
+				return nil, err
+			}
+		}
+		// _pragma_foreign_keys
+		if val := params.Get("_pragma_foreign_keys"); val != "" {
+			query := fmt.Sprintf("PRAGMA foreign_keys = %s;", val)
 			if _, err := conn.Exec(query, nil); err != nil {
 				return nil, err
 			}
