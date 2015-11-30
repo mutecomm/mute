@@ -83,7 +83,7 @@ mutectrl uid new --id your.name@mute.one
 To be able to write somebody, you have to add him as a contact first:
 
 ```
-mutectrl contact add --id your.name@mute.one --contact your_friend@mute.one
+mutectrl contact add --id your.name@mute.one --contact a_friend@mute.one
 ```
 
 This automatically fetches all the necessary key material.
@@ -91,7 +91,7 @@ This automatically fetches all the necessary key material.
 Now you can add a message to your friend to the outqueue (without actually sending it)
 
 ```
-mutectrl msg add --from your.name@mute.one --to your_friend@mute.one --file msg.txt
+mutectrl msg add --from your.name@mute.one --to a_friend@mute.one --file msg.txt
 ```
 
 Then send (all) messages from the outqueue:
