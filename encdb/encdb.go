@@ -82,7 +82,7 @@ func Create(dbname string, passphrase []byte, iter int, createStmts []string) er
 		return log.Error(err)
 	}
 	defer db.Close()
-	_, err = db.Exec("PRAGMA auto_vacuum = FULL;")
+	_, err = db.Exec("PRAGMA auto_vacuum = full;")
 	if err != nil {
 		return log.Error(err)
 	}
