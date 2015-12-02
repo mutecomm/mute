@@ -9,8 +9,10 @@ import (
 	"encoding/json"
 	"io"
 
+	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
+	"github.com/mutecomm/mute/msg/padding"
 	"github.com/mutecomm/mute/uid"
 	"golang.org/x/crypto/nacl/box"
 )
@@ -41,12 +43,13 @@ type headerPacket struct {
 	EncryptedHeader       []byte
 }
 
-func newHeader(sender, recipient *uid.Message,
+func newHeader(
+	sender, recipient *uid.Message,
 	recipientTemp, senderSession, nextSenderSessionPub,
 	nextRecipientSessionPubSeen *uid.KeyEntry,
 	senderLastKeychainHash string,
-	padding bool,
-	rand io.Reader) (*header, error) {
+	rand io.Reader,
+) (*header, error) {
 	h := &header{
 		Ciphersuite:                 uid.DefaultCiphersuite, // at the moment we only support one ciphersuite
 		RecipientPubHash:            recipient.PubHash(),
@@ -66,10 +69,12 @@ func newHeader(sender, recipient *uid.Message,
 		Status:                      0,   // TODO
 		Padding:                     nil, // TODO
 	}
-	// TODO: fix this
-	if padding {
-		h.Padding = []byte{0x5a}
+	// TODO: implement padding correctly
+	pad, err := padding.Generate(20, cipher.RandReader)
+	if err != nil {
+		return nil, err
 	}
+	h.Padding = pad
 	return h, nil
 }
 

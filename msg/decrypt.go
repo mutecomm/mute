@@ -186,11 +186,11 @@ func Decrypt(
 	if err != nil {
 		return "", "", err
 	}
-	if ih.Type&data == 0 {
+	if ih.Type&dataType == 0 {
 		return "", "", log.Error(ErrNotData)
 	}
 	var contentHash []byte
-	if ih.Type&sign != 0 {
+	if ih.Type&signType != 0 {
 		// create signature hash
 		contentHash = cipher.SHA512(ih.content)
 	}
@@ -230,7 +230,7 @@ func Decrypt(
 		if err != nil {
 			return "", "", err
 		}
-		if ih.Type&signature == 0 {
+		if ih.Type&signatureType == 0 {
 			return "", "", log.Error(ErrNotSignaturePacket)
 		}
 

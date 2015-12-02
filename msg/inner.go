@@ -25,10 +25,10 @@ type innerHeader struct {
 
 // inner header types
 const (
-	padding   = 1
-	data      = 2
-	sign      = 4
-	signature = 8
+	paddingType   = 1 // random padding data to fill packet
+	dataType      = 2 // data
+	signType      = 4 // packet will be included in signature
+	signatureType = 8 // signature
 )
 
 func newInnerHeader(ihType uint8, more bool, content []byte) *innerHeader {

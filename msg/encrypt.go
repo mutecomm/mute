@@ -131,13 +131,9 @@ func Encrypt(args *EncryptArgs) error {
 	if err := senderSession.InitDHKey(args.Rand); err != nil {
 		return err
 	}
-	var padding bool
-	if args.PrivateSigKey != nil {
-		padding = true
-	}
 	h, err := newHeader(args.From, args.To, args.RecipientTemp, &senderSession,
 		args.NextSenderSessionPub, args.NextRecipientSessionPubSeen,
-		args.SenderLastKeychainHash, padding, args.Rand)
+		args.SenderLastKeychainHash, args.Rand)
 	if err != nil {
 		return err
 	}
@@ -204,9 +200,9 @@ func Encrypt(args *EncryptArgs) error {
 	var innerType uint8
 	if args.PrivateSigKey != nil {
 		contentHash = cipher.SHA512(content)
-		innerType = data | sign
+		innerType = dataType | signType
 	} else {
-		innerType = data
+		innerType = dataType
 	}
 	ih := newInnerHeader(innerType, false, content)
 	buf.Reset()
@@ -229,7 +225,7 @@ func Encrypt(args *EncryptArgs) error {
 	// signature header
 	if args.PrivateSigKey != nil {
 		sig := ed25519.Sign(args.PrivateSigKey, contentHash)
-		ih = newInnerHeader(signature, false, sig[:])
+		ih = newInnerHeader(signatureType, false, sig[:])
 		buf.Reset()
 		if err := ih.write(&buf); err != nil {
 			return err
