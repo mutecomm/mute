@@ -14,6 +14,7 @@ import (
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg/padding"
 	"github.com/mutecomm/mute/uid"
+	"github.com/mutecomm/mute/uid/identity"
 	"github.com/mutecomm/mute/uid/length"
 	"golang.org/x/crypto/nacl/box"
 )
@@ -72,6 +73,10 @@ func newHeader(
 	}
 	// TODO: implement padding correctly
 	var padLen int
+	if len(h.SenderIdentity) > identity.MaxLen {
+		return nil, log.Error("msg: sender identity is too long")
+	}
+	padLen += identity.MaxLen - len(h.SenderIdentity)
 	if nextSenderSessionPub == nil {
 		padLen += length.KeyEntryECDHE25519 - length.Nil
 	}
