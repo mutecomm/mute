@@ -111,6 +111,7 @@ Sender constructs header to send to recipient (JSON encoding):
   Error tries to start a session with the given remote SenderSessionPub. Reset
   deletes all keys, including root_key, and tries to start a new session with
   public key material.
+- Padding: Random padding to bring encrypted header to fixed size.
 
 Sender encrypts header (see 1. Header encryption).
 
