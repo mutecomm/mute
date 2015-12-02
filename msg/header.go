@@ -24,7 +24,7 @@ type header struct {
 	SenderIdentityPubHash       string
 	SenderIdentityPub           uid.KeyEntry
 	NextSenderSessionPub        *uid.KeyEntry // optional
-	NextRecipientSessionPubSeen *uid.KeyEntry // optional
+	NextRecipientSessionPubSeen *uid.KeyEntry // only if seen
 	NymAddress                  string
 	MaxDelay                    uint64
 	SenderSessionCount          uint64
