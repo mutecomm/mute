@@ -20,3 +20,6 @@ const MaxMixAddress = 254
 // MaxNymAddress defines the maximum length of a base64 encoded nym address.
 // The maximum length of a unencoded nym address is 1176. 4*(1176/3) = 1568.
 const MaxNymAddress = 1568
+
+// MaxUIDMessage defines the maximum length of a JSON encoded UIDMessage.
+const MaxUIDMessage = 2004

@@ -6,9 +6,11 @@ package length
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 
 	"github.com/mutecomm/mute/cipher"
+	"github.com/mutecomm/mute/keyserver/hashchain"
 	"github.com/mutecomm/mute/uid"
 )
 
@@ -33,5 +35,25 @@ func TestNil(t *testing.T) {
 	}
 	if len(jsn) != Nil {
 		t.Error("len(jsn) != Nil")
+	}
+}
+
+func TestUIDMessage(t *testing.T) {
+	id := strings.Repeat("lp", 32) + "@" + strings.Repeat("x", 185) + ".one"
+	uid, err := uid.Create(id, true, "", "", uid.Strict,
+		hashchain.TestEntry, cipher.RandReader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	uid, err = uid.Update(cipher.RandReader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// in JSON integers have a variable width, set them to maximum value
+	uid.UIDContent.MSGCOUNT = 18446744073709551615
+	uid.UIDContent.NOTAFTER = 18446744073709551615
+	uid.UIDContent.NOTBEFORE = 18446744073709551615
+	if len(uid.JSON()) != MaxUIDMessage {
+		t.Error("len(uid.JSON()) != MaxUIDMessage")
 	}
 }
