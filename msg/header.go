@@ -62,31 +62,40 @@ func newHeader(
 		SenderIdentityPub:           *sender.PubKey(),
 		NextSenderSessionPub:        nextSenderSessionPub,
 		NextRecipientSessionPubSeen: nextRecipientSessionPubSeen,
-		NymAddress:                  sender.UIDContent.NYMADDRESS,
-		MaxDelay:                    0, // TODO
-		SenderSessionCount:          0, // TODO
-		SenderMessageCount:          0, // TODO
+		NymAddress:                  sender.UIDContent.NYMADDRESS, // TODO: set the correct nymaddress!
+		MaxDelay:                    0,                            // TODO
+		SenderSessionCount:          0,                            // TODO
+		SenderMessageCount:          0,                            // TODO
 		SenderUID:                   string(sender.JSON()),
 		SenderLastKeychainHash:      senderLastKeychainHash,
 		Status:                      0,   // TODO
-		Padding:                     nil, // TODO
+		Padding:                     nil, // is set below
 	}
-	// TODO: implement padding correctly
+	// calculate padding length
 	var padLen int
+	// pad sender identity
 	if len(h.SenderIdentity) > identity.MaxLen {
 		return nil, log.Error("msg: sender identity is too long")
 	}
 	padLen += identity.MaxLen - len(h.SenderIdentity)
+	// pad nextSenderSessionPub
 	if nextSenderSessionPub == nil {
 		padLen += length.KeyEntryECDHE25519 - length.Nil
 	}
+	// pad nextRecipientSessionPubSeen
 	if nextRecipientSessionPubSeen == nil {
 		padLen += length.KeyEntryECDHE25519 - length.Nil
 	}
+	// pad nym address
+	if len(h.NymAddress) > length.MaxNymAddress {
+		return nil, log.Error("msg: nym address is too long")
+	}
+	// generate padding
 	pad, err := padding.Generate(padLen, cipher.RandReader)
 	if err != nil {
 		return nil, err
 	}
+	// set padding
 	h.Padding = pad
 	return h, nil
 }
