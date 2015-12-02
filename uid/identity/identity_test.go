@@ -5,6 +5,7 @@
 package identity
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -147,5 +148,15 @@ func TestSplit(t *testing.T) {
 	// two '@'
 	if _, _, err := Split("john.doe@mute@berlin"); err == nil {
 		t.Error("should fail")
+	}
+}
+
+func TestMaxLen(t *testing.T) {
+	longID := strings.Repeat(".", MaxLen+1)
+	if _, err := Map(longID); err != ErrTooLong {
+		t.Error("Map(longID) should fail with ErrTooLong")
+	}
+	if _, _, err := MapPlus(longID); err != ErrTooLong {
+		t.Error("MapPlu(longID) should fail with ErrTooLong")
 	}
 }

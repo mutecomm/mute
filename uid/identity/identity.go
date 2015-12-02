@@ -14,12 +14,22 @@ import (
 // Alphabet defines the alphabet for the localpart of Mute identities.
 const Alphabet = "abcdefghijklmnopqrstuvwxyz0123456789-."
 
+// MaxLen defines the maximum length of a Mute identity (localpart@domain).
+// The restriction is the same as with email addresses.
+const MaxLen = 254
+
 // ErrNotMapped is returned if an identity is not well-formed or not mapped.
 var ErrNotMapped = errors.New("identity: identity is not well-formed or not mapped")
+
+// ErrTooLong is returned if an identity is too long (larger than MaxLen).
+var ErrTooLong = fmt.Errorf("identity: maximum total length is %d", MaxLen)
 
 // Map maps the given identity to the allowed character set and reports
 // unrecoverable errors.
 func Map(identity string) (string, error) {
+	if len(identity) > MaxLen {
+		return "", ErrTooLong
+	}
 	lp, domain, err := Split(identity)
 	if err != nil {
 		return "", err
@@ -45,6 +55,9 @@ func IsMapped(identity string) error {
 // unrecoverable errors (like Map). Additionally, it also returns the mapped domain
 // for further use.
 func MapPlus(identity string) (mappedID, mappedDomain string, err error) {
+	if len(identity) > MaxLen {
+		return "", "", ErrTooLong
+	}
 	lp, domain, err := Split(identity)
 	if err != nil {
 		return "", "", err
@@ -136,7 +149,7 @@ func MapLocalpart(localpart string) (string, error) {
 
 	// enforce maximum length
 	if len(lp) > 64 {
-		return "", errors.New("identity: maximum length is 64")
+		return "", errors.New("identity: maximum length of localpart is 64")
 	}
 
 	return lp, nil
