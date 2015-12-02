@@ -86,7 +86,7 @@ type uidContent struct {
 	IDENTITY    string      // identity/pseudonym claimed (including domain)
 	SIGKEY      KeyEntry    // used to sign UIDContent and to authenticate future UIDMessages
 	PUBKEYS     []KeyEntry  // for static key content confidentiality
-	SIGESCROW   KeyEntry    // used to optionally authenticate future UIDMessage
+	SIGESCROW   *KeyEntry   // used to optionally authenticate future UIDMessage
 	LASTENTRY   string      // last known key hashchain entry
 	REPOURIS    []string    // URIs of KeyInit Repositories to publish KeyInit messages
 	PREFERENCES preferences // PFS preference
@@ -160,6 +160,7 @@ func Create(
 		return nil, err
 	}
 	if sigescrow {
+		msg.UIDContent.SIGESCROW = new(KeyEntry)
 		if err = msg.UIDContent.SIGESCROW.initSigKey(rand); err != nil {
 			return nil, err
 		}
@@ -214,11 +215,13 @@ func (msg *Message) checkV1_0() error {
 		return log.Error("uid: UIDContent.PUBKEYS[0].FUNCTION != \"ECDHE25519\"")
 	}
 	// UIDContent.SIGESCROW must be zero-value.
-	if msg.UIDContent.SIGESCROW.CIPHERSUITE != "" ||
-		msg.UIDContent.SIGESCROW.FUNCTION != "" ||
-		msg.UIDContent.SIGESCROW.HASH != "" ||
-		msg.UIDContent.SIGESCROW.PUBKEY != "" {
-		return log.Error("uid: UIDContent.SIGESCROW must be zero-value")
+	if msg.UIDContent.SIGESCROW != nil {
+		if msg.UIDContent.SIGESCROW.CIPHERSUITE != "" ||
+			msg.UIDContent.SIGESCROW.FUNCTION != "" ||
+			msg.UIDContent.SIGESCROW.HASH != "" ||
+			msg.UIDContent.SIGESCROW.PUBKEY != "" {
+			return log.Error("uid: UIDContent.SIGESCROW must be zero-value")
+		}
 	}
 	// UIDContent.REPOURIS contains one entry which is the domain of
 	// UIDContent.IDENTITY
