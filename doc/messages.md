@@ -84,18 +84,16 @@ Sender constructs header to send to recipient (JSON encoding):
   has been received.
 - SenderIdentity: Identity string of sender.
 - SenderSessionPub: SenderSessionPub (type `KeyEntry`, see
-  [keyserver](https://github.com/mutecomm/mute/blob/master/doc/keyserver.md))
+  [keyserver](keyserver.md))
 - SenderIdentityPubHash: `SHA512(SenderIdentityPub)`
-- SenderIdentityPub: Duplicate from SenderUID for easy parsing (type `KeyEntry`,
-  see
-  [keyserver](https://github.com/mutecomm/mute/blob/master/doc/keyserver.md))
-- NextSenderSessionPub: New SenderSessionPub to refresh the session. (type `KeyEntry`, see
-  [keyserver](https://github.com/mutecomm/mute/blob/master/doc/keyserver.md))
+- SenderIdentityPub: Duplicate from SenderUID for easy parsing
+  (type `KeyEntry`, see [keyserver](keyserver.md)
+- NextSenderSessionPub: New SenderSessionPub to refresh the session
+  (type `KeyEntry`, see [keyserver](keyserver.md)).
   Optional. Should be given by both parties after sending/receiving a defined
   maximum number of messages with the previous keypair.
 - NextRecipientSessionPubSeen: Currently known NextSenderSessionPub of the other
-  party (type `KeyEntry`, see
-  [keyserver](https://github.com/mutecomm/mute/blob/master/doc/keyserver.md)).
+  party (type `KeyEntry`, see [keyserver](keyserver.md)).
   Session refresh happens when both parties have created new
   NextSenderSessionPub and one party sees its own NextSenderSessionPub reflected
   in NextRecipientSessionPubSeen.
