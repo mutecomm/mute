@@ -79,7 +79,7 @@ Sender constructs header to send to recipient (JSON encoding):
   header encryption (which is always NaCL).
 - RecipientPubHash: `SHA512(RecipientIdentityPub)`
 - RecipientTempHash:
-  `SHA512(RecipientKeyInitPub) || SHA512(RecipientSessionPub)`  
+  `SHA512(RecipientKeyInitPub) || SHA512(RecipientSessionPub)`
   `SHA512(RecipientSessionPub)`: If previous SenderSessionPub from other party
   has been received.
 - SenderIdentity: Identity string of sender.
@@ -94,14 +94,14 @@ Sender constructs header to send to recipient (JSON encoding):
   Optional. Should be given by both parties after sending/receiving a defined
   maximum number of messages with the previous keypair.
 - NextRecipientSessionPubSeen: Currently known NextSenderSessionPub of the other
-  party. (type KeyEntry, see
-  [keyserver](https://github.com/mutecomm/mute/blob/master/doc/keyserver.md))
+  party (type `KeyEntry`, see
+  [keyserver](https://github.com/mutecomm/mute/blob/master/doc/keyserver.md)).
   Session refresh happens when both parties have created new
   NextSenderSessionPub and one party sees its own NextSenderSessionPub reflected
   in NextRecipientSessionPubSeen.
 - NymAddress: Address to receive future messages at.
 - MaxDelay: Maximum delay that sender requests from mix (obfuscated by
-  rand(1,2*MaxDelay)*MaxDelay. Constant per session). Can be used in retention
+  `rand(1,2*MaxDelay)*MaxDelay`. Constant per session). Can be used in retention
   calculation.
 - SenderSessionCount: Total number of messages sent in session before this
   SenderSessionPub was used.
