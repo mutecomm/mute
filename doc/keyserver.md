@@ -359,7 +359,7 @@ Key Server verifies:
 
 - If `IDENTITY` is unkown, add to Key Hashchain and add to Key Repository (see
   below: "Storing UIDMessages"). End.
-- If IDENTITY is KNOWN, continue:
+- If `IDENTITY` is **known**, continue:
 	
 - Verify that `MSGCOUNT` has been increased by exactly 1 (one) from previous
   `UIDMessage`.
@@ -370,7 +370,7 @@ Key Server verifies:
   `ESCROWSIGNATURE` is **not** zero.
 - If `USERSIGNATURE` is not zero, verify that `USERSIGNATURE` is a valid
   signature over `UIDContent` by the previously known `SIGKEY`.
-- Verify `USERSIGNATURE or `ESCROWSIGNATURE are not zero.
+- Verify `USERSIGNATURE` or `ESCROWSIGNATURE` are not zero.
 - Add to Key Hashchain and add to Key Repository (see below: "Storing
   UIDMessages"). End.
 
