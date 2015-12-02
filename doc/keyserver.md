@@ -198,8 +198,8 @@ similar-looking name past the attention of the user.
 
 ### General message format
 
-Messages are encoded as JSON according to the global encoding rules (see
-[overview](https://github.com/mutecomm/mute/blob/master/doc/overview.md)):
+Messages are encoded as JSON according to the global encoding rules
+(see [overview](overview.md)):
 - All optional fields are present but set to the zero value.
 - Keys are converted to uppercase and may not include any whitespace.
 - No indention is used, no unnecessary whitespace for element separation.
@@ -670,8 +670,8 @@ Biased selection/deletion:
 
 If no more KeyInit messages are available from the KeyInit repository but the
 `FORWARDSEC` (see below) setting of the user is "mandatory", then the peer has
-to initiate a session via synchronous prekeying (see [message
-protocol](https://github.com/mutecomm/mute/blob/master/doc/messages.md)).
+to initiate a session via synchronous prekeying
+(see [message protocol](messages.md)).
 If the KeyInit message returned by the KeyInit repository is the fallback
 message and the `FORWARDSEC` setting of the user is "strict", then the peer must
 either retry until he receives a unique message or he must initiate a session
