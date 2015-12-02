@@ -19,6 +19,10 @@ import (
 	"golang.org/x/crypto/nacl/box"
 )
 
+// lengthEncryptedHeader defines the length of an encrypted header.
+// This must always be the same in all messages!
+const lengthEncryptedHeader = 6621
+
 type header struct {
 	Ciphersuite                 string
 	RecipientPubHash            string
@@ -122,6 +126,10 @@ func newHeaderPacket(h *header, recipientIdentityPub, senderHeaderPriv *[32]byte
 	}
 	hp.EncryptedHeader = box.Seal(hp.EncryptedHeader, jsn, &hp.Nonce, recipientIdentityPub, senderHeaderPriv)
 	hp.LengthEncryptedHeader = uint16(len(hp.EncryptedHeader))
+	if hp.LengthEncryptedHeader != lengthEncryptedHeader {
+		return nil, log.Errorf("msg: encrypted header has wrong length (%d != %d)",
+			hp.LengthEncryptedHeader, lengthEncryptedHeader)
+	}
 	return &hp, nil
 }
 
