@@ -90,7 +90,7 @@ type uidContent struct {
 	LASTENTRY   string      // last known key hashchain entry
 	REPOURIS    []string    // URIs of KeyInit Repositories to publish KeyInit messages
 	PREFERENCES preferences // PFS preference
-	CHAINLINK   chainlink   // used only for "linking chains and key repositories"
+	CHAINLINK   *chainlink  // used only for "linking chains and key repositories"
 }
 
 // Message is a UIDMessage to be sent from user to key server.
@@ -232,8 +232,10 @@ func (msg *Message) checkV1_0() error {
 	}
 
 	// UIDContent.CHAINLINK must be zero-value
-	if !reflect.DeepEqual(msg.UIDContent.CHAINLINK, chainlink{}) {
-		return log.Error("uid: UIDContent.CHAINLINK must be zero-value")
+	if msg.UIDContent.CHAINLINK != nil {
+		if !reflect.DeepEqual(msg.UIDContent.CHAINLINK, chainlink{}) {
+			return log.Error("uid: UIDContent.CHAINLINK must be zero-value")
+		}
 	}
 	return nil
 }
