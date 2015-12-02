@@ -14,6 +14,7 @@ import (
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg/padding"
 	"github.com/mutecomm/mute/uid"
+	"github.com/mutecomm/mute/uid/length"
 	"golang.org/x/crypto/nacl/box"
 )
 
@@ -70,7 +71,14 @@ func newHeader(
 		Padding:                     nil, // TODO
 	}
 	// TODO: implement padding correctly
-	pad, err := padding.Generate(20, cipher.RandReader)
+	var padLen int
+	if nextSenderSessionPub == nil {
+		padLen += length.KeyEntryECDHE25519 - length.Nil
+	}
+	if nextRecipientSessionPubSeen == nil {
+		padLen += length.KeyEntryECDHE25519 - length.Nil
+	}
+	pad, err := padding.Generate(padLen, cipher.RandReader)
 	if err != nil {
 		return nil, err
 	}
