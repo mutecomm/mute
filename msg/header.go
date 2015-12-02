@@ -90,6 +90,7 @@ func newHeader(
 	if len(h.NymAddress) > length.MaxNymAddress {
 		return nil, log.Error("msg: nym address is too long")
 	}
+	padLen += length.MaxNymAddress - len(h.NymAddress)
 	// generate padding
 	pad, err := padding.Generate(padLen, cipher.RandReader)
 	if err != nil {
