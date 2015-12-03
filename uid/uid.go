@@ -279,6 +279,11 @@ func (msg *Message) Check() error {
 			return err
 		}
 	}
+	// make sure ESCROWSIGNATURE and USERSIGNATURE are not set at the same time
+	if msg.ESCROWSIGNATURE != "" && msg.USERSIGNATURE != "" {
+		return log.Error("uid: USERSIGNATURE and ESCROWSIGNATURE cannot be set at the same time")
+	}
+
 	// version 1.0 specific checks
 	return msg.checkV1_0()
 }
