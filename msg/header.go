@@ -18,15 +18,16 @@ import (
 	"github.com/mutecomm/mute/uid"
 	"github.com/mutecomm/mute/uid/identity"
 	"github.com/mutecomm/mute/uid/length"
+	"github.com/mutecomm/mute/util/digits"
 	"golang.org/x/crypto/nacl/box"
 )
 
 // lengthEncryptedHeader defines the length of an encrypted header.
-// This must always be the same in all messages! 5795 + 1373 = 7168.
+// This must always be the same in all messages! 5852 + 1316 = 7168.
 const lengthEncryptedHeader = 7168
 
 // Some wiggle room which can be taken out of padding if the need arises.
-const wiggleRoom = 1373
+const wiggleRoom = 1316
 
 type header struct {
 	Ciphersuite                 string
@@ -44,7 +45,7 @@ type header struct {
 	SenderMessageCount          uint64
 	SenderUID                   string // complete UID message in JSON
 	SenderLastKeychainHash      string
-	Status                      uint8
+	Status                      uint8 // always a single digit in JSON!
 	Padding                     string
 }
 
@@ -105,6 +106,10 @@ func newHeader(
 		return nil, log.Error("msg: nym address is too long")
 	}
 	padLen += length.MaxNymAddress - len(h.NymAddress)
+	// pad integers
+	padLen += 20 - digits.Count(h.MaxDelay)
+	padLen += 20 - digits.Count(h.SenderSessionCount)
+	padLen += 20 - digits.Count(h.SenderMessageCount)
 	// pad sender UIDMessage
 	if len(h.SenderUID) > length.MaxUIDMessage {
 		return nil, log.Error("msg: sender UIDMesssage is too long")
