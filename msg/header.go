@@ -6,11 +6,13 @@ package msg
 
 import (
 	"encoding/binary"
+	"encoding/hex"
 	"encoding/json"
 	"io"
 
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
+	"github.com/mutecomm/mute/keyserver/hashchain"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg/padding"
 	"github.com/mutecomm/mute/uid"
@@ -21,7 +23,7 @@ import (
 
 // lengthEncryptedHeader defines the length of an encrypted header.
 // This must always be the same in all messages!
-const lengthEncryptedHeader = 6621
+const lengthEncryptedHeader = 5795
 
 type header struct {
 	Ciphersuite                 string
@@ -40,7 +42,7 @@ type header struct {
 	SenderUID                   string // complete UID message in JSON
 	SenderLastKeychainHash      string
 	Status                      uint8
-	Padding                     []byte // TODO: compute correct padding length for header
+	Padding                     string
 }
 
 type headerPacket struct {
@@ -56,6 +58,10 @@ func newHeader(
 	senderLastKeychainHash string,
 	rand io.Reader,
 ) (*header, error) {
+	if len(senderLastKeychainHash) != hashchain.EntryBase64Len {
+		return nil, log.Errorf("msg: last hashchain entry '%s' does not have base64 length %d (but %d)",
+			senderLastKeychainHash, hashchain.EntryBase64Len, len(senderLastKeychainHash))
+	}
 	h := &header{
 		Ciphersuite:                 uid.DefaultCiphersuite, // at the moment we only support one ciphersuite
 		RecipientPubHash:            recipient.PubHash(),
@@ -72,9 +78,10 @@ func newHeader(
 		SenderMessageCount:          0,                            // TODO
 		SenderUID:                   string(sender.JSON()),
 		SenderLastKeychainHash:      senderLastKeychainHash,
-		Status:                      0,   // TODO
-		Padding:                     nil, // is set below
+		Status:                      0,  // TODO
+		Padding:                     "", // is set below
 	}
+
 	// calculate padding length
 	var padLen int
 	// pad sender identity
@@ -101,12 +108,17 @@ func newHeader(
 	}
 	padLen += length.MaxUIDMessage - len(h.SenderUID)
 	// generate padding
-	pad, err := padding.Generate(padLen, cipher.RandReader)
+	randLen := padLen/2 + padLen%2
+	pad, err := padding.Generate(randLen, cipher.RandReader)
 	if err != nil {
 		return nil, err
 	}
 	// set padding
-	h.Padding = pad
+	p := hex.EncodeToString(pad)
+	if padLen%2 == 1 {
+		p = p[:len(p)-1]
+	}
+	h.Padding = p
 	return h, nil
 }
 

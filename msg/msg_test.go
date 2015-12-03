@@ -57,14 +57,15 @@ func encrypt(sign bool, flipUIDs bool) (sender *uid.Message, recipient *uid.Mess
 		privateSigKey = sender.PrivateSigKey64()
 	}
 	args := &EncryptArgs{
-		Writer:        &w,
-		From:          sender,
-		To:            recipient,
-		RecipientTemp: recipientTemp,
-		PrivateSigKey: privateSigKey,
-		Reader:        r,
-		Rand:          cipher.RandReader,
-		StoreSession:  discardSession,
+		Writer:                 &w,
+		From:                   sender,
+		To:                     recipient,
+		RecipientTemp:          recipientTemp,
+		SenderLastKeychainHash: hashchain.TestEntry,
+		PrivateSigKey:          privateSigKey,
+		Reader:                 r,
+		Rand:                   cipher.RandReader,
+		StoreSession:           discardSession,
 	}
 	err = Encrypt(args)
 	if err != nil {
