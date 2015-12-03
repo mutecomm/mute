@@ -22,8 +22,11 @@ import (
 )
 
 // lengthEncryptedHeader defines the length of an encrypted header.
-// This must always be the same in all messages!
-const lengthEncryptedHeader = 5795
+// This must always be the same in all messages! 5795 + 1373 = 7168.
+const lengthEncryptedHeader = 7168
+
+// Some wiggle room which can be taken out of padding if the need arises.
+const wiggleRoom = 1373
 
 type header struct {
 	Ciphersuite                 string
@@ -83,7 +86,7 @@ func newHeader(
 	}
 
 	// calculate padding length
-	var padLen int
+	padLen := wiggleRoom
 	// pad sender identity
 	if len(h.SenderIdentity) > identity.MaxLen {
 		return nil, log.Error("msg: sender identity is too long")
