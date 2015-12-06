@@ -37,6 +37,7 @@ const (
 	preHeaderSize       = 73
 	encryptedHeaderSize = 7201
 	cryptoSetupSize     = 23
+	signatureSize       = 76 // encrypted packet containing a single signature
 	hmacSize            = 71
 )
 

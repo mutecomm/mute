@@ -12,6 +12,7 @@ import (
 	"io"
 	"testing"
 
+	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/keyserver/hashchain"
 	"github.com/mutecomm/mute/uid"
@@ -112,6 +113,24 @@ func TestCryptoSetupSize(t *testing.T) {
 	oh := newOuterHeader(cryptoSetup, 2, iv)
 	if oh.size() != cryptoSetupSize {
 		t.Errorf("oh.size() = %d != %d", oh.size(), cryptoSetupSize)
+	}
+}
+
+func TestSignatureSize(t *testing.T) {
+	t.Parallel()
+	_, privKey, err := ed25519.GenerateKey(cipher.RandReader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sig := ed25519.Sign(privKey, cipher.SHA512([]byte("test")))
+	ih := newInnerHeader(signatureType, false, sig[:])
+	var buf bytes.Buffer
+	if err := ih.write(&buf); err != nil {
+		t.Fatal(err)
+	}
+	oh := newOuterHeader(encryptedPacket, 4, buf.Bytes())
+	if oh.size() != signatureSize {
+		t.Errorf("oh.size() = %d != %d", oh.size(), signatureSize)
 	}
 }
 
