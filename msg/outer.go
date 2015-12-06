@@ -32,6 +32,14 @@ const (
 	encryptedPacket = 16
 )
 
+// outer header sizes
+const (
+	preHeaderSize       = 73
+	encryptedHeaderSize = 7201
+	cryptoSetupSize     = 23
+	hmacSize            = 71
+)
+
 func newOuterHeader(ohType uint8, count uint32, inner []byte) *outerHeader {
 	var oh outerHeader
 	oh.Type = ohType
@@ -39,6 +47,10 @@ func newOuterHeader(ohType uint8, count uint32, inner []byte) *outerHeader {
 	oh.PacketCount = count
 	oh.inner = inner
 	return &oh
+}
+
+func (oh *outerHeader) size() uint16 {
+	return 1 + 2 + 4 + oh.PLen
 }
 
 func (oh *outerHeader) write(w io.Writer, withInner bool) error {

@@ -5,6 +5,11 @@
 package msg
 
 import (
+	"bytes"
+	"crypto/aes"
+	"crypto/hmac"
+	"crypto/sha512"
+	"io"
 	"testing"
 
 	"github.com/mutecomm/mute/cipher"
@@ -13,7 +18,25 @@ import (
 	"github.com/mutecomm/mute/util/times"
 )
 
-func TestHeaderPadding(t *testing.T) {
+func TestPreHeaderSize(t *testing.T) {
+	t.Parallel()
+	senderHeaderKey, err := cipher.Curve25519Generate(cipher.RandReader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ph := newPreHeader(senderHeaderKey.PublicKey()[:])
+	var buf bytes.Buffer
+	if err := ph.write(&buf); err != nil {
+		t.Fatal(err)
+	}
+	oh := newOuterHeader(preHeaderPacket, 0, buf.Bytes())
+	if oh.size() != preHeaderSize {
+		t.Errorf("oh.size() = %d != %d", oh.size(), preHeaderSize)
+	}
+}
+
+func TestEncrypteHeaderSizeAndPadding(t *testing.T) {
+	t.Parallel()
 	// setup UIDs and stuff
 	aliceUID, err := uid.Create("alice@mute.berlin", false, "", "", uid.Strict,
 		hashchain.TestEntry, cipher.RandReader)
@@ -63,9 +86,46 @@ func TestHeaderPadding(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = newHeaderPacket(h, recipientIdentityPub,
+	hp, err := newHeaderPacket(h, recipientIdentityPub,
 		senderHeaderKey.PrivateKey(), cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	// write (encrypted) header packet
+	var buf bytes.Buffer
+	if err := hp.write(&buf); err != nil {
+		t.Fatal(err)
+	}
+	oh := newOuterHeader(encryptedHeader, 1, buf.Bytes())
+	if oh.size() != encryptedHeaderSize {
+		t.Errorf("oh.size() = %d != %d", oh.size(), encryptedHeaderSize)
+	}
+}
+
+func TestCryptoSetupSize(t *testing.T) {
+	t.Parallel()
+	iv := make([]byte, aes.BlockSize)
+	if _, err := io.ReadFull(cipher.RandReader, iv); err != nil {
+		t.Fatal(err)
+	}
+	oh := newOuterHeader(cryptoSetup, 2, iv)
+	if oh.size() != cryptoSetupSize {
+		t.Errorf("oh.size() = %d != %d", oh.size(), cryptoSetupSize)
+	}
+}
+
+func TestHMACSize(t *testing.T) {
+	t.Parallel()
+	oh := newOuterHeader(hmacPacket, 5, nil)
+	oh.PLen = sha512.Size
+	hmacKey := make([]byte, 64)
+	if _, err := io.ReadFull(cipher.RandReader, hmacKey); err != nil {
+		t.Fatal(err)
+	}
+	mac := hmac.New(sha512.New, hmacKey)
+	oh.inner = mac.Sum(oh.inner)
+	if oh.size() != hmacSize {
+		t.Errorf("oh.size() = %d != %d", oh.size(), hmacSize)
 	}
 }
