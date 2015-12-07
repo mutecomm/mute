@@ -9,13 +9,15 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"io"
+
+	"github.com/mutecomm/mute/log"
 )
 
 // Generate generates a new cheap padding of the given length.
 func Generate(length int, rand io.Reader) ([]byte, error) {
 	var key [32]byte
 	if _, err := io.ReadFull(rand, key[:]); err != nil {
-		return nil, err
+		return nil, log.Error(err)
 	}
 	block, _ := aes.NewCipher(key[:]) // correct key length was set above
 	padding := make([]byte, (1+length/aes.BlockSize)*aes.BlockSize)
