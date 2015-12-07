@@ -33,7 +33,7 @@ func (sf *SequentialFuzzer) Fuzz() bool {
 	sf.Errors = make([]error, numTests)
 	for i := sf.Start; i < sf.End; i++ {
 		err := sf.TestFunc(switchBit(sf.Data, i))
-		sf.Errors[i] = err
+		sf.Errors[i-sf.Start] = err
 		sf.TestCount++
 		if err != nil {
 			sf.ErrorCount++
