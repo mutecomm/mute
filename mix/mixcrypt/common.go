@@ -19,8 +19,7 @@ var (
 	// ForwardMaxSize is the maximum size of a forward message
 	ForwardMaxSize = 65536
 	// RelayMinSize is the minimum size of a relay message
-	// TODO: set back to: RelayMinSize = 4096
-	RelayMinSize = 2048
+	RelayMinSize = 4096
 	// RelayMaxSize is the maximum size of a relay message
 	RelayMaxSize = 65536
 )
