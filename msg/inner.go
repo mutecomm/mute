@@ -11,6 +11,17 @@ import (
 	"github.com/mutecomm/mute/log"
 )
 
+// inner header types
+const (
+	paddingType   = 1 // random padding data to fill packet
+	dataType      = 2 // data
+	signType      = 4 // packet will be included in signature
+	signatureType = 8 // signature
+)
+
+// inner header size
+const innerHeaderSize = 5 // without any content
+
 type innerHeader struct {
 	// 1: Padding (random padding data to fill packet)
 	// 2: Data
@@ -23,14 +34,6 @@ type innerHeader struct {
 	content []byte
 }
 
-// inner header types
-const (
-	paddingType   = 1 // random padding data to fill packet
-	dataType      = 2 // data
-	signType      = 4 // packet will be included in signature
-	signatureType = 8 // signature
-)
-
 func newInnerHeader(ihType uint8, more bool, content []byte) *innerHeader {
 	var ih innerHeader
 	ih.Type = ihType
@@ -40,6 +43,10 @@ func newInnerHeader(ihType uint8, more bool, content []byte) *innerHeader {
 	}
 	ih.content = content
 	return &ih
+}
+
+func (ih *innerHeader) size() int {
+	return 1 + 2 + 1 + 1 + len(ih.content)
 }
 
 func (ih *innerHeader) write(w io.Writer) error {
