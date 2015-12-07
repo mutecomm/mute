@@ -116,6 +116,19 @@ func TestCryptoSetupSize(t *testing.T) {
 	}
 }
 
+func TestEncryptedPacketSize(t *testing.T) {
+	t.Parallel()
+	ih := newInnerHeader(dataType, false, nil)
+	var buf bytes.Buffer
+	if err := ih.write(&buf); err != nil {
+		t.Fatal(err)
+	}
+	oh := newOuterHeader(encryptedPacket, 3, buf.Bytes())
+	if oh.size() != encryptedPacketSize {
+		t.Errorf("oh.size() = %d != %d", oh.size(), encryptedPacketSize)
+	}
+}
+
 func TestSignatureSize(t *testing.T) {
 	t.Parallel()
 	_, privKey, err := ed25519.GenerateKey(cipher.RandReader)
