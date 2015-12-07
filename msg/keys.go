@@ -14,8 +14,7 @@ import (
 	"golang.org/x/crypto/hkdf"
 )
 
-func symmetricKeys(messageKey []byte) (cryptoKey []byte, hmacKey []byte, err error) {
-	// TODO: correct KDF?
+func symmetricKeys(messageKey []byte) (cryptoKey, hmacKey []byte, err error) {
 	hkdf := hkdf.New(sha512.New, messageKey, nil, nil)
 
 	// derive crypto key for AES-256
@@ -33,7 +32,10 @@ func symmetricKeys(messageKey []byte) (cryptoKey []byte, hmacKey []byte, err err
 	return
 }
 
-func deriveRootKey(t1, t2, t3 *[32]byte, previousRootKeyHash []byte) ([]byte, error) {
+func deriveRootKey(
+	t1, t2, t3 *[32]byte,
+	previousRootKeyHash []byte,
+) ([]byte, error) {
 	master := make([]byte, 96+len(previousRootKeyHash))
 	copy(master[:], t1[:])
 	copy(master[32:], t2[:])
@@ -42,7 +44,6 @@ func deriveRootKey(t1, t2, t3 *[32]byte, previousRootKeyHash []byte) ([]byte, er
 		copy(master[96:], previousRootKeyHash)
 	}
 
-	// TODO: correct KDF?
 	hkdf := hkdf.New(sha512.New, master, nil, nil)
 
 	// derive root key
@@ -54,9 +55,11 @@ func deriveRootKey(t1, t2, t3 *[32]byte, previousRootKeyHash []byte) ([]byte, er
 	return rootKey, nil
 }
 
-func generateMessageKeys(senderIdentity, recipientIdentity string,
+func generateMessageKeys(
+	senderIdentity, recipientIdentity string,
 	rootKey, senderSessionPub, recipientPub []byte,
-	storeSession StoreSession) ([]byte, error) {
+	storeSession StoreSession,
+) ([]byte, error) {
 	var (
 		identities string
 		send       []string
