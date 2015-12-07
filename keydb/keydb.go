@@ -383,8 +383,8 @@ func (keyDB *KeyDB) GetPrivateUID(
 		if err != nil {
 			return nil, nil, err
 		}
-		// TODO: better be safe than sorry?
 		if err := msg.VerifySelfSig(); err != nil {
+			// if this fails something is seriously wrong
 			return nil, nil, log.Error(err)
 		}
 		if withPrivkeys {
