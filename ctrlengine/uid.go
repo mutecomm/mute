@@ -32,7 +32,6 @@ import (
 	"github.com/mutecomm/mute/util/wallet"
 )
 
-// TODO: extract method
 func decodeED25519PubKeyBase64(p string) (*[ed25519.PublicKeySize]byte, error) {
 	ret := new([ed25519.PublicKeySize]byte)
 	pd, err := base64.Decode(p)

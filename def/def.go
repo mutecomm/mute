@@ -195,7 +195,6 @@ var AccdOwner *[ed25519.PublicKeySize]byte
 // AccdUsage is the wallet usage for the Mute account daemon.
 var AccdUsage string
 
-// TODO: extract method
 func decodeED25519PubKey(p string) (*[ed25519.PublicKeySize]byte, error) {
 	ret := new([ed25519.PublicKeySize]byte)
 	pd, err := hex.DecodeString(p)
