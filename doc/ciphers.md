@@ -5,11 +5,11 @@ Ciphersuites
 ### Default ciphersuite
 
 ```
-ECIES25519 KDF3 AES-CTR256 SHA512-HMAC ED25519 ECDHE25519
+NACL HKDF AES-CTR256 SHA512-HMAC ED25519 ECDHE25519
 ```
 
-- Static Key Agreement: ECIES over curve25519 (TODO: not used anymore!)
-- Key derivation function: KDF3
+- Static Key Agreement: NaCL
+- Key derivation function: HKDF
 - Symmetric encryption: AES-256 in counter mode
 - Integrity protection: SHA-512 HMAC
 - Signature generation: Ed25519
@@ -19,7 +19,6 @@ ECIES25519 KDF3 AES-CTR256 SHA512-HMAC ED25519 ECDHE25519
 ### Algos/Protos
 
 - ECDSA (key signature, exchange signature). Included in Go.
-- ECIES (first contact messages). Needs to be implemented (in snippets folder).
 - ECDH (PFS key agreement). Probably included in Go, but not exposed.
   Hint: crypto/tls/key_agreement.go.
 	Plain implementation: github.com/tang0th/go-ecdh. See snippets.
@@ -30,8 +29,7 @@ ECIES25519 KDF3 AES-CTR256 SHA512-HMAC ED25519 ECDHE25519
 - SHA-512 HMAC (messages, ECIES). Included in Go.
 - TLS 1.2 (not included) with TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA  or TLS 1.0
   (included in Go) with TLS_ECDHE_ECDSA_AES_256_CBC_SHA_256.
-- SKDF secure key derivation function. Use KDF3, see:
-  http://www.di-mgt.com.au/cryptoKDFs.html
+- SKDF secure key derivation function. Use HKDF, see RFC 5869.
 - ED25519 signature algorithm. Available for Go.
   http://godoc.org/github.com/agl/ed25519. In snippets folder.
 - CSPRNG: Fortuna with AES256, SHA256, /dev/urandom. See snippets folder for
@@ -99,7 +97,7 @@ decrypted_message = ASYM_Decrypt (encrypted_message, myPrivateKey) {
 
 ```
 encrypted_message = ASYM_Encrypt (cleartext, peersPublicKey) {
-	CipherSuite = "ECIES25519 KDF3 aes-ctr256 sha256-hmac"
+	CipherSuite = "ECIES25519 HKDF AES-CTR256 SHA512-HMAC"
 	ciphertext = ECIES_Seal(cleartext, peersPublicKey)
 	encrypted_message = json_struct{
 			CipherSuite,
@@ -112,7 +110,7 @@ encrypted_message = ASYM_Encrypt (cleartext, peersPublicKey) {
 ```
 decrypted_message = ASYM_Decrypt (encrypted_message, myPrivateKey) {
 	Ciphersuite, ciphertext = parse(encrypted_message)
-	assert Ciphersuite == "ECIES25519 KDF3 aes-ctr256 sha256-hmac"
+	assert Ciphersuite == "ECIES25519 HKDF AES-CTR256 SHA512-HMAC"
 	decrypted_message = ECIES_Open(ciphertext, myPrivateKey)
 	return decrypted_message
 }

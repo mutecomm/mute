@@ -14,17 +14,17 @@ import (
 
 // DefaultCiphersuite defines the default ciphersuite:
 //   Static Key Agreement: NaCL
-//   Key derivation function: KDF3
+//   Key derivation function: HKDF
 //   Symmetric encryption: AES-256 in counter mode
 //   Integrity protection: SHA-512 HMAC
 //   Signature generation: Ed25519
 //   Forward secure key agreement: ECDHE over curve25519
 // All valid ciphersuite strings are predefined and contain only upper-case letters.
-const DefaultCiphersuite string = "NACL KDF3 AES256-CTR SHA512-HMAC ED25519 ECDHE25519"
+const DefaultCiphersuite string = "NACL HKDF AES256-CTR SHA512-HMAC ED25519 ECDHE25519"
 
 // A KeyEntry describes a key in Mute.
 type KeyEntry struct {
-	CIPHERSUITE   string // ciphersuite for which the key may be used. Example: "NACL KDF3 AES-CTR256 SHA512-HMAC ED25519 ECDHE25519"
+	CIPHERSUITE   string // ciphersuite for which the key may be used. Example: "NACL HKDF AES-CTR256 SHA512-HMAC ED25519 ECDHE25519"
 	FUNCTION      string // function for which the key may be used in the ciphersuite. Example: "ECDHE25519"
 	HASH          string // SHA512 hash of PUBKEY
 	PUBKEY        string // the public key

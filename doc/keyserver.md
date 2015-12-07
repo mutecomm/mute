@@ -231,7 +231,7 @@ consisting of:
 ```
 struct KeyEntry{
   CIPHERSUITE. Ciphersuite for which the key may be used. Example:
-               "ECIES25519 KDF3 AES-CTR256 SHA512-HMAC ED25519 ECDHE25519"
+               "ECIES25519 HKDF AES-CTR256 SHA512-HMAC ED25519 ECDHE25519"
   FUNCTION. Function for which the key may be used in the ciphersuite. Example:
             "ECIES25519"
   HASH. SHA512 hash of PUBKEY.
