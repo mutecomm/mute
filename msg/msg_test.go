@@ -25,8 +25,13 @@ func discardSession(identity, partner, rootKeyHash, chainKey string,
 	return nil
 }
 
-func encrypt(sign bool, flipUIDs bool) (sender *uid.Message, recipient *uid.Message,
-	w bytes.Buffer, recipientTemp *uid.KeyEntry, privateKey string, err error) {
+func encrypt(sign bool, flipUIDs bool) (
+	sender, recipient *uid.Message,
+	w bytes.Buffer,
+	recipientTemp *uid.KeyEntry,
+	privateKey string,
+	err error,
+) {
 	sender, err = uid.Create("alice@mute.berlin", false, "", "", uid.Strict,
 		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
@@ -121,7 +126,7 @@ func decrypt(sender, recipient *uid.Message, r io.Reader, recipientTemp *uid.Key
 	return nil
 }
 
-func encryptAndDecrypt(t *testing.T, sign bool, flipUIDs bool) {
+func encryptAndDecrypt(t *testing.T, sign, flipUIDs bool) {
 	// encrypt
 	sender, recipient, w, recipientTemp, privateKey, err := encrypt(sign, flipUIDs)
 	if err != nil {
@@ -170,26 +175,28 @@ func encryptAndDecryptFuzzing(t *testing.T, sign bool) {
 		return nil
 	}
 
-	// do not fuzz '=' characters in base64 encoding
-	buf := w.String()
-	end := w.Len() - 1
-	for {
-		if buf[end] == '=' {
-			end--
-		} else {
-			break
-		}
-
+	// check length of encrypted message
+	if w.Len() != encodedMsgSize {
+		t.Errorf("w.Len() = %d != %d = encodedMsgSize)",
+			w.Len(), encodedMsgSize)
 	}
 
 	// fuzzer
-	fuzzer := &fuzzer.SequentialFuzzer{
+	fzzr := &fuzzer.SequentialFuzzer{
 		Data:     w.Bytes(),
-		End:      end * 8,
+		End:      8000 * 8,
 		TestFunc: testFunc,
 	}
-	ok := fuzzer.Fuzz()
-	if !ok {
+	if ok := fzzr.Fuzz(); !ok {
+		t.Error("fuzzer failed")
+	}
+
+	fzzr = &fuzzer.SequentialFuzzer{
+		Data:     w.Bytes(),
+		Start:    encodedMsgSize*8 - 1000,
+		TestFunc: testFunc,
+	}
+	if ok := fzzr.Fuzz(); !ok {
 		t.Error("fuzzer failed")
 	}
 }
@@ -210,9 +217,16 @@ func TestFuzzedSignedMsg(t *testing.T) {
 	encryptAndDecryptFuzzing(t, true)
 }
 
+func TestUnencodedMsgSize(t *testing.T) {
+	t.Parallel()
+	if unencodedMsgSize != 49152 {
+		t.Errorf("unencodedMsgSize = %d != %d", MaxContentLength, 49152)
+	}
+}
+
 func TestMaxContentLength(t *testing.T) {
 	t.Parallel()
-	if MaxContentLength != 41703 {
-		t.Errorf("MaxContentLength = %d != %d", MaxContentLength, 41703)
+	if MaxContentLength != 41691 {
+		t.Errorf("MaxContentLength = %d != %d", MaxContentLength, 41691)
 	}
 }

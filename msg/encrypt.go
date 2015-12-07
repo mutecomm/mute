@@ -16,6 +16,7 @@ import (
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
+	"github.com/mutecomm/mute/msg/padding"
 	"github.com/mutecomm/mute/uid"
 )
 
@@ -111,8 +112,8 @@ func Encrypt(args *EncryptArgs) error {
 	ph := newPreHeader(senderHeaderKey.PublicKey()[:])
 
 	// create base64 encoder
-	wc := base64.NewEncoder(args.Writer)
-	defer wc.Close()
+	var out bytes.Buffer
+	wc := base64.NewEncoder(&out)
 
 	// write pre-header
 	var buf bytes.Buffer
@@ -191,7 +192,6 @@ func Encrypt(args *EncryptArgs) error {
 	}
 
 	// actual encryption
-	// TODO: padding and streaming
 	content, err := ioutil.ReadAll(args.Reader)
 	if err != nil {
 		return log.Error(err)
@@ -202,6 +202,7 @@ func Encrypt(args *EncryptArgs) error {
 			len(content), MaxContentLength)
 	}
 
+	// encrypted packet
 	var contentHash []byte
 	var innerType uint8
 	if args.PrivateSigKey != nil {
@@ -228,26 +229,49 @@ func Encrypt(args *EncryptArgs) error {
 		return err
 	}
 
-	// signature header
+	// signature header & padding
+	buf.Reset()
 	if args.PrivateSigKey != nil {
 		sig := ed25519.Sign(args.PrivateSigKey, contentHash)
-		ih = newInnerHeader(signatureType, false, sig[:])
-		buf.Reset()
+		// signature
+		ih = newInnerHeader(signatureType, true, sig[:])
 		if err := ih.write(&buf); err != nil {
 			return err
 		}
-		// encrypt inner header
-		stream.XORKeyStream(buf.Bytes(), buf.Bytes())
-		oh = newOuterHeader(encryptedPacket, count, buf.Bytes())
-		if err := oh.write(wc, true); err != nil {
+		// padding
+		padLen := MaxContentLength - len(content)
+		pad, err := padding.Generate(padLen, cipher.RandReader)
+		if err != nil {
 			return err
 		}
-		count++
+		ih = newInnerHeader(paddingType, false, pad)
+		if err := ih.write(&buf); err != nil {
+			return err
+		}
+	} else {
+		// just padding
+		padLen := MaxContentLength + signatureSize - encryptedPacketSize +
+			innerHeaderSize - len(content)
+		pad, err := padding.Generate(padLen, cipher.RandReader)
+		if err != nil {
+			return err
+		}
+		ih = newInnerHeader(paddingType, false, pad)
+		if err := ih.write(&buf); err != nil {
+			return err
+		}
+	}
+	// encrypt inner header
+	stream.XORKeyStream(buf.Bytes(), buf.Bytes())
+	oh = newOuterHeader(encryptedPacket, count, buf.Bytes())
+	if err := oh.write(wc, true); err != nil {
+		return err
+	}
+	count++
 
-		// continue HMAC calculation
-		if err := oh.write(mac, true); err != nil {
-			return err
-		}
+	// continue HMAC calculation
+	if err := oh.write(mac, true); err != nil {
+		return err
 	}
 
 	// create HMAC header
@@ -262,6 +286,16 @@ func Encrypt(args *EncryptArgs) error {
 		return err
 	}
 	count++
+
+	// write output
+	wc.Close()
+	if out.Len() != encodedMsgSize {
+		return log.Errorf("out.Len() = %d != %d = encodedMsgSize)",
+			out.Len(), encodedMsgSize)
+	}
+	if _, err := io.Copy(args.Writer, &out); err != nil {
+		return log.Error(err)
+	}
 
 	return nil
 }

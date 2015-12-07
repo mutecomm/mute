@@ -21,13 +21,14 @@ const DefaultCiphersuite = "CURVE25519 XSALSA20 POLY1305"
 const NumOfFutureKeys = 50
 
 const (
-	encodedMsgSize   = 65536 // 64KB
-	unencodedMsgSize = encodedMsgSize / 4 * 3
+	encodedMsgSize   = 65536                  // 64KB
+	unencodedMsgSize = encodedMsgSize / 4 * 3 // 49152
 )
 
 // MaxContentLength is the maximum length the content of a message can have.
 const MaxContentLength = unencodedMsgSize - preHeaderSize - encryptedHeaderSize -
-	cryptoSetupSize - innerHeaderSize - signatureSize - hmacSize // 41703
+	cryptoSetupSize - encryptedPacketSize - signatureSize - innerHeaderSize -
+	hmacSize // 41691
 
 // StoreSession stores a new session.
 //

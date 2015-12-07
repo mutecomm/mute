@@ -239,6 +239,34 @@ func Decrypt(
 		}
 
 		copy(sigBuf[:], ih.content)
+	} else {
+		oh, err = readOuterHeader(r)
+		if err != nil {
+			return "", "", err
+		}
+		if oh.Type != encryptedPacket {
+			return "", "", log.Error(ErrNotEncryptedPacket)
+		}
+		if oh.PacketCount != count {
+			return "", "", log.Error(ErrWrongCount)
+		}
+		count++
+
+		// continue HMAC calculation
+		if err := oh.write(mac, true); err != nil {
+			return "", "", err
+		}
+
+		ciphertext = oh.inner
+		plaintext = make([]byte, len(ciphertext))
+		stream.XORKeyStream(plaintext, ciphertext)
+		ih, err = readInnerHeader(bytes.NewBuffer(plaintext))
+		if err != nil {
+			return "", "", err
+		}
+		if ih.Type&paddingType == 0 {
+			return "", "", log.Error(ErrNotPaddingPacket)
+		}
 	}
 	// get processed sender UID
 	uidRes := <-res

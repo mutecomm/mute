@@ -25,6 +25,9 @@ var ErrWrongCryptoSetup = errors.New("msg: crypto setup header has the wrong len
 // ErrNotEncryptedPacket is raised when an encrypted packet was expected.
 var ErrNotEncryptedPacket = errors.New("msg: expected encrypted packet")
 
+// ErrNotPaddingPacket is raised when a padding packet was expected.
+var ErrNotPaddingPacket = errors.New("msg: expected padding packet")
+
 // ErrNotSignaturePacket is raised when a signature packet was expected.
 var ErrNotSignaturePacket = errors.New("msg: expected signature packet")
 
