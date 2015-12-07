@@ -196,6 +196,12 @@ func Encrypt(args *EncryptArgs) error {
 	if err != nil {
 		return log.Error(err)
 	}
+	// enforce maximum content length
+	if len(content) > MaxContentLength {
+		return log.Errorf("len(content) = %d > %d = MaxContentLength)",
+			len(content), MaxContentLength)
+	}
+
 	var contentHash []byte
 	var innerType uint8
 	if args.PrivateSigKey != nil {
