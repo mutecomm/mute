@@ -10,8 +10,6 @@ import (
 )
 
 // RandReader defines the CSPRNG used in Mute.
-//
-// TODO: use Fortuna?
 var RandReader = rand.Reader
 
 // RandFail is a Reader that doesn't deliver any data
