@@ -136,11 +136,6 @@ func newHeaderPacket(h *header, recipientIdentityPub, senderHeaderPriv *[32]byte
 	if err != nil {
 		return nil, err
 	}
-
-	// TODO: show encrypted header contents
-	// jsn2, _ := json.MarshalIndent(h, "", "  ")
-	// fmt.Fprintln(os.Stderr, string(jsn2))
-
 	if _, err := io.ReadFull(rand, hp.Nonce[:]); err != nil {
 		return nil, log.Error(err)
 	}
@@ -209,10 +204,5 @@ func readHeader(
 	if err := json.Unmarshal(jsn, &h); err != nil {
 		return 0, nil, nil, err
 	}
-
-	// TODO: show encrypted header contents
-	// jsn2, _ := json.MarshalIndent(h, "", "  ")
-	// fmt.Fprintln(os.Stderr, string(jsn2))
-
 	return i, recipientID, &h, nil
 }
