@@ -15,6 +15,14 @@ import (
 
 // Generate generates a new cheap padding of the given length.
 func Generate(length int, rand io.Reader) ([]byte, error) {
+	// use randomness for short paddings
+	if length <= 32 {
+		padding := make([]byte, length)
+		if _, err := io.ReadFull(rand, padding[:]); err != nil {
+			return nil, log.Error(err)
+		}
+		return padding, nil
+	}
 	var key [32]byte
 	if _, err := io.ReadFull(rand, key[:]); err != nil {
 		return nil, log.Error(err)
