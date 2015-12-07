@@ -209,3 +209,10 @@ func TestFuzzedSignedMsg(t *testing.T) {
 	}
 	encryptAndDecryptFuzzing(t, true)
 }
+
+func TestMaxContentLength(t *testing.T) {
+	t.Parallel()
+	if MaxContentLength != 41703 {
+		t.Errorf("MaxContentLength = %d != %d", MaxContentLength, 41703)
+	}
+}
