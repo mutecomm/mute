@@ -181,7 +181,7 @@ func encryptAndDecryptFuzzing(t *testing.T, sign bool) {
 			w.Len(), encodedMsgSize)
 	}
 
-	// fuzzer
+	// fuzzer: fuzz everything except for most of the message padding
 	fzzr := &fuzzer.SequentialFuzzer{
 		Data:     w.Bytes(),
 		End:      8000 * 8,
