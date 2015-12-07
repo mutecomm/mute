@@ -21,6 +21,9 @@ a graphical user interface will be released at a later stage.
   the transport protocol).
 - Sending messages and changing the state of one's own identity requires
   payment by the user to both finance the system and to limit SPAM.
+- Better-than-nothing anonymity: mixing/delaying of messages to prevent simple
+  discovery of sender-recipient relationship by third party passive observer.
+- Both sender and recipient anonymity.
 - Plausible deniability of message content and some deniability of
   communication relationship.
 
