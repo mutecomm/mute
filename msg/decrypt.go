@@ -138,7 +138,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	}
 
 	// derive symmetric keys
-	cryptoKey, hmacKey, err := symmetricKeys(messageKey)
+	cryptoKey, hmacKey, err := deriveSymmetricKeys(messageKey)
 	if err != nil {
 		return "", "", err
 	}

@@ -14,7 +14,12 @@ import (
 	"golang.org/x/crypto/hkdf"
 )
 
-func symmetricKeys(messageKey []byte) (cryptoKey, hmacKey []byte, err error) {
+// deriveSymmetricKeys derives the symmetric cryptoKey and hmacKey from the
+// given messageKey.
+func deriveSymmetricKeys(messageKey []byte) (
+	cryptoKey, hmacKey []byte,
+	err error,
+) {
 	hkdf := hkdf.New(sha512.New, messageKey, nil, nil)
 
 	// derive crypto key for AES-256
@@ -32,6 +37,8 @@ func symmetricKeys(messageKey []byte) (cryptoKey, hmacKey []byte, err error) {
 	return
 }
 
+// deriveRootKey derives the next root key from t1, t2, t3, and the
+// previousRootKeyHash (if it exists).
 func deriveRootKey(
 	t1, t2, t3 *[32]byte,
 	previousRootKeyHash []byte,
@@ -55,6 +62,10 @@ func deriveRootKey(
 	return rootKey, nil
 }
 
+// generateMessageKeys generates the next NumOfFutureKeys many session keys from
+// from rootKey for given senderIdentity and recipientIdentity.
+// It uses senderSessionPub and recipientPub in the process and calls
+// storesSession to store the result.
 func generateMessageKeys(
 	senderIdentity, recipientIdentity string,
 	rootKey, senderSessionPub, recipientPub []byte,

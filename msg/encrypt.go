@@ -154,7 +154,7 @@ func Encrypt(args *EncryptArgs) error {
 	}
 
 	// derive symmetric keys
-	cryptoKey, hmacKey, err := symmetricKeys(messageKey)
+	cryptoKey, hmacKey, err := deriveSymmetricKeys(messageKey)
 	if err != nil {
 		return err
 	}
