@@ -51,8 +51,8 @@ type header struct {
 
 type headerPacket struct {
 	Nonce                 [24]byte // for NaCL
-	LengthEncryptedHeader uint16
-	EncryptedHeader       []byte
+	LengthEncryptedHeader uint16   // the length of the encrypted header
+	EncryptedHeader       []byte   // the actual encrypted header
 }
 
 func newHeader(
