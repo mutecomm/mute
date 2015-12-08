@@ -48,8 +48,8 @@ type header struct {
 	NextRecipientSessionPubSeen *uid.KeyEntry // only if seen
 	NymAddress                  string
 	MaxDelay                    uint64
-	SenderSessionCount          uint64
-	SenderMessageCount          uint64
+	SenderSessionCount          uint64 // total number of messages sent in sessions before this SenderSessionPub was used
+	SenderMessageCount          uint64 // total number of messages sent with this SenderSessionPub
 	SenderUID                   string // complete UID message in JSON
 	SenderLastKeychainHash      string
 	Status                      uint8 // always a single digit in JSON!

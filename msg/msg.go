@@ -20,18 +20,32 @@ const DefaultCiphersuite = "CURVE25519 XSALSA20 POLY1305"
 // are precomputed.
 const NumOfFutureKeys = 50
 
-const (
-	encodedMsgSize   = 65536                  // 64KB
-	unencodedMsgSize = encodedMsgSize / 4 * 3 // 49152
-)
+// EncodedMsgSize is the size of a base64 encoded encrypted message.
+const EncodedMsgSize = 65536 // 64KB
+
+// UnencodedMsgSize is the size of unencoded encrypted message.
+const UnencodedMsgSize = EncodedMsgSize / 4 * 3 // 49152
 
 // MaxContentLength is the maximum length the content of a message can have.
-const MaxContentLength = unencodedMsgSize - preHeaderSize - encryptedHeaderSize -
+const MaxContentLength = UnencodedMsgSize - preHeaderSize - encryptedHeaderSize -
 	cryptoSetupSize - encryptedPacketSize - signatureSize - innerHeaderSize -
 	hmacSize // 41691
 
+// SessionState describes the current session state between two parties.
+type SessionState struct {
+	SenderSessionCount    uint64 // total number of messages sent in sessions before this SenderSessionPub was used
+	SenderMessageCount    uint64 // total number of messages sent with this SenderSessionPub
+	RecipientSessionCount uint64 // total number of messages received in sessions before this SenderSessionPub was used
+	RecipientMessageCount uint64 // total number of messages received with this SenderSessionPub
+}
+
 // The KeyStore interface defines all methods for managing session keys.
 type KeyStore interface {
+	// GetSessionState returns the current session state or nil, if no state
+	// exists between the two parties.
+	// identity is the identity on the local side of the communication.
+	// partner is the identity on the remote side of the communication.
+	GetSessionState(identity, partner string) *SessionState
 	// StoreSession stores a new session.
 	// identity is the identity on the local side of the communication.
 	// partner is the identity on the remote side of the communication.

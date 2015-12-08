@@ -6,8 +6,22 @@ package cryptengine
 
 import (
 	"github.com/mutecomm/mute/log"
+	"github.com/mutecomm/mute/msg"
 	"github.com/mutecomm/mute/uid"
 )
+
+// GetSessionState implements corresponding method for msg.KeyStore interface.
+func (ce *CryptEngine) GetSessionState(identity, partner string) *msg.SessionState {
+	return nil
+}
+
+// StoreSession implements corresponding method for msg.KeyStore interface.
+func (ce *CryptEngine) StoreSession(
+	identity, partner, rootKeyHash, chainKey string,
+	send, recv []string,
+) error {
+	return ce.keyDB.AddSession(identity, partner, rootKeyHash, chainKey, send, recv)
+}
 
 // FindKeyEntry implements corresponding method for msg.KeyStore interface.
 func (ce *CryptEngine) FindKeyEntry(pubKeyHash string) (*uid.KeyEntry, error) {
@@ -26,12 +40,4 @@ func (ce *CryptEngine) FindKeyEntry(pubKeyHash string) (*uid.KeyEntry, error) {
 		return nil, err
 	}
 	return ke, nil
-}
-
-// StoreSession implements corresponding method for msg.KeyStore interface.
-func (ce *CryptEngine) StoreSession(
-	identity, partner, rootKeyHash, chainKey string,
-	send, recv []string,
-) error {
-	return ce.keyDB.AddSession(identity, partner, rootKeyHash, chainKey, send, recv)
 }

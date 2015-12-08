@@ -8,6 +8,7 @@ package memstore
 import (
 	"fmt"
 
+	"github.com/mutecomm/mute/msg"
 	"github.com/mutecomm/mute/uid"
 )
 
@@ -26,6 +27,11 @@ func New() *MemStore {
 // AddKeyEntry adds KeyEntry to memory store.
 func (ms *MemStore) AddKeyEntry(ke *uid.KeyEntry) {
 	ms.keyEntryMap[ke.HASH] = ke
+}
+
+// GetSessionState in memory.
+func (ms *MemStore) GetSessionState(identity, partner string) *msg.SessionState {
+	return nil
 }
 
 // StoreSession in memory.

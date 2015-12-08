@@ -275,9 +275,9 @@ func Encrypt(args *EncryptArgs) error {
 
 	// write output
 	wc.Close()
-	if out.Len() != encodedMsgSize {
-		return log.Errorf("out.Len() = %d != %d = encodedMsgSize)",
-			out.Len(), encodedMsgSize)
+	if out.Len() != EncodedMsgSize {
+		return log.Errorf("out.Len() = %d != %d = EncodedMsgSize)",
+			out.Len(), EncodedMsgSize)
 	}
 	if _, err := io.Copy(args.Writer, &out); err != nil {
 		return log.Error(err)

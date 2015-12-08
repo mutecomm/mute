@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package msg
+package msg_test
 
 import (
 	"bytes"
@@ -14,6 +14,7 @@ import (
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/keyserver/hashchain"
+	"github.com/mutecomm/mute/msg"
 	"github.com/mutecomm/mute/msg/memstore"
 	"github.com/mutecomm/mute/uid"
 	"github.com/mutecomm/mute/util/fuzzer"
@@ -57,7 +58,7 @@ func encrypt(sign bool, flipUIDs bool) (
 	if sign {
 		privateSigKey = sender.PrivateSigKey64()
 	}
-	args := &EncryptArgs{
+	args := &msg.EncryptArgs{
 		Writer:                 &w,
 		From:                   sender,
 		To:                     recipient,
@@ -68,7 +69,7 @@ func encrypt(sign bool, flipUIDs bool) (
 		Rand:                   cipher.RandReader,
 		KeyStore:               memstore.New(),
 	}
-	err = Encrypt(args)
+	err = msg.Encrypt(args)
 	if err != nil {
 		return
 	}
@@ -82,11 +83,11 @@ func decrypt(sender, recipient *uid.Message, r io.Reader, recipientTemp *uid.Key
 	identities := []string{recipient.Identity()}
 	recipientIdentities := []*uid.KeyEntry{recipient.PubKey()}
 	input := base64.NewDecoder(r)
-	version, preHeader, err := ReadFirstOuterHeader(input)
+	version, preHeader, err := msg.ReadFirstOuterHeader(input)
 	if err != nil {
 		return err
 	}
-	if version != Version {
+	if version != msg.Version {
 		return errors.New("wrong version")
 	}
 	ms := memstore.New()
@@ -94,7 +95,7 @@ func decrypt(sender, recipient *uid.Message, r io.Reader, recipientTemp *uid.Key
 		return err
 	}
 	ms.AddKeyEntry(recipientTemp)
-	args := &DecryptArgs{
+	args := &msg.DecryptArgs{
 		Writer:              &res,
 		Identities:          identities,
 		RecipientIdentities: recipientIdentities,
@@ -103,7 +104,7 @@ func decrypt(sender, recipient *uid.Message, r io.Reader, recipientTemp *uid.Key
 		Reader:              input,
 		KeyStore:            ms,
 	}
-	_, sig, err := Decrypt(args)
+	_, sig, err := msg.Decrypt(args)
 	if err != nil {
 		return err
 	}
@@ -179,9 +180,9 @@ func encryptAndDecryptFuzzing(t *testing.T, sign bool) {
 	}
 
 	// check length of encrypted message
-	if w.Len() != encodedMsgSize {
-		t.Errorf("w.Len() = %d != %d = encodedMsgSize)",
-			w.Len(), encodedMsgSize)
+	if w.Len() != msg.EncodedMsgSize {
+		t.Errorf("w.Len() = %d != %d = msg.EncodedMsgSize)",
+			w.Len(), msg.EncodedMsgSize)
 	}
 
 	// fuzzer: fuzz everything except for most of the message padding
@@ -196,7 +197,7 @@ func encryptAndDecryptFuzzing(t *testing.T, sign bool) {
 
 	fzzr = &fuzzer.SequentialFuzzer{
 		Data:     w.Bytes(),
-		Start:    encodedMsgSize*8 - 1000,
+		Start:    msg.EncodedMsgSize*8 - 1000,
 		TestFunc: testFunc,
 	}
 	if ok := fzzr.Fuzz(); !ok {
@@ -222,14 +223,14 @@ func TestFuzzedSignedMsg(t *testing.T) {
 
 func TestUnencodedMsgSize(t *testing.T) {
 	t.Parallel()
-	if unencodedMsgSize != 49152 {
-		t.Errorf("unencodedMsgSize = %d != %d", MaxContentLength, 49152)
+	if msg.UnencodedMsgSize != 49152 {
+		t.Errorf("unencodedMsgSize = %d != %d", msg.UnencodedMsgSize, 49152)
 	}
 }
 
 func TestMaxContentLength(t *testing.T) {
 	t.Parallel()
-	if MaxContentLength != 41691 {
-		t.Errorf("MaxContentLength = %d != %d", MaxContentLength, 41691)
+	if msg.MaxContentLength != 41691 {
+		t.Errorf("msg.MaxContentLength = %d != %d", msg.MaxContentLength, 41691)
 	}
 }
