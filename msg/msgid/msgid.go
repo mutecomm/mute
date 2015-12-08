@@ -29,7 +29,8 @@ func Generate(sender string, rand io.Reader) (string, error) {
 	return sender + "-" + ts + "-" + hex.EncodeToString(random), nil
 }
 
-// Parse parses the sender from the given messageID.
+// Parse parses the sender from the given messageID and returns it.
+// Returns "" in case of error.
 func Parse(messageID string) string {
 	parts := strings.SplitN(messageID, "-", 2)
 	if len(parts) != 2 {

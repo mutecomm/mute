@@ -31,8 +31,12 @@ const MaxContentLength = unencodedMsgSize - preHeaderSize - encryptedHeaderSize 
 	hmacSize // 41691
 
 // StoreSession stores a new session.
-//
-// TODO: document parameters in detail.
+// identity is the identity of the party on the local side of the communication.
+// partner is the identity of the party on the remote side of the communication.
+// rootKeyHash is the base64 encoded root key hash.
+// chainKey is the base64 encoded chain key.
+// send and recv are arrays containing NumOfFutureKeys many base64 encoded
+// future keys.
 type StoreSession func(identity, partner, rootKeyHash, chainKey string,
 	send, recv []string) error
 

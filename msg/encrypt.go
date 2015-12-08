@@ -69,36 +69,22 @@ func rootKeyAgreementSender(
 }
 
 // EncryptArgs contains all arguments for a message encryption.
-//
-// TODO: document stuff in detail
 type EncryptArgs struct {
-	Writer                      io.Writer
-	From                        *uid.Message
-	To                          *uid.Message
-	RecipientTemp               *uid.KeyEntry
-	NextSenderSessionPub        *uid.KeyEntry
-	NextRecipientSessionPubSeen *uid.KeyEntry
-	SenderLastKeychainHash      string
-	PreviousRootKeyHash         []byte
-	PrivateSigKey               *[64]byte
-	Reader                      io.Reader
-	Rand                        io.Reader
-	StoreSession                StoreSession
+	Writer                      io.Writer     // encrypted messagte is written here (base64 encoded)
+	From                        *uid.Message  // sender UID
+	To                          *uid.Message  // recipient UID
+	RecipientTemp               *uid.KeyEntry // RecipientKeyInitPub or RecipientSessionPub
+	NextSenderSessionPub        *uid.KeyEntry // new SenderSessionPub to refresh the session
+	NextRecipientSessionPubSeen *uid.KeyEntry // currently known NextSenderSessionPub of the other party
+	SenderLastKeychainHash      string        // last hash chain entry known to the sender
+	PreviousRootKeyHash         []byte        // has to contain the previous root key hash, if it exists
+	PrivateSigKey               *[64]byte     // if it is s not nil the message is signed with the key
+	Reader                      io.Reader     // data to encrypted is read here
+	Rand                        io.Reader     // random source
+	StoreSession                StoreSession  // called to store new session keys
 }
 
-// Encrypt reads data from r, encrypts it for UID message to (with UID message
-// from as sender), and writes it to w.
-// For the encryption recipientTemp has to be either RecipientKeyInitPub or
-// RecipientSessionPub (if previous SenderSessionPub from other party has been
-// received.)
-// senderLastKeychainHash contains the last hash chain entry known to the sender.
-// previousRootKeyHash has to contain the previous root key hash, if it exists.
-// If privateSigKey is not nil the encrypted message is signed with the key
-// and the signature is encoded in the message.
-// Necessary randomness is read from rand.
-// storeSession is called to store new session keys.
-//
-// TODO: document nextSenderSessionPub and nextRecipientSessionPubSeen.
+// Encrypt encrypts a message with the argument given in args.
 func Encrypt(args *EncryptArgs) error {
 	log.Debugf("msg.Encrypt()")
 

@@ -13,7 +13,8 @@ import (
 	"github.com/mutecomm/mute/log"
 )
 
-// Generate generates a new cheap padding of the given length.
+// Generate generates a new cheap padding of the given length and returns it.
+// rand is used to initialize the padding generator.
 func Generate(length int, rand io.Reader) ([]byte, error) {
 	// use randomness for short paddings
 	if length <= 32 {

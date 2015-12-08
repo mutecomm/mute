@@ -71,27 +71,22 @@ func rootKeyAgreementRecipient(
 }
 
 // DecryptArgs contains all arguments for a message decryption.
-//
-// TODO: document stuff in detail
 type DecryptArgs struct {
-	Writer              io.Writer
-	Identities          []string
-	RecipientIdentities []*uid.KeyEntry
-	PreviousRootKeyHash []byte
-	PreHeader           []byte
-	Reader              io.Reader
-	FindKeyEntry        FindKeyEntry
-	StoreSession        StoreSession
+	Writer              io.Writer       // decrypted message is written here
+	Identities          []string        // list of recipient identity strings
+	RecipientIdentities []*uid.KeyEntry // list of recipient identity KeyEntries
+	PreviousRootKeyHash []byte          // for root key agreement
+	PreHeader           []byte          // preHeader read with ReadFirstOuterHeader()
+	Reader              io.Reader       // data to decrypt is read here (not base64 encoded)
+	FindKeyEntry        FindKeyEntry    // called to find a KeyEntry with deciphered pubKeyhash
+	StoreSession        StoreSession    // called to store new session keys
 }
 
-// Decrypt reads data from r, tries to decrypt it, and writes the result to w.
-// findKeyEntry is called to find a KeyEntry when the corresponding pubKeyHash
-// has been deciphered. storeSession is called to store new session keys.
+// Decrypt decrypts a message with the argument given in args.
+// The senderID is returned.
 // If the message was signed and the signature could be verified successfully
 // the base64 encoded signature is returned. If the message was signed and the
 // signature could not be verfied an error is returned.
-//
-// TODO: document identities, recipientIdentities, and previousRootKeyHash.
 func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	log.Debugf("msg.Decrypt()")
 

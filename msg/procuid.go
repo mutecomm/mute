@@ -10,11 +10,14 @@ import (
 )
 
 type procUIDResult struct {
-	uidIndex []byte
-	msg      *uid.Message
+	uidIndex []byte       // UIDIndex = SHA256(SHA256(UIDMessage))
+	msg      *uid.Message // decoded UID message
 	err      error
 }
 
+// procUID allows to process a sender UID from the header in parallel.
+// senderUID is the JSON encoded UID message parsed from the header, res is
+// the result channel used to communicate the result of the calculation.
 func procUID(senderUID string, res chan *procUIDResult) {
 	var r procUIDResult
 	var err error
