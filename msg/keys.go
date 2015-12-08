@@ -69,7 +69,7 @@ func deriveRootKey(
 func generateMessageKeys(
 	senderIdentity, recipientIdentity string,
 	rootKey, senderSessionPub, recipientPub []byte,
-	storeSession StoreSession,
+	keyStore KeyStore,
 ) ([]byte, error) {
 	var (
 		identities string
@@ -107,7 +107,7 @@ func generateMessageKeys(
 	bzero.Bytes(rootKey)
 
 	// store session
-	err := storeSession(senderIdentity, recipientIdentity, rootKeyHash,
+	err := keyStore.StoreSession(senderIdentity, recipientIdentity, rootKeyHash,
 		base64.Encode(chainKey), send, recv)
 	if err != nil {
 		return nil, err

@@ -14,16 +14,12 @@ import (
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/keyserver/hashchain"
+	"github.com/mutecomm/mute/msg/memstore"
 	"github.com/mutecomm/mute/uid"
 	"github.com/mutecomm/mute/util/fuzzer"
 	"github.com/mutecomm/mute/util/msgs"
 	"github.com/mutecomm/mute/util/times"
 )
-
-func discardSession(identity, partner, rootKeyHash, chainKey string,
-	send, recv []string) error {
-	return nil
-}
 
 func encrypt(sign bool, flipUIDs bool) (
 	sender, recipient *uid.Message,
@@ -70,7 +66,7 @@ func encrypt(sign bool, flipUIDs bool) (
 		PrivateSigKey:          privateSigKey,
 		Reader:                 r,
 		Rand:                   cipher.RandReader,
-		StoreSession:           discardSession,
+		KeyStore:               memstore.New(),
 	}
 	err = Encrypt(args)
 	if err != nil {
@@ -93,6 +89,11 @@ func decrypt(sender, recipient *uid.Message, r io.Reader, recipientTemp *uid.Key
 	if version != Version {
 		return errors.New("wrong version")
 	}
+	ms := memstore.New()
+	if err := recipientTemp.SetPrivateKey(privateKey); err != nil {
+		return err
+	}
+	ms.AddKeyEntry(recipientTemp)
 	args := &DecryptArgs{
 		Writer:              &res,
 		Identities:          identities,
@@ -100,13 +101,7 @@ func decrypt(sender, recipient *uid.Message, r io.Reader, recipientTemp *uid.Key
 		PreviousRootKeyHash: nil,
 		PreHeader:           preHeader,
 		Reader:              input,
-		FindKeyEntry: func(pubKeyHash string) (*uid.KeyEntry, error) {
-			if err := recipientTemp.SetPrivateKey(privateKey); err != nil {
-				return nil, err
-			}
-			return recipientTemp, nil
-		},
-		StoreSession: discardSession,
+		KeyStore:            ms,
 	}
 	_, sig, err := Decrypt(args)
 	if err != nil {

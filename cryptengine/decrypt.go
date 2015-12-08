@@ -34,24 +34,6 @@ func (ce *CryptEngine) getRecipientIdentities() ([]string, []*uid.KeyEntry, erro
 	return identities, recipientIdentities, nil
 }
 
-func (ce *CryptEngine) findKeyEntry(pubKeyHash string) (*uid.KeyEntry, error) {
-	log.Debugf("findKeyEntry: pubKeyHash=%s", pubKeyHash)
-	ki, sigPubKey, privateKey, err := ce.keyDB.GetPrivateKeyInit(pubKeyHash)
-	if err != nil {
-		return nil, err
-	}
-	// decrypt KeyEntry
-	ke, err := ki.KeyEntryECDHE25519(sigPubKey)
-	if err != nil {
-		return nil, err
-	}
-	// set private key
-	if err := ke.SetPrivateKey(privateKey); err != nil {
-		return nil, err
-	}
-	return ke, nil
-}
-
 func (ce *CryptEngine) decrypt(w io.Writer, r io.Reader, statusfp *os.File) error {
 	// retrieve all possible recipient identities from keyDB
 	identities, recipientIdentities, err := ce.getRecipientIdentities()
@@ -86,12 +68,7 @@ func (ce *CryptEngine) decrypt(w io.Writer, r io.Reader, statusfp *os.File) erro
 		PreviousRootKeyHash: previousRootKeyHash,
 		PreHeader:           preHeader,
 		Reader:              r,
-		FindKeyEntry: func(pubKeyHash string) (*uid.KeyEntry, error) {
-			return ce.findKeyEntry(pubKeyHash)
-		},
-		StoreSession: func(identity, partner, rootKeyhash, chainKey string, send, recv []string) error {
-			return ce.keyDB.AddSession(identity, partner, rootKeyhash, chainKey, send, recv)
-		},
+		KeyStore:            ce,
 	}
 	senderID, sig, err = msg.Decrypt(args)
 	if err != nil {

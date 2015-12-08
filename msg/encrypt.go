@@ -24,7 +24,7 @@ func rootKeyAgreementSender(
 	senderID, recipientID *uid.Message,
 	senderSession, recipientKI *uid.KeyEntry,
 	previousRootKeyHash []byte,
-	storeSession StoreSession,
+	keyStore KeyStore,
 ) ([]byte, error) {
 	senderIdentityPub := senderID.PublicEncKey32()
 	senderIdentityPriv := senderID.PrivateEncKey32()
@@ -60,7 +60,7 @@ func rootKeyAgreementSender(
 	// generate message keys
 	messageKey, err := generateMessageKeys(senderID.Identity(),
 		recipientID.Identity(), rootKey, senderSessionPub[:],
-		recipientKeyInitPub[:], storeSession)
+		recipientKeyInitPub[:], keyStore)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ type EncryptArgs struct {
 	PrivateSigKey               *[64]byte     // if it is s not nil the message is signed with the key
 	Reader                      io.Reader     // data to encrypted is read here
 	Rand                        io.Reader     // random source
-	StoreSession                StoreSession  // called to store new session keys
+	KeyStore                    KeyStore      // for managing session keys
 }
 
 // Encrypt encrypts a message with the argument given in args.
@@ -148,7 +148,7 @@ func Encrypt(args *EncryptArgs) error {
 
 	// root key agreement
 	messageKey, err := rootKeyAgreementSender(args.From, args.To, &senderSession,
-		args.RecipientTemp, args.PreviousRootKeyHash, args.StoreSession)
+		args.RecipientTemp, args.PreviousRootKeyHash, args.KeyStore)
 	if err != nil {
 		return err
 	}

@@ -22,7 +22,7 @@ func rootKeyAgreementRecipient(
 	senderIdentity, recipientIdentity string,
 	senderSession, senderID, recipientKI, recipientID *uid.KeyEntry,
 	previousRootKeyHash []byte,
-	storeSession StoreSession,
+	keyStore KeyStore,
 ) ([]byte, error) {
 	recipientIdentityPub := recipientID.PublicKey32()
 	recipientIdentityPriv := recipientID.PrivateKey32()
@@ -62,7 +62,7 @@ func rootKeyAgreementRecipient(
 
 	// generate message keys
 	messageKey, err := generateMessageKeys(senderIdentity, recipientIdentity,
-		rootKey, senderSessionPub[:], recipientKeyInitPub[:], storeSession)
+		rootKey, senderSessionPub[:], recipientKeyInitPub[:], keyStore)
 	if err != nil {
 		return nil, err
 	}
@@ -78,8 +78,7 @@ type DecryptArgs struct {
 	PreviousRootKeyHash []byte          // for root key agreement
 	PreHeader           []byte          // preHeader read with ReadFirstOuterHeader()
 	Reader              io.Reader       // data to decrypt is read here (not base64 encoded)
-	FindKeyEntry        FindKeyEntry    // called to find a KeyEntry with deciphered pubKeyhash
-	StoreSession        StoreSession    // called to store new session keys
+	KeyStore            KeyStore        // for managing session keys
 }
 
 // Decrypt decrypts a message with the argument given in args.
@@ -126,13 +125,13 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	go procUID(h.SenderUID, res)
 
 	// root key agreement
-	recipientKI, err := args.FindKeyEntry(h.RecipientTempHash)
+	recipientKI, err := args.KeyStore.FindKeyEntry(h.RecipientTempHash)
 	if err != nil {
 		return "", "", err
 	}
 	messageKey, err := rootKeyAgreementRecipient(h.SenderIdentity,
 		args.Identities[i], &h.SenderSessionPub, &h.SenderIdentityPub,
-		recipientKI, recipientID, args.PreviousRootKeyHash, args.StoreSession)
+		recipientKI, recipientID, args.PreviousRootKeyHash, args.KeyStore)
 	if err != nil {
 		return "", "", err
 	}

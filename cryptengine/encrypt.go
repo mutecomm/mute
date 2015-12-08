@@ -105,9 +105,7 @@ func (ce *CryptEngine) encrypt(
 		PrivateSigKey:               privateSigKey,
 		Reader:                      r,
 		Rand:                        cipher.RandReader,
-		StoreSession: func(identity, partner, rootKeyhash, chainKey string, send, recv []string) error {
-			return ce.keyDB.AddSession(identity, partner, rootKeyhash, chainKey, send, recv)
-		},
+		KeyStore:                    ce,
 	}
 	if err = msg.Encrypt(args); err != nil {
 		return err
