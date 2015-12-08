@@ -198,7 +198,7 @@ The root_key is used to derive the message keys of a future N messages by:
 
 Messagekeys may never be reused. They should be generated **once** on session
 creation/refresh and deleted on use. Recipient **may** only use the message key
-correspinding to SenderSessionCount:SenderMessageCount for decrypting the body.
+corresponding to SenderSessionCount:SenderMessageCount for decrypting the body.
 The root_key should be deleted as soon as the messagekeys have been calculated
 and cached.
 
