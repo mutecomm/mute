@@ -101,7 +101,7 @@ Sender constructs header to send to recipient (JSON encoding):
 - MaxDelay: Maximum delay that sender requests from mix (obfuscated by
   `rand(1,2*MaxDelay)*MaxDelay`. Constant per session). Can be used in retention
   calculation.
-- SenderSessionCount: Total number of messages sent in session before this
+- SenderSessionCount: Total number of messages sent in sessions before this
   SenderSessionPub was used.
 - SenderMessageCount: Total number of messages sent with this SenderSessionPub.
   Can be used in retention.
