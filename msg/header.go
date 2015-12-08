@@ -29,6 +29,13 @@ const lengthEncryptedHeader = 7168
 // Some wiggle room which can be taken out of padding if the need arises.
 const wiggleRoom = 1316
 
+// Header status codes.
+const (
+	statusOK    = 0
+	statusReset = 1
+	statusError = 2
+)
+
 type header struct {
 	Ciphersuite                 string
 	RecipientPubHash            string
@@ -82,8 +89,8 @@ func newHeader(
 		SenderMessageCount:          0,                            // TODO
 		SenderUID:                   string(sender.JSON()),
 		SenderLastKeychainHash:      senderLastKeychainHash,
-		Status:                      0,  // TODO
-		Padding:                     "", // is set below
+		Status:                      statusOK, // TODO
+		Padding:                     "",       // is set below
 	}
 
 	// calculate padding length
