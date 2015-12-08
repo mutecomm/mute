@@ -29,7 +29,7 @@ func ReadFirstOuterHeader(r io.Reader) (version uint16, preHeader []byte, err er
 	if err := binary.Read(r, binary.BigEndian, &Type); err != nil {
 		return 0, nil, err
 	}
-	if Type != 1 {
+	if Type != preHeaderPacket {
 		return 0, nil, log.Error(ErrNotPreHeader)
 	}
 	// read Plen
