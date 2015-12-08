@@ -107,7 +107,7 @@ Sender constructs header to send to recipient (JSON encoding):
   Can be used in retention.
 - SenderUID: Complete UID Message (including SenderIdentityPub).
 - SenderLastKeychainHash: Last entry known to sender from keyserver hashchain.
-- Status: 2=Error, 1=Reset. 0=OK. Status of session, see below "invalid header".
+- Status: 2=Error, 1=Reset, 0=OK. Status of session, see below "invalid header".
   Error tries to start a session with the given remote SenderSessionPub. Reset
   deletes all keys, including root_key, and tries to start a new session with
   public key material.
