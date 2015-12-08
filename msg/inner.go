@@ -74,8 +74,13 @@ func readInnerHeader(r io.Reader) (*innerHeader, error) {
 	if err := binary.Read(r, binary.BigEndian, &ih.Type); err != nil {
 		return nil, err
 	}
-	// TODO: check possible types and type combinations (see outer.go)
-
+	// check Type
+	if ih.Type != paddingType &&
+		ih.Type != dataType &&
+		ih.Type != dataType|signType &&
+		ih.Type != signatureType {
+		return nil, log.Errorf("msg: invalid inner header type %d", ih.Type)
+	}
 	// read Plen
 	if err := binary.Read(r, binary.BigEndian, &ih.PLen); err != nil {
 		return nil, log.Error(err)
