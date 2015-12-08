@@ -79,8 +79,8 @@ func readOuterHeader(r io.Reader) (*outerHeader, error) {
 	if err := binary.Read(r, binary.BigEndian, &oh.Type); err != nil {
 		return nil, log.Error(err)
 	}
-	if oh.Type != 0 && // allow undefined type, catch this error later
-		oh.Type != preHeaderPacket &&
+	// check Type
+	if oh.Type != preHeaderPacket &&
 		oh.Type != encryptedHeader &&
 		oh.Type != cryptoSetup &&
 		oh.Type != hmacPacket &&
