@@ -93,14 +93,22 @@ func decrypt(sender, recipient *uid.Message, r io.Reader, recipientTemp *uid.Key
 	if version != Version {
 		return errors.New("wrong version")
 	}
-	_, sig, err := Decrypt(&res, identities, recipientIdentities, nil, preHeader, input,
-		func(pubKeyHash string) (*uid.KeyEntry, error) {
+	args := &DecryptArgs{
+		Writer:              &res,
+		Identities:          identities,
+		RecipientIdentities: recipientIdentities,
+		PreviousRootKeyHash: nil,
+		PreHeader:           preHeader,
+		Reader:              input,
+		FindKeyEntry: func(pubKeyHash string) (*uid.KeyEntry, error) {
 			if err := recipientTemp.SetPrivateKey(privateKey); err != nil {
 				return nil, err
 			}
 			return recipientTemp, nil
 		},
-		discardSession)
+		StoreSession: discardSession,
+	}
+	_, sig, err := Decrypt(args)
 	if err != nil {
 		return err
 	}

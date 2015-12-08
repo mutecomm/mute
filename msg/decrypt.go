@@ -70,6 +70,20 @@ func rootKeyAgreementRecipient(
 	return messageKey, err
 }
 
+// DecryptArgs contains all arguments for a message decryption.
+//
+// TODO: document stuff in detail
+type DecryptArgs struct {
+	Writer              io.Writer
+	Identities          []string
+	RecipientIdentities []*uid.KeyEntry
+	PreviousRootKeyHash []byte
+	PreHeader           []byte
+	Reader              io.Reader
+	FindKeyEntry        FindKeyEntry
+	StoreSession        StoreSession
+}
+
 // Decrypt reads data from r, tries to decrypt it, and writes the result to w.
 // findKeyEntry is called to find a KeyEntry when the corresponding pubKeyHash
 // has been deciphered. storeSession is called to store new session keys.
@@ -78,20 +92,11 @@ func rootKeyAgreementRecipient(
 // signature could not be verfied an error is returned.
 //
 // TODO: document identities, recipientIdentities, and previousRootKeyHash.
-func Decrypt(
-	w io.Writer,
-	identities []string,
-	recipientIdentities []*uid.KeyEntry,
-	previousRootKeyHash []byte,
-	preHeader []byte,
-	r io.Reader,
-	findKeyEntry FindKeyEntry,
-	storeSession StoreSession,
-) (senderID, sig string, err error) {
+func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	log.Debugf("msg.Decrypt()")
 
 	// read pre-header
-	ph, err := readPreHeader(bytes.NewBuffer(preHeader))
+	ph, err := readPreHeader(bytes.NewBuffer(args.PreHeader))
 	if err != nil {
 		return "", "", err
 	}
@@ -102,7 +107,7 @@ func Decrypt(
 	copy(senderHeaderPub[:], ph.SenderHeaderPub)
 
 	// read header packet
-	oh, err := readOuterHeader(r)
+	oh, err := readOuterHeader(args.Reader)
 	if err != nil {
 		return "", "", err
 	}
@@ -114,8 +119,8 @@ func Decrypt(
 		return "", "", log.Error(ErrWrongCount)
 	}
 	count++
-	i, recipientID, h, err := readHeader(&senderHeaderPub, recipientIdentities,
-		bytes.NewBuffer(oh.inner))
+	i, recipientID, h, err := readHeader(&senderHeaderPub,
+		args.RecipientIdentities, bytes.NewBuffer(oh.inner))
 	if err != nil {
 		return "", "", err
 	}
@@ -126,13 +131,13 @@ func Decrypt(
 	go procUID(h.SenderUID, res)
 
 	// root key agreement
-	recipientKI, err := findKeyEntry(h.RecipientTempHash)
+	recipientKI, err := args.FindKeyEntry(h.RecipientTempHash)
 	if err != nil {
 		return "", "", err
 	}
 	messageKey, err := rootKeyAgreementRecipient(h.SenderIdentity,
-		identities[i], &h.SenderSessionPub, &h.SenderIdentityPub, recipientKI,
-		recipientID, previousRootKeyHash, storeSession)
+		args.Identities[i], &h.SenderSessionPub, &h.SenderIdentityPub,
+		recipientKI, recipientID, args.PreviousRootKeyHash, args.StoreSession)
 	if err != nil {
 		return "", "", err
 	}
@@ -144,7 +149,7 @@ func Decrypt(
 	}
 
 	// read crypto setup packet
-	oh, err = readOuterHeader(r)
+	oh, err = readOuterHeader(args.Reader)
 	if err != nil {
 		return "", "", err
 	}
@@ -167,7 +172,7 @@ func Decrypt(
 	}
 
 	// actual decryption
-	oh, err = readOuterHeader(r)
+	oh, err = readOuterHeader(args.Reader)
 	if err != nil {
 		return "", "", err
 	}
@@ -194,7 +199,7 @@ func Decrypt(
 		// create signature hash
 		contentHash = cipher.SHA512(ih.content)
 	}
-	if _, err := w.Write(ih.content); err != nil {
+	if _, err := args.Writer.Write(ih.content); err != nil {
 		return "", "", log.Error(err)
 	}
 
@@ -206,7 +211,7 @@ func Decrypt(
 	// verify signature
 	var sigBuf [ed25519.SignatureSize]byte
 	if contentHash != nil {
-		oh, err = readOuterHeader(r)
+		oh, err = readOuterHeader(args.Reader)
 		if err != nil {
 			return "", "", err
 		}
@@ -240,7 +245,7 @@ func Decrypt(
 
 		copy(sigBuf[:], ih.content)
 	} else {
-		oh, err = readOuterHeader(r)
+		oh, err = readOuterHeader(args.Reader)
 		if err != nil {
 			return "", "", err
 		}
@@ -282,7 +287,7 @@ func Decrypt(
 	}
 
 	// read HMAC packet
-	oh, err = readOuterHeader(r)
+	oh, err = readOuterHeader(args.Reader)
 	if err != nil {
 		return "", "", err
 	}

@@ -79,14 +79,21 @@ func (ce *CryptEngine) decrypt(w io.Writer, r io.Reader, statusfp *os.File) erro
 	// decrypt message
 	var senderID string
 	var sig string
-	senderID, sig, err = msg.Decrypt(w, identities, recipientIdentities,
-		previousRootKeyHash, preHeader, r,
-		func(pubKeyHash string) (*uid.KeyEntry, error) {
+	args := &msg.DecryptArgs{
+		Writer:              w,
+		Identities:          identities,
+		RecipientIdentities: recipientIdentities,
+		PreviousRootKeyHash: previousRootKeyHash,
+		PreHeader:           preHeader,
+		Reader:              r,
+		FindKeyEntry: func(pubKeyHash string) (*uid.KeyEntry, error) {
 			return ce.findKeyEntry(pubKeyHash)
 		},
-		func(identity, partner, rootKeyhash, chainKey string, send, recv []string) error {
+		StoreSession: func(identity, partner, rootKeyhash, chainKey string, send, recv []string) error {
 			return ce.keyDB.AddSession(identity, partner, rootKeyhash, chainKey, send, recv)
-		})
+		},
+	}
+	senderID, sig, err = msg.Decrypt(args)
 	if err != nil {
 		return err
 	}
