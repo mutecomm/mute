@@ -59,8 +59,8 @@ Sender fetches from keyserver:
 Sender calculates:
 
 ```
-  // if this is a fresh session, previous_root_key is null.
-  // Otherwise roll over previous root key.
+  // If this is a fresh session, previous_root_key is null.
+  // Otherwise roll over previous_root_key.
   t1 = DH.ecdh( SenderIdentityPriv, RecipientKeyInitPub )  // e.g. curve25519.ScalarMult
   t2 = DH.ecdh( SenderSessionPriv, RecipientKeyInitPub )
   t3 = DH.ecdh( SenderSessionPriv, RecipientIdentityPub )
