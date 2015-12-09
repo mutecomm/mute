@@ -53,3 +53,21 @@ func (ce *CryptEngine) FindKeyEntry(pubKeyHash string) (*uid.KeyEntry, error) {
 	}
 	return ke, nil
 }
+
+// GetMessageKey implements corresponding method for msg.KeyStore interface.
+func (ce *CryptEngine) GetMessageKey(
+	myID, contactID string,
+	sender bool,
+	msgIndex uint64,
+) (*[64]byte, error) {
+	return nil, util.ErrNotImplemented
+}
+
+// DelMessageKey implements corresponding method for msg.KeyStore interface.
+func (ce *CryptEngine) DelMessageKey(
+	myID, contactID string,
+	sender bool,
+	msgIndex uint64,
+) error {
+	return util.ErrNotImplemented
+}

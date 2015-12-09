@@ -8,6 +8,7 @@ package memstore
 import (
 	"fmt"
 
+	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg"
 	"github.com/mutecomm/mute/uid"
@@ -89,4 +90,63 @@ func (ms *MemStore) FindKeyEntry(pubKeyHash string) (*uid.KeyEntry, error) {
 		return nil, fmt.Errorf("memstore: could not find key entry %s", pubKeyHash)
 	}
 	return ke, nil
+}
+
+// GetMessageKey in memory.
+func (ms *MemStore) GetMessageKey(
+	myID, contactID string,
+	sender bool,
+	msgIndex uint64,
+) (*[64]byte, error) {
+	session, ok := ms.sessions[myID+"@"+contactID]
+	if !ok {
+		return nil, log.Errorf("memstore: no session found for %s and %s",
+			myID, contactID)
+	}
+	var key string
+	var party string
+	if sender {
+		key = session.send[msgIndex] // TODO: this could panic
+		party = "sender"
+	} else {
+		key = session.recv[msgIndex] // TODO: this could panic
+		party = "recipient"
+	}
+	// make sure key wasn't used yet
+	if key == "" {
+		return nil, log.Errorf("memstore: %s key for %s and %s already used",
+			party, myID, contactID)
+	}
+	// decode key
+	var messageKey [64]byte
+	k, err := base64.Decode(key)
+	if err != nil {
+		return nil, log.Errorf("memstore: cannot decode %s key for %s and %s: ",
+			party, myID, contactID)
+	}
+	if copy(messageKey[:], k) != 64 {
+		return nil, log.Errorf("memstore: %s key for %s and %s has wrong length",
+			party, myID, contactID)
+	}
+	return &messageKey, nil
+}
+
+// DelMessageKey in memory.
+func (ms *MemStore) DelMessageKey(
+	myID, contactID string,
+	sender bool,
+	msgIndex uint64,
+) error {
+	session, ok := ms.sessions[myID+"@"+contactID]
+	if !ok {
+		return log.Errorf("memstore: no session found for %s and %s",
+			myID, contactID)
+	}
+	// delete key
+	if sender {
+		session.send[msgIndex] = "" // TODO: this could panic
+	} else {
+		session.recv[msgIndex] = "" // TODO: this could panic
+	}
+	return nil
 }

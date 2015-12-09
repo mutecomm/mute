@@ -62,4 +62,11 @@ type KeyStore interface {
 	// FindKeyEntry defines the type for a function which should return a KeyEntry
 	// for the given pubKeyHash.
 	FindKeyEntry(pubKeyHash string) (*uid.KeyEntry, error)
+	// GetMessageKey returns the message key with index msgIndex. If sender is
+	// true the sender key is returned, otherwise the recipient key.
+	GetMessageKey(myID, contactID string, sender bool,
+		msgIndex uint64) (*[64]byte, error)
+	// DelMessageKey deleted the message key with index msgIndex. If sender is
+	// true the sender key is deleted, otherwise the recipient key.
+	DelMessageKey(myID, contactID string, sender bool, msgIndex uint64) error
 }

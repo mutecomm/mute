@@ -125,8 +125,9 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	go procUID(h.SenderUID, res)
 
 	// get session state
-	var messageKey [64]byte // TODO
-	ss, err := args.KeyStore.GetSessionState(h.SenderIdentity, args.Identities[i])
+	myID := h.SenderIdentity
+	contactID := args.Identities[i]
+	ss, err := args.KeyStore.GetSessionState(myID, contactID)
 	if err != nil {
 		return "", "", err
 	}
@@ -137,16 +138,23 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 		if err != nil {
 			return "", "", err
 		}
-		ss, err = rootKeyAgreementRecipient(h.SenderIdentity,
-			args.Identities[i], &h.SenderSessionPub, &h.SenderIdentityPub,
-			recipientKI, recipientID, args.PreviousRootKeyHash, args.KeyStore)
+		ss, err = rootKeyAgreementRecipient(myID, contactID,
+			&h.SenderSessionPub, &h.SenderIdentityPub, recipientKI, recipientID,
+			args.PreviousRootKeyHash, args.KeyStore)
 		if err != nil {
 			return "", "", err
 		}
 	}
 
+	// get message key
+	messageKey, err := args.KeyStore.GetMessageKey(myID, contactID, false,
+		h.SenderMessageCount)
+	if err != nil {
+		return "", "", err
+	}
+
 	// derive symmetric keys
-	cryptoKey, hmacKey, err := deriveSymmetricKeys(&messageKey)
+	cryptoKey, hmacKey, err := deriveSymmetricKeys(messageKey)
 	if err != nil {
 		return "", "", err
 	}
@@ -310,6 +318,14 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	if !hmac.Equal(sum, oh.inner) {
 		return "", "", log.Error(ErrHMACsDiffer)
 	}
+
+	// delete message key
+	err = args.KeyStore.DelMessageKey(myID, contactID, false,
+		h.SenderMessageCount)
+	if err != nil {
+		return "", "", err
+	}
+	// TODO: change ss.RecipientMessageCount?
 
 	return
 }

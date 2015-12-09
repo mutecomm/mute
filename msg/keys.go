@@ -110,6 +110,11 @@ func generateMessageKeys(
 	rootKeyHash := base64.Encode(cipher.SHA512(rootKey))
 	bzero.Bytes(rootKey)
 
+	// reverse key material, if necessary
+	if reverse {
+		send, recv = recv, send
+	}
+
 	// store session
 	err := keyStore.StoreSession(senderIdentity, recipientIdentity, rootKeyHash,
 		base64.Encode(chainKey), send, recv)

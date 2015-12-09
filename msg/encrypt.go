@@ -147,8 +147,9 @@ func Encrypt(args *EncryptArgs) error {
 	count++
 
 	// get session state
-	var messageKey [64]byte // TODO
-	ss, err := args.KeyStore.GetSessionState(args.From.Identity(), args.To.Identity())
+	myID := args.From.Identity()
+	contactID := args.To.Identity()
+	ss, err := args.KeyStore.GetSessionState(myID, contactID)
 	if err != nil {
 		return err
 	}
@@ -162,8 +163,15 @@ func Encrypt(args *EncryptArgs) error {
 		}
 	}
 
+	// get message key
+	messageKey, err := args.KeyStore.GetMessageKey(myID, contactID, true,
+		ss.SenderMessageCount)
+	if err != nil {
+		return err
+	}
+
 	// derive symmetric keys
-	cryptoKey, hmacKey, err := deriveSymmetricKeys(&messageKey)
+	cryptoKey, hmacKey, err := deriveSymmetricKeys(messageKey)
 	if err != nil {
 		return err
 	}
@@ -290,6 +298,19 @@ func Encrypt(args *EncryptArgs) error {
 	}
 	if _, err := io.Copy(args.Writer, &out); err != nil {
 		return log.Error(err)
+	}
+
+	// delete message key
+	err = args.KeyStore.DelMessageKey(myID, contactID, true,
+		ss.SenderMessageCount)
+	if err != nil {
+		return err
+	}
+	// increase SenderMessageCount
+	ss.SenderMessageCount++
+	err = args.KeyStore.SetSessionState(myID, contactID, ss)
+	if err != nil {
+		return err
 	}
 
 	return nil
