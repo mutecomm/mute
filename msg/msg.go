@@ -45,7 +45,11 @@ type KeyStore interface {
 	// exists between the two parties.
 	// identity is the identity on the local side of the communication.
 	// partner is the identity on the remote side of the communication.
-	GetSessionState(identity, partner string) *SessionState
+	GetSessionState(identity, partner string) (*SessionState, error)
+	// SetSesssionState sets the current session state between two parties.
+	// identity is the identity on the local side of the communication.
+	// partner is the identity on the remote side of the communication.
+	SetSessionState(identity, partner string, sessionState *SessionState) error
 	// StoreSession stores a new session.
 	// identity is the identity on the local side of the communication.
 	// partner is the identity on the remote side of the communication.

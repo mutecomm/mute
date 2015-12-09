@@ -7,12 +7,18 @@ package util
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 
 	"github.com/mutecomm/mute/log"
 )
+
+// ErrNotImplemented is returned if the used functionality is not implemented y
+//
+// TODO: implement everything and remove.
+var ErrNotImplemented = errors.New("not implemented")
 
 // Fatal prints err to stderr and exits the process with exit code 1.
 func Fatal(err error) {

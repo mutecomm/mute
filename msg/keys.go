@@ -16,12 +16,12 @@ import (
 
 // deriveSymmetricKeys derives the symmetric cryptoKey and hmacKey from the
 // given messageKey.
-func deriveSymmetricKeys(messageKey []byte) (
+func deriveSymmetricKeys(messageKey *[64]byte) (
 	cryptoKey, hmacKey []byte,
 	err error,
 ) {
 	// TODO: set optional salt and info?
-	hkdf := hkdf.New(sha512.New, messageKey, nil, nil)
+	hkdf := hkdf.New(sha512.New, messageKey[:], nil, nil)
 
 	// derive crypto key for AES-256
 	cryptoKey = make([]byte, 32)
@@ -66,17 +66,16 @@ func deriveRootKey(
 // generateMessageKeys generates the next NumOfFutureKeys many session keys from
 // from rootKey for given senderIdentity and recipientIdentity.
 // It uses senderSessionPub and recipientPub in the process and calls
-// storesSession to store the result.
+// keyStore.StoresSession and keyStore.SetSessionState to store the result.
 func generateMessageKeys(
 	senderIdentity, recipientIdentity string,
 	rootKey, senderSessionPub, recipientPub []byte,
 	keyStore KeyStore,
-) ([]byte, error) {
+) (*SessionState, error) {
 	var (
 		identities string
 		send       []string
 		recv       []string
-		messageKey []byte
 	)
 
 	// identity_fix = HASH(SORT(SenderNym, RecipientNym))
@@ -114,5 +113,20 @@ func generateMessageKeys(
 		return nil, err
 	}
 
-	return messageKey, nil
+	// set session state
+	// TODO: what about updates?
+	ss := &SessionState{
+		SenderSessionCount:    0,
+		SenderMessageCount:    0,
+		RecipientSessionCount: 0,
+		RecipientMessageCount: 0,
+	}
+
+	// set session state
+	err = keyStore.SetSessionState(senderIdentity, recipientIdentity, ss)
+	if err != nil {
+		return nil, err
+	}
+
+	return ss, nil
 }

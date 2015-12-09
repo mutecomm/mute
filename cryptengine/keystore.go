@@ -8,11 +8,23 @@ import (
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg"
 	"github.com/mutecomm/mute/uid"
+	"github.com/mutecomm/mute/util"
 )
 
 // GetSessionState implements corresponding method for msg.KeyStore interface.
-func (ce *CryptEngine) GetSessionState(identity, partner string) *msg.SessionState {
-	return nil
+func (ce *CryptEngine) GetSessionState(identity, partner string) (
+	*msg.SessionState,
+	error,
+) {
+	return nil, util.ErrNotImplemented
+}
+
+// SetSessionState implements corresponding method for msg.KeyStore interface.
+func (ce *CryptEngine) SetSessionState(
+	identity, partner string,
+	sessionState *msg.SessionState,
+) error {
+	return util.ErrNotImplemented
 }
 
 // StoreSession implements corresponding method for msg.KeyStore interface.

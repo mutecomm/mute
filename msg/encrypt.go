@@ -25,7 +25,7 @@ func rootKeyAgreementSender(
 	senderSession, recipientKI *uid.KeyEntry,
 	previousRootKeyHash []byte,
 	keyStore KeyStore,
-) ([]byte, error) {
+) (*SessionState, error) {
 	senderIdentityPub := senderID.PublicEncKey32()
 	senderIdentityPriv := senderID.PrivateEncKey32()
 	senderSessionPub := senderSession.PublicKey32()
@@ -146,15 +146,24 @@ func Encrypt(args *EncryptArgs) error {
 	}
 	count++
 
-	// root key agreement
-	messageKey, err := rootKeyAgreementSender(args.From, args.To, &senderSession,
-		args.RecipientTemp, args.PreviousRootKeyHash, args.KeyStore)
+	// get session state
+	var messageKey [64]byte // TODO
+	ss, err := args.KeyStore.GetSessionState(args.From.Identity(), args.To.Identity())
 	if err != nil {
 		return err
 	}
+	if ss == nil {
+		// no session found -> start first session
+		// root key agreement
+		ss, err = rootKeyAgreementSender(args.From, args.To, &senderSession,
+			args.RecipientTemp, args.PreviousRootKeyHash, args.KeyStore)
+		if err != nil {
+			return err
+		}
+	}
 
 	// derive symmetric keys
-	cryptoKey, hmacKey, err := deriveSymmetricKeys(messageKey)
+	cryptoKey, hmacKey, err := deriveSymmetricKeys(&messageKey)
 	if err != nil {
 		return err
 	}

@@ -15,12 +15,14 @@ import (
 // MemStore implements the KeyStore interface in memory.
 type MemStore struct {
 	keyEntryMap map[string]*uid.KeyEntry
+	sessions    map[string]*msg.SessionState
 }
 
 // New returns a new MemStore.
 func New() *MemStore {
 	return &MemStore{
 		keyEntryMap: make(map[string]*uid.KeyEntry),
+		sessions:    make(map[string]*msg.SessionState),
 	}
 }
 
@@ -30,7 +32,19 @@ func (ms *MemStore) AddKeyEntry(ke *uid.KeyEntry) {
 }
 
 // GetSessionState in memory.
-func (ms *MemStore) GetSessionState(identity, partner string) *msg.SessionState {
+func (ms *MemStore) GetSessionState(identity, partner string) (
+	*msg.SessionState,
+	error,
+) {
+	return ms.sessions[identity+"@"+partner], nil
+}
+
+// SetSessionState in memory.
+func (ms *MemStore) SetSessionState(
+	identity, partner string,
+	sessionState *msg.SessionState,
+) error {
+	ms.sessions[identity+"@"+partner] = sessionState
 	return nil
 }
 

@@ -23,7 +23,7 @@ func rootKeyAgreementRecipient(
 	senderSession, senderID, recipientKI, recipientID *uid.KeyEntry,
 	previousRootKeyHash []byte,
 	keyStore KeyStore,
-) ([]byte, error) {
+) (*SessionState, error) {
 	recipientIdentityPub := recipientID.PublicKey32()
 	recipientIdentityPriv := recipientID.PrivateKey32()
 
@@ -61,13 +61,13 @@ func rootKeyAgreementRecipient(
 	}
 
 	// generate message keys
-	messageKey, err := generateMessageKeys(senderIdentity, recipientIdentity,
+	ss, err := generateMessageKeys(senderIdentity, recipientIdentity,
 		rootKey, senderSessionPub[:], recipientKeyInitPub[:], keyStore)
 	if err != nil {
 		return nil, err
 	}
 
-	return messageKey, err
+	return ss, err
 }
 
 // DecryptArgs contains all arguments for a message decryption.
@@ -124,20 +124,29 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	res := make(chan *procUIDResult, 1)
 	go procUID(h.SenderUID, res)
 
-	// root key agreement
-	recipientKI, err := args.KeyStore.FindKeyEntry(h.RecipientTempHash)
+	// get session state
+	var messageKey [64]byte // TODO
+	ss, err := args.KeyStore.GetSessionState(h.SenderIdentity, args.Identities[i])
 	if err != nil {
 		return "", "", err
 	}
-	messageKey, err := rootKeyAgreementRecipient(h.SenderIdentity,
-		args.Identities[i], &h.SenderSessionPub, &h.SenderIdentityPub,
-		recipientKI, recipientID, args.PreviousRootKeyHash, args.KeyStore)
-	if err != nil {
-		return "", "", err
+	if ss == nil {
+		// no session found -> start first session
+		// root key agreement
+		recipientKI, err := args.KeyStore.FindKeyEntry(h.RecipientTempHash)
+		if err != nil {
+			return "", "", err
+		}
+		ss, err = rootKeyAgreementRecipient(h.SenderIdentity,
+			args.Identities[i], &h.SenderSessionPub, &h.SenderIdentityPub,
+			recipientKI, recipientID, args.PreviousRootKeyHash, args.KeyStore)
+		if err != nil {
+			return "", "", err
+		}
 	}
 
 	// derive symmetric keys
-	cryptoKey, hmacKey, err := deriveSymmetricKeys(messageKey)
+	cryptoKey, hmacKey, err := deriveSymmetricKeys(&messageKey)
 	if err != nil {
 		return "", "", err
 	}
