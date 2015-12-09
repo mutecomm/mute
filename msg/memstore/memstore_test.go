@@ -40,7 +40,8 @@ func TestMemStore(t *testing.T) {
 	if _, err := ms.FindKeyEntry("MUTE"); err == nil {
 		t.Error("should fail")
 	}
-	if err := ms.StoreSession("", "", "", "", nil, nil); err != nil {
+	err = ms.StoreSession("alice@mute.berlin", "bob@mute.berlin", "", "", nil, nil)
+	if err != nil {
 		t.Error(err)
 	}
 }

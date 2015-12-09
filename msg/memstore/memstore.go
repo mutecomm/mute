@@ -11,6 +11,7 @@ import (
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg"
 	"github.com/mutecomm/mute/uid"
+	"github.com/mutecomm/mute/uid/identity"
 )
 
 type session struct {
@@ -60,13 +61,19 @@ func (ms *MemStore) SetSessionState(
 
 // StoreSession in memory.
 func (ms *MemStore) StoreSession(
-	identity, partner, rootKeyHash, chainKey string,
+	myID, contactID, rootKeyHash, chainKey string,
 	send, recv []string,
 ) error {
+	if err := identity.IsMapped(myID); err != nil {
+		return log.Error(err)
+	}
+	if err := identity.IsMapped(contactID); err != nil {
+		return log.Error(err)
+	}
 	if len(send) != len(recv) {
 		return log.Error("memstore: len(send) != len(recv)")
 	}
-	ms.sessions[identity+"@"+partner] = &session{
+	ms.sessions[myID+"@"+contactID] = &session{
 		rootKeyHash: rootKeyHash,
 		chainKey:    chainKey,
 		send:        send,
