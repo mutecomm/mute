@@ -58,14 +58,14 @@ func rootKeyAgreementSender(
 	}
 
 	// generate message keys
-	messageKey, err := generateMessageKeys(senderID.Identity(),
-		recipientID.Identity(), rootKey, senderSessionPub[:],
+	ss, err := generateMessageKeys(senderID.Identity(),
+		recipientID.Identity(), rootKey, false, senderSessionPub[:],
 		recipientKeyInitPub[:], keyStore)
 	if err != nil {
 		return nil, err
 	}
 
-	return messageKey, nil
+	return ss, nil
 }
 
 // EncryptArgs contains all arguments for a message encryption.

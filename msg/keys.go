@@ -65,11 +65,15 @@ func deriveRootKey(
 
 // generateMessageKeys generates the next NumOfFutureKeys many session keys from
 // from rootKey for given senderIdentity and recipientIdentity.
+// If reverse is true the generated sender and reciever keys are stored in
+// reverse order (for recipients).
 // It uses senderSessionPub and recipientPub in the process and calls
 // keyStore.StoresSession and keyStore.SetSessionState to store the result.
 func generateMessageKeys(
 	senderIdentity, recipientIdentity string,
-	rootKey, senderSessionPub, recipientPub []byte,
+	rootKey []byte,
+	reverse bool,
+	senderSessionPub, recipientPub []byte,
 	keyStore KeyStore,
 ) (*SessionState, error) {
 	var (
