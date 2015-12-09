@@ -96,4 +96,10 @@ func TestKeyStore(t *testing.T) {
 	if res.String() != msgs.Message1 {
 		t.Fatal("messages differ")
 	}
+	// make recipient key has been deleted
+	// TODO: make sure myID/contactID order makes sense everywhere!
+	_, err = bobKeyStore.GetMessageKey(alice, bob, false, 0)
+	if err != msg.ErrMessageKeyUsed {
+		t.Error("should fail with msg.ErrMessageKeyUsed")
+	}
 }
