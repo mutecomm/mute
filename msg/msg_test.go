@@ -205,7 +205,6 @@ func encryptAndDecryptFuzzing(t *testing.T, sign bool) {
 	}
 }
 
-/*
 func TestFuzzedUnsignedMsg(t *testing.T) {
 	t.Parallel()
 	if testing.Short() {
@@ -221,7 +220,6 @@ func TestFuzzedSignedMsg(t *testing.T) {
 	}
 	encryptAndDecryptFuzzing(t, true)
 }
-*/
 
 func TestUnencodedMsgSize(t *testing.T) {
 	t.Parallel()
