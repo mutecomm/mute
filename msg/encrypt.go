@@ -78,8 +78,8 @@ type EncryptArgs struct {
 	NextRecipientSessionPubSeen *uid.KeyEntry // currently known NextSenderSessionPub of the other party
 	SenderLastKeychainHash      string        // last hash chain entry known to the sender
 	PreviousRootKeyHash         []byte        // has to contain the previous root key hash, if it exists
-	PrivateSigKey               *[64]byte     // if it is s not nil the message is signed with the key
-	Reader                      io.Reader     // data to encrypted is read here
+	PrivateSigKey               *[64]byte     // if this is s not nil the message is signed with the key
+	Reader                      io.Reader     // data to encrypt is read here
 	Rand                        io.Reader     // random source
 	KeyStore                    KeyStore      // for managing session keys
 }

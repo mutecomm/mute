@@ -31,7 +31,8 @@ const MaxContentLength = UnencodedMsgSize - preHeaderSize - encryptedHeaderSize 
 	cryptoSetupSize - encryptedPacketSize - signatureSize - innerHeaderSize -
 	hmacSize // 41691
 
-// SessionState describes the current session state between two parties.
+// SessionState describes the current session state between communicating two
+// parties.
 type SessionState struct {
 	SenderSessionCount    uint64 // total number of messages sent in sessions before this SenderSessionPub was used
 	SenderMessageCount    uint64 // total number of messages sent with this SenderSessionPub
