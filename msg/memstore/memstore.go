@@ -114,8 +114,7 @@ func (ms *MemStore) GetMessageKey(
 	}
 	// make sure key wasn't used yet
 	if key == "" {
-		return nil, log.Errorf("memstore: %s key for %s and %s already used",
-			party, myID, contactID)
+		return nil, log.Error(msg.ErrMessageKeyUsed)
 	}
 	// decode key
 	var messageKey [64]byte

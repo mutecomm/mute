@@ -59,8 +59,9 @@ func TestKeyStore(t *testing.T) {
 		t.Fatal(err)
 	}
 	// make sure sender key has been deleted
-	if _, err := aliceKeyStore.GetMessageKey(alice, bob, true, 0); err == nil {
-		t.Error("should fail")
+	_, err = aliceKeyStore.GetMessageKey(alice, bob, true, 0)
+	if err != msg.ErrMessageKeyUsed {
+		t.Error("should fail with msg.ErrMessageKeyUsed")
 	}
 	// decrypt message from Alice to Bob
 	var res bytes.Buffer
