@@ -20,6 +20,7 @@ func deriveSymmetricKeys(messageKey []byte) (
 	cryptoKey, hmacKey []byte,
 	err error,
 ) {
+	// TODO: set optional salt and info?
 	hkdf := hkdf.New(sha512.New, messageKey, nil, nil)
 
 	// derive crypto key for AES-256
