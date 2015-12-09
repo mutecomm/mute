@@ -43,19 +43,19 @@ func (ms *MemStore) AddKeyEntry(ke *uid.KeyEntry) {
 }
 
 // GetSessionState in memory.
-func (ms *MemStore) GetSessionState(identity, partner string) (
+func (ms *MemStore) GetSessionState(myID, contactID string) (
 	*msg.SessionState,
 	error,
 ) {
-	return ms.sessionStates[identity+"@"+partner], nil
+	return ms.sessionStates[myID+"@"+contactID], nil
 }
 
 // SetSessionState in memory.
 func (ms *MemStore) SetSessionState(
-	identity, partner string,
+	myID, contactID string,
 	sessionState *msg.SessionState,
 ) error {
-	ms.sessionStates[identity+"@"+partner] = sessionState
+	ms.sessionStates[myID+"@"+contactID] = sessionState
 	return nil
 }
 

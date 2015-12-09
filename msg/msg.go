@@ -43,21 +43,21 @@ type SessionState struct {
 type KeyStore interface {
 	// GetSessionState returns the current session state or nil, if no state
 	// exists between the two parties.
-	// identity is the identity on the local side of the communication.
-	// partner is the identity on the remote side of the communication.
-	GetSessionState(identity, partner string) (*SessionState, error)
+	// myID is the myID on the local side of the communication.
+	// contactID is the myID on the remote side of the communication.
+	GetSessionState(myID, contactID string) (*SessionState, error)
 	// SetSesssionState sets the current session state between two parties.
-	// identity is the identity on the local side of the communication.
-	// partner is the identity on the remote side of the communication.
-	SetSessionState(identity, partner string, sessionState *SessionState) error
+	// myID is the myID on the local side of the communication.
+	// contactID is the myID on the remote side of the communication.
+	SetSessionState(myID, contactID string, sessionState *SessionState) error
 	// StoreSession stores a new session.
-	// identity is the identity on the local side of the communication.
-	// partner is the identity on the remote side of the communication.
+	// myID is the myID on the local side of the communication.
+	// contactID is the myID on the remote side of the communication.
 	// rootKeyHash is the base64 encoded root key hash.
 	// chainKey is the base64 encoded chain key.
 	// send and recv are arrays containing NumOfFutureKeys many base64 encoded
 	// future keys.
-	StoreSession(identity, partner, rootKeyHash, chainKey string,
+	StoreSession(myID, contactID, rootKeyHash, chainKey string,
 		send, recv []string) error
 	// FindKeyEntry defines the type for a function which should return a KeyEntry
 	// for the given pubKeyHash.

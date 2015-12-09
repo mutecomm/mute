@@ -12,7 +12,7 @@ import (
 )
 
 // GetSessionState implements corresponding method for msg.KeyStore interface.
-func (ce *CryptEngine) GetSessionState(identity, partner string) (
+func (ce *CryptEngine) GetSessionState(myID, contactID string) (
 	*msg.SessionState,
 	error,
 ) {
@@ -21,7 +21,7 @@ func (ce *CryptEngine) GetSessionState(identity, partner string) (
 
 // SetSessionState implements corresponding method for msg.KeyStore interface.
 func (ce *CryptEngine) SetSessionState(
-	identity, partner string,
+	myID, contactID string,
 	sessionState *msg.SessionState,
 ) error {
 	return util.ErrNotImplemented
@@ -29,10 +29,10 @@ func (ce *CryptEngine) SetSessionState(
 
 // StoreSession implements corresponding method for msg.KeyStore interface.
 func (ce *CryptEngine) StoreSession(
-	identity, partner, rootKeyHash, chainKey string,
+	myID, contactID, rootKeyHash, chainKey string,
 	send, recv []string,
 ) error {
-	return ce.keyDB.AddSession(identity, partner, rootKeyHash, chainKey, send, recv)
+	return ce.keyDB.AddSession(myID, contactID, rootKeyHash, chainKey, send, recv)
 }
 
 // FindKeyEntry implements corresponding method for msg.KeyStore interface.
