@@ -511,18 +511,24 @@ func (keyDB *KeyDB) GetPublicUID(
 	}
 }
 
-// AddSession adds a session for the given identity partner pair. A session
+// AddSession adds a session for the given myID contactID pair. A session
 // consists of a rootKeyHash, a chainKey and two arrays send and recv of
 // sender and receiver keys. The arrays must have the same size.
 func (keyDB *KeyDB) AddSession(
-	identity, partner, rootKeyHash, chainKey string,
+	myID, contactID, rootKeyHash, chainKey string,
 	send, recv []string,
 ) error {
+	if err := identity.IsMapped(myID); err != nil {
+		return log.Error(err)
+	}
+	if err := identity.IsMapped(contactID); err != nil {
+		return log.Error(err)
+	}
 	if len(send) != len(recv) {
 		return log.Error("keydb: len(send) != len(recv)")
 	}
 	// store/update session
-	res, err := keyDB.updateSessionQuery.Exec(rootKeyHash, chainKey, identity, partner)
+	res, err := keyDB.updateSessionQuery.Exec(rootKeyHash, chainKey, myID, contactID)
 	if err != nil {
 		return log.Error(err)
 	}
@@ -531,7 +537,7 @@ func (keyDB *KeyDB) AddSession(
 		return log.Error(err)
 	}
 	if nRows == 0 {
-		_, err := keyDB.insertSessionQuery.Exec(identity, partner, rootKeyHash, chainKey)
+		_, err := keyDB.insertSessionQuery.Exec(myID, contactID, rootKeyHash, chainKey)
 		if err != nil {
 			return log.Error(err)
 		}
