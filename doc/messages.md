@@ -87,7 +87,7 @@ Sender constructs header to send to recipient (JSON encoding):
   [keyserver](keyserver.md))
 - SenderIdentityPubHash: `SHA512(SenderIdentityPub)`
 - SenderIdentityPub: Duplicate from SenderUID for easy parsing
-  (type `KeyEntry`, see [keyserver](keyserver.md)
+  (type `KeyEntry`, see [keyserver](keyserver.md)).
 - NextSenderSessionPub: New SenderSessionPub to refresh the session
   (type `KeyEntry`, see [keyserver](keyserver.md)).
   Optional. Should be given by both parties after sending/receiving a defined
