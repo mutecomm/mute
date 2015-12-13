@@ -104,17 +104,16 @@ func TestKeyStore(t *testing.T) {
 	// encrypt reply from Bob to Alice
 	/*
 		encMsg.Reset()
-		encryptArgs := &msg.EncryptArgs{
-			Writer:                 &encMsg,
-			From:                   bobUID,
-			To:                     aliceUID,
+		encryptArgs = &msg.EncryptArgs{
+			Writer: &encMsg,
+			From:   bobUID,
+			To:     aliceUID,
 			SenderLastKeychainHash: hashchain.TestEntry,
 			Reader:                 bytes.NewBufferString(msgs.Message1),
 			Rand:                   cipher.RandReader,
-			KeyStore:               aliceKeyStore,
+			KeyStore:               bobKeyStore,
 		}
-		err = msg.Encrypt(encryptArgs)
-		if err != nil {
+		if _, err = msg.Encrypt(encryptArgs); err != nil {
 			t.Fatal(err)
 		}
 	*/
