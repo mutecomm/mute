@@ -125,9 +125,9 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	go procUID(h.SenderUID, res)
 
 	// get session state
-	myID := h.SenderIdentity
-	contactID := args.Identities[i]
-	ss, err := args.KeyStore.GetSessionState(myID, contactID)
+	sender := h.SenderIdentity
+	recipient := args.Identities[i]
+	ss, err := args.KeyStore.GetSessionState(recipient, sender)
 	if err != nil {
 		return "", "", err
 	}
@@ -138,7 +138,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 		if err != nil {
 			return "", "", err
 		}
-		ss, err = rootKeyAgreementRecipient(myID, contactID,
+		ss, err = rootKeyAgreementRecipient(sender, recipient,
 			&h.SenderSessionPub, &h.SenderIdentityPub, recipientKI, recipientID,
 			args.PreviousRootKeyHash, args.KeyStore)
 		if err != nil {
@@ -147,7 +147,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	}
 
 	// get message key
-	messageKey, err := args.KeyStore.GetMessageKey(myID, contactID, false,
+	messageKey, err := args.KeyStore.GetMessageKey(recipient, sender, false,
 		h.SenderMessageCount)
 	if err != nil {
 		return "", "", err
@@ -320,7 +320,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	}
 
 	// delete message key
-	err = args.KeyStore.DelMessageKey(myID, contactID, false,
+	err = args.KeyStore.DelMessageKey(recipient, sender, false,
 		h.SenderMessageCount)
 	if err != nil {
 		return "", "", err

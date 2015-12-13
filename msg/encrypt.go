@@ -147,9 +147,9 @@ func Encrypt(args *EncryptArgs) error {
 	count++
 
 	// get session state
-	myID := args.From.Identity()
-	contactID := args.To.Identity()
-	ss, err := args.KeyStore.GetSessionState(myID, contactID)
+	sender := args.From.Identity()
+	recipient := args.To.Identity()
+	ss, err := args.KeyStore.GetSessionState(sender, recipient)
 	if err != nil {
 		return err
 	}
@@ -164,7 +164,7 @@ func Encrypt(args *EncryptArgs) error {
 	}
 
 	// get message key
-	messageKey, err := args.KeyStore.GetMessageKey(myID, contactID, true,
+	messageKey, err := args.KeyStore.GetMessageKey(sender, recipient, true,
 		ss.SenderMessageCount)
 	if err != nil {
 		return err
@@ -301,14 +301,14 @@ func Encrypt(args *EncryptArgs) error {
 	}
 
 	// delete message key
-	err = args.KeyStore.DelMessageKey(myID, contactID, true,
+	err = args.KeyStore.DelMessageKey(sender, recipient, true,
 		ss.SenderMessageCount)
 	if err != nil {
 		return err
 	}
 	// increase SenderMessageCount
 	ss.SenderMessageCount++
-	err = args.KeyStore.SetSessionState(myID, contactID, ss)
+	err = args.KeyStore.SetSessionState(sender, recipient, ss)
 	if err != nil {
 		return err
 	}
