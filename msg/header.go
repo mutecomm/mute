@@ -64,7 +64,7 @@ type headerPacket struct {
 
 func newHeader(
 	sender, recipient *uid.Message,
-	recipientTemp, senderSession, nextSenderSessionPub,
+	recipientTemp, senderSessionPub, nextSenderSessionPub,
 	nextRecipientSessionPubSeen *uid.KeyEntry,
 	senderLastKeychainHash string,
 	rand io.Reader,
@@ -78,7 +78,7 @@ func newHeader(
 		RecipientPubHash:            recipient.PubHash(),
 		RecipientTempHash:           recipientTemp.HASH,
 		SenderIdentity:              sender.Identity(),
-		SenderSessionPub:            *senderSession,
+		SenderSessionPub:            *senderSessionPub,
 		SenderIdentityPubHash:       sender.PubHash(),
 		SenderIdentityPub:           *sender.PubKey(),
 		NextSenderSessionPub:        nextSenderSessionPub,
