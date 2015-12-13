@@ -100,12 +100,12 @@ func (ms *MemStore) GetPrivateKeyEntry(pubKeyHash string) (*uid.KeyEntry, error)
 }
 
 // GetPublicKeyEntry in memory.
-func (ms *MemStore) GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, error) {
+func (ms *MemStore) GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, string, error) {
 	ke, ok := ms.publicKeyEntryMap[uidMsg.Identity()]
 	if !ok {
-		return nil, msg.ErrNoKeyInit
+		return nil, "", msg.ErrNoKeyInit
 	}
-	return ke, nil
+	return ke, "undefined", nil
 }
 
 // GetMessageKey in memory.

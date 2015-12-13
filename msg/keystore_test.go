@@ -44,18 +44,17 @@ func TestKeyStore(t *testing.T) {
 	// encrypt message from Alice to Bob
 	var encMsg bytes.Buffer
 	aliceKeyStore := memstore.New()
+	aliceKeyStore.AddPublicKeyEntry(bob, bobKE)
 	encryptArgs := &msg.EncryptArgs{
-		Writer:                 &encMsg,
-		From:                   aliceUID,
-		To:                     bobUID,
-		RecipientTemp:          bobKE,
+		Writer: &encMsg,
+		From:   aliceUID,
+		To:     bobUID,
 		SenderLastKeychainHash: hashchain.TestEntry,
 		Reader:                 bytes.NewBufferString(msgs.Message1),
 		Rand:                   cipher.RandReader,
 		KeyStore:               aliceKeyStore,
 	}
-	err = msg.Encrypt(encryptArgs)
-	if err != nil {
+	if _, err = msg.Encrypt(encryptArgs); err != nil {
 		t.Fatal(err)
 	}
 	// make sure sender key has been deleted
@@ -109,7 +108,6 @@ func TestKeyStore(t *testing.T) {
 			Writer:                 &encMsg,
 			From:                   bobUID,
 			To:                     aliceUID,
-			RecipientTemp:          bobKE,
 			SenderLastKeychainHash: hashchain.TestEntry,
 			Reader:                 bytes.NewBufferString(msgs.Message1),
 			Rand:                   cipher.RandReader,

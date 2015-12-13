@@ -47,7 +47,7 @@ func TestKeyEntry(t *testing.T) {
 	}
 	// public
 	ms.AddPublicKeyEntry(uidMsg.Identity(), ke)
-	entry, err = ms.GetPublicKeyEntry(uidMsg)
+	entry, _, err = ms.GetPublicKeyEntry(uidMsg)
 	if err != nil {
 		t.Error(err)
 	} else if entry != ke {
@@ -58,7 +58,7 @@ func TestKeyEntry(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := ms.GetPublicKeyEntry(uidMsg); err != msg.ErrNoKeyInit {
+	if _, _, err := ms.GetPublicKeyEntry(uidMsg); err != msg.ErrNoKeyInit {
 		t.Error("should fail with msg.ErrNoKeyInit")
 	}
 }

@@ -57,31 +57,31 @@ func (ce *CryptEngine) GetPrivateKeyEntry(pubKeyHash string) (*uid.KeyEntry, err
 }
 
 // GetPublicKeyEntry implements corresponding method for msg.KeyStore interface.
-func (ce *CryptEngine) GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, error) {
+func (ce *CryptEngine) GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, string, error) {
 	log.Debugf("ce.FindKeyEntry: uidMsg.Identity()=%s", uidMsg.Identity())
 	// get KeyInit
 	sigKeyHash, err := uidMsg.SigKeyHash()
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	ki, err := ce.keyDB.GetPublicKeyInit(sigKeyHash)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, msg.ErrNoKeyInit
+			return nil, "", msg.ErrNoKeyInit
 		}
-		return nil, err
+		return nil, "", err
 	}
 	// decrypt SessionAnchor
 	sa, err := ki.SessionAnchor(uidMsg.SigPubKey())
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	// get KeyEntry message from SessionAnchor
 	ke, err := sa.KeyEntry("ECDHE25519")
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
-	return ke, nil
+	return ke, sa.NymAddress(), nil
 }
 
 // GetMessageKey implements corresponding method for msg.KeyStore interface.

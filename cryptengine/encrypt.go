@@ -49,25 +49,6 @@ func (ce *CryptEngine) encrypt(
 	if !found {
 		return log.Errorf("not UID for '%s' found", toID)
 	}
-	// get recipient KeyInit
-	sigKeyHash, err := toUID.SigKeyHash()
-	if err != nil {
-		return err
-	}
-	ki, err := ce.keyDB.GetPublicKeyInit(sigKeyHash)
-	if err != nil {
-		return err
-	}
-	// decrypt SessionAnchor
-	sa, err := ki.SessionAnchor(toUID.SigPubKey())
-	if err != nil {
-		return err
-	}
-	// get KeyEntry message from SessionAnchor
-	recipientKI, err := sa.KeyEntry("ECDHE25519")
-	if err != nil {
-		return err
-	}
 	// encrypt message
 	// TODO
 	var (
@@ -97,7 +78,6 @@ func (ce *CryptEngine) encrypt(
 		Writer:                      w,
 		From:                        fromUID,
 		To:                          toUID,
-		RecipientTemp:               recipientKI,
 		NextSenderSessionPub:        nextSenderSessionPub,
 		NextRecipientSessionPubSeen: nextRecipientSessionPubSeen,
 		SenderLastKeychainHash:      senderLastKeychainHash,
@@ -107,10 +87,11 @@ func (ce *CryptEngine) encrypt(
 		Rand:                        cipher.RandReader,
 		KeyStore:                    ce,
 	}
-	if err = msg.Encrypt(args); err != nil {
+	nymAddress, err := msg.Encrypt(args)
+	if err != nil {
 		return err
 	}
 	// show nymaddress on status-fd
-	fmt.Fprintf(statusfp, "NYMADDRESS:\t%s\n", sa.NymAddress())
+	fmt.Fprintf(statusfp, "NYMADDRESS:\t%s\n", nymAddress)
 	return nil
 }

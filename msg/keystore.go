@@ -40,10 +40,10 @@ type KeyStore interface {
 	// GetPublicKeyInit returns the private KeyEntry contained in the KeyInit
 	// message with the given pubKeyHash.
 	GetPrivateKeyEntry(pubKeyHash string) (*uid.KeyEntry, error)
-	// GetPrivateKeyInit returns a public KeyEntry contained in the KeyInit
-	// message for the given uidMsg.
+	// GetPrivateKeyInit returns a public KeyEntry and NYMADDRESS contained in
+	// the KeyInit message for the given uidMsg.
 	// If no such KeyEntry is available, msg.ErrNoKeyInit is returned.
-	GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, error)
+	GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, string, error)
 	// GetMessageKey returns the message key with index msgIndex. If sender is
 	// true the sender key is returned, otherwise the recipient key.
 	GetMessageKey(myID, contactID string, sender bool,

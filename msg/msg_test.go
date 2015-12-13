@@ -58,19 +58,19 @@ func encrypt(sign bool, flipUIDs bool) (
 	if sign {
 		privateSigKey = sender.PrivateSigKey64()
 	}
+	ms := memstore.New()
+	ms.AddPublicKeyEntry(recipient.Identity(), recipientTemp)
 	args := &msg.EncryptArgs{
-		Writer:                 &w,
-		From:                   sender,
-		To:                     recipient,
-		RecipientTemp:          recipientTemp,
+		Writer: &w,
+		From:   sender,
+		To:     recipient,
 		SenderLastKeychainHash: hashchain.TestEntry,
 		PrivateSigKey:          privateSigKey,
 		Reader:                 r,
 		Rand:                   cipher.RandReader,
-		KeyStore:               memstore.New(),
+		KeyStore:               ms,
 	}
-	err = msg.Encrypt(args)
-	if err != nil {
+	if _, err = msg.Encrypt(args); err != nil {
 		return
 	}
 	return
