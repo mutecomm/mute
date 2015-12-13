@@ -456,12 +456,11 @@ func (keyDB *KeyDB) AddPublicKeyInit(ki *uid.KeyInit) error {
 }
 
 // GetPublicKeyInit gets a public key init from keydb.
+// If no such KeyInit could be found, sql.ErrNoRows is returned.
 func (keyDB *KeyDB) GetPublicKeyInit(sigKeyHash string) (*uid.KeyInit, error) {
 	var json string
 	err := keyDB.getPublicKeyInitQuery.QueryRow(sigKeyHash).Scan(&json)
 	switch {
-	case err == sql.ErrNoRows:
-		return nil, log.Errorf("keydb: no key init for SIGKEYHASH '%s' found", sigKeyHash)
 	case err != nil:
 		return nil, log.Error(err)
 	default:
