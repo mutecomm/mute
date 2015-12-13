@@ -51,8 +51,8 @@ type header struct {
 	SenderSessionCount          uint64 // total number of messages sent in sessions before this SenderSessionPub was used
 	SenderMessageCount          uint64 // total number of messages sent with this SenderSessionPub
 	SenderUID                   string // complete UID message in JSON
-	SenderLastKeychainHash      string
-	Status                      uint8 // always a single digit in JSON!
+	SenderLastKeychainHash      string // last entry known to sender from keyserver hashchain
+	Status                      uint8  // always a single digit in JSON!
 	Padding                     string
 }
 
