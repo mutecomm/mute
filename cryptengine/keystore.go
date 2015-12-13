@@ -5,6 +5,8 @@
 package cryptengine
 
 import (
+	"database/sql"
+
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg"
 	"github.com/mutecomm/mute/uid"
@@ -35,8 +37,8 @@ func (ce *CryptEngine) StoreSession(
 	return ce.keyDB.AddSession(myID, contactID, rootKeyHash, chainKey, send, recv)
 }
 
-// FindKeyEntry implements corresponding method for msg.KeyStore interface.
-func (ce *CryptEngine) FindKeyEntry(pubKeyHash string) (*uid.KeyEntry, error) {
+// GetPrivateKeyEntry implements corresponding method for msg.KeyStore interface.
+func (ce *CryptEngine) GetPrivateKeyEntry(pubKeyHash string) (*uid.KeyEntry, error) {
 	log.Debugf("ce.FindKeyEntry: pubKeyHash=%s", pubKeyHash)
 	ki, sigPubKey, privateKey, err := ce.keyDB.GetPrivateKeyInit(pubKeyHash)
 	if err != nil {
@@ -49,6 +51,34 @@ func (ce *CryptEngine) FindKeyEntry(pubKeyHash string) (*uid.KeyEntry, error) {
 	}
 	// set private key
 	if err := ke.SetPrivateKey(privateKey); err != nil {
+		return nil, err
+	}
+	return ke, nil
+}
+
+// GetPublicKeyEntry implements corresponding method for msg.KeyStore interface.
+func (ce *CryptEngine) GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, error) {
+	log.Debugf("ce.FindKeyEntry: uidMsg.Identity()=%s", uidMsg.Identity())
+	// get KeyInit
+	sigKeyHash, err := uidMsg.SigKeyHash()
+	if err != nil {
+		return nil, err
+	}
+	ki, err := ce.keyDB.GetPublicKeyInit(sigKeyHash)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, msg.ErrNoKeyInit
+		}
+		return nil, err
+	}
+	// decrypt SessionAnchor
+	sa, err := ki.SessionAnchor(uidMsg.SigPubKey())
+	if err != nil {
+		return nil, err
+	}
+	// get KeyEntry message from SessionAnchor
+	ke, err := sa.KeyEntry("ECDHE25519")
+	if err != nil {
 		return nil, err
 	}
 	return ke, nil

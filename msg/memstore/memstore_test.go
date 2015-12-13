@@ -19,30 +19,47 @@ import (
 
 func TestKeyEntry(t *testing.T) {
 	ms := New()
-	msg, err := uid.Create("alice@mute.berlin", false, "", "", uid.Strict,
+	uidMsg, err := uid.Create("alice@mute.berlin", false, "", "", uid.Strict,
 		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}
 	now := uint64(times.Now())
-	ki, _, _, err := msg.KeyInit(1, now+times.Day, now-times.Day, false,
+	ki, _, _, err := uidMsg.KeyInit(1, now+times.Day, now-times.Day, false,
 		"mute.berlin", "", "", cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
 	}
-	ke, err := ki.KeyEntryECDHE25519(msg.SigPubKey())
+	ke, err := ki.KeyEntryECDHE25519(uidMsg.SigPubKey())
 	if err != nil {
 		t.Fatal(err)
 	}
-	ms.AddKeyEntry(ke)
-	entry, err := ms.FindKeyEntry(ke.HASH)
+	// private
+	ms.AddPrivateKeyEntry(ke)
+	entry, err := ms.GetPrivateKeyEntry(ke.HASH)
 	if err != nil {
 		t.Error(err)
 	} else if entry != ke {
 		t.Error("entry != ke")
 	}
-	if _, err := ms.FindKeyEntry("MUTE"); err == nil {
+	if _, err := ms.GetPrivateKeyEntry("MUTE"); err == nil {
 		t.Error("should fail")
+	}
+	// public
+	ms.AddPublicKeyEntry(uidMsg.Identity(), ke)
+	entry, err = ms.GetPublicKeyEntry(uidMsg)
+	if err != nil {
+		t.Error(err)
+	} else if entry != ke {
+		t.Error("entry != ke")
+	}
+	uidMsg, err = uid.Create("trent@mute.berlin", false, "", "", uid.Strict,
+		hashchain.TestEntry, cipher.RandReader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := ms.GetPublicKeyEntry(uidMsg); err != msg.ErrNoKeyInit {
+		t.Error("should fail with msg.ErrNoKeyInit")
 	}
 }
 

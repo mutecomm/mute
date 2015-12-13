@@ -134,7 +134,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	if ss == nil {
 		// no session found -> start first session
 		// root key agreement
-		recipientKI, err := args.KeyStore.FindKeyEntry(h.RecipientTempHash)
+		recipientKI, err := args.KeyStore.GetPrivateKeyEntry(h.RecipientTempHash)
 		if err != nil {
 			return "", "", err
 		}

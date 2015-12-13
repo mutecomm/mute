@@ -79,7 +79,7 @@ func TestKeyStore(t *testing.T) {
 	if err := bobKE.SetPrivateKey(privateKey); err != nil {
 		t.Fatal(err)
 	}
-	bobKeyStore.AddKeyEntry(bobKE)
+	bobKeyStore.AddPrivateKeyEntry(bobKE)
 	decryptArgs := &msg.DecryptArgs{
 		Writer:              &res,
 		Identities:          identities,
@@ -102,4 +102,22 @@ func TestKeyStore(t *testing.T) {
 		t.Error("should fail with msg.ErrMessageKeyUsed")
 	}
 
+	// encrypt reply from Bob to Alice
+	/*
+		encMsg.Reset()
+		encryptArgs := &msg.EncryptArgs{
+			Writer:                 &encMsg,
+			From:                   bobUID,
+			To:                     aliceUID,
+			RecipientTemp:          bobKE,
+			SenderLastKeychainHash: hashchain.TestEntry,
+			Reader:                 bytes.NewBufferString(msgs.Message1),
+			Rand:                   cipher.RandReader,
+			KeyStore:               aliceKeyStore,
+		}
+		err = msg.Encrypt(encryptArgs)
+		if err != nil {
+			t.Fatal(err)
+		}
+	*/
 }

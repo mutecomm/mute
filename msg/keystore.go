@@ -37,9 +37,13 @@ type KeyStore interface {
 	// future keys.
 	StoreSession(myID, contactID, rootKeyHash, chainKey string,
 		send, recv []string) error
-	// FindKeyEntry defines the type for a function which should return a KeyEntry
-	// for the given pubKeyHash.
-	FindKeyEntry(pubKeyHash string) (*uid.KeyEntry, error)
+	// GetPublicKeyInit returns the private KeyEntry contained in the KeyInit
+	// message with the given pubKeyHash.
+	GetPrivateKeyEntry(pubKeyHash string) (*uid.KeyEntry, error)
+	// GetPrivateKeyInit returns a public KeyEntry contained in the KeyInit
+	// message for the given uidMsg.
+	// If no such KeyEntry is available, msg.ErrNoKeyInit is returned.
+	GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, error)
 	// GetMessageKey returns the message key with index msgIndex. If sender is
 	// true the sender key is returned, otherwise the recipient key.
 	GetMessageKey(myID, contactID string, sender bool,

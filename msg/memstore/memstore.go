@@ -24,23 +24,30 @@ type session struct {
 
 // MemStore implements the KeyStore interface in memory.
 type MemStore struct {
-	keyEntryMap   map[string]*uid.KeyEntry
-	sessionStates map[string]*msg.SessionState
-	sessions      map[string]*session
+	privateKeyEntryMap map[string]*uid.KeyEntry
+	publicKeyEntryMap  map[string]*uid.KeyEntry
+	sessionStates      map[string]*msg.SessionState
+	sessions           map[string]*session
 }
 
 // New returns a new MemStore.
 func New() *MemStore {
 	return &MemStore{
-		keyEntryMap:   make(map[string]*uid.KeyEntry),
-		sessionStates: make(map[string]*msg.SessionState),
-		sessions:      make(map[string]*session),
+		privateKeyEntryMap: make(map[string]*uid.KeyEntry),
+		publicKeyEntryMap:  make(map[string]*uid.KeyEntry),
+		sessionStates:      make(map[string]*msg.SessionState),
+		sessions:           make(map[string]*session),
 	}
 }
 
-// AddKeyEntry adds KeyEntry to memory store.
-func (ms *MemStore) AddKeyEntry(ke *uid.KeyEntry) {
-	ms.keyEntryMap[ke.HASH] = ke
+// AddPrivateKeyEntry adds private KeyEntry to memory store.
+func (ms *MemStore) AddPrivateKeyEntry(ke *uid.KeyEntry) {
+	ms.privateKeyEntryMap[ke.HASH] = ke
+}
+
+// AddPublicKeyEntry adds public KeyEntry from identity to memory store.
+func (ms *MemStore) AddPublicKeyEntry(identity string, ke *uid.KeyEntry) {
+	ms.publicKeyEntryMap[identity] = ke
 }
 
 // GetSessionState in memory.
@@ -83,11 +90,20 @@ func (ms *MemStore) StoreSession(
 	return nil
 }
 
-// FindKeyEntry in memory.
-func (ms *MemStore) FindKeyEntry(pubKeyHash string) (*uid.KeyEntry, error) {
-	ke, ok := ms.keyEntryMap[pubKeyHash]
+// GetPrivateKeyEntry in memory.
+func (ms *MemStore) GetPrivateKeyEntry(pubKeyHash string) (*uid.KeyEntry, error) {
+	ke, ok := ms.privateKeyEntryMap[pubKeyHash]
 	if !ok {
 		return nil, fmt.Errorf("memstore: could not find key entry %s", pubKeyHash)
+	}
+	return ke, nil
+}
+
+// GetPublicKeyEntry in memory.
+func (ms *MemStore) GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, error) {
+	ke, ok := ms.publicKeyEntryMap[uidMsg.Identity()]
+	if !ok {
+		return nil, msg.ErrNoKeyInit
 	}
 	return ke, nil
 }

@@ -94,7 +94,7 @@ func decrypt(sender, recipient *uid.Message, r io.Reader, recipientTemp *uid.Key
 	if err := recipientTemp.SetPrivateKey(privateKey); err != nil {
 		return err
 	}
-	ms.AddKeyEntry(recipientTemp)
+	ms.AddPrivateKeyEntry(recipientTemp)
 	args := &msg.DecryptArgs{
 		Writer:              &res,
 		Identities:          identities,
