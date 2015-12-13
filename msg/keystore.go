@@ -11,10 +11,10 @@ import (
 // SessionState describes the current session state between communicating two
 // parties.
 type SessionState struct {
-	SenderSessionCount    uint64 // total number of messages sent in session
-	SenderMessageCount    uint64 // total number of messages sent with this
-	RecipientSessionCount uint64 // total number of messages received in ses
-	RecipientMessageCount uint64 // total number of messages received with t
+	SenderSessionCount    uint64 // total number of messages sent in sessions before this SenderSessionPub was used
+	SenderMessageCount    uint64 // total number of messages sent with this SenderSessionPub
+	RecipientSessionCount uint64 // total number of messages received in sessions before this SenderSessionPub was used
+	RecipientMessageCount uint64 // total number of messages received with this SenderSessionPub
 }
 
 // The KeyStore interface defines all methods for managing session keys.
