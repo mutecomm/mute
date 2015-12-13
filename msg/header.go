@@ -64,7 +64,8 @@ type headerPacket struct {
 
 func newHeader(
 	sender, recipient *uid.Message,
-	recipientTemp, senderSessionPub, nextSenderSessionPub,
+	recipientTempHash string,
+	senderSessionPub, nextSenderSessionPub,
 	nextRecipientSessionPubSeen *uid.KeyEntry,
 	senderLastKeychainHash string,
 	rand io.Reader,
@@ -76,7 +77,7 @@ func newHeader(
 	h := &header{
 		Ciphersuite:                 uid.DefaultCiphersuite, // at the moment we only support one ciphersuite
 		RecipientPubHash:            recipient.PubHash(),
-		RecipientTempHash:           recipientTemp.HASH,
+		RecipientTempHash:           recipientTempHash,
 		SenderIdentity:              sender.Identity(),
 		SenderSessionPub:            *senderSessionPub,
 		SenderIdentityPubHash:       sender.PubHash(),

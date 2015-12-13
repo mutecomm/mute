@@ -122,7 +122,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	// get session state
 	sender := args.From.Identity()
 	recipient := args.To.Identity()
-	var recipientTemp *uid.KeyEntry // RecipientKeyInitPub or RecipientSessionPub
+	var recipientTempHash string // RecipientKeyInitPub or RecipientSessionPub
 	ss, err := args.KeyStore.GetSessionState(sender, recipient)
 	if err != nil {
 		return "", err
@@ -130,10 +130,12 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	if ss == nil {
 		// no session found -> start first session
 		// get
+		var recipientTemp *uid.KeyEntry
 		recipientTemp, nymAddress, err = args.KeyStore.GetPublicKeyEntry(args.To)
 		if err != nil {
 			return "", err
 		}
+		recipientTempHash = recipientTemp.HASH
 		// root key agreement
 		ss, err = rootKeyAgreementSender(args.From, args.To, &senderSession,
 			recipientTemp, args.PreviousRootKeyHash, args.KeyStore)
@@ -143,7 +145,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	}
 
 	// create header
-	h, err := newHeader(args.From, args.To, recipientTemp, &senderSession,
+	h, err := newHeader(args.From, args.To, recipientTempHash, &senderSession,
 		args.NextSenderSessionPub, args.NextRecipientSessionPubSeen,
 		args.SenderLastKeychainHash, args.Rand)
 	if err != nil {
