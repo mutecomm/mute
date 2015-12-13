@@ -11,10 +11,8 @@ import (
 	"os"
 
 	"github.com/mutecomm/mute/cipher"
-	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg"
-	"github.com/mutecomm/mute/uid"
 	"github.com/mutecomm/mute/uid/identity"
 )
 
@@ -50,42 +48,23 @@ func (ce *CryptEngine) encrypt(
 		return log.Errorf("not UID for '%s' found", toID)
 	}
 	// encrypt message
-	// TODO
-	var (
-		nextSenderSessionPub        *uid.KeyEntry
-		nextRecipientSessionPubSeen *uid.KeyEntry
-	)
 	senderLastKeychainHash, err := ce.keyDB.GetLastHashChainEntry(fromDomain)
 	if err != nil {
 		return err
-	}
-	var previousRootKeyHash []byte
-	rootKeyHash, err := ce.keyDB.GetSession(fromID, toID)
-	if err != nil {
-		return err
-	}
-	if rootKeyHash != "" {
-		previousRootKeyHash, err = base64.Decode(rootKeyHash)
-		if err != nil {
-			return err
-		}
 	}
 	var privateSigKey *[64]byte
 	if sign {
 		privateSigKey = fromUID.PrivateSigKey64()
 	}
 	args := &msg.EncryptArgs{
-		Writer:                      w,
-		From:                        fromUID,
-		To:                          toUID,
-		NextSenderSessionPub:        nextSenderSessionPub,
-		NextRecipientSessionPubSeen: nextRecipientSessionPubSeen,
-		SenderLastKeychainHash:      senderLastKeychainHash,
-		PreviousRootKeyHash:         previousRootKeyHash,
-		PrivateSigKey:               privateSigKey,
-		Reader:                      r,
-		Rand:                        cipher.RandReader,
-		KeyStore:                    ce,
+		Writer: w,
+		From:   fromUID,
+		To:     toUID,
+		SenderLastKeychainHash: senderLastKeychainHash,
+		PrivateSigKey:          privateSigKey,
+		Reader:                 r,
+		Rand:                   cipher.RandReader,
+		KeyStore:               ce,
 	}
 	nymAddress, err := msg.Encrypt(args)
 	if err != nil {
