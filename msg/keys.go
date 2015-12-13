@@ -75,7 +75,7 @@ func generateMessageKeys(
 	recipientKeys bool,
 	senderSessionPub, recipientPub []byte,
 	keyStore KeyStore,
-) (*SessionState, error) {
+) error {
 	var (
 		identities string
 		send       []string
@@ -120,23 +120,8 @@ func generateMessageKeys(
 	err := keyStore.StoreSession(senderIdentity, recipientIdentity, rootKeyHash,
 		base64.Encode(chainKey), send, recv)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	// set session state
-	// TODO: what about updates?
-	ss := &SessionState{
-		SenderSessionCount:    0,
-		SenderMessageCount:    0,
-		RecipientSessionCount: 0,
-		RecipientMessageCount: 0,
-	}
-
-	// set session state
-	err = keyStore.SetSessionState(senderIdentity, recipientIdentity, ss)
-	if err != nil {
-		return nil, err
-	}
-
-	return ss, nil
+	return nil
 }

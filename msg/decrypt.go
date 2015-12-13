@@ -23,7 +23,7 @@ func rootKeyAgreementRecipient(
 	senderSession, senderID, recipientKI, recipientID *uid.KeyEntry,
 	previousRootKeyHash []byte,
 	keyStore KeyStore,
-) (*SessionState, error) {
+) error {
 	recipientIdentityPub := recipientID.PublicKey32()
 	recipientIdentityPriv := recipientID.PrivateKey32()
 
@@ -39,35 +39,34 @@ func rootKeyAgreementRecipient(
 	// compute t1
 	t1, err := cipher.ECDH(recipientKeyInitPriv, senderIdentityPub, recipientKeyInitPub)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// compute t2
 	t2, err := cipher.ECDH(recipientKeyInitPriv, senderSessionPub, recipientKeyInitPub)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// compute t3
 	t3, err := cipher.ECDH(recipientIdentityPriv, senderSessionPub, recipientIdentityPub)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// derive root key
 	rootKey, err := deriveRootKey(t1, t2, t3, previousRootKeyHash)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// generate message keys
-	ss, err := generateMessageKeys(senderIdentity, recipientIdentity,
+	err = generateMessageKeys(senderIdentity, recipientIdentity,
 		rootKey, true, senderSessionPub[:], recipientKeyInitPub[:], keyStore)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	return ss, err
+	return nil
 }
 
 // DecryptArgs contains all arguments for a message decryption.
@@ -138,9 +137,21 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 		if err != nil {
 			return "", "", err
 		}
-		ss, err = rootKeyAgreementRecipient(sender, recipient,
+		err = rootKeyAgreementRecipient(sender, recipient,
 			&h.SenderSessionPub, &h.SenderIdentityPub, recipientKI, recipientID,
 			args.PreviousRootKeyHash, args.KeyStore)
+		if err != nil {
+			return "", "", err
+		}
+		// set session state
+		ss = &SessionState{
+			SenderSessionCount:    0,
+			SenderMessageCount:    0,
+			RecipientSessionCount: 0,
+			RecipientMessageCount: 0,
+			RecipientTempHash:     h.SenderSessionPub.HASH,
+		}
+		err = args.KeyStore.SetSessionState(recipient, sender, ss)
 		if err != nil {
 			return "", "", err
 		}

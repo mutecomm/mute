@@ -102,19 +102,17 @@ func TestKeyStore(t *testing.T) {
 	}
 
 	// encrypt reply from Bob to Alice
-	/*
-		encMsg.Reset()
-		encryptArgs = &msg.EncryptArgs{
-			Writer: &encMsg,
-			From:   bobUID,
-			To:     aliceUID,
-			SenderLastKeychainHash: hashchain.TestEntry,
-			Reader:                 bytes.NewBufferString(msgs.Message1),
-			Rand:                   cipher.RandReader,
-			KeyStore:               bobKeyStore,
-		}
-		if _, err = msg.Encrypt(encryptArgs); err != nil {
-			t.Fatal(err)
-		}
-	*/
+	encMsg.Reset()
+	encryptArgs = &msg.EncryptArgs{
+		Writer: &encMsg,
+		From:   bobUID,
+		To:     aliceUID,
+		SenderLastKeychainHash: hashchain.TestEntry,
+		Reader:                 bytes.NewBufferString(msgs.Message2),
+		Rand:                   cipher.RandReader,
+		KeyStore:               bobKeyStore,
+	}
+	if _, err = msg.Encrypt(encryptArgs); err != nil {
+		t.Fatal(err)
+	}
 }

@@ -15,6 +15,7 @@ type SessionState struct {
 	SenderMessageCount    uint64 // total number of messages sent with this SenderSessionPub
 	RecipientSessionCount uint64 // total number of messages received in sessions before this SenderSessionPub was used
 	RecipientMessageCount uint64 // total number of messages received with this SenderSessionPub
+	RecipientTempHash     string // RecipientKeyInitPub or RecipientSessionPub
 }
 
 // The KeyStore interface defines all methods for managing session keys.

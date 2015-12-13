@@ -25,7 +25,7 @@ func rootKeyAgreementSender(
 	senderSession, recipientKI *uid.KeyEntry,
 	previousRootKeyHash []byte,
 	keyStore KeyStore,
-) (*SessionState, error) {
+) error {
 	senderIdentityPub := senderID.PublicEncKey32()
 	senderIdentityPriv := senderID.PrivateEncKey32()
 	senderSessionPub := senderSession.PublicKey32()
@@ -36,36 +36,35 @@ func rootKeyAgreementSender(
 	// compute t1
 	t1, err := cipher.ECDH(senderIdentityPriv, recipientKeyInitPub, senderIdentityPub)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// compute t2
 	t2, err := cipher.ECDH(senderSessionPriv, recipientKeyInitPub, senderSessionPub)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// compute t3
 	t3, err := cipher.ECDH(senderSessionPriv, recipientIdentityPub, senderSessionPub)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// derive root key
 	rootKey, err := deriveRootKey(t1, t2, t3, previousRootKeyHash)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// generate message keys
-	ss, err := generateMessageKeys(senderID.Identity(),
+	err = generateMessageKeys(senderID.Identity(),
 		recipientID.Identity(), rootKey, false, senderSessionPub[:],
 		recipientKeyInitPub[:], keyStore)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	return ss, nil
+	return nil
 }
 
 // EncryptArgs contains all arguments for a message encryption.
@@ -122,7 +121,6 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	// get session state
 	sender := args.From.Identity()
 	recipient := args.To.Identity()
-	var recipientTempHash string // RecipientKeyInitPub or RecipientSessionPub
 	ss, err := args.KeyStore.GetSessionState(sender, recipient)
 	if err != nil {
 		return "", err
@@ -135,17 +133,28 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 		if err != nil {
 			return "", err
 		}
-		recipientTempHash = recipientTemp.HASH
 		// root key agreement
-		ss, err = rootKeyAgreementSender(args.From, args.To, &senderSession,
+		err = rootKeyAgreementSender(args.From, args.To, &senderSession,
 			recipientTemp, args.PreviousRootKeyHash, args.KeyStore)
+		if err != nil {
+			return "", err
+		}
+		// set session state
+		ss = &SessionState{
+			SenderSessionCount:    0,
+			SenderMessageCount:    0,
+			RecipientSessionCount: 0,
+			RecipientMessageCount: 0,
+			RecipientTempHash:     recipientTemp.HASH,
+		}
+		err = args.KeyStore.SetSessionState(sender, recipient, ss)
 		if err != nil {
 			return "", err
 		}
 	}
 
 	// create header
-	h, err := newHeader(args.From, args.To, recipientTempHash, &senderSession,
+	h, err := newHeader(args.From, args.To, ss.RecipientTempHash, &senderSession,
 		args.NextSenderSessionPub, args.NextRecipientSessionPubSeen,
 		args.SenderLastKeychainHash, args.Rand)
 	if err != nil {
