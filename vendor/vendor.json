@@ -19,8 +19,8 @@
 		},
 		{
 			"path": "github.com/codegangsta/cli",
-			"revision": "0302d3914d2a6ad61404584cdae6e6dbc9c03599",
-			"revisionTime": "2015-11-20T13:56:42-08:00"
+			"revision": "b5232bb2934f606f9f27a1305f1eea224e8e8b88",
+			"revisionTime": "2015-12-12T19:52:18-05:00"
 		},
 		{
 			"path": "github.com/fatih/structs",
@@ -79,38 +79,38 @@
 		},
 		{
 			"path": "golang.org/x/crypto/curve25519",
-			"revision": "beef0f4390813b96e8e68fd78570396d0f4751fc",
-			"revisionTime": "2015-11-15T11:40:09-08:00"
+			"revision": "7b85b097bf7527677d54d3220065e966a0e3b613",
+			"revisionTime": "2015-11-30T17:07:01-05:00"
 		},
 		{
 			"path": "golang.org/x/crypto/hkdf",
-			"revision": "beef0f4390813b96e8e68fd78570396d0f4751fc",
-			"revisionTime": "2015-11-15T11:40:09-08:00"
+			"revision": "7b85b097bf7527677d54d3220065e966a0e3b613",
+			"revisionTime": "2015-11-30T17:07:01-05:00"
 		},
 		{
 			"path": "golang.org/x/crypto/nacl/box",
-			"revision": "beef0f4390813b96e8e68fd78570396d0f4751fc",
-			"revisionTime": "2015-11-15T11:40:09-08:00"
+			"revision": "7b85b097bf7527677d54d3220065e966a0e3b613",
+			"revisionTime": "2015-11-30T17:07:01-05:00"
 		},
 		{
 			"path": "golang.org/x/crypto/nacl/secretbox",
-			"revision": "beef0f4390813b96e8e68fd78570396d0f4751fc",
-			"revisionTime": "2015-11-15T11:40:09-08:00"
+			"revision": "7b85b097bf7527677d54d3220065e966a0e3b613",
+			"revisionTime": "2015-11-30T17:07:01-05:00"
 		},
 		{
 			"path": "golang.org/x/crypto/pbkdf2",
-			"revision": "beef0f4390813b96e8e68fd78570396d0f4751fc",
-			"revisionTime": "2015-11-15T11:40:09-08:00"
+			"revision": "7b85b097bf7527677d54d3220065e966a0e3b613",
+			"revisionTime": "2015-11-30T17:07:01-05:00"
 		},
 		{
 			"path": "golang.org/x/crypto/poly1305",
-			"revision": "beef0f4390813b96e8e68fd78570396d0f4751fc",
-			"revisionTime": "2015-11-15T11:40:09-08:00"
+			"revision": "7b85b097bf7527677d54d3220065e966a0e3b613",
+			"revisionTime": "2015-11-30T17:07:01-05:00"
 		},
 		{
 			"path": "golang.org/x/crypto/salsa20/salsa",
-			"revision": "beef0f4390813b96e8e68fd78570396d0f4751fc",
-			"revisionTime": "2015-11-15T11:40:09-08:00"
+			"revision": "7b85b097bf7527677d54d3220065e966a0e3b613",
+			"revisionTime": "2015-11-30T17:07:01-05:00"
 		}
 	]
 }
