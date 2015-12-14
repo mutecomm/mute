@@ -156,6 +156,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	// create header
 	h, err := newHeader(args.From, args.To, ss.RecipientTempHash, &senderSession,
 		args.NextSenderSessionPub, args.NextRecipientSessionPubSeen,
+		ss.SenderSessionCount, ss.SenderMessageCount,
 		args.SenderLastKeychainHash, args.Rand)
 	if err != nil {
 		return "", err

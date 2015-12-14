@@ -67,6 +67,7 @@ func newHeader(
 	recipientTempHash string,
 	senderSessionPub, nextSenderSessionPub,
 	nextRecipientSessionPubSeen *uid.KeyEntry,
+	senderSessionCount, senderMessageCount uint64,
 	senderLastKeychainHash string,
 	rand io.Reader,
 ) (*header, error) {
@@ -86,8 +87,8 @@ func newHeader(
 		NextRecipientSessionPubSeen: nextRecipientSessionPubSeen,
 		NymAddress:                  sender.UIDContent.NYMADDRESS, // TODO: set the correct nymaddress!
 		MaxDelay:                    0,                            // TODO
-		SenderSessionCount:          0,                            // TODO
-		SenderMessageCount:          0,                            // TODO
+		SenderSessionCount:          senderSessionCount,
+		SenderMessageCount:          senderMessageCount,
 		SenderUID:                   string(sender.JSON()),
 		SenderLastKeychainHash:      senderLastKeychainHash,
 		Status:                      statusOK, // TODO
