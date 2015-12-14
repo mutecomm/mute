@@ -164,6 +164,45 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 		if err != nil {
 			return "", "", err
 		}
+	} else {
+		// make sure the new session key of the other party is up-to-date.
+		if h.NextSenderSessionPub != nil &&
+			ss.NextRecipientSessionPubSeen != h.NextSenderSessionPub {
+			ss.NextRecipientSessionPubSeen = h.NextRecipientSessionPubSeen
+			err = args.KeyStore.SetSessionState(recipient, sender, ss)
+			if err != nil {
+				return "", "", err
+			}
+		}
+		// check if we have to refresh the session
+		if h.NextSenderSessionPub != nil &&
+			ss.NextSenderSessionPub == h.NextRecipientSessionPubSeen {
+			// sender has sent next session key and own next session key
+			// has been reflected -> refresh session
+			ss.RecipientTempHash = h.NextSenderSessionPub.HASH
+			ss.SenderSessionPub = *ss.NextSenderSessionPub
+			var nextSenderSession uid.KeyEntry
+			if err := nextSenderSession.InitDHKey(args.Rand); err != nil {
+				return "", "", err
+			}
+			ss.NextSenderSessionPub = &nextSenderSession
+			ss.SenderSessionCount = ss.SenderSessionCount + ss.SenderMessageCount
+			ss.SenderMessageCount = 0
+			ss.RecipientSessionCount = h.SenderSessionCount + h.SenderMessageCount
+			ss.RecipientMessageCount = 0
+			// root key agreement
+			err := rootKeyAgreementRecipient(sender, recipient,
+				h.NextSenderSessionPub, &h.SenderIdentityPub,
+				&ss.SenderSessionPub, recipientID, nil, args.KeyStore)
+			if err != nil {
+				return "", "", err
+			}
+			// store new session state
+			err = args.KeyStore.SetSessionState(recipient, sender, ss)
+			if err != nil {
+				return "", "", err
+			}
+		}
 	}
 
 	// get message key
