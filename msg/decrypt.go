@@ -122,6 +122,12 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 
 	log.Infof("h.SenderSessionCount: %d", h.SenderSessionCount)
 	log.Infof("h.SenderMessageCount: %d", h.SenderMessageCount)
+	log.Infof("h.SenderSessionPub:             %s", h.SenderSessionPub.HASH)
+	log.Infof("h.NextSenderSessionPub:         %s", h.NextSenderSessionPub.HASH)
+	if h.NextRecipientSessionPubSeen != nil {
+		log.Infof("h.NextRecipientSessionPubSeen:  %s",
+			h.NextRecipientSessionPubSeen.HASH)
+	}
 
 	// proc sender UID in parallel
 	res := make(chan *procUIDResult, 1)
@@ -169,18 +175,24 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			return "", "", err
 		}
 	} else {
+		log.Info("session found")
 		// make sure the new session key of the other party is up-to-date.
 		if h.NextSenderSessionPub != nil &&
 			ss.NextRecipientSessionPubSeen != h.NextSenderSessionPub {
-			ss.NextRecipientSessionPubSeen = h.NextRecipientSessionPubSeen
+			if ss.NextRecipientSessionPubSeen != nil {
+				log.Infof("ss.NextRecipientSessionPubSeen: %s",
+					ss.NextRecipientSessionPubSeen.HASH)
+			}
+			ss.NextRecipientSessionPubSeen = h.NextSenderSessionPub
 			err = args.KeyStore.SetSessionState(recipient, sender, ss)
+			log.Info("update session key")
 			if err != nil {
 				return "", "", err
 			}
 		}
 		// check if we have to refresh the session
 		if h.NextSenderSessionPub != nil &&
-			ss.NextSenderSessionPub == h.NextRecipientSessionPubSeen {
+			uid.KeyEntryEqual(ss.NextSenderSessionPub, h.NextRecipientSessionPubSeen) {
 			// sender has sent next session key and own next session key
 			// has been reflected -> refresh session
 			log.Info("refresh session")
@@ -207,6 +219,8 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			if err != nil {
 				return "", "", err
 			}
+		} else {
+			log.Info("refresh not possible")
 		}
 	}
 

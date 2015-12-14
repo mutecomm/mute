@@ -156,6 +156,8 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 		if err != nil {
 			return "", err
 		}
+	} else {
+		log.Info("session found")
 	}
 
 	// create header
@@ -167,6 +169,12 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 		ss.SenderMessageCount, args.SenderLastKeychainHash, args.Rand)
 	if err != nil {
 		return "", err
+	}
+	log.Infof("h.SenderSessionPub:             %s", h.SenderSessionPub.HASH)
+	log.Infof("h.NextSenderSessionPub:         %s", h.NextSenderSessionPub.HASH)
+	if h.NextRecipientSessionPubSeen != nil {
+		log.Infof("h.NextRecipientSessionPubSeen:  %s",
+			h.NextRecipientSessionPubSeen.HASH)
 	}
 
 	// create (encrypted) header packet
