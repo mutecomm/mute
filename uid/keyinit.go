@@ -319,7 +319,7 @@ func (ki *KeyInit) checkV1_0() error {
 func (ki *KeyInit) Check() error {
 	// we only support version 1.0 at this stage
 	if ki.Contents.VERSION != "1.0" {
-		return log.Errorf("uid: unknown Contents.VERSION: %s",
+		return log.Errorf("uid: unknown ki.Contents.VERSION: %s",
 			ki.Contents.VERSION)
 	}
 	// version 1.0 specific checks
