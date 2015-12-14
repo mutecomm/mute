@@ -152,7 +152,8 @@ func (ki *KeyInit) KeyEntryECDHE25519(sigPubKey string) (*KeyEntry, error) {
 	return ke, err
 }
 
-// Verify verifies that the KeyInit is valid.
+// Verify verifies that the KeyInit is valid and contains a valid ECDHE25519
+// key.
 func (ki *KeyInit) Verify(keyInitRepositoryURIs []string, sigPubKey string) error {
 	// The REPOURI points to this KeyInit Repository
 	if !util.ContainsString(keyInitRepositoryURIs, ki.Contents.REPOURI) {
@@ -161,7 +162,19 @@ func (ki *KeyInit) Verify(keyInitRepositoryURIs []string, sigPubKey string) erro
 	}
 
 	// verify that SESSIONANCHORHASH matches decrypted SESSIONANCHOR
-	if _, err := ki.SessionAnchor(sigPubKey); err != nil {
+	sa, err := ki.SessionAnchor(sigPubKey)
+	if err != nil {
+		return err
+	}
+
+	// get KeyEntry message from SessionAnchor
+	ke, err := sa.KeyEntry("ECDHE25519")
+	if err != nil {
+		return err
+	}
+
+	// verify KeyEntry message
+	if err := ke.Check(); err != nil {
 		return err
 	}
 
