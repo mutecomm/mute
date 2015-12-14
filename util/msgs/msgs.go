@@ -24,3 +24,12 @@ sophisticated and have more perspective to understand Shakespeare. What
 television was able to do was to capture people as they were. So I think the
 lack of a real computer science today, and the lack of real software
 engineering today, is partly due to this pop culture. — Alan Kay, 2004`
+
+// Message3 is a test message.
+const Message3 = `Metadata absolutely tells you everything about somebody’s
+life. If you have enough metadata, you don’t really need content.
+— Stewart Baker, former General Counsel of the NSA`
+
+// Message4 is a test message.
+const Message4 = `We kill people based on metadata.
+— Michael Hayden, former Director of the NSA`
