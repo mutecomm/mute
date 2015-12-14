@@ -37,23 +37,23 @@ const (
 )
 
 type header struct {
-	Ciphersuite                 string
-	RecipientPubHash            string
-	RecipientTempHash           string
-	SenderSessionPub            uid.KeyEntry
-	SenderIdentity              string // identity of sender
-	SenderIdentityPubHash       string
-	SenderIdentityPub           uid.KeyEntry
+	Ciphersuite                 string        // ciphersuite to use (header encryption is always NaCL)
+	RecipientPubHash            string        // SHA512(RecipientIdentityPub)
+	RecipientTempHash           string        // SHA512(RecipientKeyInitPub) || SHA512(RecipientSessionPub)
+	SenderIdentity              string        // identity of sender
+	SenderSessionPub            uid.KeyEntry  // public key of sender session
+	SenderIdentityPubHash       string        // SHA512(SenderIdentityPub)
+	SenderIdentityPub           uid.KeyEntry  // duplicate from SenderUID for easy parsing
 	NextSenderSessionPub        *uid.KeyEntry // optional
 	NextRecipientSessionPubSeen *uid.KeyEntry // only if seen
-	NymAddress                  string
-	MaxDelay                    uint64
-	SenderSessionCount          uint64 // total number of messages sent in sessions before this SenderSessionPub was used
-	SenderMessageCount          uint64 // total number of messages sent with this SenderSessionPub
-	SenderUID                   string // complete UID message in JSON
-	SenderLastKeychainHash      string // last entry known to sender from keyserver hashchain
-	Status                      uint8  // always a single digit in JSON!
-	Padding                     string
+	NymAddress                  string        // address to receive future messages at
+	MaxDelay                    uint64        // TODO
+	SenderSessionCount          uint64        // total number of messages sent in sessions before this SenderSessionPub was used
+	SenderMessageCount          uint64        // total number of messages sent with this SenderSessionPub
+	SenderUID                   string        // complete UID message in JSON
+	SenderLastKeychainHash      string        // last entry known to sender from keyserver hashchain
+	Status                      uint8         // always a single digit in JSON!
+	Padding                     string        // header padding
 }
 
 type headerPacket struct {
