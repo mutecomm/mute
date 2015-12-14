@@ -40,7 +40,7 @@ import (
 //
 const ProtocolVersion = "1.0"
 
-// PFSPreference representes a PFS preference.
+// PFSPreference representes a perfect forward secrecy (PFS) preference.
 type PFSPreference int
 
 const (
