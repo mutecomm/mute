@@ -115,4 +115,43 @@ func TestKeyStore(t *testing.T) {
 	if _, err = msg.Encrypt(encryptArgs); err != nil {
 		t.Fatal(err)
 	}
+	// make sure sender key has been deleted
+	_, err = bobKeyStore.GetMessageKey(bob, alice, true, 0)
+	if err != msg.ErrMessageKeyUsed {
+		t.Error("should fail with msg.ErrMessageKeyUsed")
+	}
+
+	// decrypt reply from Bob to Alice
+	res.Reset()
+	identities = []string{aliceUID.Identity()}
+	recipientIdentities = []*uid.KeyEntry{aliceUID.PubKey()}
+	input = base64.NewDecoder(&encMsg)
+	version, preHeader, err = msg.ReadFirstOuterHeader(input)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if version != msg.Version {
+		t.Fatal("wrong version")
+	}
+	decryptArgs = &msg.DecryptArgs{
+		Writer:              &res,
+		Identities:          identities,
+		RecipientIdentities: recipientIdentities,
+		PreviousRootKeyHash: nil,
+		PreHeader:           preHeader,
+		Reader:              input,
+		KeyStore:            aliceKeyStore,
+	}
+	_, _, err = msg.Decrypt(decryptArgs)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.String() != msgs.Message2 {
+		t.Fatal("messages differ")
+	}
+	// make recipient key has been deleted
+	_, err = aliceKeyStore.GetMessageKey(alice, bob, false, 0)
+	if err != msg.ErrMessageKeyUsed {
+		t.Error("should fail with msg.ErrMessageKeyUsed")
+	}
 }
