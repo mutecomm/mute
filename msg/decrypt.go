@@ -120,6 +120,9 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	}
 	senderID = h.SenderIdentity
 
+	log.Infof("h.SenderSessionCount: %d", h.SenderSessionCount)
+	log.Infof("h.SenderMessageCount: %d", h.SenderMessageCount)
+
 	// proc sender UID in parallel
 	res := make(chan *procUIDResult, 1)
 	go procUID(h.SenderUID, res)
@@ -133,6 +136,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	}
 	if ss == nil {
 		// no session found -> start first session
+		log.Info("no session found -> start first session")
 		// root key agreement
 		recipientKI, err := args.KeyStore.GetPrivateKeyEntry(h.RecipientTempHash)
 		if err != nil {
@@ -179,6 +183,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			ss.NextSenderSessionPub == h.NextRecipientSessionPubSeen {
 			// sender has sent next session key and own next session key
 			// has been reflected -> refresh session
+			log.Info("refresh session")
 			ss.RecipientTempHash = h.NextSenderSessionPub.HASH
 			ss.SenderSessionPub = *ss.NextSenderSessionPub
 			var nextSenderSession uid.KeyEntry

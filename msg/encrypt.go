@@ -119,7 +119,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	}
 	if ss == nil {
 		// no session found -> start first session
-		// get
+		log.Info("no session found -> start first session")
 		var recipientTemp *uid.KeyEntry
 		recipientTemp, nymAddress, err = args.KeyStore.GetPublicKeyEntry(args.To)
 		if err != nil {
@@ -159,6 +159,8 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	}
 
 	// create header
+	log.Infof("ss.SenderSessionCount: %d", ss.SenderSessionCount)
+	log.Infof("ss.SenderMessageCount: %d", ss.SenderMessageCount)
 	h, err := newHeader(args.From, args.To, ss.RecipientTempHash,
 		&ss.SenderSessionPub, ss.NextSenderSessionPub,
 		ss.NextRecipientSessionPubSeen, ss.SenderSessionCount,

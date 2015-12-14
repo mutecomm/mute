@@ -11,6 +11,7 @@ import (
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/keyserver/hashchain"
+	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg"
 	"github.com/mutecomm/mute/msg/memstore"
 	"github.com/mutecomm/mute/uid"
@@ -42,6 +43,7 @@ func TestKeyStore(t *testing.T) {
 		t.Fatal(err)
 	}
 	// encrypt first message from Alice to Bob
+	log.Info("encrypt first message from Alice to Bob")
 	var encMsg bytes.Buffer
 	aliceKeyStore := memstore.New()
 	aliceKeyStore.AddPublicKeyEntry(bob, bobKE)
@@ -63,6 +65,7 @@ func TestKeyStore(t *testing.T) {
 		t.Error("should fail with msg.ErrMessageKeyUsed")
 	}
 	// decrypt first message from Alice to Bob
+	log.Info("decrypt first message from Alice to Bob")
 	var res bytes.Buffer
 	bobIdentities := []string{bobUID.Identity()}
 	bobRecipientIdentities := []*uid.KeyEntry{bobUID.PubKey()}
@@ -103,6 +106,7 @@ func TestKeyStore(t *testing.T) {
 	}
 
 	// encrypt first reply from Bob to Alice
+	log.Info("encrypt first reply from Bob to Alice")
 	encMsg.Reset()
 	encryptArgs = &msg.EncryptArgs{
 		Writer: &encMsg,
@@ -123,6 +127,7 @@ func TestKeyStore(t *testing.T) {
 	}
 
 	// decrypt first reply from Bob to Alice
+	log.Info("decrypt first reply from Bob to Alice")
 	res.Reset()
 	aliceIdentities := []string{aliceUID.Identity()}
 	aliceRecipientIdentities := []*uid.KeyEntry{aliceUID.PubKey()}
@@ -158,6 +163,7 @@ func TestKeyStore(t *testing.T) {
 	}
 
 	// encrypt second message from Alice to Bob
+	log.Info("encrypt second message from Alice to Bob")
 	encMsg.Reset()
 	encryptArgs = &msg.EncryptArgs{
 		Writer: &encMsg,
@@ -178,6 +184,7 @@ func TestKeyStore(t *testing.T) {
 	}
 
 	// decrypt second message from Alice to Bob
+	log.Info("decrypt second message from Alice to Bob")
 	res.Reset()
 	input = base64.NewDecoder(&encMsg)
 	version, preHeader, err = msg.ReadFirstOuterHeader(input)
@@ -211,6 +218,7 @@ func TestKeyStore(t *testing.T) {
 	}
 
 	// encrypt second reply from Bob to Alice
+	log.Info("encrypt second reply from Bob to Alice")
 	encMsg.Reset()
 	encryptArgs = &msg.EncryptArgs{
 		Writer: &encMsg,
@@ -231,6 +239,7 @@ func TestKeyStore(t *testing.T) {
 	}
 
 	// decrypt second reply from Bob to Alice
+	log.Info("decrypt second reply from Bob to Alice")
 	res.Reset()
 	input = base64.NewDecoder(&encMsg)
 	version, preHeader, err = msg.ReadFirstOuterHeader(input)
@@ -262,4 +271,6 @@ func TestKeyStore(t *testing.T) {
 	if err != msg.ErrMessageKeyUsed {
 		t.Error("should fail with msg.ErrMessageKeyUsed")
 	}
+
+	log.Flush()
 }

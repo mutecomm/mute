@@ -14,6 +14,7 @@ import (
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/keyserver/hashchain"
+	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg"
 	"github.com/mutecomm/mute/msg/memstore"
 	"github.com/mutecomm/mute/uid"
@@ -21,6 +22,12 @@ import (
 	"github.com/mutecomm/mute/util/msgs"
 	"github.com/mutecomm/mute/util/times"
 )
+
+func init() {
+	if err := log.Init("info", "msg  ", "", true); err != nil {
+		panic(err)
+	}
+}
 
 func encrypt(sign bool, flipUIDs bool) (
 	sender, recipient *uid.Message,
