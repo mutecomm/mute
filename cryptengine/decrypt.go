@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg"
@@ -68,6 +69,7 @@ func (ce *CryptEngine) decrypt(w io.Writer, r io.Reader, statusfp *os.File) erro
 		PreviousRootKeyHash: previousRootKeyHash,
 		PreHeader:           preHeader,
 		Reader:              r,
+		Rand:                cipher.RandReader,
 		KeyStore:            ce,
 	}
 	senderID, sig, err = msg.Decrypt(args)

@@ -86,6 +86,7 @@ func TestKeyStore(t *testing.T) {
 		PreviousRootKeyHash: nil,
 		PreHeader:           preHeader,
 		Reader:              input,
+		Rand:                cipher.RandReader,
 		KeyStore:            bobKeyStore,
 	}
 	_, _, err = msg.Decrypt(decryptArgs)
@@ -140,6 +141,7 @@ func TestKeyStore(t *testing.T) {
 		PreviousRootKeyHash: nil,
 		PreHeader:           preHeader,
 		Reader:              input,
+		Rand:                cipher.RandReader,
 		KeyStore:            aliceKeyStore,
 	}
 	_, _, err = msg.Decrypt(decryptArgs)
@@ -192,6 +194,7 @@ func TestKeyStore(t *testing.T) {
 		PreviousRootKeyHash: nil,
 		PreHeader:           preHeader,
 		Reader:              input,
+		Rand:                cipher.RandReader,
 		KeyStore:            bobKeyStore,
 	}
 	_, _, err = msg.Decrypt(decryptArgs)
@@ -244,6 +247,7 @@ func TestKeyStore(t *testing.T) {
 		PreviousRootKeyHash: nil,
 		PreHeader:           preHeader,
 		Reader:              input,
+		Rand:                cipher.RandReader,
 		KeyStore:            aliceKeyStore,
 	}
 	_, _, err = msg.Decrypt(decryptArgs)

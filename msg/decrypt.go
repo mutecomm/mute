@@ -77,6 +77,7 @@ type DecryptArgs struct {
 	PreviousRootKeyHash []byte          // for root key agreement
 	PreHeader           []byte          // preHeader read with ReadFirstOuterHeader()
 	Reader              io.Reader       // data to decrypt is read here (not base64 encoded)
+	Rand                io.Reader       // random source
 	KeyStore            KeyStore        // for managing session keys
 }
 
@@ -143,13 +144,21 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 		if err != nil {
 			return "", "", err
 		}
+		// create next session key
+		var nextSenderSession uid.KeyEntry
+		if err := nextSenderSession.InitDHKey(args.Rand); err != nil {
+			return "", "", err
+		}
 		// set session state
 		ss = &SessionState{
-			SenderSessionCount:    0,
-			SenderMessageCount:    0,
-			RecipientSessionCount: 0,
-			RecipientMessageCount: 0,
-			RecipientTempHash:     h.SenderSessionPub.HASH,
+			SenderSessionCount:          0,
+			SenderMessageCount:          0,
+			RecipientSessionCount:       0,
+			RecipientMessageCount:       0,
+			RecipientTempHash:           h.SenderSessionPub.HASH,
+			SenderSessionPub:            *recipientKI,
+			NextSenderSessionPub:        &nextSenderSession,
+			NextRecipientSessionPubSeen: h.NextSenderSessionPub,
 		}
 		err = args.KeyStore.SetSessionState(recipient, sender, ss)
 		if err != nil {

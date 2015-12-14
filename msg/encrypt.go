@@ -69,17 +69,15 @@ func rootKeyAgreementSender(
 
 // EncryptArgs contains all arguments for a message encryption.
 type EncryptArgs struct {
-	Writer                      io.Writer     // encrypted messagte is written here (base64 encoded)
-	From                        *uid.Message  // sender UID
-	To                          *uid.Message  // recipient UID
-	NextSenderSessionPub        *uid.KeyEntry // new SenderSessionPub to refresh the session
-	NextRecipientSessionPubSeen *uid.KeyEntry // currently known NextSenderSessionPub of the other party
-	SenderLastKeychainHash      string        // last hash chain entry known to the sender
-	PreviousRootKeyHash         []byte        // has to contain the previous root key hash, if it exists
-	PrivateSigKey               *[64]byte     // if this is s not nil the message is signed with the key
-	Reader                      io.Reader     // data to encrypt is read here
-	Rand                        io.Reader     // random source
-	KeyStore                    KeyStore      // for managing session keys
+	Writer                 io.Writer    // encrypted messagte is written here (base64 encoded)
+	From                   *uid.Message // sender UID
+	To                     *uid.Message // recipient UID
+	SenderLastKeychainHash string       // last hash chain entry known to the sender
+	PreviousRootKeyHash    []byte       // has to contain the previous root key hash, if it exists
+	PrivateSigKey          *[64]byte    // if this is s not nil the message is signed with the key
+	Reader                 io.Reader    // data to encrypt is read here
+	Rand                   io.Reader    // random source
+	KeyStore               KeyStore     // for managing session keys
 }
 
 // Encrypt encrypts a message with the argument given in args and returns the
@@ -112,12 +110,6 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	}
 	count++
 
-	// create temp key
-	var senderSession uid.KeyEntry
-	if err := senderSession.InitDHKey(args.Rand); err != nil {
-		return "", err
-	}
-
 	// get session state
 	sender := args.From.Identity()
 	recipient := args.To.Identity()
@@ -133,19 +125,32 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 		if err != nil {
 			return "", err
 		}
+		// create session key
+		var senderSession uid.KeyEntry
+		if err := senderSession.InitDHKey(args.Rand); err != nil {
+			return "", err
+		}
 		// root key agreement
 		err = rootKeyAgreementSender(args.From, args.To, &senderSession,
 			recipientTemp, args.PreviousRootKeyHash, args.KeyStore)
 		if err != nil {
 			return "", err
 		}
+		// create next session key
+		var nextSenderSession uid.KeyEntry
+		if err := nextSenderSession.InitDHKey(args.Rand); err != nil {
+			return "", err
+		}
 		// set session state
 		ss = &SessionState{
-			SenderSessionCount:    0,
-			SenderMessageCount:    0,
-			RecipientSessionCount: 0,
-			RecipientMessageCount: 0,
-			RecipientTempHash:     recipientTemp.HASH,
+			SenderSessionCount:          0,
+			SenderMessageCount:          0,
+			RecipientSessionCount:       0,
+			RecipientMessageCount:       0,
+			RecipientTempHash:           recipientTemp.HASH,
+			SenderSessionPub:            senderSession,
+			NextSenderSessionPub:        &nextSenderSession,
+			NextRecipientSessionPubSeen: nil,
 		}
 		err = args.KeyStore.SetSessionState(sender, recipient, ss)
 		if err != nil {
@@ -154,10 +159,10 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	}
 
 	// create header
-	h, err := newHeader(args.From, args.To, ss.RecipientTempHash, &senderSession,
-		args.NextSenderSessionPub, args.NextRecipientSessionPubSeen,
-		ss.SenderSessionCount, ss.SenderMessageCount,
-		args.SenderLastKeychainHash, args.Rand)
+	h, err := newHeader(args.From, args.To, ss.RecipientTempHash,
+		&ss.SenderSessionPub, ss.NextSenderSessionPub,
+		ss.NextRecipientSessionPubSeen, ss.SenderSessionCount,
+		ss.SenderMessageCount, args.SenderLastKeychainHash, args.Rand)
 	if err != nil {
 		return "", err
 	}
