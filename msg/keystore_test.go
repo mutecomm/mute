@@ -41,7 +41,7 @@ func TestKeyStore(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// encrypt message from Alice to Bob
+	// encrypt first message from Alice to Bob
 	var encMsg bytes.Buffer
 	aliceKeyStore := memstore.New()
 	aliceKeyStore.AddPublicKeyEntry(bob, bobKE)
@@ -62,10 +62,10 @@ func TestKeyStore(t *testing.T) {
 	if err != msg.ErrMessageKeyUsed {
 		t.Error("should fail with msg.ErrMessageKeyUsed")
 	}
-	// decrypt message from Alice to Bob
+	// decrypt first message from Alice to Bob
 	var res bytes.Buffer
-	identities := []string{bobUID.Identity()}
-	recipientIdentities := []*uid.KeyEntry{bobUID.PubKey()}
+	bobIdentities := []string{bobUID.Identity()}
+	bobRecipientIdentities := []*uid.KeyEntry{bobUID.PubKey()}
 	input := base64.NewDecoder(&encMsg)
 	version, preHeader, err := msg.ReadFirstOuterHeader(input)
 	if err != nil {
@@ -81,8 +81,8 @@ func TestKeyStore(t *testing.T) {
 	bobKeyStore.AddPrivateKeyEntry(bobKE)
 	decryptArgs := &msg.DecryptArgs{
 		Writer:              &res,
-		Identities:          identities,
-		RecipientIdentities: recipientIdentities,
+		Identities:          bobIdentities,
+		RecipientIdentities: bobRecipientIdentities,
 		PreviousRootKeyHash: nil,
 		PreHeader:           preHeader,
 		Reader:              input,
@@ -101,7 +101,7 @@ func TestKeyStore(t *testing.T) {
 		t.Error("should fail with msg.ErrMessageKeyUsed")
 	}
 
-	// encrypt reply from Bob to Alice
+	// encrypt first reply from Bob to Alice
 	encMsg.Reset()
 	encryptArgs = &msg.EncryptArgs{
 		Writer: &encMsg,
@@ -121,10 +121,10 @@ func TestKeyStore(t *testing.T) {
 		t.Error("should fail with msg.ErrMessageKeyUsed")
 	}
 
-	// decrypt reply from Bob to Alice
+	// decrypt first reply from Bob to Alice
 	res.Reset()
-	identities = []string{aliceUID.Identity()}
-	recipientIdentities = []*uid.KeyEntry{aliceUID.PubKey()}
+	aliceIdentities := []string{aliceUID.Identity()}
+	aliceRecipientIdentities := []*uid.KeyEntry{aliceUID.PubKey()}
 	input = base64.NewDecoder(&encMsg)
 	version, preHeader, err = msg.ReadFirstOuterHeader(input)
 	if err != nil {
@@ -135,8 +135,8 @@ func TestKeyStore(t *testing.T) {
 	}
 	decryptArgs = &msg.DecryptArgs{
 		Writer:              &res,
-		Identities:          identities,
-		RecipientIdentities: recipientIdentities,
+		Identities:          aliceIdentities,
+		RecipientIdentities: aliceRecipientIdentities,
 		PreviousRootKeyHash: nil,
 		PreHeader:           preHeader,
 		Reader:              input,
