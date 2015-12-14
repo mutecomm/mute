@@ -35,6 +35,27 @@ type KeyEntry struct {
 	privateKeySet bool
 }
 
+// KeyEntryEqual returns a boolean reporting whether a and b have the same
+// exported fields.
+func KeyEntryEqual(a, b *KeyEntry) bool {
+	if a == b {
+		return true
+	}
+	if a.CIPHERSUITE != b.CIPHERSUITE {
+		return false
+	}
+	if a.FUNCTION != b.FUNCTION {
+		return false
+	}
+	if a.HASH != b.HASH {
+		return false
+	}
+	if a.PUBKEY != b.PUBKEY {
+		return false
+	}
+	return true
+}
+
 // Verify that the content of KeyEntry is consistent and parseable.
 func (ke *KeyEntry) Verify() error {
 	// check CIPHERSUITE

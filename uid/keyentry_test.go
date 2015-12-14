@@ -42,6 +42,20 @@ func TestKeyEntry(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// equal
+	if !KeyEntryEqual(ke, ke) {
+		t.Error("ke should be equal to itself")
+	}
+	a := ke
+	var b KeyEntry
+	b.CIPHERSUITE = a.CIPHERSUITE
+	b.FUNCTION = a.FUNCTION
+	b.HASH = a.HASH
+	b.PUBKEY = a.PUBKEY
+	if !KeyEntryEqual(a, &b) {
+		t.Error("a and b should be equal to itself")
+	}
+
 	// private key check
 	if err := ke.SetPrivateKey(privateKey); err != nil {
 		t.Fatal(err)
