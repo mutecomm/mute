@@ -50,7 +50,7 @@ func (ms *MemStore) AddPublicKeyEntry(identity string, ke *uid.KeyEntry) {
 	ms.publicKeyEntryMap[identity] = ke
 }
 
-// GetSessionState in memory.
+// GetSessionState implemented in memory.
 func (ms *MemStore) GetSessionState(myID, contactID string) (
 	*msg.SessionState,
 	error,
@@ -58,7 +58,7 @@ func (ms *MemStore) GetSessionState(myID, contactID string) (
 	return ms.sessionStates[myID+"@"+contactID], nil
 }
 
-// SetSessionState in memory.
+// SetSessionState implemented in memory.
 func (ms *MemStore) SetSessionState(
 	myID, contactID string,
 	sessionState *msg.SessionState,
@@ -67,7 +67,7 @@ func (ms *MemStore) SetSessionState(
 	return nil
 }
 
-// StoreSession in memory.
+// StoreSession implemented in memory.
 func (ms *MemStore) StoreSession(
 	myID, contactID, rootKeyHash, chainKey string,
 	send, recv []string,
@@ -90,7 +90,7 @@ func (ms *MemStore) StoreSession(
 	return nil
 }
 
-// GetPrivateKeyEntry in memory.
+// GetPrivateKeyEntry implemented in memory.
 func (ms *MemStore) GetPrivateKeyEntry(pubKeyHash string) (*uid.KeyEntry, error) {
 	ke, ok := ms.privateKeyEntryMap[pubKeyHash]
 	if !ok {
@@ -99,7 +99,7 @@ func (ms *MemStore) GetPrivateKeyEntry(pubKeyHash string) (*uid.KeyEntry, error)
 	return ke, nil
 }
 
-// GetPublicKeyEntry in memory.
+// GetPublicKeyEntry implemented in memory.
 func (ms *MemStore) GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, string, error) {
 	ke, ok := ms.publicKeyEntryMap[uidMsg.Identity()]
 	if !ok {
@@ -108,7 +108,7 @@ func (ms *MemStore) GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, strin
 	return ke, "undefined", nil
 }
 
-// GetMessageKey in memory.
+// GetMessageKey implemented in memory.
 func (ms *MemStore) GetMessageKey(
 	myID, contactID string,
 	sender bool,
@@ -146,7 +146,7 @@ func (ms *MemStore) GetMessageKey(
 	return &messageKey, nil
 }
 
-// DelMessageKey in memory.
+// DelMessageKey implemented in memory.
 func (ms *MemStore) DelMessageKey(
 	myID, contactID string,
 	sender bool,
