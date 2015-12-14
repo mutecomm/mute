@@ -37,8 +37,8 @@ func TestKeyEntry(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// check consistency
-	if err := ke.Check(); err != nil {
+	// verify consistency
+	if err := ke.Verify(); err != nil {
 		t.Fatal(err)
 	}
 
