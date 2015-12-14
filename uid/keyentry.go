@@ -5,6 +5,7 @@
 package uid
 
 import (
+	"crypto/sha512"
 	"io"
 
 	"github.com/mutecomm/mute/cipher"
@@ -32,6 +33,35 @@ type KeyEntry struct {
 	ed25519Key    *cipher.Ed25519Key
 	publicKeySet  bool
 	privateKeySet bool
+}
+
+// Check that the content of KeyEntry is consistent and parseable.
+func (ke *KeyEntry) Check() error {
+	// check CIPHERSUITE
+	if ke.CIPHERSUITE != DefaultCiphersuite {
+		return log.Errorf("uid: unknown ke.CIPHERSUITE: %s", ke.CIPHERSUITE)
+	}
+	// check FUNCTION
+	if ke.FUNCTION != "ED25510" && ke.FUNCTION != "ECDHE25519" {
+		return log.Errorf("uid: unknown ke.FUNCTION: %s", ke.FUNCTION)
+	}
+	// check HASH
+	h, err := base64.Decode(ke.HASH)
+	if err != nil {
+		return log.Errorf("uid: ke.HASH is not parseable: %s", err)
+	}
+	if len(h) != sha512.Size {
+		return log.Errorf("uid: parsed ke.HASH has wrong length: %d", len(h))
+	}
+	// check PUBKEY
+	pk, err := base64.Decode(ke.PUBKEY)
+	if err != nil {
+		return log.Errorf("uid: ke.PUBKEY is not parseable: %s", err)
+	}
+	if len(pk) != 32 {
+		return log.Errorf("uid: ke.PUBKEY has wrong length: %d", len(pk))
+	}
+	return nil
 }
 
 // InitDHKey initializes the KeyEntry with a key for ECDHE25519.

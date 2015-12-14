@@ -37,6 +37,11 @@ func TestKeyEntry(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// check consistency
+	if err := ke.Check(); err != nil {
+		t.Fatal(err)
+	}
+
 	// private key check
 	if err := ke.SetPrivateKey(privateKey); err != nil {
 		t.Fatal(err)
