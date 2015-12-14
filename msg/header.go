@@ -213,17 +213,17 @@ func readHeader(
 	if err := json.Unmarshal(jsn, &h); err != nil {
 		return 0, nil, nil, err
 	}
-	// check header
-	if err := h.check(); err != nil {
+	// verify header
+	if err := h.verify(); err != nil {
 		return 0, nil, nil, err
 	}
 	return i, recipientID, &h, nil
 }
 
-// check KeyEntry messages in header.
-func (h *header) check() error {
+// Verify KeyEntry messages in header.
+func (h *header) verify() error {
 	// check h.SenderSessionPub
-	if err := h.SenderSessionPub.Check(); err != nil {
+	if err := h.SenderSessionPub.Verify(); err != nil {
 		return err
 	}
 	if h.SenderSessionPub.FUNCTION != "ECDHE25519" {
@@ -231,7 +231,7 @@ func (h *header) check() error {
 			h.SenderSessionPub.FUNCTION)
 	}
 	// check h.SenderIdentityPub
-	if err := h.SenderIdentityPub.Check(); err != nil {
+	if err := h.SenderIdentityPub.Verify(); err != nil {
 		return err
 	}
 	if h.SenderIdentityPub.FUNCTION != "ECDHE25519" {
@@ -240,7 +240,7 @@ func (h *header) check() error {
 	}
 	// check h.NextSenderSessionPub
 	if h.NextSenderSessionPub != nil {
-		if err := h.NextSenderSessionPub.Check(); err != nil {
+		if err := h.NextSenderSessionPub.Verify(); err != nil {
 			return err
 		}
 		if h.NextSenderSessionPub.FUNCTION != "ECDHE25519" {
@@ -250,7 +250,7 @@ func (h *header) check() error {
 	}
 	// check h.NextRecipientSessionPubSeen
 	if h.NextRecipientSessionPubSeen != nil {
-		if err := h.NextRecipientSessionPubSeen.Check(); err != nil {
+		if err := h.NextRecipientSessionPubSeen.Verify(); err != nil {
 			return err
 		}
 		if h.NextRecipientSessionPubSeen.FUNCTION != "ECDHE25519" {

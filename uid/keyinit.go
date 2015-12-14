@@ -174,7 +174,7 @@ func (ki *KeyInit) Verify(keyInitRepositoryURIs []string, sigPubKey string) erro
 	}
 
 	// verify KeyEntry message
-	if err := ke.Check(); err != nil {
+	if err := ke.Verify(); err != nil {
 		return err
 	}
 

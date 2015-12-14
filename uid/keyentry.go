@@ -35,8 +35,8 @@ type KeyEntry struct {
 	privateKeySet bool
 }
 
-// Check that the content of KeyEntry is consistent and parseable.
-func (ke *KeyEntry) Check() error {
+// Verify that the content of KeyEntry is consistent and parseable.
+func (ke *KeyEntry) Verify() error {
 	// check CIPHERSUITE
 	if ke.CIPHERSUITE != DefaultCiphersuite {
 		return log.Errorf("uid: unknown ke.CIPHERSUITE: %s", ke.CIPHERSUITE)
