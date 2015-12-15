@@ -30,7 +30,7 @@ func rootKeyAgreementRecipient(
 	recipientKeyInitPub := recipientKI.PublicKey32()
 	recipientKeyInitPriv := recipientKI.PrivateKey32()
 
-	// TODO: can sender cause panic here?
+	// sender cannot cause panic here, because keys have been validated in header
 	senderSessionPub := senderSession.PublicKey32()
 	senderIdentityPub := senderID.PublicKey32()
 
