@@ -107,6 +107,14 @@ func (ms *MemStore) StoreSession(
 	return nil
 }
 
+// HasSession implemented in memory.
+func (ms *MemStore) HasSession(
+	myID, contactID, senderSessionPubHash string,
+) bool {
+	_, ok := ms.sessions[myID+"@"+contactID+"@"+senderSessionPubHash]
+	return ok
+}
+
 // GetPrivateKeyEntry implemented in memory.
 func (ms *MemStore) GetPrivateKeyEntry(pubKeyHash string) (*uid.KeyEntry, error) {
 	ke, ok := ms.privateKeyEntryMap[pubKeyHash]

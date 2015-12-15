@@ -38,6 +38,13 @@ func (ce *CryptEngine) StoreSession(
 	return ce.keyDB.AddSession(myID, contactID, rootKeyHash, chainKey, send, recv)
 }
 
+// HasSession implements corresponding method for msg.KeyStore interface.
+func (ce *CryptEngine) HasSession(
+	myID, contactID, senderSessionPubHash string,
+) bool {
+	panic(util.ErrNotImplemented)
+}
+
 // GetPrivateKeyEntry implements corresponding method for msg.KeyStore interface.
 func (ce *CryptEngine) GetPrivateKeyEntry(pubKeyHash string) (*uid.KeyEntry, error) {
 	log.Debugf("ce.FindKeyEntry: pubKeyHash=%s", pubKeyHash)

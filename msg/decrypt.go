@@ -200,8 +200,8 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			}
 		}
 		// check if the session was refreshed (on the other side)
-		if h.RecipientTempHash != ss.SenderSessionPub.HASH {
-			// TODO: make sure session is not known!
+		if h.RecipientTempHash != ss.SenderSessionPub.HASH &&
+			!args.KeyStore.HasSession(recipient, sender, h.RecipientTempHash) { // make sure session is unknown
 			log.Info("session was refreshed (on the other side)")
 			// TODO: compare ss.NextSenderSessionPub with header to make sure
 			// we have the correct key

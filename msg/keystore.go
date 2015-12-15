@@ -42,6 +42,9 @@ type KeyStore interface {
 	// future keys.
 	StoreSession(myID, contactID, senderSessionPubHash, rootKeyHash,
 		chainKey string, send, recv []string) error
+	// HasSession returns a boolean reporting whether a session between myID
+	// and contactID with senderSessionPubHash exists.
+	HasSession(myID, contactID, senderSessionPubHash string) bool
 	// GetPublicKeyInit returns the private KeyEntry contained in the KeyInit
 	// message with the given pubKeyHash.
 	GetPrivateKeyEntry(pubKeyHash string) (*uid.KeyEntry, error)

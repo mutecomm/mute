@@ -82,6 +82,9 @@ func TestSessionStore(t *testing.T) {
 		t.Fatal(err)
 	}
 	rootKeyHash := cipher.SHA512([]byte("rootkey"))
+	if ms.HasSession("alice@mute.berlin", "bob@mute.berlin", "hash") {
+		t.Error("HasSession() should fail")
+	}
 	err = ms.StoreSession("alice@mute.berlin", "bob@mute.berlin", "hash",
 		base64.Encode(rootKeyHash),
 		base64.Encode(cipher.SHA512([]byte("chainkey"))),
@@ -89,6 +92,9 @@ func TestSessionStore(t *testing.T) {
 		[]string{base64.Encode(recvKey[:])})
 	if err != nil {
 		t.Fatal(err)
+	}
+	if !ms.HasSession("alice@mute.berlin", "bob@mute.berlin", "hash") {
+		t.Error("HasSession() should succeed")
 	}
 	if ms.SenderSessionPubHash() != "hash" {
 		t.Error("wrong SenderSessionPubHash() result")
