@@ -216,7 +216,6 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	if err != nil {
 		return "", err
 	}
-	log.Infof("messageKey: %s", base64.Encode(messageKey[:])) // TODO: remove!
 
 	// derive symmetric keys
 	cryptoKey, hmacKey, err := deriveSymmetricKeys(messageKey)

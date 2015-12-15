@@ -280,7 +280,6 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	if err != nil {
 		return "", "", err
 	}
-	log.Infof("messageKey: %s", base64.Encode(messageKey[:])) // TODO: remove!
 
 	// derive symmetric keys
 	cryptoKey, hmacKey, err := deriveSymmetricKeys(messageKey)
