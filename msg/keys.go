@@ -5,6 +5,7 @@
 package msg
 
 import (
+	"bytes"
 	"crypto/sha512"
 	"io"
 
@@ -14,28 +15,28 @@ import (
 	"golang.org/x/crypto/hkdf"
 )
 
-// deriveSymmetricKeys derives the symmetric cryptoKey and hmacKey from the
-// given messageKey.
-func deriveSymmetricKeys(messageKey *[64]byte) (
-	cryptoKey, hmacKey []byte,
-	err error,
-) {
-	// TODO: set optional salt and info?
-	hkdf := hkdf.New(sha512.New, messageKey[:], nil, nil)
-
-	// derive crypto key for AES-256
-	cryptoKey = make([]byte, 32)
-	if _, err := io.ReadFull(hkdf, cryptoKey); err != nil {
-		return nil, nil, err
+// checkKeys checks that the keys k1, k2, k3, and k4 are pairwise different to
+// prevent possible reflection attacks.
+func checkKeys(k1, k2, k3, k4 *[32]byte) error {
+	if bytes.Equal(k1[:], k2[:]) {
+		return ErrReflection
 	}
-
-	// derive HMAC key for SHA-512 HMAC (TODO: correct size?)
-	hmacKey = make([]byte, 64)
-	if _, err := io.ReadFull(hkdf, hmacKey); err != nil {
-		return nil, nil, err
+	if bytes.Equal(k1[:], k3[:]) {
+		return ErrReflection
 	}
-
-	return
+	if bytes.Equal(k1[:], k4[:]) {
+		return ErrReflection
+	}
+	if bytes.Equal(k2[:], k3[:]) {
+		return ErrReflection
+	}
+	if bytes.Equal(k2[:], k4[:]) {
+		return ErrReflection
+	}
+	if bytes.Equal(k3[:], k4[:]) {
+		return ErrReflection
+	}
+	return nil
 }
 
 // deriveRootKey derives the next root key from t1, t2, t3, and the
@@ -125,4 +126,28 @@ func generateMessageKeys(
 	}
 
 	return nil
+}
+
+// deriveSymmetricKeys derives the symmetric cryptoKey and hmacKey from the
+// given messageKey.
+func deriveSymmetricKeys(messageKey *[64]byte) (
+	cryptoKey, hmacKey []byte,
+	err error,
+) {
+	// TODO: set optional salt and info?
+	hkdf := hkdf.New(sha512.New, messageKey[:], nil, nil)
+
+	// derive crypto key for AES-256
+	cryptoKey = make([]byte, 32)
+	if _, err := io.ReadFull(hkdf, cryptoKey); err != nil {
+		return nil, nil, err
+	}
+
+	// derive HMAC key for SHA-512 HMAC (TODO: correct size?)
+	hmacKey = make([]byte, 64)
+	if _, err := io.ReadFull(hkdf, hmacKey); err != nil {
+		return nil, nil, err
+	}
+
+	return
 }

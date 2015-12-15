@@ -26,20 +26,23 @@ func rootKeyAgreementRecipient(
 ) error {
 	recipientIdentityPub := recipientID.PublicKey32()
 	recipientIdentityPriv := recipientID.PrivateKey32()
-
 	recipientKeyInitPub := recipientKI.PublicKey32()
 	recipientKeyInitPriv := recipientKI.PrivateKey32()
-
 	// sender cannot cause panic here, because keys have been validated in header
 	senderSessionPub := senderSession.PublicKey32()
 	senderIdentityPub := senderID.PublicKey32()
 
-	log.Infof("senderIdentityPub:    %s", base64.Encode(senderIdentityPub[:]))
-	log.Infof("senderSessionPub:     %s", base64.Encode(senderSessionPub[:]))
-	log.Infof("recipientIdentityPub: %s", base64.Encode(recipientIdentityPub[:]))
-	log.Infof("recipientKeyInitPub:  %s", base64.Encode(recipientKeyInitPub[:]))
+	log.Debugf("senderIdentityPub:    %s", base64.Encode(senderIdentityPub[:]))
+	log.Debugf("senderSessionPub:     %s", base64.Encode(senderSessionPub[:]))
+	log.Debugf("recipientIdentityPub: %s", base64.Encode(recipientIdentityPub[:]))
+	log.Debugf("recipientKeyInitPub:  %s", base64.Encode(recipientKeyInitPub[:]))
 
-	// TODO: add verification rules!
+	// check keys to prevent reflection attacks
+	err := checkKeys(senderIdentityPub, senderSessionPub,
+		recipientIdentityPub, recipientKeyInitPub)
+	if err != nil {
+		return err
+	}
 
 	// compute t1
 	t1, err := cipher.ECDH(recipientKeyInitPriv, senderIdentityPub, recipientKeyInitPub)

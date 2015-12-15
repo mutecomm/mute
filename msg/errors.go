@@ -54,3 +54,6 @@ var ErrMessageKeyUsed = errors.New("msg: message key has already been used")
 
 // ErrNoKeyInit is raised when no KeyInit could be found.
 var ErrNoKeyInit = errors.New("msg: no KeyInit for user found")
+
+// ErrReflection is raised when a possible reflection attack has been detected.
+var ErrReflection = errors.New("msg: reflection attack detected")
