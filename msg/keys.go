@@ -42,14 +42,14 @@ func deriveSymmetricKeys(messageKey *[64]byte) (
 // previousRootKeyHash (if it exists).
 func deriveRootKey(
 	t1, t2, t3 *[32]byte,
-	previousRootKeyHash []byte,
+	previousRootKeyHash *[64]byte,
 ) ([]byte, error) {
-	master := make([]byte, 96+len(previousRootKeyHash))
+	master := make([]byte, 32+32+32+64)
 	copy(master[:], t1[:])
 	copy(master[32:], t2[:])
 	copy(master[64:], t3[:])
 	if previousRootKeyHash != nil {
-		copy(master[96:], previousRootKeyHash)
+		copy(master[96:], previousRootKeyHash[:])
 	}
 
 	hkdf := hkdf.New(sha512.New, master, nil, nil)

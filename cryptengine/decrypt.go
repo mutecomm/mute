@@ -41,8 +41,6 @@ func (ce *CryptEngine) decrypt(w io.Writer, r io.Reader, statusfp *os.File) erro
 	if err != nil {
 		return err
 	}
-	// TODO: implement this
-	var previousRootKeyHash []byte
 
 	// read pre-header
 	r = base64.NewDecoder(r)
@@ -66,7 +64,6 @@ func (ce *CryptEngine) decrypt(w io.Writer, r io.Reader, statusfp *os.File) erro
 		Writer:              w,
 		Identities:          identities,
 		RecipientIdentities: recipientIdentities,
-		PreviousRootKeyHash: previousRootKeyHash,
 		PreHeader:           preHeader,
 		Reader:              r,
 		Rand:                cipher.RandReader,

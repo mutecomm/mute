@@ -23,7 +23,7 @@ import (
 func rootKeyAgreementSender(
 	senderIdentity, recipientIdentity string,
 	senderSession, senderID, recipientKI, recipientID *uid.KeyEntry,
-	previousRootKeyHash []byte,
+	previousRootKeyHash *[64]byte,
 	keyStore KeyStore,
 ) error {
 	senderIdentityPub := senderID.PublicKey32()
@@ -78,7 +78,6 @@ type EncryptArgs struct {
 	From                   *uid.Message // sender UID
 	To                     *uid.Message // recipient UID
 	SenderLastKeychainHash string       // last hash chain entry known to the sender
-	PreviousRootKeyHash    []byte       // has to contain the previous root key hash, if it exists
 	PrivateSigKey          *[64]byte    // if this is s not nil the message is signed with the key
 	Reader                 io.Reader    // data to encrypt is read here
 	Rand                   io.Reader    // random source
@@ -138,7 +137,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 		// root key agreement
 		err = rootKeyAgreementSender(args.From.Identity(), args.To.Identity(),
 			&senderSession, args.From.PubKey(), recipientTemp,
-			args.To.PubKey(), args.PreviousRootKeyHash, args.KeyStore)
+			args.To.PubKey(), nil, args.KeyStore)
 		if err != nil {
 			return "", err
 		}

@@ -54,6 +54,10 @@ type KeyStore interface {
 	// senderSesssionPubHash is the hash of the SenderSessionPub key.
 	GetMessageKey(myID, contactID, senderSessionPubHash string, sender bool,
 		msgIndex uint64) (*[64]byte, error)
+	// GetRootKeyHash returns the root key hash fo the session between myID
+	// and contactID with senderSessionPubHash.
+	GetRootKeyHash(myID, contactID, senderSessionPubHash string) (*[64]byte,
+		error)
 	// DelMessageKey deleted the message key with index msgIndex. If sender is
 	// true the sender key is deleted, otherwise the recipient key.
 	DelMessageKey(myID, contactID, senderSessionPubHash string, sender bool,

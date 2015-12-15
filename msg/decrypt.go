@@ -21,7 +21,7 @@ import (
 func rootKeyAgreementRecipient(
 	senderIdentity, recipientIdentity string,
 	senderSession, senderID, recipientKI, recipientID *uid.KeyEntry,
-	previousRootKeyHash []byte,
+	previousRootKeyHash *[64]byte,
 	keyStore KeyStore,
 ) error {
 	recipientIdentityPub := recipientID.PublicKey32()
@@ -80,7 +80,6 @@ type DecryptArgs struct {
 	Writer              io.Writer       // decrypted message is written here
 	Identities          []string        // list of recipient identity strings
 	RecipientIdentities []*uid.KeyEntry // list of recipient identity KeyEntries
-	PreviousRootKeyHash []byte          // for root key agreement
 	PreHeader           []byte          // preHeader read with ReadFirstOuterHeader()
 	Reader              io.Reader       // data to decrypt is read here (not base64 encoded)
 	Rand                io.Reader       // random source
@@ -158,7 +157,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 		}
 		err = rootKeyAgreementRecipient(sender, recipient,
 			&h.SenderSessionPub, &h.SenderIdentityPub, recipientKI, recipientID,
-			args.PreviousRootKeyHash, args.KeyStore)
+			nil, args.KeyStore)
 		if err != nil {
 			return "", "", err
 		}
@@ -204,9 +203,14 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 		if h.RecipientTempHash != ss.SenderSessionPub.HASH {
 			// TODO: make sure session is not known!
 			log.Info("session was refreshed (on the other side)")
-			ss.RecipientTempHash = h.SenderSessionPub.HASH
 			// TODO: compare ss.NextSenderSessionPub with header to make sure
 			// we have the correct key
+			ss.RecipientTempHash = h.SenderSessionPub.HASH
+			previousRootKeyHash, err := args.KeyStore.GetRootKeyHash(recipient,
+				sender, ss.SenderSessionPub.HASH)
+			if err != nil {
+				return "", "", err
+			}
 			ss.SenderSessionPub = *ss.NextSenderSessionPub
 			var nextSenderSession uid.KeyEntry
 			if err := nextSenderSession.InitDHKey(args.Rand); err != nil {
@@ -218,11 +222,10 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			ss.RecipientSessionCount = h.SenderSessionCount
 			ss.RecipientMessageCount = h.SenderMessageCount
 			// root key agreement
-			// TODO: add previous root key hash!
-			err := rootKeyAgreementSender(recipient, sender,
+			err = rootKeyAgreementSender(recipient, sender,
 				&ss.SenderSessionPub, recipientID,
 				&h.SenderSessionPub, &h.SenderIdentityPub,
-				nil, args.KeyStore)
+				previousRootKeyHash, args.KeyStore)
 			if err != nil {
 				return "", "", err
 			}
@@ -238,6 +241,11 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			// has been reflected -> refresh session
 			log.Info("refresh session")
 			ss.RecipientTempHash = h.NextSenderSessionPub.HASH
+			previousRootKeyHash, err := args.KeyStore.GetRootKeyHash(recipient,
+				sender, ss.SenderSessionPub.HASH)
+			if err != nil {
+				return "", "", err
+			}
 			ss.SenderSessionPub = *ss.NextSenderSessionPub
 			var nextSenderSession uid.KeyEntry
 			if err := nextSenderSession.InitDHKey(args.Rand); err != nil {
@@ -249,11 +257,10 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			ss.RecipientSessionCount = h.SenderSessionCount + h.SenderMessageCount
 			ss.RecipientMessageCount = 0
 			// root key agreement
-			// TODO: add previous root key hash!
-			err := rootKeyAgreementRecipient(sender, recipient,
+			err = rootKeyAgreementRecipient(sender, recipient,
 				h.NextSenderSessionPub, &h.SenderIdentityPub,
 				&ss.SenderSessionPub, recipientID,
-				nil, args.KeyStore)
+				previousRootKeyHash, args.KeyStore)
 			if err != nil {
 				return "", "", err
 			}

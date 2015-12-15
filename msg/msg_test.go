@@ -106,7 +106,6 @@ func decrypt(sender, recipient *uid.Message, r io.Reader, recipientTemp *uid.Key
 		Writer:              &res,
 		Identities:          identities,
 		RecipientIdentities: recipientIdentities,
-		PreviousRootKeyHash: nil,
 		PreHeader:           preHeader,
 		Reader:              input,
 		Rand:                cipher.RandReader,

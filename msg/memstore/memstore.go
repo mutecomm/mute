@@ -165,6 +165,29 @@ func (ms *MemStore) GetMessageKey(
 	return &messageKey, nil
 }
 
+// GetRootKeyHash implemented in memory.
+func (ms *MemStore) GetRootKeyHash(
+	myID, contactID, senderSessionPubHash string,
+) (*[64]byte, error) {
+	index := myID + "@" + contactID + "@" + senderSessionPubHash
+	log.Infof("memstore.GetRootKeyHash(): %s", index)
+	session, ok := ms.sessions[index]
+	if !ok {
+		return nil, log.Errorf("memstore: no session found for %s and %s",
+			myID, contactID)
+	}
+	// decode root key hash
+	var hash [64]byte
+	k, err := base64.Decode(session.rootKeyHash)
+	if err != nil {
+		return nil, log.Error("memstore: cannot decode root key hash")
+	}
+	if copy(hash[:], k) != 64 {
+		return nil, log.Errorf("memstore: root key hash has wrong length")
+	}
+	return &hash, nil
+}
+
 // DelMessageKey implemented in memory.
 func (ms *MemStore) DelMessageKey(
 	myID, contactID, senderSessionPubHash string,
