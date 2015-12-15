@@ -206,8 +206,11 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 		if h.RecipientTempHash != ss.SenderSessionPub.HASH &&
 			!args.KeyStore.HasSession(recipient, sender, h.RecipientTempHash) { // make sure session is unknown
 			log.Info("session was refreshed (on the other side)")
-			// TODO: compare ss.NextSenderSessionPub with header to make sure
-			// we have the correct key
+			// make sure we have the correct key
+			if !uid.KeyEntryEqual(ss.NextSenderSessionPub, h.NextRecipientSessionPubSeen) {
+				// TODO: reset session here?
+				return "", "", log.Error("msg: NextSenderSessionPub mismatch")
+			}
 			ss.RecipientTempHash = h.SenderSessionPub.HASH
 			previousRootKeyHash, err := args.KeyStore.GetRootKeyHash(recipient,
 				sender, ss.SenderSessionPub.HASH)
