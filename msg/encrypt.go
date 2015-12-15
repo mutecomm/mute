@@ -130,7 +130,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	}
 	if ss == nil {
 		// no session found -> start first session
-		log.Info("no session found -> start first session")
+		log.Debug("no session found -> start first session")
 		var recipientTemp *uid.KeyEntry
 		recipientTemp, nymAddress, err = args.KeyStore.GetPublicKeyEntry(args.To)
 		if err != nil {
@@ -164,22 +164,22 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 			NextSenderSessionPub:        &nextSenderSession,
 			NextRecipientSessionPubSeen: nil,
 		}
-		log.Infof("set session: %s", ss.SenderSessionPub.HASH)
+		log.Debugf("set session: %s", ss.SenderSessionPub.HASH)
 		err = args.KeyStore.SetSessionState(sender, recipient, ss)
 		if err != nil {
 			return "", err
 		}
 	} else {
-		log.Info("session found")
-		log.Infof("got session: %s", ss.SenderSessionPub.HASH)
+		log.Debug("session found")
+		log.Debugf("got session: %s", ss.SenderSessionPub.HASH)
 	}
 
 	// create header
-	log.Infof("senderID:    %s", args.From.UIDContent.PUBKEYS[0].HASH)
-	log.Infof("recipientID: %s", args.To.UIDContent.PUBKEYS[0].HASH)
-	log.Infof("ss.SenderSessionCount: %d", ss.SenderSessionCount)
-	log.Infof("ss.SenderMessageCount: %d", ss.SenderMessageCount)
-	log.Infof("ss.RecipientTempHash:  %s", ss.RecipientTempHash)
+	log.Debugf("senderID:    %s", args.From.UIDContent.PUBKEYS[0].HASH)
+	log.Debugf("recipientID: %s", args.To.UIDContent.PUBKEYS[0].HASH)
+	log.Debugf("ss.SenderSessionCount: %d", ss.SenderSessionCount)
+	log.Debugf("ss.SenderMessageCount: %d", ss.SenderMessageCount)
+	log.Debugf("ss.RecipientTempHash:  %s", ss.RecipientTempHash)
 	h, err := newHeader(args.From, args.To, ss.RecipientTempHash,
 		&ss.SenderSessionPub, ss.NextSenderSessionPub,
 		ss.NextRecipientSessionPubSeen, ss.SenderSessionCount,
@@ -187,10 +187,10 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	if err != nil {
 		return "", err
 	}
-	log.Infof("h.SenderSessionPub:             %s", h.SenderSessionPub.HASH)
-	log.Infof("h.NextSenderSessionPub:         %s", h.NextSenderSessionPub.HASH)
+	log.Debugf("h.SenderSessionPub:             %s", h.SenderSessionPub.HASH)
+	log.Debugf("h.NextSenderSessionPub:         %s", h.NextSenderSessionPub.HASH)
 	if h.NextRecipientSessionPubSeen != nil {
-		log.Infof("h.NextRecipientSessionPubSeen:  %s",
+		log.Debugf("h.NextRecipientSessionPubSeen:  %s",
 			h.NextRecipientSessionPubSeen.HASH)
 	}
 

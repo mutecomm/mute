@@ -70,7 +70,7 @@ func (ms *MemStore) SetSessionState(
 	myID, contactID string,
 	sessionState *msg.SessionState,
 ) error {
-	log.Infof("memstore.SetSessionState(): %s", sessionState.SenderSessionPub.HASH)
+	log.Debugf("memstore.SetSessionState(): %s", sessionState.SenderSessionPub.HASH)
 	ms.sessionStates[myID+"@"+contactID] = sessionState
 	return nil
 }
@@ -91,12 +91,12 @@ func (ms *MemStore) StoreSession(
 	}
 	/*
 		for i := 0; i < 3; i++ {
-			log.Infof("send[%d]: %s", i, send[i])
-			log.Infof("recv[%d]: %s", i, recv[i])
+			log.Debugf("send[%d]: %s", i, send[i])
+			log.Debugf("recv[%d]: %s", i, recv[i])
 		}
 	*/
 	index := myID + "@" + contactID + "@" + senderSessionPubHash
-	log.Infof("memstore.StoreSession(): %s", index)
+	log.Debugf("memstore.StoreSession(): %s", index)
 	ms.sessions[index] = &session{
 		rootKeyHash: rootKeyHash,
 		chainKey:    chainKey,
@@ -140,7 +140,7 @@ func (ms *MemStore) GetMessageKey(
 	msgIndex uint64,
 ) (*[64]byte, error) {
 	index := myID + "@" + contactID + "@" + senderSessionPubHash
-	log.Infof("memstore.GetMessageKey(): %s", index)
+	log.Debugf("memstore.GetMessageKey(): %s", index)
 	session, ok := ms.sessions[index]
 	if !ok {
 		return nil, log.Errorf("memstore: no session found for %s and %s",
@@ -178,7 +178,7 @@ func (ms *MemStore) GetRootKeyHash(
 	myID, contactID, senderSessionPubHash string,
 ) (*[64]byte, error) {
 	index := myID + "@" + contactID + "@" + senderSessionPubHash
-	log.Infof("memstore.GetRootKeyHash(): %s", index)
+	log.Debugf("memstore.GetRootKeyHash(): %s", index)
 	session, ok := ms.sessions[index]
 	if !ok {
 		return nil, log.Errorf("memstore: no session found for %s and %s",
@@ -203,7 +203,7 @@ func (ms *MemStore) DelMessageKey(
 	msgIndex uint64,
 ) error {
 	index := myID + "@" + contactID + "@" + senderSessionPubHash
-	log.Infof("memstore.DelMessageKey(): %s", index)
+	log.Debugf("memstore.DelMessageKey(): %s", index)
 	session, ok := ms.sessions[index]
 	if !ok {
 		return log.Errorf("memstore: no session found for %s and %s",

@@ -128,14 +128,14 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	}
 	senderID = h.SenderIdentity
 
-	log.Infof("senderID:    %s", h.SenderIdentityPub.HASH)
-	log.Infof("recipientID: %s", recipientID.HASH)
-	log.Infof("h.SenderSessionCount: %d", h.SenderSessionCount)
-	log.Infof("h.SenderMessageCount: %d", h.SenderMessageCount)
-	log.Infof("h.SenderSessionPub:             %s", h.SenderSessionPub.HASH)
-	log.Infof("h.NextSenderSessionPub:         %s", h.NextSenderSessionPub.HASH)
+	log.Debugf("senderID:    %s", h.SenderIdentityPub.HASH)
+	log.Debugf("recipientID: %s", recipientID.HASH)
+	log.Debugf("h.SenderSessionCount: %d", h.SenderSessionCount)
+	log.Debugf("h.SenderMessageCount: %d", h.SenderMessageCount)
+	log.Debugf("h.SenderSessionPub:             %s", h.SenderSessionPub.HASH)
+	log.Debugf("h.NextSenderSessionPub:         %s", h.NextSenderSessionPub.HASH)
 	if h.NextRecipientSessionPubSeen != nil {
-		log.Infof("h.NextRecipientSessionPubSeen:  %s",
+		log.Debugf("h.NextRecipientSessionPubSeen:  %s",
 			h.NextRecipientSessionPubSeen.HASH)
 	}
 
@@ -152,7 +152,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	}
 	if ss == nil {
 		// no session found -> start first session
-		log.Info("no session found -> start first session")
+		log.Debug("no session found -> start first session")
 		// root key agreement
 		recipientKI, err := args.KeyStore.GetPrivateKeyEntry(h.RecipientTempHash)
 		if err != nil {
@@ -180,24 +180,24 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			NextSenderSessionPub:        &nextSenderSession,
 			NextRecipientSessionPubSeen: h.NextSenderSessionPub,
 		}
-		log.Infof("set session: %s", ss.SenderSessionPub.HASH)
+		log.Debugf("set session: %s", ss.SenderSessionPub.HASH)
 		err = args.KeyStore.SetSessionState(recipient, sender, ss)
 		if err != nil {
 			return "", "", err
 		}
 	} else {
-		log.Info("session found")
-		log.Infof("got session: %s", ss.SenderSessionPub.HASH)
+		log.Debug("session found")
+		log.Debugf("got session: %s", ss.SenderSessionPub.HASH)
 		// make sure the new session key of the other party is up-to-date.
 		if h.NextSenderSessionPub != nil &&
 			ss.NextRecipientSessionPubSeen != h.NextSenderSessionPub {
 			if ss.NextRecipientSessionPubSeen != nil {
-				log.Infof("ss.NextRecipientSessionPubSeen: %s",
+				log.Debugf("ss.NextRecipientSessionPubSeen: %s",
 					ss.NextRecipientSessionPubSeen.HASH)
 			}
 			ss.NextRecipientSessionPubSeen = h.NextSenderSessionPub
 			err = args.KeyStore.SetSessionState(recipient, sender, ss)
-			log.Info("update session key")
+			log.Debug("update session key")
 			if err != nil {
 				return "", "", err
 			}
@@ -205,7 +205,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 		// check if the session was refreshed (on the other side)
 		if h.RecipientTempHash != ss.SenderSessionPub.HASH &&
 			!args.KeyStore.HasSession(recipient, sender, h.RecipientTempHash) { // make sure session is unknown
-			log.Info("session was refreshed (on the other side)")
+			log.Debug("session was refreshed (on the other side)")
 			// make sure we have the correct key
 			if !uid.KeyEntryEqual(ss.NextSenderSessionPub, h.NextRecipientSessionPubSeen) {
 				// TODO: reset session here?
@@ -245,7 +245,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			uid.KeyEntryEqual(ss.NextSenderSessionPub, h.NextRecipientSessionPubSeen) {
 			// sender has sent next session key and own next session key
 			// has been reflected -> refresh session
-			log.Info("refresh session")
+			log.Debug("refresh session")
 			ss.RecipientTempHash = h.NextSenderSessionPub.HASH
 			previousRootKeyHash, err := args.KeyStore.GetRootKeyHash(recipient,
 				sender, ss.SenderSessionPub.HASH)
@@ -276,7 +276,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 				return "", "", err
 			}
 		} else {
-			log.Info("refresh not possible")
+			log.Debug("refresh not possible")
 		}
 	}
 

@@ -20,6 +20,7 @@ import (
 )
 
 func TestKeyStore(t *testing.T) {
+	defer log.Flush()
 	alice := "alice@mute.berlin"
 	aliceUID, err := uid.Create(alice, false, "", "", uid.Strict,
 		hashchain.TestEntry, cipher.RandReader)
@@ -94,7 +95,6 @@ func TestKeyStore(t *testing.T) {
 	}
 	_, _, err = msg.Decrypt(decryptArgs)
 	if err != nil {
-		log.Flush()
 		t.Fatal(err)
 	}
 	if res.String() != msgs.Message1 {
@@ -120,7 +120,6 @@ func TestKeyStore(t *testing.T) {
 		KeyStore:               bobKeyStore,
 	}
 	if _, err = msg.Encrypt(encryptArgs); err != nil {
-		log.Flush()
 		t.Fatal(err)
 	}
 	// make sure sender key has been deleted
@@ -153,7 +152,6 @@ func TestKeyStore(t *testing.T) {
 	}
 	_, _, err = msg.Decrypt(decryptArgs)
 	if err != nil {
-		log.Flush()
 		t.Fatal(err)
 	}
 	if res.String() != msgs.Message2 {
@@ -209,7 +207,6 @@ func TestKeyStore(t *testing.T) {
 	}
 	_, _, err = msg.Decrypt(decryptArgs)
 	if err != nil {
-		log.Flush()
 		t.Fatal(err)
 	}
 	if res.String() != msgs.Message3 {
@@ -275,6 +272,4 @@ func TestKeyStore(t *testing.T) {
 	if err != msg.ErrMessageKeyUsed {
 		t.Error("should fail with msg.ErrMessageKeyUsed")
 	}
-
-	log.Flush()
 }
