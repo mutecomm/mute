@@ -81,13 +81,25 @@ func TestSessionStore(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	rootKeyHash := cipher.SHA512([]byte("rootkey"))
 	err = ms.StoreSession("alice@mute.berlin", "bob@mute.berlin", "hash",
-		base64.Encode(cipher.SHA512([]byte("rootkey"))),
+		base64.Encode(rootKeyHash),
 		base64.Encode(cipher.SHA512([]byte("chainkey"))),
 		[]string{base64.Encode(sendKey[:])},
 		[]string{base64.Encode(recvKey[:])})
 	if err != nil {
 		t.Fatal(err)
+	}
+	if ms.SenderSessionPubHash() != "hash" {
+		t.Error("wrong SenderSessionPubHash() result")
+	}
+	// test root key hash
+	h, err := ms.GetRootKeyHash("alice@mute.berlin", "bob@mute.berlin", "hash")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(h[:], rootKeyHash[:]) {
+		t.Error("root key hashes are not equal")
 	}
 	// test sender key
 	key, err := ms.GetMessageKey("alice@mute.berlin", "bob@mute.berlin",
