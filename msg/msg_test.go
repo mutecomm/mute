@@ -241,3 +241,33 @@ func TestMaxContentLength(t *testing.T) {
 		t.Errorf("msg.MaxContentLength = %d != %d", msg.MaxContentLength, 41691)
 	}
 }
+
+func TestReflection(t *testing.T) {
+	alice := "alice@mute.berlin"
+	aliceUID, err := uid.Create(alice, false, "", "", uid.Strict,
+		hashchain.TestEntry, cipher.RandReader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	bob := "bob@mute.berlin"
+	bobUID, err := uid.Create(bob, false, "", "", uid.Strict,
+		hashchain.TestEntry, cipher.RandReader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var encMsg bytes.Buffer
+	aliceKeyStore := memstore.New()
+	aliceKeyStore.AddPublicKeyEntry(bob, bobUID.PubKey()) // duplicate key
+	encryptArgs := &msg.EncryptArgs{
+		Writer: &encMsg,
+		From:   aliceUID,
+		To:     bobUID,
+		SenderLastKeychainHash: hashchain.TestEntry,
+		Reader:                 bytes.NewBufferString(msgs.Message1),
+		Rand:                   cipher.RandReader,
+		KeyStore:               aliceKeyStore,
+	}
+	if _, err = msg.Encrypt(encryptArgs); err != msg.ErrReflection {
+		t.Error("should fail with msg.ErrReflection")
+	}
+}
