@@ -31,9 +31,10 @@ func (ce *CryptEngine) SetSessionState(
 
 // StoreSession implements corresponding method for msg.KeyStore interface.
 func (ce *CryptEngine) StoreSession(
-	myID, contactID, rootKeyHash, chainKey string,
+	myID, contactID, senderSessionPubHash, rootKeyHash, chainKey string,
 	send, recv []string,
 ) error {
+	// TODO: use senderSessionPubHash to store sessions!
 	return ce.keyDB.AddSession(myID, contactID, rootKeyHash, chainKey, send, recv)
 }
 
@@ -86,7 +87,7 @@ func (ce *CryptEngine) GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, st
 
 // GetMessageKey implements corresponding method for msg.KeyStore interface.
 func (ce *CryptEngine) GetMessageKey(
-	myID, contactID string,
+	myID, contactID, senderSessionPubHash string,
 	sender bool,
 	msgIndex uint64,
 ) (*[64]byte, error) {
@@ -95,7 +96,7 @@ func (ce *CryptEngine) GetMessageKey(
 
 // DelMessageKey implements corresponding method for msg.KeyStore interface.
 func (ce *CryptEngine) DelMessageKey(
-	myID, contactID string,
+	myID, contactID, senderSessionPubHash string,
 	sender bool,
 	msgIndex uint64,
 ) error {

@@ -43,7 +43,7 @@ func TestKeyStore(t *testing.T) {
 		t.Fatal(err)
 	}
 	// encrypt first message from Alice to Bob
-	log.Info("encrypt first message from Alice to Bob")
+	log.Info("### encrypt first message from Alice to Bob")
 	var encMsg bytes.Buffer
 	aliceKeyStore := memstore.New()
 	aliceKeyStore.AddPublicKeyEntry(bob, bobKE)
@@ -60,12 +60,13 @@ func TestKeyStore(t *testing.T) {
 		t.Fatal(err)
 	}
 	// make sure sender key has been deleted
-	_, err = aliceKeyStore.GetMessageKey(alice, bob, true, 0)
+	aliceHash := aliceKeyStore.SenderSessionPubHash()
+	_, err = aliceKeyStore.GetMessageKey(alice, bob, aliceHash, true, 0)
 	if err != msg.ErrMessageKeyUsed {
 		t.Error("should fail with msg.ErrMessageKeyUsed")
 	}
 	// decrypt first message from Alice to Bob
-	log.Info("decrypt first message from Alice to Bob")
+	log.Info("### decrypt first message from Alice to Bob")
 	var res bytes.Buffer
 	bobIdentities := []string{bobUID.Identity()}
 	bobRecipientIdentities := []*uid.KeyEntry{bobUID.PubKey()}
@@ -94,19 +95,21 @@ func TestKeyStore(t *testing.T) {
 	}
 	_, _, err = msg.Decrypt(decryptArgs)
 	if err != nil {
+		log.Flush()
 		t.Fatal(err)
 	}
 	if res.String() != msgs.Message1 {
 		t.Fatal("messages differ")
 	}
 	// make recipient key has been deleted
-	_, err = bobKeyStore.GetMessageKey(bob, alice, false, 0)
+	bobHash := bobKeyStore.SenderSessionPubHash()
+	_, err = bobKeyStore.GetMessageKey(bob, alice, bobHash, false, 0)
 	if err != msg.ErrMessageKeyUsed {
 		t.Error("should fail with msg.ErrMessageKeyUsed")
 	}
 
 	// encrypt first reply from Bob to Alice
-	log.Info("encrypt first reply from Bob to Alice")
+	log.Info("### encrypt first reply from Bob to Alice")
 	encMsg.Reset()
 	encryptArgs = &msg.EncryptArgs{
 		Writer: &encMsg,
@@ -118,16 +121,17 @@ func TestKeyStore(t *testing.T) {
 		KeyStore:               bobKeyStore,
 	}
 	if _, err = msg.Encrypt(encryptArgs); err != nil {
+		log.Flush()
 		t.Fatal(err)
 	}
 	// make sure sender key has been deleted
-	_, err = bobKeyStore.GetMessageKey(bob, alice, true, 0)
+	_, err = bobKeyStore.GetMessageKey(bob, alice, bobHash, true, 0)
 	if err != msg.ErrMessageKeyUsed {
 		t.Error("should fail with msg.ErrMessageKeyUsed")
 	}
 
 	// decrypt first reply from Bob to Alice
-	log.Info("decrypt first reply from Bob to Alice")
+	log.Info("### decrypt first reply from Bob to Alice")
 	res.Reset()
 	aliceIdentities := []string{aliceUID.Identity()}
 	aliceRecipientIdentities := []*uid.KeyEntry{aliceUID.PubKey()}
@@ -158,122 +162,123 @@ func TestKeyStore(t *testing.T) {
 		t.Fatal("messages differ")
 	}
 	// make recipient key has been deleted
-	_, err = aliceKeyStore.GetMessageKey(alice, bob, false, 0)
+	_, err = aliceKeyStore.GetMessageKey(alice, bob, aliceHash, false, 0)
 	if err != msg.ErrMessageKeyUsed {
 		t.Error("should fail with msg.ErrMessageKeyUsed")
 	}
 
-	/*
-		// encrypt second message from Alice to Bob
-		log.Info("encrypt second message from Alice to Bob")
-		encMsg.Reset()
-		encryptArgs = &msg.EncryptArgs{
-			Writer: &encMsg,
-			From:   aliceUID,
-			To:     bobUID,
-			SenderLastKeychainHash: hashchain.TestEntry,
-			Reader:                 bytes.NewBufferString(msgs.Message3),
-			Rand:                   cipher.RandReader,
-			KeyStore:               aliceKeyStore,
-		}
-		if _, err = msg.Encrypt(encryptArgs); err != nil {
-			t.Fatal(err)
-		}
-		// make sure sender key has been deleted
-		_, err = aliceKeyStore.GetMessageKey(alice, bob, true, 1)
-		if err != msg.ErrMessageKeyUsed {
-			t.Error("should fail with msg.ErrMessageKeyUsed")
-		}
+	// encrypt second message from Alice to Bob
+	log.Info("### encrypt second message from Alice to Bob")
+	encMsg.Reset()
+	encryptArgs = &msg.EncryptArgs{
+		Writer: &encMsg,
+		From:   aliceUID,
+		To:     bobUID,
+		SenderLastKeychainHash: hashchain.TestEntry,
+		Reader:                 bytes.NewBufferString(msgs.Message3),
+		Rand:                   cipher.RandReader,
+		KeyStore:               aliceKeyStore,
+	}
+	if _, err = msg.Encrypt(encryptArgs); err != nil {
+		t.Fatal(err)
+	}
+	// make sure sender key has been deleted
+	aliceHash = aliceKeyStore.SenderSessionPubHash()
+	_, err = aliceKeyStore.GetMessageKey(alice, bob, aliceHash, true, 0)
+	if err != msg.ErrMessageKeyUsed {
+		t.Error("should fail with msg.ErrMessageKeyUsed")
+	}
 
-		// decrypt second message from Alice to Bob
-		log.Info("decrypt second message from Alice to Bob")
-		res.Reset()
-		input = base64.NewDecoder(&encMsg)
-		version, preHeader, err = msg.ReadFirstOuterHeader(input)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if version != msg.Version {
-			t.Fatal("wrong version")
-		}
-		decryptArgs = &msg.DecryptArgs{
-			Writer:              &res,
-			Identities:          bobIdentities,
-			RecipientIdentities: bobRecipientIdentities,
-			PreviousRootKeyHash: nil,
-			PreHeader:           preHeader,
-			Reader:              input,
-			Rand:                cipher.RandReader,
-			KeyStore:            bobKeyStore,
-		}
-		_, _, err = msg.Decrypt(decryptArgs)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if res.String() != msgs.Message3 {
-			t.Fatal("messages differ")
-		}
-		// make recipient key has been deleted
-		_, err = bobKeyStore.GetMessageKey(bob, alice, false, 1)
-		if err != msg.ErrMessageKeyUsed {
-			t.Error("should fail with msg.ErrMessageKeyUsed")
-		}
+	// decrypt second message from Alice to Bob
+	log.Info("### decrypt second message from Alice to Bob")
+	res.Reset()
+	input = base64.NewDecoder(&encMsg)
+	version, preHeader, err = msg.ReadFirstOuterHeader(input)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if version != msg.Version {
+		t.Fatal("wrong version")
+	}
+	decryptArgs = &msg.DecryptArgs{
+		Writer:              &res,
+		Identities:          bobIdentities,
+		RecipientIdentities: bobRecipientIdentities,
+		PreviousRootKeyHash: nil,
+		PreHeader:           preHeader,
+		Reader:              input,
+		Rand:                cipher.RandReader,
+		KeyStore:            bobKeyStore,
+	}
+	_, _, err = msg.Decrypt(decryptArgs)
+	if err != nil {
+		log.Flush()
+		t.Fatal(err)
+	}
+	if res.String() != msgs.Message3 {
+		t.Fatal("messages differ")
+	}
+	// make recipient key has been deleted
+	bobHash = bobKeyStore.SenderSessionPubHash()
+	_, err = bobKeyStore.GetMessageKey(bob, alice, bobHash, false, 0)
+	if err != msg.ErrMessageKeyUsed {
+		t.Error("should fail with msg.ErrMessageKeyUsed")
+	}
 
-		// encrypt second reply from Bob to Alice
-		log.Info("encrypt second reply from Bob to Alice")
-		encMsg.Reset()
-		encryptArgs = &msg.EncryptArgs{
-			Writer: &encMsg,
-			From:   bobUID,
-			To:     aliceUID,
-			SenderLastKeychainHash: hashchain.TestEntry,
-			Reader:                 bytes.NewBufferString(msgs.Message4),
-			Rand:                   cipher.RandReader,
-			KeyStore:               bobKeyStore,
-		}
-		if _, err = msg.Encrypt(encryptArgs); err != nil {
-			t.Fatal(err)
-		}
-		// make sure sender key has been deleted
-		_, err = bobKeyStore.GetMessageKey(bob, alice, true, 1)
-		if err != msg.ErrMessageKeyUsed {
-			t.Error("should fail with msg.ErrMessageKeyUsed")
-		}
+	// encrypt second reply from Bob to Alice
+	log.Info("### encrypt second reply from Bob to Alice")
+	encMsg.Reset()
+	encryptArgs = &msg.EncryptArgs{
+		Writer: &encMsg,
+		From:   bobUID,
+		To:     aliceUID,
+		SenderLastKeychainHash: hashchain.TestEntry,
+		Reader:                 bytes.NewBufferString(msgs.Message4),
+		Rand:                   cipher.RandReader,
+		KeyStore:               bobKeyStore,
+	}
+	if _, err = msg.Encrypt(encryptArgs); err != nil {
+		t.Fatal(err)
+	}
+	// make sure sender key has been deleted
+	_, err = bobKeyStore.GetMessageKey(bob, alice, bobHash, true, 0)
+	if err != msg.ErrMessageKeyUsed {
+		t.Error("should fail with msg.ErrMessageKeyUsed")
+	}
 
-		// decrypt second reply from Bob to Alice
-		log.Info("decrypt second reply from Bob to Alice")
-		res.Reset()
-		input = base64.NewDecoder(&encMsg)
-		version, preHeader, err = msg.ReadFirstOuterHeader(input)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if version != msg.Version {
-			t.Fatal("wrong version")
-		}
-		decryptArgs = &msg.DecryptArgs{
-			Writer:              &res,
-			Identities:          aliceIdentities,
-			RecipientIdentities: aliceRecipientIdentities,
-			PreviousRootKeyHash: nil,
-			PreHeader:           preHeader,
-			Reader:              input,
-			Rand:                cipher.RandReader,
-			KeyStore:            aliceKeyStore,
-		}
-		_, _, err = msg.Decrypt(decryptArgs)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if res.String() != msgs.Message4 {
-			t.Fatal("messages differ")
-		}
-		// make recipient key has been deleted
-		_, err = aliceKeyStore.GetMessageKey(alice, bob, false, 1)
-		if err != msg.ErrMessageKeyUsed {
-			t.Error("should fail with msg.ErrMessageKeyUsed")
-		}
-	*/
+	// decrypt second reply from Bob to Alice
+	log.Info("### decrypt second reply from Bob to Alice")
+	res.Reset()
+	input = base64.NewDecoder(&encMsg)
+	version, preHeader, err = msg.ReadFirstOuterHeader(input)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if version != msg.Version {
+		t.Fatal("wrong version")
+	}
+	decryptArgs = &msg.DecryptArgs{
+		Writer:              &res,
+		Identities:          aliceIdentities,
+		RecipientIdentities: aliceRecipientIdentities,
+		PreviousRootKeyHash: nil,
+		PreHeader:           preHeader,
+		Reader:              input,
+		Rand:                cipher.RandReader,
+		KeyStore:            aliceKeyStore,
+	}
+	_, _, err = msg.Decrypt(decryptArgs)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.String() != msgs.Message4 {
+		t.Fatal("messages differ")
+	}
+	// make recipient key has been deleted
+	_, err = aliceKeyStore.GetMessageKey(alice, bob, aliceHash, false, 0)
+	if err != msg.ErrMessageKeyUsed {
+		t.Error("should fail with msg.ErrMessageKeyUsed")
+	}
 
 	log.Flush()
 }

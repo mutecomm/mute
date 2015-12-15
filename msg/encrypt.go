@@ -21,17 +21,22 @@ import (
 )
 
 func rootKeyAgreementSender(
-	senderID, recipientID *uid.Message,
-	senderSession, recipientKI *uid.KeyEntry,
+	senderIdentity, recipientIdentity string,
+	senderSession, senderID, recipientKI, recipientID *uid.KeyEntry,
 	previousRootKeyHash []byte,
 	keyStore KeyStore,
 ) error {
-	senderIdentityPub := senderID.PublicEncKey32()
-	senderIdentityPriv := senderID.PrivateEncKey32()
+	senderIdentityPub := senderID.PublicKey32()
+	senderIdentityPriv := senderID.PrivateKey32()
 	senderSessionPub := senderSession.PublicKey32()
 	senderSessionPriv := senderSession.PrivateKey32()
-	recipientIdentityPub := recipientID.PublicEncKey32()
+	recipientIdentityPub := recipientID.PublicKey32()
 	recipientKeyInitPub := recipientKI.PublicKey32()
+
+	log.Infof("senderIdentityPub:    %s", base64.Encode(senderIdentityPub[:]))
+	log.Infof("senderSessionPub:     %s", base64.Encode(senderSessionPub[:]))
+	log.Infof("recipientIdentityPub: %s", base64.Encode(recipientIdentityPub[:]))
+	log.Infof("recipientKeyInitPub:  %s", base64.Encode(recipientKeyInitPub[:]))
 
 	// compute t1
 	t1, err := cipher.ECDH(senderIdentityPriv, recipientKeyInitPub, senderIdentityPub)
@@ -58,9 +63,9 @@ func rootKeyAgreementSender(
 	}
 
 	// generate message keys
-	err = generateMessageKeys(senderID.Identity(),
-		recipientID.Identity(), rootKey, false, senderSessionPub[:],
-		recipientKeyInitPub[:], keyStore)
+	err = generateMessageKeys(senderIdentity, recipientIdentity, rootKey,
+		false, senderSession.HASH, senderSessionPub[:], recipientKeyInitPub[:],
+		keyStore)
 	if err != nil {
 		return err
 	}
@@ -131,8 +136,9 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 			return "", err
 		}
 		// root key agreement
-		err = rootKeyAgreementSender(args.From, args.To, &senderSession,
-			recipientTemp, args.PreviousRootKeyHash, args.KeyStore)
+		err = rootKeyAgreementSender(args.From.Identity(), args.To.Identity(),
+			&senderSession, args.From.PubKey(), recipientTemp,
+			args.To.PubKey(), args.PreviousRootKeyHash, args.KeyStore)
 		if err != nil {
 			return "", err
 		}
@@ -152,17 +158,22 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 			NextSenderSessionPub:        &nextSenderSession,
 			NextRecipientSessionPubSeen: nil,
 		}
+		log.Infof("set session: %s", ss.SenderSessionPub.HASH)
 		err = args.KeyStore.SetSessionState(sender, recipient, ss)
 		if err != nil {
 			return "", err
 		}
 	} else {
 		log.Info("session found")
+		log.Infof("got session: %s", ss.SenderSessionPub.HASH)
 	}
 
 	// create header
+	log.Infof("senderID:    %s", args.From.UIDContent.PUBKEYS[0].HASH)
+	log.Infof("recipientID: %s", args.To.UIDContent.PUBKEYS[0].HASH)
 	log.Infof("ss.SenderSessionCount: %d", ss.SenderSessionCount)
 	log.Infof("ss.SenderMessageCount: %d", ss.SenderMessageCount)
+	log.Infof("ss.RecipientTempHash:  %s", ss.RecipientTempHash)
 	h, err := newHeader(args.From, args.To, ss.RecipientTempHash,
 		&ss.SenderSessionPub, ss.NextSenderSessionPub,
 		ss.NextRecipientSessionPubSeen, ss.SenderSessionCount,
@@ -182,7 +193,9 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	if err != nil {
 		return "", err
 	}
-	hp, err := newHeaderPacket(h, recipientIdentityPub, senderHeaderKey.PrivateKey(), args.Rand)
+
+	hp, err := newHeaderPacket(h, recipientIdentityPub,
+		senderHeaderKey.PrivateKey(), args.Rand)
 	if err != nil {
 		return "", err
 	}
@@ -199,11 +212,12 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	count++
 
 	// get message key
-	messageKey, err := args.KeyStore.GetMessageKey(sender, recipient, true,
-		ss.SenderMessageCount)
+	messageKey, err := args.KeyStore.GetMessageKey(sender, recipient,
+		ss.SenderSessionPub.HASH, true, ss.SenderMessageCount)
 	if err != nil {
 		return "", err
 	}
+	log.Infof("messageKey: %s", base64.Encode(messageKey[:])) // TODO: remove!
 
 	// derive symmetric keys
 	cryptoKey, hmacKey, err := deriveSymmetricKeys(messageKey)
@@ -336,8 +350,8 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	}
 
 	// delete message key
-	err = args.KeyStore.DelMessageKey(sender, recipient, true,
-		ss.SenderMessageCount)
+	err = args.KeyStore.DelMessageKey(sender, recipient,
+		ss.SenderSessionPub.HASH, true, ss.SenderMessageCount)
 	if err != nil {
 		return "", err
 	}

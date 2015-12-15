@@ -24,10 +24,11 @@ type session struct {
 
 // MemStore implements the KeyStore interface in memory.
 type MemStore struct {
-	privateKeyEntryMap map[string]*uid.KeyEntry
-	publicKeyEntryMap  map[string]*uid.KeyEntry
-	sessionStates      map[string]*msg.SessionState
-	sessions           map[string]*session
+	privateKeyEntryMap   map[string]*uid.KeyEntry
+	publicKeyEntryMap    map[string]*uid.KeyEntry
+	sessionStates        map[string]*msg.SessionState
+	sessions             map[string]*session
+	senderSessionPubHash string
 }
 
 // New returns a new MemStore.
@@ -38,6 +39,12 @@ func New() *MemStore {
 		sessionStates:      make(map[string]*msg.SessionState),
 		sessions:           make(map[string]*session),
 	}
+}
+
+// SenderSessionPubHash returns the most recent senderSessionPubHash in
+// MemStore.
+func (ms *MemStore) SenderSessionPubHash() string {
+	return ms.senderSessionPubHash
 }
 
 // AddPrivateKeyEntry adds private KeyEntry to memory store.
@@ -63,13 +70,14 @@ func (ms *MemStore) SetSessionState(
 	myID, contactID string,
 	sessionState *msg.SessionState,
 ) error {
+	log.Infof("memstore.SetSessionState(): %s", sessionState.SenderSessionPub.HASH)
 	ms.sessionStates[myID+"@"+contactID] = sessionState
 	return nil
 }
 
 // StoreSession implemented in memory.
 func (ms *MemStore) StoreSession(
-	myID, contactID, rootKeyHash, chainKey string,
+	myID, contactID, senderSessionPubHash, rootKeyHash, chainKey string,
 	send, recv []string,
 ) error {
 	if err := identity.IsMapped(myID); err != nil {
@@ -81,12 +89,19 @@ func (ms *MemStore) StoreSession(
 	if len(send) != len(recv) {
 		return log.Error("memstore: len(send) != len(recv)")
 	}
-	ms.sessions[myID+"@"+contactID] = &session{
+	for i := 0; i < 3; i++ {
+		log.Infof("send[%d]: %s", i, send[i])
+		log.Infof("recv[%d]: %s", i, recv[i])
+	}
+	index := myID + "@" + contactID + "@" + senderSessionPubHash
+	log.Infof("memstore.StoreSession(): %s", index)
+	ms.sessions[index] = &session{
 		rootKeyHash: rootKeyHash,
 		chainKey:    chainKey,
 		send:        send,
 		recv:        recv,
 	}
+	ms.senderSessionPubHash = senderSessionPubHash
 	return nil
 }
 
@@ -110,11 +125,13 @@ func (ms *MemStore) GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, strin
 
 // GetMessageKey implemented in memory.
 func (ms *MemStore) GetMessageKey(
-	myID, contactID string,
+	myID, contactID, senderSessionPubHash string,
 	sender bool,
 	msgIndex uint64,
 ) (*[64]byte, error) {
-	session, ok := ms.sessions[myID+"@"+contactID]
+	index := myID + "@" + contactID + "@" + senderSessionPubHash
+	log.Infof("memstore.GetMessageKey(): %s", index)
+	session, ok := ms.sessions[index]
 	if !ok {
 		return nil, log.Errorf("memstore: no session found for %s and %s",
 			myID, contactID)
@@ -148,11 +165,13 @@ func (ms *MemStore) GetMessageKey(
 
 // DelMessageKey implemented in memory.
 func (ms *MemStore) DelMessageKey(
-	myID, contactID string,
+	myID, contactID, senderSessionPubHash string,
 	sender bool,
 	msgIndex uint64,
 ) error {
-	session, ok := ms.sessions[myID+"@"+contactID]
+	index := myID + "@" + contactID + "@" + senderSessionPubHash
+	log.Infof("memstore.DelMessageKey(): %s", index)
+	session, ok := ms.sessions[index]
 	if !ok {
 		return log.Errorf("memstore: no session found for %s and %s",
 			myID, contactID)

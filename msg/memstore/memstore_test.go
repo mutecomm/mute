@@ -81,7 +81,7 @@ func TestSessenStore(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = ms.StoreSession("alice@mute.berlin", "bob@mute.berlin",
+	err = ms.StoreSession("alice@mute.berlin", "bob@mute.berlin", "hash",
 		base64.Encode(cipher.SHA512([]byte("rootkey"))),
 		base64.Encode(cipher.SHA512([]byte("chainkey"))),
 		[]string{base64.Encode(sendKey[:])},
@@ -90,34 +90,41 @@ func TestSessenStore(t *testing.T) {
 		t.Fatal(err)
 	}
 	// test sender key
-	key, err := ms.GetMessageKey("alice@mute.berlin", "bob@mute.berlin", true, 0)
+	key, err := ms.GetMessageKey("alice@mute.berlin", "bob@mute.berlin",
+		"hash", true, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !bytes.Equal(key[:], sendKey[:]) {
 		t.Error("send key differs")
 	}
-	err = ms.DelMessageKey("alice@mute.berlin", "bob@mute.berlin", true, 0)
+	err = ms.DelMessageKey("alice@mute.berlin", "bob@mute.berlin", "hash",
+		true, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = ms.GetMessageKey("alice@mute.berlin", "bob@mute.berlin", true, 0)
+	_, err = ms.GetMessageKey("alice@mute.berlin", "bob@mute.berlin", "hash",
+		true, 0)
 	if err != msg.ErrMessageKeyUsed {
 		t.Error("should fail with msg.ErrMessageKeyUsed")
 	}
 	// test receiver key
-	key, err = ms.GetMessageKey("alice@mute.berlin", "bob@mute.berlin", false, 0)
+	key, err = ms.GetMessageKey("alice@mute.berlin", "bob@mute.berlin",
+		"hash", false, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !bytes.Equal(key[:], recvKey[:]) {
 		t.Error("recv key differs")
 	}
-	err = ms.DelMessageKey("alice@mute.berlin", "bob@mute.berlin", false, 0)
+	err = ms.DelMessageKey("alice@mute.berlin", "bob@mute.berlin", "hash",
+		false, 0)
 	if err != nil {
+
 		t.Fatal(err)
 	}
-	_, err = ms.GetMessageKey("alice@mute.berlin", "bob@mute.berlin", false, 0)
+	_, err = ms.GetMessageKey("alice@mute.berlin", "bob@mute.berlin", "hash",
+		false, 0)
 	if err != msg.ErrMessageKeyUsed {
 		t.Error("should fail with msg.ErrMessageKeyUsed")
 	}

@@ -35,12 +35,13 @@ type KeyStore interface {
 	// StoreSession stores a new session.
 	// myID is the myID on the local side of the communication.
 	// contactID is the myID on the remote side of the communication.
+	// senderSesssionPubHash is the hash of the SenderSessionPub key.
 	// rootKeyHash is the base64 encoded root key hash.
 	// chainKey is the base64 encoded chain key.
 	// send and recv are arrays containing NumOfFutureKeys many base64 encoded
 	// future keys.
-	StoreSession(myID, contactID, rootKeyHash, chainKey string,
-		send, recv []string) error
+	StoreSession(myID, contactID, senderSessionPubHash, rootKeyHash,
+		chainKey string, send, recv []string) error
 	// GetPublicKeyInit returns the private KeyEntry contained in the KeyInit
 	// message with the given pubKeyHash.
 	GetPrivateKeyEntry(pubKeyHash string) (*uid.KeyEntry, error)
@@ -50,9 +51,11 @@ type KeyStore interface {
 	GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, string, error)
 	// GetMessageKey returns the message key with index msgIndex. If sender is
 	// true the sender key is returned, otherwise the recipient key.
-	GetMessageKey(myID, contactID string, sender bool,
+	// senderSesssionPubHash is the hash of the SenderSessionPub key.
+	GetMessageKey(myID, contactID, senderSessionPubHash string, sender bool,
 		msgIndex uint64) (*[64]byte, error)
 	// DelMessageKey deleted the message key with index msgIndex. If sender is
 	// true the sender key is deleted, otherwise the recipient key.
-	DelMessageKey(myID, contactID string, sender bool, msgIndex uint64) error
+	DelMessageKey(myID, contactID, senderSessionPubHash string, sender bool,
+		msgIndex uint64) error
 }
