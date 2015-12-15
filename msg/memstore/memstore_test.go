@@ -71,7 +71,7 @@ func genMessageKey() (*[64]byte, error) {
 	return &messageKey, nil
 }
 
-func TestSessenStore(t *testing.T) {
+func TestSessionStore(t *testing.T) {
 	ms := New()
 	sendKey, err := genMessageKey()
 	if err != nil {
