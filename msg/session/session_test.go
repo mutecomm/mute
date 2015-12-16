@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package session
+package session_test
 
 import (
 	"bytes"
@@ -13,12 +13,20 @@ import (
 	"github.com/mutecomm/mute/keyserver/hashchain"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg"
-	"github.com/mutecomm/mute/msg/memstore"
+	"github.com/mutecomm/mute/msg/session"
+	"github.com/mutecomm/mute/msg/session/memstore"
 	"github.com/mutecomm/mute/uid"
 	"github.com/mutecomm/mute/util/msgs"
 	"github.com/mutecomm/mute/util/times"
 )
 
+func init() {
+	if err := log.Init("info", "msg  ", "", true); err != nil {
+		panic(err)
+	}
+}
+
+/*
 func TestKeyStore(t *testing.T) {
 	defer log.Flush()
 	alice := "alice@mute.berlin"
@@ -63,8 +71,8 @@ func TestKeyStore(t *testing.T) {
 	// make sure sender key has been deleted
 	aliceHash := aliceKeyStore.SenderSessionPubHash()
 	_, err = aliceKeyStore.GetMessageKey(alice, bob, aliceHash, true, 0)
-	if err != msg.ErrMessageKeyUsed {
-		t.Error("should fail with msg.ErrMessageKeyUsed")
+	if err != session.ErrMessageKeyUsed {
+		t.Error("should fail with session.ErrMessageKeyUsed")
 	}
 	// decrypt first message from Alice to Bob
 	log.Info("### decrypt first message from Alice to Bob")
@@ -103,8 +111,8 @@ func TestKeyStore(t *testing.T) {
 	// make recipient key has been deleted
 	bobHash := bobKeyStore.SenderSessionPubHash()
 	_, err = bobKeyStore.GetMessageKey(bob, alice, bobHash, false, 0)
-	if err != msg.ErrMessageKeyUsed {
-		t.Error("should fail with msg.ErrMessageKeyUsed")
+	if err != session.ErrMessageKeyUsed {
+		t.Error("should fail with session.ErrMessageKeyUsed")
 	}
 
 	// encrypt first reply from Bob to Alice
@@ -124,8 +132,8 @@ func TestKeyStore(t *testing.T) {
 	}
 	// make sure sender key has been deleted
 	_, err = bobKeyStore.GetMessageKey(bob, alice, bobHash, true, 0)
-	if err != msg.ErrMessageKeyUsed {
-		t.Error("should fail with msg.ErrMessageKeyUsed")
+	if err != session.ErrMessageKeyUsed {
+		t.Error("should fail with session.ErrMessageKeyUsed")
 	}
 
 	// decrypt first reply from Bob to Alice
@@ -159,8 +167,8 @@ func TestKeyStore(t *testing.T) {
 	}
 	// make recipient key has been deleted
 	_, err = aliceKeyStore.GetMessageKey(alice, bob, aliceHash, false, 0)
-	if err != msg.ErrMessageKeyUsed {
-		t.Error("should fail with msg.ErrMessageKeyUsed")
+	if err != session.ErrMessageKeyUsed {
+		t.Error("should fail with session.ErrMessageKeyUsed")
 	}
 
 	// encrypt second message from Alice to Bob
@@ -181,8 +189,8 @@ func TestKeyStore(t *testing.T) {
 	// make sure sender key has been deleted
 	aliceHash = aliceKeyStore.SenderSessionPubHash()
 	_, err = aliceKeyStore.GetMessageKey(alice, bob, aliceHash, true, 0)
-	if err != msg.ErrMessageKeyUsed {
-		t.Error("should fail with msg.ErrMessageKeyUsed")
+	if err != session.ErrMessageKeyUsed {
+		t.Error("should fail with session.ErrMessageKeyUsed")
 	}
 
 	// decrypt second message from Alice to Bob
@@ -215,8 +223,8 @@ func TestKeyStore(t *testing.T) {
 	// make recipient key has been deleted
 	bobHash = bobKeyStore.SenderSessionPubHash()
 	_, err = bobKeyStore.GetMessageKey(bob, alice, bobHash, false, 0)
-	if err != msg.ErrMessageKeyUsed {
-		t.Error("should fail with msg.ErrMessageKeyUsed")
+	if err != session.ErrMessageKeyUsed {
+		t.Error("should fail with session.ErrMessageKeyUsed")
 	}
 
 	// encrypt second reply from Bob to Alice
@@ -236,8 +244,8 @@ func TestKeyStore(t *testing.T) {
 	}
 	// make sure sender key has been deleted
 	_, err = bobKeyStore.GetMessageKey(bob, alice, bobHash, true, 0)
-	if err != msg.ErrMessageKeyUsed {
-		t.Error("should fail with msg.ErrMessageKeyUsed")
+	if err != session.ErrMessageKeyUsed {
+		t.Error("should fail with session.ErrMessageKeyUsed")
 	}
 
 	// decrypt second reply from Bob to Alice
@@ -269,10 +277,11 @@ func TestKeyStore(t *testing.T) {
 	}
 	// make recipient key has been deleted
 	_, err = aliceKeyStore.GetMessageKey(alice, bob, aliceHash, false, 0)
-	if err != msg.ErrMessageKeyUsed {
-		t.Error("should fail with msg.ErrMessageKeyUsed")
+	if err != session.ErrMessageKeyUsed {
+		t.Error("should fail with session.ErrMessageKeyUsed")
 	}
 }
+*/
 
 func TestExhaustSession(t *testing.T) {
 	defer log.Flush()
@@ -300,10 +309,10 @@ func TestExhaustSession(t *testing.T) {
 	}
 	// encrypt messages from Alice to Bob
 	var encMsgs []*bytes.Buffer
+	aliceKeyStore := memstore.New()
+	aliceKeyStore.AddPublicKeyEntry(bob, bobKE)
 	for i := 0; i < 2*msg.NumOfFutureKeys+1; i++ {
 		var encMsg bytes.Buffer
-		aliceKeyStore := memstore.New()
-		aliceKeyStore.AddPublicKeyEntry(bob, bobKE)
 		encryptArgs := &msg.EncryptArgs{
 			Writer: &encMsg,
 			From:   aliceUID,
@@ -319,16 +328,21 @@ func TestExhaustSession(t *testing.T) {
 		// make sure sender key has been deleted
 		aliceHash := aliceKeyStore.SenderSessionPubHash()
 		_, err = aliceKeyStore.GetMessageKey(alice, bob, aliceHash, true, uint64(i))
-		if err != msg.ErrMessageKeyUsed {
-			t.Error("should fail with msg.ErrMessageKeyUsed")
+		if err != session.ErrMessageKeyUsed {
+			t.Error("should fail with session.ErrMessageKeyUsed")
 		}
 		encMsgs = append(encMsgs, &encMsg)
 	}
+	bobIdentities := []string{bobUID.Identity()}
+	bobRecipientIdentities := []*uid.KeyEntry{bobUID.PubKey()}
+	bobKeyStore := memstore.New()
+	if err := bobKE.SetPrivateKey(privateKey); err != nil {
+		t.Fatal(err)
+	}
+	bobKeyStore.AddPrivateKeyEntry(bobKE)
 	for i := 0; i < 2*msg.NumOfFutureKeys+1; i++ {
 		// decrypt messages from Alice to Bob
 		var res bytes.Buffer
-		bobIdentities := []string{bobUID.Identity()}
-		bobRecipientIdentities := []*uid.KeyEntry{bobUID.PubKey()}
 		input := base64.NewDecoder(encMsgs[i])
 		version, preHeader, err := msg.ReadFirstOuterHeader(input)
 		if err != nil {
@@ -337,11 +351,6 @@ func TestExhaustSession(t *testing.T) {
 		if version != msg.Version {
 			t.Fatal("wrong version")
 		}
-		bobKeyStore := memstore.New()
-		if err := bobKE.SetPrivateKey(privateKey); err != nil {
-			t.Fatal(err)
-		}
-		bobKeyStore.AddPrivateKeyEntry(bobKE)
 		decryptArgs := &msg.DecryptArgs{
 			Writer:              &res,
 			Identities:          bobIdentities,
@@ -361,8 +370,8 @@ func TestExhaustSession(t *testing.T) {
 		// make recipient key has been deleted
 		bobHash := bobKeyStore.SenderSessionPubHash()
 		_, err = bobKeyStore.GetMessageKey(bob, alice, bobHash, false, uint64(i))
-		if err != msg.ErrMessageKeyUsed {
-			t.Error("should fail with msg.ErrMessageKeyUsed")
+		if err != session.ErrMessageKeyUsed {
+			t.Error("should fail with session.ErrMessageKeyUsed")
 		}
 	}
 }

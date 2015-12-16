@@ -175,7 +175,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			SenderMessageCount:          0,
 			RecipientSessionCount:       0,
 			RecipientMessageCount:       0,
-			RecipientTempHash:           h.SenderSessionPub.HASH,
+			RecipientTemp:               h.SenderSessionPub,
 			SenderSessionPub:            *recipientKI,
 			NextSenderSessionPub:        &nextSenderSession,
 			NextRecipientSessionPubSeen: h.NextSenderSessionPub,
@@ -211,7 +211,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 				// TODO: reset session here?
 				return "", "", log.Error("msg: NextSenderSessionPub mismatch")
 			}
-			ss.RecipientTempHash = h.SenderSessionPub.HASH
+			ss.RecipientTemp = h.SenderSessionPub
 			previousRootKeyHash, err := args.KeyStore.GetRootKeyHash(recipient,
 				sender, ss.SenderSessionPub.HASH)
 			if err != nil {
@@ -246,7 +246,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			// sender has sent next session key and own next session key
 			// has been reflected -> refresh session
 			log.Debug("refresh session")
-			ss.RecipientTempHash = h.NextSenderSessionPub.HASH
+			ss.RecipientTemp = *h.NextSenderSessionPub
 			previousRootKeyHash, err := args.KeyStore.GetRootKeyHash(recipient,
 				sender, ss.SenderSessionPub.HASH)
 			if err != nil {

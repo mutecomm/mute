@@ -89,13 +89,22 @@ func (ms *MemStore) StoreSession(
 		return log.Error("memstore: len(send) != len(recv)")
 	}
 	index := myID + "@" + contactID + "@" + senderSessionPubHash
-	ms.sessions[index] = &memSession{
-		rootKeyHash: rootKeyHash,
-		chainKey:    chainKey,
-		send:        send,
-		recv:        recv,
+	s, ok := ms.sessions[index]
+	if !ok {
+		ms.sessions[index] = &memSession{
+			rootKeyHash: rootKeyHash,
+			chainKey:    chainKey,
+			send:        send,
+			recv:        recv,
+		}
+		ms.senderSessionPubHash = senderSessionPubHash
+	} else {
+		// session already exists -> update
+		// rootKeyHash stays the same!
+		s.chainKey = chainKey
+		s.send = append(s.send, send...)
+		s.recv = append(s.recv, recv...)
 	}
-	ms.senderSessionPubHash = senderSessionPubHash
 	return nil
 }
 

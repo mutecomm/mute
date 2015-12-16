@@ -159,7 +159,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 			SenderMessageCount:          0,
 			RecipientSessionCount:       0,
 			RecipientMessageCount:       0,
-			RecipientTempHash:           recipientTemp.HASH,
+			RecipientTemp:               *recipientTemp,
 			SenderSessionPub:            senderSession,
 			NextSenderSessionPub:        &nextSenderSession,
 			NextRecipientSessionPubSeen: nil,
@@ -179,8 +179,8 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	log.Debugf("recipientID: %s", args.To.UIDContent.PUBKEYS[0].HASH)
 	log.Debugf("ss.SenderSessionCount: %d", ss.SenderSessionCount)
 	log.Debugf("ss.SenderMessageCount: %d", ss.SenderMessageCount)
-	log.Debugf("ss.RecipientTempHash:  %s", ss.RecipientTempHash)
-	h, err := newHeader(args.From, args.To, ss.RecipientTempHash,
+	log.Debugf("ss.RecipientTempHash:  %s", ss.RecipientTemp.HASH)
+	h, err := newHeader(args.From, args.To, ss.RecipientTemp.HASH,
 		&ss.SenderSessionPub, ss.NextSenderSessionPub,
 		ss.NextRecipientSessionPubSeen, ss.SenderSessionCount,
 		ss.SenderMessageCount, args.SenderLastKeychainHash, args.Rand)
@@ -225,6 +225,19 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	}
 	if ss.SenderMessageCount >= n {
 		// generate more message keys
+		log.Infof("generate more message keys (ss.SenderMessageCount=%d)",
+			ss.SenderMessageCount)
+		chainKey, err := args.KeyStore.GetChainKey(sender, recipient,
+			ss.SenderSessionPub.HASH)
+		if err != nil {
+			return "", err
+		}
+		err = generateMessageKeys(sender, recipient, chainKey[:], false,
+			ss.SenderSessionPub.PublicKey32(), ss.RecipientTemp.PublicKey32(),
+			NumOfFutureKeys, args.KeyStore)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	// get message key
