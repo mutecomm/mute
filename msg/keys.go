@@ -75,7 +75,7 @@ func generateMessageKeys(
 	rootKey []byte,
 	recipientKeys bool,
 	sessionPubHash string,
-	senderSessionPub, recipientPub []byte,
+	senderSessionPub, recipientPub *[32]byte,
 	keyStore KeyStore,
 ) error {
 	var (
@@ -95,12 +95,12 @@ func generateMessageKeys(
 	chainKey := rootKey
 	for i := 0; i < NumOfFutureKeys; i++ {
 		// messagekey_send[i] = HMAC_HASH(chainkey, "MESSAGE" | HASH(RecipientPub) | identity_fix)
-		buffer := append([]byte("MESSAGE"), cipher.SHA512(recipientPub)...)
+		buffer := append([]byte("MESSAGE"), cipher.SHA512(recipientPub[:])...)
 		buffer = append(buffer, identityFix...)
 		send = append(send, base64.Encode(cipher.HMAC(chainKey, buffer)))
 
 		// messagekey_recv[i] = HMAC_HASH(chainkey, "MESSAGE" | HASH(SenderSessionPub) | identity_fix)
-		buffer = append([]byte("MESSAGE"), cipher.SHA512(senderSessionPub)...)
+		buffer = append([]byte("MESSAGE"), cipher.SHA512(senderSessionPub[:])...)
 		buffer = append(buffer, identityFix...)
 		recv = append(recv, base64.Encode(cipher.HMAC(chainKey, buffer)))
 
