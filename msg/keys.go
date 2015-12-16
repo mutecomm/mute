@@ -74,7 +74,7 @@ func deriveRootKey(
 // keyStore.StoresSession and keyStore.SetSessionState to store the result.
 func generateMessageKeys(
 	senderIdentity, recipientIdentity string,
-	rootKey *[24]byte,
+	rootKey []byte, // TODO: change to *[64]byte?
 	recipientKeys bool,
 	senderSessionPub, recipientPub *[32]byte,
 	numOfKeys int,
@@ -96,7 +96,7 @@ func generateMessageKeys(
 	recipientPubHash := cipher.SHA512(recipientPub[:])
 	senderSessionPubHash := cipher.SHA512(senderSessionPub[:])
 
-	chainKey := rootKey[:]
+	chainKey := rootKey
 	for i := 0; i < numOfKeys; i++ {
 		// messagekey_send[i] = HMAC_HASH(chainkey, "MESSAGE" | HASH(RecipientPub) | identity_fix)
 		buffer := append([]byte("MESSAGE"), recipientPubHash...)

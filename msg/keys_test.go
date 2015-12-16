@@ -36,7 +36,7 @@ func TestGenerateMessageKeys(t *testing.T) {
 	h := base64.Encode(cipher.SHA512(senderSessionPub[:]))
 	ms := memstore.New()
 
-	err = generateMessageKeys(a, b, &rootKey, false, &senderSessionPub,
+	err = generateMessageKeys(a, b, rootKey[:], false, &senderSessionPub,
 		&recipientPub, NumOfFutureKeys, ms)
 	if err != nil {
 		t.Fatal(err)
