@@ -12,7 +12,7 @@ import (
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/keyserver/hashchain"
-	"github.com/mutecomm/mute/msg"
+	"github.com/mutecomm/mute/msg/session"
 	"github.com/mutecomm/mute/uid"
 	"github.com/mutecomm/mute/util/times"
 )
@@ -58,8 +58,8 @@ func TestKeyEntry(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, _, err := ms.GetPublicKeyEntry(uidMsg); err != msg.ErrNoKeyInit {
-		t.Error("should fail with msg.ErrNoKeyInit")
+	if _, _, err := ms.GetPublicKeyEntry(uidMsg); err != session.ErrNoKeyInit {
+		t.Error("should fail with session.ErrNoKeyInit")
 	}
 }
 
@@ -123,8 +123,8 @@ func TestSessionStore(t *testing.T) {
 	}
 	_, err = ms.GetMessageKey("alice@mute.berlin", "bob@mute.berlin", "hash",
 		true, 0)
-	if err != msg.ErrMessageKeyUsed {
-		t.Error("should fail with msg.ErrMessageKeyUsed")
+	if err != session.ErrMessageKeyUsed {
+		t.Error("should fail with session.ErrMessageKeyUsed")
 	}
 	// test receiver key
 	key, err = ms.GetMessageKey("alice@mute.berlin", "bob@mute.berlin",
@@ -143,14 +143,14 @@ func TestSessionStore(t *testing.T) {
 	}
 	_, err = ms.GetMessageKey("alice@mute.berlin", "bob@mute.berlin", "hash",
 		false, 0)
-	if err != msg.ErrMessageKeyUsed {
-		t.Error("should fail with msg.ErrMessageKeyUsed")
+	if err != session.ErrMessageKeyUsed {
+		t.Error("should fail with session.ErrMessageKeyUsed")
 	}
 }
 
 func TestSessionState(t *testing.T) {
 	ms := New()
-	ss := &msg.SessionState{
+	ss := &session.State{
 		SenderSessionCount:    1,
 		SenderMessageCount:    2,
 		RecipientSessionCount: 3,
