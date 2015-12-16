@@ -66,7 +66,7 @@ func deriveRootKey(
 	return &rootKey, nil
 }
 
-// generateMessageKeys generates the next NumOfFutureKeys many session keys from
+// generateMessageKeys generates the next numOfKeys many session keys from
 // from rootKey for given senderIdentity and recipientIdentity.
 // If recipientKeys is true the generated sender and reciever keys are stored in
 // reverse order.
@@ -77,6 +77,7 @@ func generateMessageKeys(
 	rootKey *[24]byte,
 	recipientKeys bool,
 	senderSessionPub, recipientPub *[32]byte,
+	numOfKeys int,
 	keyStore session.Store,
 ) error {
 	var (
@@ -94,7 +95,7 @@ func generateMessageKeys(
 	identityFix := cipher.SHA512([]byte(identities))
 
 	chainKey := rootKey[:]
-	for i := 0; i < NumOfFutureKeys; i++ {
+	for i := 0; i < numOfKeys; i++ {
 		// messagekey_send[i] = HMAC_HASH(chainkey, "MESSAGE" | HASH(RecipientPub) | identity_fix)
 		buffer := append([]byte("MESSAGE"), cipher.SHA512(recipientPub[:])...)
 		buffer = append(buffer, identityFix...)

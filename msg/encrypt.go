@@ -72,7 +72,7 @@ func rootKeyAgreementSender(
 
 	// generate message keys
 	err = generateMessageKeys(senderIdentity, recipientIdentity, rootKey,
-		false, senderSessionPub, recipientKeyInitPub, keyStore)
+		false, senderSessionPub, recipientKeyInitPub, NumOfFutureKeys, keyStore)
 	if err != nil {
 		return err
 	}

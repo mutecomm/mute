@@ -37,7 +37,7 @@ func TestGenerateMessageKeys(t *testing.T) {
 	ms := memstore.New()
 
 	err = generateMessageKeys(a, b, &rootKey, false, &senderSessionPub,
-		&recipientPub, ms)
+		&recipientPub, NumOfFutureKeys, ms)
 	if err != nil {
 		t.Fatal(err)
 	}
