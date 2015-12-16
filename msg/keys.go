@@ -57,7 +57,7 @@ func deriveRootKey(
 	hkdf := hkdf.New(sha512.New, master, nil, nil)
 
 	// derive root key
-	// TODO: size correct?
+	// TODO: size correct? Shouldn't it be 64 bytes?
 	var rootKey [24]byte
 	if _, err := io.ReadFull(hkdf, rootKey[:]); err != nil {
 		return nil, err
