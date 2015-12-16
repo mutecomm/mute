@@ -70,7 +70,6 @@ func (ms *MemStore) SetSessionState(
 	myID, contactID string,
 	sessionState *session.State,
 ) error {
-	log.Debugf("memstore.SetSessionState(): %s", sessionState.SenderSessionPub.HASH)
 	ms.sessionStates[myID+"@"+contactID] = sessionState
 	return nil
 }
@@ -89,14 +88,7 @@ func (ms *MemStore) StoreSession(
 	if len(send) != len(recv) {
 		return log.Error("memstore: len(send) != len(recv)")
 	}
-	/*
-		for i := 0; i < 3; i++ {
-			log.Debugf("send[%d]: %s", i, send[i])
-			log.Debugf("recv[%d]: %s", i, recv[i])
-		}
-	*/
 	index := myID + "@" + contactID + "@" + senderSessionPubHash
-	log.Debugf("memstore.StoreSession(): %s", index)
 	ms.sessions[index] = &memSession{
 		rootKeyHash: rootKeyHash,
 		chainKey:    chainKey,
@@ -137,9 +129,7 @@ func (ms *MemStore) GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, strin
 func (ms *MemStore) NumMessageKeys(
 	myID, contactID, senderSessionPubHash string,
 ) (uint64, error) {
-	index := myID + "@" + contactID + "@" + senderSessionPubHash
-	log.Debugf("memstore.GetMessageKey(): %s", index)
-	s, ok := ms.sessions[index]
+	s, ok := ms.sessions[myID+"@"+contactID+"@"+senderSessionPubHash]
 	if !ok {
 		return 0, log.Errorf("memstore: no session found for %s and %s",
 			myID, contactID)
@@ -153,9 +143,7 @@ func (ms *MemStore) GetMessageKey(
 	sender bool,
 	msgIndex uint64,
 ) (*[64]byte, error) {
-	index := myID + "@" + contactID + "@" + senderSessionPubHash
-	log.Debugf("memstore.GetMessageKey(): %s", index)
-	s, ok := ms.sessions[index]
+	s, ok := ms.sessions[myID+"@"+contactID+"@"+senderSessionPubHash]
 	if !ok {
 		return nil, log.Errorf("memstore: no session found for %s and %s",
 			myID, contactID)
@@ -194,9 +182,7 @@ func (ms *MemStore) GetMessageKey(
 func (ms *MemStore) GetRootKeyHash(
 	myID, contactID, senderSessionPubHash string,
 ) (*[64]byte, error) {
-	index := myID + "@" + contactID + "@" + senderSessionPubHash
-	log.Debugf("memstore.GetRootKeyHash(): %s", index)
-	s, ok := ms.sessions[index]
+	s, ok := ms.sessions[myID+"@"+contactID+"@"+senderSessionPubHash]
 	if !ok {
 		return nil, log.Errorf("memstore: no session found for %s and %s",
 			myID, contactID)
@@ -219,9 +205,7 @@ func (ms *MemStore) DelMessageKey(
 	sender bool,
 	msgIndex uint64,
 ) error {
-	index := myID + "@" + contactID + "@" + senderSessionPubHash
-	log.Debugf("memstore.DelMessageKey(): %s", index)
-	s, ok := ms.sessions[index]
+	s, ok := ms.sessions[myID+"@"+contactID+"@"+senderSessionPubHash]
 	if !ok {
 		return log.Errorf("memstore: no session found for %s and %s",
 			myID, contactID)
