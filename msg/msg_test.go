@@ -15,7 +15,7 @@ import (
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/keyserver/hashchain"
 	"github.com/mutecomm/mute/log"
-	"github.com/mutecomm/mute/msg/memstore"
+	"github.com/mutecomm/mute/msg/session/memstore"
 	"github.com/mutecomm/mute/uid"
 	"github.com/mutecomm/mute/util/fuzzer"
 	"github.com/mutecomm/mute/util/msgs"
