@@ -76,7 +76,6 @@ func generateMessageKeys(
 	senderIdentity, recipientIdentity string,
 	rootKey *[24]byte,
 	recipientKeys bool,
-	sessionPubHash string,
 	senderSessionPub, recipientPub *[32]byte,
 	keyStore session.Store,
 ) error {
@@ -121,8 +120,14 @@ func generateMessageKeys(
 	}
 
 	// store session
+	var senderSessionPubHash string
+	if recipientKeys {
+		senderSessionPubHash = base64.Encode(cipher.SHA512(recipientPub[:]))
+	} else {
+		senderSessionPubHash = base64.Encode(cipher.SHA512(senderSessionPub[:]))
+	}
 	err := keyStore.StoreSession(senderIdentity, recipientIdentity,
-		sessionPubHash, rootKeyHash, base64.Encode(chainKey), send, recv)
+		senderSessionPubHash, rootKeyHash, base64.Encode(chainKey), send, recv)
 	if err != nil {
 		return err
 	}
