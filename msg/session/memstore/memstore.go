@@ -220,7 +220,7 @@ func (ms *MemStore) GetChainKey(
 	}
 	// decode root key hash
 	var key [64]byte
-	k, err := base64.Decode(s.rootKeyHash)
+	k, err := base64.Decode(s.chainKey)
 	if err != nil {
 		return nil, log.Error("memstore: cannot decode chain key")
 	}
