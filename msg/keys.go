@@ -93,16 +93,18 @@ func generateMessageKeys(
 		identities = recipientIdentity + senderIdentity
 	}
 	identityFix := cipher.SHA512([]byte(identities))
+	recipientPubHash := cipher.SHA512(recipientPub[:])
+	senderSessionPubHash := cipher.SHA512(senderSessionPub[:])
 
 	chainKey := rootKey[:]
 	for i := 0; i < numOfKeys; i++ {
 		// messagekey_send[i] = HMAC_HASH(chainkey, "MESSAGE" | HASH(RecipientPub) | identity_fix)
-		buffer := append([]byte("MESSAGE"), cipher.SHA512(recipientPub[:])...)
+		buffer := append([]byte("MESSAGE"), recipientPubHash...)
 		buffer = append(buffer, identityFix...)
 		send = append(send, base64.Encode(cipher.HMAC(chainKey, buffer)))
 
 		// messagekey_recv[i] = HMAC_HASH(chainkey, "MESSAGE" | HASH(SenderSessionPub) | identity_fix)
-		buffer = append([]byte("MESSAGE"), cipher.SHA512(senderSessionPub[:])...)
+		buffer = append([]byte("MESSAGE"), senderSessionPubHash...)
 		buffer = append(buffer, identityFix...)
 		recv = append(recv, base64.Encode(cipher.HMAC(chainKey, buffer)))
 
@@ -121,14 +123,14 @@ func generateMessageKeys(
 	}
 
 	// store session
-	var senderSessionPubHash string
+	var pubHash string
 	if recipientKeys {
-		senderSessionPubHash = base64.Encode(cipher.SHA512(recipientPub[:]))
+		pubHash = base64.Encode(cipher.SHA512(recipientPub[:]))
 	} else {
-		senderSessionPubHash = base64.Encode(cipher.SHA512(senderSessionPub[:]))
+		pubHash = base64.Encode(cipher.SHA512(senderSessionPub[:]))
 	}
-	err := keyStore.StoreSession(senderIdentity, recipientIdentity,
-		senderSessionPubHash, rootKeyHash, base64.Encode(chainKey), send, recv)
+	err := keyStore.StoreSession(senderIdentity, recipientIdentity, pubHash,
+		rootKeyHash, base64.Encode(chainKey), send, recv)
 	if err != nil {
 		return err
 	}
