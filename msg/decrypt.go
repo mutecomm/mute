@@ -15,6 +15,7 @@ import (
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
+	"github.com/mutecomm/mute/msg/mime"
 	"github.com/mutecomm/mute/msg/session"
 	"github.com/mutecomm/mute/uid"
 )
@@ -289,17 +290,27 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	}
 	if h.SenderMessageCount >= n {
 		// generate more message keys
-		log.Debugf("generate more message keys (h.SenderMessageCount=%d)",
+		log.Infof("generate more message keys (h.SenderMessageCount=%d)",
 			h.SenderMessageCount)
 		chainKey, err := args.KeyStore.GetChainKey(recipient, sender,
 			ss.SenderSessionPub.HASH)
 		if err != nil {
 			return "", "", err
 		}
-		// TODO: set numOfKeys correctly!
+		// prevent denial of service attack by very large h.SenderMessageCount
+		numOfKeys := h.SenderMessageCount / NumOfFutureKeys
+		if h.SenderMessageCount%NumOfFutureKeys > 0 {
+			numOfKeys++
+		}
+		numOfKeys *= NumOfFutureKeys
+		if numOfKeys > mime.MaxMsgSize/MaxContentLength+NumOfFutureKeys {
+			return "", "",
+				log.Errorf("msg: requested number of message keys too large")
+		}
+		log.Infof("numOfKeys=%d", numOfKeys)
 		err = generateMessageKeys(sender, recipient, chainKey[:], true,
 			ss.RecipientTemp.PublicKey32(), ss.SenderSessionPub.PublicKey32(),
-			NumOfFutureKeys, args.KeyStore)
+			numOfKeys, args.KeyStore)
 		if err != nil {
 			return "", "", err
 		}

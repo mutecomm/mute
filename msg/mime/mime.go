@@ -22,6 +22,9 @@ import (
 	"github.com/mutecomm/mute/log"
 )
 
+// MaxMsgSize is the maximums size a MIME encoded message can have.
+const MaxMsgSize = 10485760 // 10GB
+
 // Attachment is a file attachment in Mute. The Content-Type of the MIME
 // attachment is determined as follows:
 //
