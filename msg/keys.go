@@ -44,7 +44,7 @@ func checkKeys(k1, k2, k3, k4 *[32]byte) error {
 func deriveRootKey(
 	t1, t2, t3 *[32]byte,
 	previousRootKeyHash *[64]byte,
-) ([]byte, error) {
+) (*[24]byte, error) {
 	master := make([]byte, 32+32+32+64)
 	copy(master[:], t1[:])
 	copy(master[32:], t2[:])
@@ -56,12 +56,13 @@ func deriveRootKey(
 	hkdf := hkdf.New(sha512.New, master, nil, nil)
 
 	// derive root key
-	rootKey := make([]byte, 24)
-	if _, err := io.ReadFull(hkdf, rootKey); err != nil {
+	// TODO: size correct?
+	var rootKey [24]byte
+	if _, err := io.ReadFull(hkdf, rootKey[:]); err != nil {
 		return nil, err
 	}
 
-	return rootKey, nil
+	return &rootKey, nil
 }
 
 // generateMessageKeys generates the next NumOfFutureKeys many session keys from
@@ -72,7 +73,7 @@ func deriveRootKey(
 // keyStore.StoresSession and keyStore.SetSessionState to store the result.
 func generateMessageKeys(
 	senderIdentity, recipientIdentity string,
-	rootKey []byte,
+	rootKey *[24]byte,
 	recipientKeys bool,
 	sessionPubHash string,
 	senderSessionPub, recipientPub *[32]byte,
@@ -92,7 +93,7 @@ func generateMessageKeys(
 	}
 	identityFix := cipher.SHA512([]byte(identities))
 
-	chainKey := rootKey
+	chainKey := rootKey[:]
 	for i := 0; i < NumOfFutureKeys; i++ {
 		// messagekey_send[i] = HMAC_HASH(chainkey, "MESSAGE" | HASH(RecipientPub) | identity_fix)
 		buffer := append([]byte("MESSAGE"), cipher.SHA512(recipientPub[:])...)
@@ -109,8 +110,8 @@ func generateMessageKeys(
 	}
 
 	// calculate root key hash
-	rootKeyHash := base64.Encode(cipher.SHA512(rootKey))
-	bzero.Bytes(rootKey)
+	rootKeyHash := base64.Encode(cipher.SHA512(rootKey[:]))
+	bzero.Bytes(rootKey[:])
 
 	// reverse key material, if necessary
 	if recipientKeys {
