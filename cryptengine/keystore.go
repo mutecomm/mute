@@ -8,7 +8,6 @@ import (
 	"database/sql"
 
 	"github.com/mutecomm/mute/log"
-	"github.com/mutecomm/mute/msg"
 	"github.com/mutecomm/mute/msg/session"
 	"github.com/mutecomm/mute/uid"
 	"github.com/mutecomm/mute/util"
@@ -76,7 +75,7 @@ func (ce *CryptEngine) GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, st
 	ki, err := ce.keyDB.GetPublicKeyInit(sigKeyHash)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, "", msg.ErrNoKeyInit
+			return nil, "", session.ErrNoKeyInit
 		}
 		return nil, "", err
 	}

@@ -10,7 +10,6 @@ import (
 
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
-	"github.com/mutecomm/mute/msg"
 	"github.com/mutecomm/mute/msg/session"
 	"github.com/mutecomm/mute/uid"
 	"github.com/mutecomm/mute/uid/identity"
@@ -129,7 +128,7 @@ func (ms *MemStore) GetPrivateKeyEntry(pubKeyHash string) (*uid.KeyEntry, error)
 func (ms *MemStore) GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, string, error) {
 	ke, ok := ms.publicKeyEntryMap[uidMsg.Identity()]
 	if !ok {
-		return nil, "", msg.ErrNoKeyInit
+		return nil, "", log.Error(session.ErrNoKeyInit)
 	}
 	return ke, "undefined", nil
 }
@@ -140,12 +139,12 @@ func (ms *MemStore) NumMessageKeys(
 ) (uint64, error) {
 	index := myID + "@" + contactID + "@" + senderSessionPubHash
 	log.Debugf("memstore.GetMessageKey(): %s", index)
-	session, ok := ms.sessions[index]
+	s, ok := ms.sessions[index]
 	if !ok {
 		return 0, log.Errorf("memstore: no session found for %s and %s",
 			myID, contactID)
 	}
-	return uint64(len(session.send)), nil
+	return uint64(len(s.send)), nil
 }
 
 // GetMessageKey implemented in memory.
@@ -156,26 +155,26 @@ func (ms *MemStore) GetMessageKey(
 ) (*[64]byte, error) {
 	index := myID + "@" + contactID + "@" + senderSessionPubHash
 	log.Debugf("memstore.GetMessageKey(): %s", index)
-	session, ok := ms.sessions[index]
+	s, ok := ms.sessions[index]
 	if !ok {
 		return nil, log.Errorf("memstore: no session found for %s and %s",
 			myID, contactID)
 	}
-	if msgIndex >= uint64(len(session.send)) {
+	if msgIndex >= uint64(len(s.send)) {
 		return nil, log.Error("memstore: message index out of bounds")
 	}
 	var key string
 	var party string
 	if sender {
-		key = session.send[msgIndex]
+		key = s.send[msgIndex]
 		party = "sender"
 	} else {
-		key = session.recv[msgIndex]
+		key = s.recv[msgIndex]
 		party = "recipient"
 	}
 	// make sure key wasn't used yet
 	if key == "" {
-		return nil, log.Error(msg.ErrMessageKeyUsed)
+		return nil, log.Error(session.ErrMessageKeyUsed)
 	}
 	// decode key
 	var messageKey [64]byte
@@ -197,14 +196,14 @@ func (ms *MemStore) GetRootKeyHash(
 ) (*[64]byte, error) {
 	index := myID + "@" + contactID + "@" + senderSessionPubHash
 	log.Debugf("memstore.GetRootKeyHash(): %s", index)
-	session, ok := ms.sessions[index]
+	s, ok := ms.sessions[index]
 	if !ok {
 		return nil, log.Errorf("memstore: no session found for %s and %s",
 			myID, contactID)
 	}
 	// decode root key hash
 	var hash [64]byte
-	k, err := base64.Decode(session.rootKeyHash)
+	k, err := base64.Decode(s.rootKeyHash)
 	if err != nil {
 		return nil, log.Error("memstore: cannot decode root key hash")
 	}
@@ -222,19 +221,19 @@ func (ms *MemStore) DelMessageKey(
 ) error {
 	index := myID + "@" + contactID + "@" + senderSessionPubHash
 	log.Debugf("memstore.DelMessageKey(): %s", index)
-	session, ok := ms.sessions[index]
+	s, ok := ms.sessions[index]
 	if !ok {
 		return log.Errorf("memstore: no session found for %s and %s",
 			myID, contactID)
 	}
-	if msgIndex >= uint64(len(session.send)) {
+	if msgIndex >= uint64(len(s.send)) {
 		return log.Error("memstore: message index out of bounds")
 	}
 	// delete key
 	if sender {
-		session.send[msgIndex] = ""
+		s.send[msgIndex] = ""
 	} else {
-		session.recv[msgIndex] = ""
+		s.recv[msgIndex] = ""
 	}
 	return nil
 }

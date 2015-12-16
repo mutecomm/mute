@@ -49,11 +49,5 @@ var ErrWrongCount = errors.New("msg: wrong outer header count")
 // ErrNotData is raised when an inner data header was expected.
 var ErrNotData = errors.New("msg: expected inner data header")
 
-// ErrMessageKeyUsed is raised when a message key has already been used.
-var ErrMessageKeyUsed = errors.New("msg: message key has already been used")
-
-// ErrNoKeyInit is raised when no KeyInit could be found.
-var ErrNoKeyInit = errors.New("msg: no KeyInit for user found")
-
 // ErrReflection is raised when a possible reflection attack has been detected.
 var ErrReflection = errors.New("msg: reflection attack detected")
