@@ -133,6 +133,20 @@ func (ms *MemStore) GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, strin
 	return ke, "undefined", nil
 }
 
+// NumMessageKeys implemented in memory.
+func (ms *MemStore) NumMessageKeys(
+	myID, contactID, senderSessionPubHash string,
+) (uint64, error) {
+	index := myID + "@" + contactID + "@" + senderSessionPubHash
+	log.Debugf("memstore.GetMessageKey(): %s", index)
+	session, ok := ms.sessions[index]
+	if !ok {
+		return 0, log.Errorf("memstore: no session found for %s and %s",
+			myID, contactID)
+	}
+	return uint64(len(session.send)), nil
+}
+
 // GetMessageKey implemented in memory.
 func (ms *MemStore) GetMessageKey(
 	myID, contactID, senderSessionPubHash string,
@@ -146,13 +160,16 @@ func (ms *MemStore) GetMessageKey(
 		return nil, log.Errorf("memstore: no session found for %s and %s",
 			myID, contactID)
 	}
+	if msgIndex >= uint64(len(session.send)) {
+		return nil, log.Error("memstore: message index out of bounds")
+	}
 	var key string
 	var party string
 	if sender {
-		key = session.send[msgIndex] // TODO: this could panic
+		key = session.send[msgIndex]
 		party = "sender"
 	} else {
-		key = session.recv[msgIndex] // TODO: this could panic
+		key = session.recv[msgIndex]
 		party = "recipient"
 	}
 	// make sure key wasn't used yet
@@ -209,11 +226,14 @@ func (ms *MemStore) DelMessageKey(
 		return log.Errorf("memstore: no session found for %s and %s",
 			myID, contactID)
 	}
+	if msgIndex >= uint64(len(session.send)) {
+		return log.Error("memstore: message index out of bounds")
+	}
 	// delete key
 	if sender {
-		session.send[msgIndex] = "" // TODO: this could panic
+		session.send[msgIndex] = ""
 	} else {
-		session.recv[msgIndex] = "" // TODO: this could panic
+		session.recv[msgIndex] = ""
 	}
 	return nil
 }

@@ -101,6 +101,13 @@ func (ce *CryptEngine) GetMessageKey(
 	return nil, util.ErrNotImplemented
 }
 
+// NumMessageKeys implements corresponding method for msg.KeyStore interface.
+func (ce *CryptEngine) NumMessageKeys(
+	myID, contactID, senderSessionPubHash string,
+) (uint64, error) {
+	return 0, util.ErrNotImplemented
+}
+
 // GetRootKeyHash implements corresponding method for msg.KeyStore interface.
 func (ce *CryptEngine) GetRootKeyHash(
 	myID, contactID, senderSessionPubHash string,

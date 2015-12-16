@@ -57,6 +57,9 @@ type KeyStore interface {
 	// senderSesssionPubHash is the hash of the SenderSessionPub key.
 	GetMessageKey(myID, contactID, senderSessionPubHash string, sender bool,
 		msgIndex uint64) (*[64]byte, error)
+	// NumMessageKeys returns the number of precomputed messages keys between
+	// myID and contact ID with senderSessionPubHash.
+	NumMessageKeys(myID, contactID, senderSessionPubHash string) (uint64, error)
 	// GetRootKeyHash returns the root key hash fo the session between myID
 	// and contactID with senderSessionPubHash.
 	GetRootKeyHash(myID, contactID, senderSessionPubHash string) (*[64]byte,

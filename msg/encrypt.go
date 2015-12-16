@@ -217,6 +217,16 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	}
 	count++
 
+	// make sure we got enough message keys
+	n, err := args.KeyStore.NumMessageKeys(sender, recipient,
+		ss.SenderSessionPub.HASH)
+	if err != nil {
+		return "", err
+	}
+	if ss.SenderMessageCount >= n {
+		// generate more message keys
+	}
+
 	// get message key
 	messageKey, err := args.KeyStore.GetMessageKey(sender, recipient,
 		ss.SenderSessionPub.HASH, true, ss.SenderMessageCount)
