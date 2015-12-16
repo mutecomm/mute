@@ -281,7 +281,7 @@ func TestKeyStore(t *testing.T) {
 	}
 }
 
-func TestExhaustSession(t *testing.T) {
+func TestExhaustSessionSequential(t *testing.T) {
 	defer log.Flush()
 	alice := "alice@mute.berlin"
 	aliceUID, err := uid.Create(alice, false, "", "", uid.Strict,
@@ -371,5 +371,98 @@ func TestExhaustSession(t *testing.T) {
 		if err != session.ErrMessageKeyUsed {
 			t.Error("should fail with session.ErrMessageKeyUsed")
 		}
+	}
+}
+
+func TestExhaustSessionLast(t *testing.T) {
+	defer log.Flush()
+	alice := "alice@mute.berlin"
+	aliceUID, err := uid.Create(alice, false, "", "", uid.Strict,
+		hashchain.TestEntry, cipher.RandReader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	bob := "bob@mute.berlin"
+	bobUID, err := uid.Create(bob, false, "", "", uid.Strict,
+		hashchain.TestEntry, cipher.RandReader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	now := uint64(times.Now())
+	bobKI, _, privateKey, err := bobUID.KeyInit(1, now+times.Day, now-times.Day,
+		false, "mute.berlin", "", "", cipher.RandReader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	bobKE, err := bobKI.KeyEntryECDHE25519(bobUID.SigPubKey())
+	if err != nil {
+		t.Fatal(err)
+	}
+	// encrypt messages from Alice to Bob
+	var encMsgs []*bytes.Buffer
+	aliceKeyStore := memstore.New()
+	aliceKeyStore.AddPublicKeyEntry(bob, bobKE)
+	for i := 0; i < 2*msg.NumOfFutureKeys+1; i++ {
+		var encMsg bytes.Buffer
+		encryptArgs := &msg.EncryptArgs{
+			Writer: &encMsg,
+			From:   aliceUID,
+			To:     bobUID,
+			SenderLastKeychainHash: hashchain.TestEntry,
+			Reader:                 bytes.NewBufferString(msgs.Message1),
+			Rand:                   cipher.RandReader,
+			KeyStore:               aliceKeyStore,
+		}
+		if _, err = msg.Encrypt(encryptArgs); err != nil {
+			t.Fatal(err)
+		}
+		// make sure sender key has been deleted
+		aliceHash := aliceKeyStore.SenderSessionPubHash()
+		_, err = aliceKeyStore.GetMessageKey(alice, bob, aliceHash, true, uint64(i))
+		if err != session.ErrMessageKeyUsed {
+			t.Error("should fail with session.ErrMessageKeyUsed")
+		}
+		encMsgs = append(encMsgs, &encMsg)
+	}
+	bobIdentities := []string{bobUID.Identity()}
+	bobRecipientIdentities := []*uid.KeyEntry{bobUID.PubKey()}
+	bobKeyStore := memstore.New()
+	if err := bobKE.SetPrivateKey(privateKey); err != nil {
+		t.Fatal(err)
+	}
+	bobKeyStore.AddPrivateKeyEntry(bobKE)
+	// decrypt last message from Alice to Bob
+	log.Debug("### decrypt last message from Alice to Bob")
+	var res bytes.Buffer
+	input := base64.NewDecoder(encMsgs[2*msg.NumOfFutureKeys])
+	version, preHeader, err := msg.ReadFirstOuterHeader(input)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if version != msg.Version {
+		t.Fatal("wrong version")
+	}
+	decryptArgs := &msg.DecryptArgs{
+		Writer:              &res,
+		Identities:          bobIdentities,
+		RecipientIdentities: bobRecipientIdentities,
+		PreHeader:           preHeader,
+		Reader:              input,
+		Rand:                cipher.RandReader,
+		KeyStore:            bobKeyStore,
+	}
+	_, _, err = msg.Decrypt(decryptArgs)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.String() != msgs.Message1 {
+		t.Fatal("messages differ")
+	}
+	// make recipient key has been deleted
+	bobHash := bobKeyStore.SenderSessionPubHash()
+	_, err = bobKeyStore.GetMessageKey(bob, alice, bobHash, false,
+		uint64(2*msg.NumOfFutureKeys))
+	if err != session.ErrMessageKeyUsed {
+		t.Error("should fail with session.ErrMessageKeyUsed")
 	}
 }
