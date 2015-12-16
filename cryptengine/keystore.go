@@ -115,6 +115,13 @@ func (ce *CryptEngine) GetRootKeyHash(
 	return nil, util.ErrNotImplemented
 }
 
+// GetChainKey implements corresponding method for msg.KeyStore interface.
+func (ce *CryptEngine) GetChainKey(
+	myID, contactID, senderSessionPubHash string,
+) (*[64]byte, error) {
+	return nil, util.ErrNotImplemented
+}
+
 // DelMessageKey implements corresponding method for msg.KeyStore interface.
 func (ce *CryptEngine) DelMessageKey(
 	myID, contactID, senderSessionPubHash string,

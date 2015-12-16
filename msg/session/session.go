@@ -60,10 +60,13 @@ type Store interface {
 	// NumMessageKeys returns the number of precomputed messages keys between
 	// myID and contact ID with senderSessionPubHash.
 	NumMessageKeys(myID, contactID, senderSessionPubHash string) (uint64, error)
-	// GetRootKeyHash returns the root key hash fo the session between myID
+	// GetRootKeyHash returns the root key hash for the session between myID
 	// and contactID with senderSessionPubHash.
 	GetRootKeyHash(myID, contactID, senderSessionPubHash string) (*[64]byte,
 		error)
+	// GetChainKey returns the chain key for the session between myID and
+	// contactID with senderSessionPubHash.
+	GetChainKey(myID, contactID, senderSessionPubHash string) (*[64]byte, error)
 	// DelMessageKey deleted the message key with index msgIndex. If sender is
 	// true the sender key is deleted, otherwise the recipient key.
 	DelMessageKey(myID, contactID, senderSessionPubHash string, sender bool,

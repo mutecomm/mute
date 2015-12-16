@@ -199,6 +199,27 @@ func (ms *MemStore) GetRootKeyHash(
 	return &hash, nil
 }
 
+// GetChainKey implemented in memory.
+func (ms *MemStore) GetChainKey(
+	myID, contactID, senderSessionPubHash string,
+) (*[64]byte, error) {
+	s, ok := ms.sessions[myID+"@"+contactID+"@"+senderSessionPubHash]
+	if !ok {
+		return nil, log.Errorf("memstore: no session found for %s and %s",
+			myID, contactID)
+	}
+	// decode root key hash
+	var key [64]byte
+	k, err := base64.Decode(s.rootKeyHash)
+	if err != nil {
+		return nil, log.Error("memstore: cannot decode chain key")
+	}
+	if copy(key[:], k) != 64 {
+		return nil, log.Errorf("memstore: chain key has wrong length")
+	}
+	return &key, nil
+}
+
 // DelMessageKey implemented in memory.
 func (ms *MemStore) DelMessageKey(
 	myID, contactID, senderSessionPubHash string,
