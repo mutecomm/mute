@@ -15,6 +15,7 @@ import (
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/keyserver/hashchain"
 	"github.com/mutecomm/mute/log"
+	"github.com/mutecomm/mute/msg/padding"
 	"github.com/mutecomm/mute/msg/session/memstore"
 	"github.com/mutecomm/mute/uid"
 	"github.com/mutecomm/mute/util/fuzzer"
@@ -238,6 +239,86 @@ func TestMaxContentLength(t *testing.T) {
 	t.Parallel()
 	if MaxContentLength != 41691 {
 		t.Errorf("MaxContentLength = %d != %d", MaxContentLength, 41691)
+	}
+}
+
+func TestMaxMessageLength(t *testing.T) {
+	alice := "alice@mute.berlin"
+	aliceUID, err := uid.Create(alice, false, "", "", uid.Strict,
+		hashchain.TestEntry, cipher.RandReader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	bob := "bob@mute.berlin"
+	bobUID, err := uid.Create(bob, false, "", "", uid.Strict,
+		hashchain.TestEntry, cipher.RandReader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	now := uint64(times.Now())
+	bobKI, _, privateKey, err := bobUID.KeyInit(1, now+times.Day, now-times.Day,
+		false, "mute.berlin", "", "", cipher.RandReader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	bobKE, err := bobKI.KeyEntryECDHE25519(bobUID.SigPubKey())
+	if err != nil {
+		t.Fatal(err)
+	}
+	// create large message
+	message, err := padding.Generate(MaxContentLength, cipher.RandReader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// encrypt message from Alice to Bob
+	var encMsg bytes.Buffer
+	aliceKeyStore := memstore.New()
+	aliceKeyStore.AddPublicKeyEntry(bob, bobKE)
+	encryptArgs := &EncryptArgs{
+		Writer: &encMsg,
+		From:   aliceUID,
+		To:     bobUID,
+		SenderLastKeychainHash: hashchain.TestEntry,
+		PrivateSigKey:          aliceUID.PrivateSigKey64(),
+		Reader:                 bytes.NewBuffer(message),
+		Rand:                   cipher.RandReader,
+		KeyStore:               aliceKeyStore,
+	}
+	if _, err = Encrypt(encryptArgs); err != nil {
+		t.Fatal(err)
+	}
+	// decrypt message from Alice to Bob
+	var res bytes.Buffer
+	bobIdentities := []string{bobUID.Identity()}
+	bobRecipientIdentities := []*uid.KeyEntry{bobUID.PubKey()}
+	input := base64.NewDecoder(&encMsg)
+	version, preHeader, err := ReadFirstOuterHeader(input)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if version != Version {
+		t.Fatal("wrong version")
+	}
+	bobKeyStore := memstore.New()
+	if err := bobKE.SetPrivateKey(privateKey); err != nil {
+		t.Fatal(err)
+	}
+	bobKeyStore.AddPrivateKeyEntry(bobKE)
+	decryptArgs := &DecryptArgs{
+		Writer:              &res,
+		Identities:          bobIdentities,
+		RecipientIdentities: bobRecipientIdentities,
+		PreHeader:           preHeader,
+		Reader:              input,
+		Rand:                cipher.RandReader,
+		KeyStore:            bobKeyStore,
+	}
+	_, _, err = Decrypt(decryptArgs)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.String() != string(message) {
+		t.Fatal("messages differ")
 	}
 }
 

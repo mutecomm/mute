@@ -296,6 +296,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 		if err != nil {
 			return "", "", err
 		}
+		// TODO: set numOfKeys correctly!
 		err = generateMessageKeys(sender, recipient, chainKey[:], true,
 			ss.RecipientTemp.PublicKey32(), ss.SenderSessionPub.PublicKey32(),
 			NumOfFutureKeys, args.KeyStore)
