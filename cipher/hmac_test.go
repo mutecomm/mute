@@ -34,4 +34,7 @@ func TestHMAC(t *testing.T) {
 	if !hmac.Equal(nmac, mac) {
 		t.Fatal("HMACs differ")
 	}
+	if len(nmac) != 64 {
+		t.Errorf("HMAC has wrong length: %d", len(nmac))
+	}
 }
