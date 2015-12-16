@@ -7,6 +7,7 @@ package msg
 import (
 	"testing"
 
+	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/msg/session/memstore"
 )
@@ -32,7 +33,7 @@ func TestGenerateMessageKeys(t *testing.T) {
 	copy(recipientPub[:], rp)
 	a := "alice@mute.berlin"
 	b := "bob@mute.berlin"
-	h := "hash"
+	h := base64.Encode(cipher.SHA512(senderSessionPub[:]))
 	ms := memstore.New()
 	err = generateMessageKeys(a, b, &rootKey, false, h, &senderSessionPub,
 		&recipientPub, ms)
