@@ -17,6 +17,7 @@ import (
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg/padding"
+	"github.com/mutecomm/mute/msg/session"
 	"github.com/mutecomm/mute/uid"
 )
 
@@ -24,7 +25,7 @@ func rootKeyAgreementSender(
 	senderIdentity, recipientIdentity string,
 	senderSession, senderID, recipientKI, recipientID *uid.KeyEntry,
 	previousRootKeyHash *[64]byte,
-	keyStore KeyStore,
+	keyStore session.Store,
 ) error {
 	senderIdentityPub := senderID.PublicKey32()
 	senderIdentityPriv := senderID.PrivateKey32()
@@ -81,14 +82,14 @@ func rootKeyAgreementSender(
 
 // EncryptArgs contains all arguments for a message encryption.
 type EncryptArgs struct {
-	Writer                 io.Writer    // encrypted messagte is written here (base64 encoded)
-	From                   *uid.Message // sender UID
-	To                     *uid.Message // recipient UID
-	SenderLastKeychainHash string       // last hash chain entry known to the sender
-	PrivateSigKey          *[64]byte    // if this is s not nil the message is signed with the key
-	Reader                 io.Reader    // data to encrypt is read here
-	Rand                   io.Reader    // random source
-	KeyStore               KeyStore     // for managing session keys
+	Writer                 io.Writer     // encrypted messagte is written here (base64 encoded)
+	From                   *uid.Message  // sender UID
+	To                     *uid.Message  // recipient UID
+	SenderLastKeychainHash string        // last hash chain entry known to the sender
+	PrivateSigKey          *[64]byte     // if this is s not nil the message is signed with the key
+	Reader                 io.Reader     // data to encrypt is read here
+	Rand                   io.Reader     // random source
+	KeyStore               session.Store // for managing session keys
 }
 
 // Encrypt encrypts a message with the argument given in args and returns the
@@ -154,7 +155,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 			return "", err
 		}
 		// set session state
-		ss = &SessionState{
+		ss = &session.State{
 			SenderSessionCount:          0,
 			SenderMessageCount:          0,
 			RecipientSessionCount:       0,

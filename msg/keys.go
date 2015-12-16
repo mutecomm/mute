@@ -11,6 +11,7 @@ import (
 
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
+	"github.com/mutecomm/mute/msg/session"
 	"github.com/mutecomm/mute/util/bzero"
 	"golang.org/x/crypto/hkdf"
 )
@@ -77,7 +78,7 @@ func generateMessageKeys(
 	recipientKeys bool,
 	sessionPubHash string,
 	senderSessionPub, recipientPub *[32]byte,
-	keyStore KeyStore,
+	keyStore session.Store,
 ) error {
 	var (
 		identities string

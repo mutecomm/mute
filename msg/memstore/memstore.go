@@ -11,11 +11,12 @@ import (
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg"
+	"github.com/mutecomm/mute/msg/session"
 	"github.com/mutecomm/mute/uid"
 	"github.com/mutecomm/mute/uid/identity"
 )
 
-type session struct {
+type memSession struct {
 	rootKeyHash string
 	chainKey    string
 	send        []string
@@ -26,8 +27,8 @@ type session struct {
 type MemStore struct {
 	privateKeyEntryMap   map[string]*uid.KeyEntry
 	publicKeyEntryMap    map[string]*uid.KeyEntry
-	sessionStates        map[string]*msg.SessionState
-	sessions             map[string]*session
+	sessionStates        map[string]*session.State
+	sessions             map[string]*memSession
 	senderSessionPubHash string
 }
 
@@ -36,8 +37,8 @@ func New() *MemStore {
 	return &MemStore{
 		privateKeyEntryMap: make(map[string]*uid.KeyEntry),
 		publicKeyEntryMap:  make(map[string]*uid.KeyEntry),
-		sessionStates:      make(map[string]*msg.SessionState),
-		sessions:           make(map[string]*session),
+		sessionStates:      make(map[string]*session.State),
+		sessions:           make(map[string]*memSession),
 	}
 }
 
@@ -59,7 +60,7 @@ func (ms *MemStore) AddPublicKeyEntry(identity string, ke *uid.KeyEntry) {
 
 // GetSessionState implemented in memory.
 func (ms *MemStore) GetSessionState(myID, contactID string) (
-	*msg.SessionState,
+	*session.State,
 	error,
 ) {
 	return ms.sessionStates[myID+"@"+contactID], nil
@@ -68,7 +69,7 @@ func (ms *MemStore) GetSessionState(myID, contactID string) (
 // SetSessionState implemented in memory.
 func (ms *MemStore) SetSessionState(
 	myID, contactID string,
-	sessionState *msg.SessionState,
+	sessionState *session.State,
 ) error {
 	log.Debugf("memstore.SetSessionState(): %s", sessionState.SenderSessionPub.HASH)
 	ms.sessionStates[myID+"@"+contactID] = sessionState
@@ -97,7 +98,7 @@ func (ms *MemStore) StoreSession(
 	*/
 	index := myID + "@" + contactID + "@" + senderSessionPubHash
 	log.Debugf("memstore.StoreSession(): %s", index)
-	ms.sessions[index] = &session{
+	ms.sessions[index] = &memSession{
 		rootKeyHash: rootKeyHash,
 		chainKey:    chainKey,
 		send:        send,

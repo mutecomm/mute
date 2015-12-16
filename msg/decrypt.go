@@ -15,6 +15,7 @@ import (
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
+	"github.com/mutecomm/mute/msg/session"
 	"github.com/mutecomm/mute/uid"
 )
 
@@ -22,7 +23,7 @@ func rootKeyAgreementRecipient(
 	senderIdentity, recipientIdentity string,
 	senderSession, senderID, recipientKI, recipientID *uid.KeyEntry,
 	previousRootKeyHash *[64]byte,
-	keyStore KeyStore,
+	keyStore session.Store,
 ) error {
 	recipientIdentityPub := recipientID.PublicKey32()
 	recipientIdentityPriv := recipientID.PrivateKey32()
@@ -86,7 +87,7 @@ type DecryptArgs struct {
 	PreHeader           []byte          // preHeader read with ReadFirstOuterHeader()
 	Reader              io.Reader       // data to decrypt is read here (not base64 encoded)
 	Rand                io.Reader       // random source
-	KeyStore            KeyStore        // for managing session keys
+	KeyStore            session.Store   // for managing session keys
 }
 
 // Decrypt decrypts a message with the argument given in args.
@@ -170,7 +171,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			return "", "", err
 		}
 		// set session state
-		ss = &SessionState{
+		ss = &session.State{
 			SenderSessionCount:          0,
 			SenderMessageCount:          0,
 			RecipientSessionCount:       0,

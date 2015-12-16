@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package msg
+// Package session defines session states and session stores in Mute.
+package session
 
 import (
 	"github.com/mutecomm/mute/uid"
 )
 
-// SessionState describes the current session state between communicating two
-// parties.
-type SessionState struct {
+// State describes the current session state between two communicating parties.
+type State struct {
 	SenderSessionCount          uint64        // total number of messages sent in sessions before this SenderSessionPub was used
 	SenderMessageCount          uint64        // total number of messages sent with this SenderSessionPub
 	RecipientSessionCount       uint64        // total number of messages received in sessions before this SenderSessionPub was used
@@ -21,17 +21,17 @@ type SessionState struct {
 	NextRecipientSessionPubSeen *uid.KeyEntry // currently known NextSenderSessionPub of the other party
 }
 
-// The KeyStore interface defines all methods for managing session keys.
-type KeyStore interface {
+// The Store interface defines all methods for managing session keys.
+type Store interface {
 	// GetSessionState returns the current session state or nil, if no state
 	// exists between the two parties.
 	// myID is the myID on the local side of the communication.
 	// contactID is the myID on the remote side of the communication.
-	GetSessionState(myID, contactID string) (*SessionState, error)
+	GetSessionState(myID, contactID string) (*State, error)
 	// SetSesssionState sets the current session state between two parties.
 	// myID is the myID on the local side of the communication.
 	// contactID is the myID on the remote side of the communication.
-	SetSessionState(myID, contactID string, sessionState *SessionState) error
+	SetSessionState(myID, contactID string, sessionState *State) error
 	// StoreSession stores a new session.
 	// myID is the myID on the local side of the communication.
 	// contactID is the myID on the remote side of the communication.
