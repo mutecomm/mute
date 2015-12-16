@@ -5,6 +5,7 @@
 package uid
 
 import (
+	"bytes"
 	"crypto/sha512"
 	"io"
 
@@ -58,15 +59,15 @@ func KeyEntryEqual(a, b *KeyEntry) bool {
 
 // Verify that the content of KeyEntry is consistent and parseable.
 func (ke *KeyEntry) Verify() error {
-	// check CIPHERSUITE
+	// verify CIPHERSUITE
 	if ke.CIPHERSUITE != DefaultCiphersuite {
 		return log.Errorf("uid: unknown ke.CIPHERSUITE: %s", ke.CIPHERSUITE)
 	}
-	// check FUNCTION
+	// verify FUNCTION
 	if ke.FUNCTION != "ED25510" && ke.FUNCTION != "ECDHE25519" {
 		return log.Errorf("uid: unknown ke.FUNCTION: %s", ke.FUNCTION)
 	}
-	// check HASH
+	// verify HASH
 	h, err := base64.Decode(ke.HASH)
 	if err != nil {
 		return log.Errorf("uid: ke.HASH is not parseable: %s", err)
@@ -74,13 +75,17 @@ func (ke *KeyEntry) Verify() error {
 	if len(h) != sha512.Size {
 		return log.Errorf("uid: parsed ke.HASH has wrong length: %d", len(h))
 	}
-	// check PUBKEY
+	// verify PUBKEY
 	pk, err := base64.Decode(ke.PUBKEY)
 	if err != nil {
 		return log.Errorf("uid: ke.PUBKEY is not parseable: %s", err)
 	}
 	if len(pk) != 32 {
 		return log.Errorf("uid: ke.PUBKEY has wrong length: %d", len(pk))
+	}
+	// make sure SHA512(PUBKEY) matches HASH
+	if !bytes.Equal(cipher.SHA512(pk), h) {
+		return log.Errorf("uid: SHA512(ke.PUBKEY) != ke.HASH")
 	}
 	return nil
 }
