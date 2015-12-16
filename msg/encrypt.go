@@ -225,7 +225,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	}
 	if ss.SenderMessageCount >= n {
 		// generate more message keys
-		log.Infof("generate more message keys (ss.SenderMessageCount=%d)",
+		log.Debugf("generate more message keys (ss.SenderMessageCount=%d)",
 			ss.SenderMessageCount)
 		chainKey, err := args.KeyStore.GetChainKey(sender, recipient,
 			ss.SenderSessionPub.HASH)

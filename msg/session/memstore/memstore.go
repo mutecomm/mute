@@ -89,6 +89,7 @@ func (ms *MemStore) StoreSession(
 		return log.Error("memstore: len(send) != len(recv)")
 	}
 	index := myID + "@" + contactID + "@" + senderSessionPubHash
+	log.Debugf("memstore.StoreSession(): %s", index)
 	s, ok := ms.sessions[index]
 	if !ok {
 		ms.sessions[index] = &memSession{

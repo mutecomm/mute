@@ -242,6 +242,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			}
 
 		} else if h.NextSenderSessionPub != nil && // check if we have to refresh the session (on our side)
+			h.NextRecipientSessionPubSeen != nil &&
 			uid.KeyEntryEqual(ss.NextSenderSessionPub, h.NextRecipientSessionPubSeen) {
 			// sender has sent next session key and own next session key
 			// has been reflected -> refresh session
@@ -277,6 +278,29 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			}
 		} else {
 			log.Debug("refresh not possible")
+		}
+	}
+
+	// make sure we got enough message keys
+	n, err := args.KeyStore.NumMessageKeys(recipient, sender,
+		h.RecipientTempHash)
+	if err != nil {
+		return "", "", err
+	}
+	if h.SenderMessageCount >= n {
+		// generate more message keys
+		log.Debugf("generate more message keys (h.SenderMessageCount=%d)",
+			h.SenderMessageCount)
+		chainKey, err := args.KeyStore.GetChainKey(recipient, sender,
+			ss.SenderSessionPub.HASH)
+		if err != nil {
+			return "", "", err
+		}
+		err = generateMessageKeys(sender, recipient, chainKey[:], true,
+			ss.RecipientTemp.PublicKey32(), ss.SenderSessionPub.PublicKey32(),
+			NumOfFutureKeys, args.KeyStore)
+		if err != nil {
+			return "", "", err
 		}
 	}
 

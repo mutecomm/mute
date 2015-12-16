@@ -26,7 +26,6 @@ func init() {
 	}
 }
 
-/*
 func TestKeyStore(t *testing.T) {
 	defer log.Flush()
 	alice := "alice@mute.berlin"
@@ -281,7 +280,6 @@ func TestKeyStore(t *testing.T) {
 		t.Error("should fail with session.ErrMessageKeyUsed")
 	}
 }
-*/
 
 func TestExhaustSession(t *testing.T) {
 	defer log.Flush()
