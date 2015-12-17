@@ -6,6 +6,12 @@ package msg_test
 
 import (
 	"bytes"
+	"container/heap"
+	"crypto/rand"
+	"errors"
+	"fmt"
+	"io"
+	"math/big"
 	"testing"
 
 	"github.com/mutecomm/mute/cipher"
@@ -20,257 +26,403 @@ import (
 	"github.com/mutecomm/mute/util/times"
 )
 
-func TestKeyStore(t *testing.T) {
-	defer log.Flush()
+type op int
+
+const (
+	encryptAlice op = iota
+	encryptBob
+	decrypt
+)
+
+type operation struct {
+	op       op     // operation
+	prio     uint64 // priority for decrypt operations
+	checkKey bool   // check if message key was deleted
+	usePrev  bool   // use previous session for message key check
+}
+
+// An Item is something we manage in a priority queue.
+type Item struct {
+	priority   uint64 // The priority of the item in the queue.
+	ciphertext io.Reader
+	plaintext  string
+	op         op
+	// The index is needed by update and is maintained by the heap.Interface methods.
+	index int // The index of the item in the heap.
+}
+
+// A PriorityQueue implements heap.Interface and holds Items.
+type PriorityQueue []*Item
+
+func (pq PriorityQueue) Len() int { return len(pq) }
+
+func (pq PriorityQueue) Less(i, j int) bool {
+	// We want Pop to give us the highest, not lowest, priority so we use greater than here.
+	return pq[i].priority > pq[j].priority
+}
+
+func (pq PriorityQueue) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+	pq[i].index = i
+	pq[j].index = j
+}
+
+func (pq *PriorityQueue) Push(x interface{}) {
+	n := len(*pq)
+	item := x.(*Item)
+	item.index = n
+	*pq = append(*pq, item)
+}
+
+func (pq *PriorityQueue) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	item.index = -1 // for safety
+	*pq = old[0 : n-1]
+	return item
+}
+
+func generateRun(numOfOps int) ([]*operation, error) {
+	var (
+		ops        []*operation
+		encryptOps int
+	)
+	for i := 0; i < numOfOps; i++ {
+		// determine if we want an encryption or decryption op
+		n, err := rand.Int(cipher.RandReader, big.NewInt(2))
+		if err != nil {
+			return nil, err
+		}
+		if (encryptOps == 0 || n.Int64() == 0) && (numOfOps-i != encryptOps) {
+			// encrypt
+			n, err := rand.Int(cipher.RandReader, big.NewInt(2))
+			if err != nil {
+				return nil, err
+			}
+			p, err := rand.Int(cipher.RandReader, big.NewInt(9223372036854775807))
+			if err != nil {
+				return nil, err
+			}
+			if n.Int64() == 0 {
+				ops = append(ops, &operation{op: encryptAlice, prio: p.Uint64()})
+			} else {
+				ops = append(ops, &operation{op: encryptBob, prio: p.Uint64()})
+			}
+			encryptOps++
+		} else {
+			// decrypt
+			ops = append(ops, &operation{op: decrypt})
+			encryptOps--
+		}
+	}
+	return ops, nil
+}
+
+func testRun(r []*operation) error {
 	alice := "alice@mute.berlin"
 	aliceUID, err := uid.Create(alice, false, "", "", uid.Strict,
 		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
-		t.Fatal(err)
+		return err
 	}
+	now := uint64(times.Now())
+	aliceKI, _, alicePrivateKey, err := aliceUID.KeyInit(1, now+times.Day, now-times.Day,
+		false, "mute.berlin", "", "", cipher.RandReader)
+	if err != nil {
+		return err
+	}
+	aliceKE, err := aliceKI.KeyEntryECDHE25519(aliceUID.SigPubKey())
+	if err != nil {
+		return err
+	}
+
 	bob := "bob@mute.berlin"
 	bobUID, err := uid.Create(bob, false, "", "", uid.Strict,
 		hashchain.TestEntry, cipher.RandReader)
 	if err != nil {
-		t.Fatal(err)
+		return err
 	}
-	now := uint64(times.Now())
-	bobKI, _, privateKey, err := bobUID.KeyInit(1, now+times.Day, now-times.Day,
+	bobKI, _, bobPrivateKey, err := bobUID.KeyInit(1, now+times.Day, now-times.Day,
 		false, "mute.berlin", "", "", cipher.RandReader)
 	if err != nil {
-		t.Fatal(err)
+		return err
 	}
 	bobKE, err := bobKI.KeyEntryECDHE25519(bobUID.SigPubKey())
 	if err != nil {
-		t.Fatal(err)
-	}
-	// encrypt first message from Alice to Bob
-	log.Info("### encrypt first message from Alice to Bob")
-	var encMsg bytes.Buffer
-	aliceKeyStore := memstore.New()
-	aliceKeyStore.AddPublicKeyEntry(bob, bobKE)
-	encryptArgs := &msg.EncryptArgs{
-		Writer: &encMsg,
-		From:   aliceUID,
-		To:     bobUID,
-		SenderLastKeychainHash: hashchain.TestEntry,
-		Reader:                 bytes.NewBufferString(msgs.Message1),
-		Rand:                   cipher.RandReader,
-		KeyStore:               aliceKeyStore,
-	}
-	if _, err = msg.Encrypt(encryptArgs); err != nil {
-		t.Fatal(err)
-	}
-	// make sure sender key has been deleted
-	aliceHash := aliceKeyStore.SenderSessionPubHash()
-	_, err = aliceKeyStore.GetMessageKey(alice, bob, aliceHash, true, 0)
-	if err != session.ErrMessageKeyUsed {
-		t.Error("should fail with session.ErrMessageKeyUsed")
-	}
-	// decrypt first message from Alice to Bob
-	log.Info("### decrypt first message from Alice to Bob")
-	var res bytes.Buffer
-	bobIdentities := []string{bobUID.Identity()}
-	bobRecipientIdentities := []*uid.KeyEntry{bobUID.PubKey()}
-	input := base64.NewDecoder(&encMsg)
-	version, preHeader, err := msg.ReadFirstOuterHeader(input)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if version != msg.Version {
-		t.Fatal("wrong version")
-	}
-	bobKeyStore := memstore.New()
-	if err := bobKE.SetPrivateKey(privateKey); err != nil {
-		t.Fatal(err)
-	}
-	bobKeyStore.AddPrivateKeyEntry(bobKE)
-	decryptArgs := &msg.DecryptArgs{
-		Writer:              &res,
-		Identities:          bobIdentities,
-		RecipientIdentities: bobRecipientIdentities,
-		PreHeader:           preHeader,
-		Reader:              input,
-		Rand:                cipher.RandReader,
-		KeyStore:            bobKeyStore,
-	}
-	_, _, err = msg.Decrypt(decryptArgs)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if res.String() != msgs.Message1 {
-		t.Fatal("messages differ")
-	}
-	// make recipient key has been deleted
-	bobHash := bobKeyStore.SenderSessionPubHash()
-	_, err = bobKeyStore.GetMessageKey(bob, alice, bobHash, false, 0)
-	if err != session.ErrMessageKeyUsed {
-		t.Error("should fail with session.ErrMessageKeyUsed")
+		return err
 	}
 
-	// encrypt first reply from Bob to Alice
-	log.Info("### encrypt first reply from Bob to Alice")
-	encMsg.Reset()
-	encryptArgs = &msg.EncryptArgs{
-		Writer: &encMsg,
-		From:   bobUID,
-		To:     aliceUID,
-		SenderLastKeychainHash: hashchain.TestEntry,
-		Reader:                 bytes.NewBufferString(msgs.Message2),
-		Rand:                   cipher.RandReader,
-		KeyStore:               bobKeyStore,
-	}
-	if _, err = msg.Encrypt(encryptArgs); err != nil {
-		t.Fatal(err)
-	}
-	// make sure sender key has been deleted
-	_, err = bobKeyStore.GetMessageKey(bob, alice, bobHash, true, 0)
-	if err != session.ErrMessageKeyUsed {
-		t.Error("should fail with session.ErrMessageKeyUsed")
-	}
-
-	// decrypt first reply from Bob to Alice
-	log.Info("### decrypt first reply from Bob to Alice")
-	res.Reset()
 	aliceIdentities := []string{aliceUID.Identity()}
 	aliceRecipientIdentities := []*uid.KeyEntry{aliceUID.PubKey()}
-	input = base64.NewDecoder(&encMsg)
-	version, preHeader, err = msg.ReadFirstOuterHeader(input)
-	if err != nil {
-		t.Fatal(err)
+	aliceKeyStore := memstore.New()
+	aliceKeyStore.AddPublicKeyEntry(bob, bobKE)
+	if err := aliceKE.SetPrivateKey(alicePrivateKey); err != nil {
+		return err
 	}
-	if version != msg.Version {
-		t.Fatal("wrong version")
-	}
-	decryptArgs = &msg.DecryptArgs{
-		Writer:              &res,
-		Identities:          aliceIdentities,
-		RecipientIdentities: aliceRecipientIdentities,
-		PreHeader:           preHeader,
-		Reader:              input,
-		Rand:                cipher.RandReader,
-		KeyStore:            aliceKeyStore,
-	}
-	_, _, err = msg.Decrypt(decryptArgs)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if res.String() != msgs.Message2 {
-		t.Fatal("messages differ")
-	}
-	// make recipient key has been deleted
-	_, err = aliceKeyStore.GetMessageKey(alice, bob, aliceHash, false, 0)
-	if err != session.ErrMessageKeyUsed {
-		t.Error("should fail with session.ErrMessageKeyUsed")
-	}
+	aliceKeyStore.AddPrivateKeyEntry(aliceKE)
 
-	// encrypt second message from Alice to Bob
-	log.Info("### encrypt second message from Alice to Bob")
-	encMsg.Reset()
-	encryptArgs = &msg.EncryptArgs{
-		Writer: &encMsg,
-		From:   aliceUID,
-		To:     bobUID,
-		SenderLastKeychainHash: hashchain.TestEntry,
-		Reader:                 bytes.NewBufferString(msgs.Message3),
-		Rand:                   cipher.RandReader,
-		KeyStore:               aliceKeyStore,
+	bobIdentities := []string{bobUID.Identity()}
+	bobRecipientIdentities := []*uid.KeyEntry{bobUID.PubKey()}
+	bobKeyStore := memstore.New()
+	bobKeyStore.AddPublicKeyEntry(alice, aliceKE)
+	if err := bobKE.SetPrivateKey(bobPrivateKey); err != nil {
+		return err
 	}
-	if _, err = msg.Encrypt(encryptArgs); err != nil {
-		t.Fatal(err)
-	}
-	// make sure sender key has been deleted
-	aliceHash = aliceKeyStore.SenderSessionPubHash()
-	_, err = aliceKeyStore.GetMessageKey(alice, bob, aliceHash, true, 0)
-	if err != session.ErrMessageKeyUsed {
-		t.Error("should fail with session.ErrMessageKeyUsed")
-	}
+	bobKeyStore.AddPrivateKeyEntry(bobKE)
 
-	// decrypt second message from Alice to Bob
-	log.Info("### decrypt second message from Alice to Bob")
-	res.Reset()
-	input = base64.NewDecoder(&encMsg)
-	version, preHeader, err = msg.ReadFirstOuterHeader(input)
-	if err != nil {
-		t.Fatal(err)
+	var (
+		aliceHash string
+		bobHash   string
+		pq        PriorityQueue
+	)
+	heap.Init(&pq)
+	for i := 0; i < len(r); i++ {
+		switch {
+		case r[i].op == encryptAlice:
+			var encMsg bytes.Buffer
+			encryptArgs := &msg.EncryptArgs{
+				Writer: &encMsg,
+				From:   aliceUID,
+				To:     bobUID,
+				SenderLastKeychainHash: hashchain.TestEntry,
+				Reader:                 bytes.NewBufferString(msgs.Message1),
+				NumOfKeys:              2,
+				Rand:                   cipher.RandReader,
+				KeyStore:               aliceKeyStore,
+			}
+			if _, err = msg.Encrypt(encryptArgs); err != nil {
+				return err
+			}
+			if r[i].checkKey {
+				if !r[i].usePrev {
+					aliceHash = aliceKeyStore.SenderSessionPubHash()
+				}
+				_, err = aliceKeyStore.GetMessageKey(alice, bob, aliceHash, true, 0)
+				if err != session.ErrMessageKeyUsed {
+					return errors.New("should fail with session.ErrMessageKeyUsed")
+				}
+			}
+			item := &Item{
+				priority:   r[i].prio,
+				ciphertext: &encMsg,
+				plaintext:  msgs.Message1,
+				op:         encryptAlice,
+			}
+			heap.Push(&pq, item)
+		case r[i].op == encryptBob:
+			var encMsg bytes.Buffer
+			encryptArgs := &msg.EncryptArgs{
+				Writer: &encMsg,
+				From:   bobUID,
+				To:     aliceUID,
+				SenderLastKeychainHash: hashchain.TestEntry,
+				Reader:                 bytes.NewBufferString(msgs.Message2),
+				NumOfKeys:              2,
+				Rand:                   cipher.RandReader,
+				KeyStore:               bobKeyStore,
+			}
+			if _, err = msg.Encrypt(encryptArgs); err != nil {
+				return err
+			}
+			if r[i].checkKey {
+				if !r[i].usePrev {
+					bobHash = bobKeyStore.SenderSessionPubHash()
+				}
+				_, err = bobKeyStore.GetMessageKey(bob, alice, bobHash, true, 0)
+				if err != session.ErrMessageKeyUsed {
+					return errors.New("should fail with session.ErrMessageKeyUsed")
+				}
+			}
+			item := &Item{
+				priority:   r[i].prio,
+				ciphertext: &encMsg,
+				plaintext:  msgs.Message2,
+				op:         encryptBob,
+			}
+			heap.Push(&pq, item)
+		case r[i].op == decrypt:
+			var res bytes.Buffer
+			item := heap.Pop(&pq).(*Item)
+			switch {
+			case item.op == encryptAlice:
+				input := base64.NewDecoder(item.ciphertext)
+				version, preHeader, err := msg.ReadFirstOuterHeader(input)
+				if err != nil {
+					return err
+				}
+				if version != msg.Version {
+					return errors.New("wrong version")
+				}
+				decryptArgs := &msg.DecryptArgs{
+					Writer:              &res,
+					Identities:          bobIdentities,
+					RecipientIdentities: bobRecipientIdentities,
+					PreHeader:           preHeader,
+					Reader:              input,
+					NumOfKeys:           2,
+					Rand:                cipher.RandReader,
+					KeyStore:            bobKeyStore,
+				}
+				_, _, err = msg.Decrypt(decryptArgs)
+				if err != nil {
+					return err
+				}
+				if res.String() != item.plaintext {
+					return errors.New("messages differ")
+				}
+				if r[i].checkKey {
+					if !r[i].usePrev {
+						bobHash = bobKeyStore.SenderSessionPubHash()
+					}
+					_, err = bobKeyStore.GetMessageKey(bob, alice, bobHash, false, 0)
+					if err != session.ErrMessageKeyUsed {
+						return errors.New("should fail with session.ErrMessageKeyUsed")
+					}
+				}
+			case item.op == encryptBob:
+				input := base64.NewDecoder(item.ciphertext)
+				version, preHeader, err := msg.ReadFirstOuterHeader(input)
+				if err != nil {
+					return err
+				}
+				if version != msg.Version {
+					return errors.New("wrong version")
+				}
+				decryptArgs := &msg.DecryptArgs{
+					Writer:              &res,
+					Identities:          aliceIdentities,
+					RecipientIdentities: aliceRecipientIdentities,
+					PreHeader:           preHeader,
+					Reader:              input,
+					NumOfKeys:           2,
+					Rand:                cipher.RandReader,
+					KeyStore:            aliceKeyStore,
+				}
+				_, _, err = msg.Decrypt(decryptArgs)
+				if err != nil {
+					return err
+				}
+				if res.String() != item.plaintext {
+					return errors.New("messages differ")
+				}
+				if r[i].checkKey {
+					if !r[i].usePrev {
+						aliceHash = aliceKeyStore.SenderSessionPubHash()
+					}
+					_, err = aliceKeyStore.GetMessageKey(alice, bob, aliceHash, false, 0)
+					if err != session.ErrMessageKeyUsed {
+						return errors.New("should fail with session.ErrMessageKeyUsed")
+					}
+				}
+			}
+		}
 	}
-	if version != msg.Version {
-		t.Fatal("wrong version")
-	}
-	decryptArgs = &msg.DecryptArgs{
-		Writer:              &res,
-		Identities:          bobIdentities,
-		RecipientIdentities: bobRecipientIdentities,
-		PreHeader:           preHeader,
-		Reader:              input,
-		Rand:                cipher.RandReader,
-		KeyStore:            bobKeyStore,
-	}
-	_, _, err = msg.Decrypt(decryptArgs)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if res.String() != msgs.Message3 {
-		t.Fatal("messages differ")
-	}
-	// make recipient key has been deleted
-	bobHash = bobKeyStore.SenderSessionPubHash()
-	_, err = bobKeyStore.GetMessageKey(bob, alice, bobHash, false, 0)
-	if err != session.ErrMessageKeyUsed {
-		t.Error("should fail with session.ErrMessageKeyUsed")
-	}
+	return nil
+}
 
-	// encrypt second reply from Bob to Alice
-	log.Info("### encrypt second reply from Bob to Alice")
-	encMsg.Reset()
-	encryptArgs = &msg.EncryptArgs{
-		Writer: &encMsg,
-		From:   bobUID,
-		To:     aliceUID,
-		SenderLastKeychainHash: hashchain.TestEntry,
-		Reader:                 bytes.NewBufferString(msgs.Message4),
-		Rand:                   cipher.RandReader,
-		KeyStore:               bobKeyStore,
+func printRun(r []*operation) {
+	fmt.Println("[]*operation{")
+	for i := 0; i < len(r); i++ {
+		switch {
+		case r[i].op == encryptAlice:
+			fmt.Printf("\t&operation{op: encryptAlice, prio: %d},\n", r[i].prio)
+		case r[i].op == encryptBob:
+			fmt.Printf("\t&operation{op: encryptBob, prio: %d},\n", r[i].prio)
+		case r[i].op == decrypt:
+			fmt.Println("\t&operation{op: decrypt},")
+		}
 	}
-	if _, err = msg.Encrypt(encryptArgs); err != nil {
-		t.Fatal(err)
-	}
-	// make sure sender key has been deleted
-	_, err = bobKeyStore.GetMessageKey(bob, alice, bobHash, true, 0)
-	if err != session.ErrMessageKeyUsed {
-		t.Error("should fail with session.ErrMessageKeyUsed")
-	}
+	fmt.Println("}")
+}
 
-	// decrypt second reply from Bob to Alice
-	log.Info("### decrypt second reply from Bob to Alice")
-	res.Reset()
-	input = base64.NewDecoder(&encMsg)
-	version, preHeader, err = msg.ReadFirstOuterHeader(input)
-	if err != nil {
-		t.Fatal(err)
+func TestRandom(t *testing.T) {
+	defer log.Flush()
+	/*
+		for i := 0; i < 100; i++ {
+			r, err := generateRun(100)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := testRun(r); err != nil {
+				printRun(r)
+				t.Error(err)
+			}
+		}
+	*/
+	r := []*operation{
+		&operation{op: encryptAlice},
+		&operation{op: decrypt},
+		&operation{op: encryptBob},
+		&operation{op: decrypt},
 	}
-	if version != msg.Version {
-		t.Fatal("wrong version")
+	if err := testRun(r); err != nil {
+		printRun(r)
+		t.Error(err)
 	}
-	decryptArgs = &msg.DecryptArgs{
-		Writer:              &res,
-		Identities:          aliceIdentities,
-		RecipientIdentities: aliceRecipientIdentities,
-		PreHeader:           preHeader,
-		Reader:              input,
-		Rand:                cipher.RandReader,
-		KeyStore:            aliceKeyStore,
+}
+
+func TestConversation(t *testing.T) {
+	r := []*operation{
+		&operation{op: encryptAlice, checkKey: true},
+		&operation{op: decrypt, checkKey: true},
+		&operation{op: encryptBob, checkKey: true, usePrev: true},
+		&operation{op: decrypt, checkKey: true, usePrev: true},
+		&operation{op: encryptAlice, checkKey: true},
+		&operation{op: decrypt, checkKey: true},
+		&operation{op: encryptBob, checkKey: true, usePrev: true},
+		&operation{op: decrypt, checkKey: true, usePrev: true},
 	}
-	_, _, err = msg.Decrypt(decryptArgs)
-	if err != nil {
-		t.Fatal(err)
+	if err := testRun(r); err != nil {
+		printRun(r)
+		t.Error(err)
 	}
-	if res.String() != msgs.Message4 {
-		t.Fatal("messages differ")
+}
+
+func TestExhaustSessionSequential(t *testing.T) {
+	r := []*operation{
+		&operation{op: encryptAlice, prio: 4},
+		&operation{op: encryptAlice, prio: 3},
+		&operation{op: encryptAlice, prio: 2},
+		&operation{op: encryptAlice, prio: 1},
+		&operation{op: encryptAlice},
+		&operation{op: decrypt},
+		&operation{op: decrypt},
+		&operation{op: decrypt},
+		&operation{op: decrypt},
+		&operation{op: decrypt},
 	}
-	// make recipient key has been deleted
-	_, err = aliceKeyStore.GetMessageKey(alice, bob, aliceHash, false, 0)
-	if err != session.ErrMessageKeyUsed {
-		t.Error("should fail with session.ErrMessageKeyUsed")
+	if err := testRun(r); err != nil {
+		printRun(r)
+		t.Error(err)
+	}
+}
+
+func TestExhaustSessionLast(t *testing.T) {
+	r := []*operation{
+		&operation{op: encryptAlice},
+		&operation{op: encryptAlice},
+		&operation{op: encryptAlice},
+		&operation{op: encryptAlice},
+		&operation{op: encryptAlice, prio: 1},
+		&operation{op: decrypt},
+	}
+	if err := testRun(r); err != nil {
+		printRun(r)
+		t.Error(err)
+	}
+}
+
+func TestSimultaneousSessions(t *testing.T) {
+	// simultaneous sessions
+	r := []*operation{
+		&operation{op: encryptAlice, prio: 1},
+		&operation{op: encryptBob},
+		&operation{op: decrypt},
+		&operation{op: decrypt},
+	}
+	if err := testRun(r); err != nil {
+		printRun(r)
+		t.Error(err)
 	}
 }
