@@ -209,8 +209,44 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			log.Debug("session was refreshed (on the other side)")
 			// check if sessions have been started simultaneously
 			if h.NextRecipientSessionPubSeen == nil {
-				return "", "", log.Error("msg: sessions started simultaneously")
-			} else {
+				// start session on this side as well to be able to decrypt
+				// root key agreement
+				recipientKI, err := args.KeyStore.GetPrivateKeyEntry(h.RecipientTempHash)
+				if err != nil {
+					return "", "", err
+				}
+				err = rootKeyAgreementRecipient(sender, recipient,
+					&h.SenderSessionPub, &h.SenderIdentityPub, recipientKI, recipientID,
+					nil, args.KeyStore)
+				if err != nil {
+					return "", "", err
+				}
+				// use the 'smaller' session as the definite one
+				if h.SenderSessionPub.HASH < ss.SenderSessionPub.HASH {
+					// TODO: extract method from this block?
+					// create next session key
+					var nextSenderSession uid.KeyEntry
+					if err := nextSenderSession.InitDHKey(args.Rand); err != nil {
+						return "", "", err
+					}
+					// set session state
+					ss = &session.State{
+						SenderSessionCount:          0,
+						SenderMessageCount:          0,
+						RecipientSessionCount:       0,
+						RecipientMessageCount:       0,
+						RecipientTemp:               h.SenderSessionPub,
+						SenderSessionPub:            *recipientKI,
+						NextSenderSessionPub:        &nextSenderSession,
+						NextRecipientSessionPubSeen: h.NextSenderSessionPub,
+					}
+					log.Debugf("set session: %s", ss.SenderSessionPub.HASH)
+					err = args.KeyStore.SetSessionState(recipient, sender, ss)
+					if err != nil {
+						return "", "", err
+					}
+				}
+			} else { // session was refreshed on other side
 				// make sure we have the correct key
 				if ss.NextSenderSessionPub == nil ||
 					h.NextRecipientSessionPubSeen == nil ||

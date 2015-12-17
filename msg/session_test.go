@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package session_test
+package msg_test
 
 import (
 	"bytes"
@@ -476,7 +476,7 @@ func TestSimultaneousSessions(t *testing.T) {
 		t.Fatal(err)
 	}
 	now := uint64(times.Now())
-	aliceKI, _, _, err := aliceUID.KeyInit(1, now+times.Day, now-times.Day,
+	aliceKI, _, alicePrivateKey, err := aliceUID.KeyInit(1, now+times.Day, now-times.Day,
 		false, "mute.berlin", "", "", cipher.RandReader)
 	if err != nil {
 		t.Fatal(err)
@@ -562,6 +562,38 @@ func TestSimultaneousSessions(t *testing.T) {
 		t.Fatal(err)
 	}
 	if res.String() != msgs.Message1 {
+		t.Fatal("messages differ")
+	}
+	// decrypt first message from Bob to Alice
+	res.Reset()
+	aliceIdentities := []string{aliceUID.Identity()}
+	aliceRecipientIdentities := []*uid.KeyEntry{aliceUID.PubKey()}
+	input = base64.NewDecoder(&bobEncMsg)
+	version, preHeader, err = msg.ReadFirstOuterHeader(input)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if version != msg.Version {
+		t.Fatal("wrong version")
+	}
+	if err := aliceKE.SetPrivateKey(alicePrivateKey); err != nil {
+		t.Fatal(err)
+	}
+	aliceKeyStore.AddPrivateKeyEntry(aliceKE)
+	decryptArgs = &msg.DecryptArgs{
+		Writer:              &res,
+		Identities:          aliceIdentities,
+		RecipientIdentities: aliceRecipientIdentities,
+		PreHeader:           preHeader,
+		Reader:              input,
+		Rand:                cipher.RandReader,
+		KeyStore:            aliceKeyStore,
+	}
+	_, _, err = msg.Decrypt(decryptArgs)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.String() != msgs.Message2 {
 		t.Fatal("messages differ")
 	}
 }
