@@ -319,6 +319,40 @@ func TestRandom(t *testing.T) {
 	}
 }
 
+func TestExhaustSessionSequential(t *testing.T) {
+	r := []*randomOp{
+		&randomOp{op: encryptAlice, prio: 4},
+		&randomOp{op: encryptAlice, prio: 3},
+		&randomOp{op: encryptAlice, prio: 2},
+		&randomOp{op: encryptAlice, prio: 1},
+		&randomOp{op: encryptAlice},
+		&randomOp{op: decrypt},
+		&randomOp{op: decrypt},
+		&randomOp{op: decrypt},
+		&randomOp{op: decrypt},
+		&randomOp{op: decrypt},
+	}
+	if err := testRun(r); err != nil {
+		printRun(r)
+		t.Error(err)
+	}
+}
+
+func TestExhaustSessionLast(t *testing.T) {
+	r := []*randomOp{
+		&randomOp{op: encryptAlice},
+		&randomOp{op: encryptAlice},
+		&randomOp{op: encryptAlice},
+		&randomOp{op: encryptAlice},
+		&randomOp{op: encryptAlice, prio: 1},
+		&randomOp{op: decrypt},
+	}
+	if err := testRun(r); err != nil {
+		printRun(r)
+		t.Error(err)
+	}
+}
+
 func TestSimultaneousSessions(t *testing.T) {
 	// simultaneous sessions
 	r := []*randomOp{
