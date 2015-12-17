@@ -25,6 +25,7 @@ func rootKeyAgreementSender(
 	senderIdentity, recipientIdentity string,
 	senderSession, senderID, recipientKI, recipientID *uid.KeyEntry,
 	previousRootKeyHash *[64]byte,
+	numOfKeys uint64,
 	keyStore session.Store,
 ) error {
 	senderIdentityPub := senderID.PublicKey32()
@@ -72,7 +73,7 @@ func rootKeyAgreementSender(
 
 	// generate message keys
 	err = generateMessageKeys(senderIdentity, recipientIdentity, rootKey[:],
-		false, senderSessionPub, recipientKeyInitPub, NumOfFutureKeys, keyStore)
+		false, senderSessionPub, recipientKeyInitPub, numOfKeys, keyStore)
 	if err != nil {
 		return err
 	}
@@ -87,6 +88,7 @@ type EncryptArgs struct {
 	SenderLastKeychainHash string        // last hash chain entry known to the sender
 	PrivateSigKey          *[64]byte     // if this is s not nil the message is signed with the key
 	Reader                 io.Reader     // data to encrypt is read here
+	NumOfKeys              uint64        // number of generated sessions keys (default: NumOfFutureKeys)
 	Rand                   io.Reader     // random source
 	KeyStore               session.Store // for managing session keys
 }
@@ -95,6 +97,11 @@ type EncryptArgs struct {
 // nymAddress the message should be delivered to.
 func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	log.Debugf("msg.Encrypt()")
+
+	// set default
+	if args.NumOfKeys == 0 {
+		args.NumOfKeys = NumOfFutureKeys
+	}
 
 	// create sender key
 	senderHeaderKey, err := cipher.Curve25519Generate(cipher.RandReader)
@@ -144,7 +151,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 		// root key agreement
 		err = rootKeyAgreementSender(args.From.Identity(), args.To.Identity(),
 			&senderSession, args.From.PubKey(), recipientTemp,
-			args.To.PubKey(), nil, args.KeyStore)
+			args.To.PubKey(), nil, args.NumOfKeys, args.KeyStore)
 		if err != nil {
 			return "", err
 		}
@@ -234,7 +241,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 		}
 		err = generateMessageKeys(sender, recipient, chainKey[:], false,
 			ss.SenderSessionPub.PublicKey32(), ss.RecipientTemp.PublicKey32(),
-			NumOfFutureKeys, args.KeyStore)
+			args.NumOfKeys, args.KeyStore)
 		if err != nil {
 			return "", err
 		}

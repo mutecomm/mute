@@ -24,6 +24,7 @@ func rootKeyAgreementRecipient(
 	senderIdentity, recipientIdentity string,
 	senderSession, senderID, recipientKI, recipientID *uid.KeyEntry,
 	previousRootKeyHash *[64]byte,
+	numOfKeys uint64,
 	keyStore session.Store,
 ) error {
 	recipientIdentityPub := recipientID.PublicKey32()
@@ -72,7 +73,7 @@ func rootKeyAgreementRecipient(
 
 	// generate message keys
 	err = generateMessageKeys(senderIdentity, recipientIdentity, rootKey[:],
-		true, senderSessionPub, recipientKeyInitPub, NumOfFutureKeys, keyStore)
+		true, senderSessionPub, recipientKeyInitPub, numOfKeys, keyStore)
 	if err != nil {
 		return err
 	}
@@ -86,6 +87,7 @@ type DecryptArgs struct {
 	RecipientIdentities []*uid.KeyEntry // list of recipient identity KeyEntries
 	PreHeader           []byte          // preHeader read with ReadFirstOuterHeader()
 	Reader              io.Reader       // data to decrypt is read here (not base64 encoded)
+	NumOfKeys           uint64          // number of generated sessions keys (default: NumOfFutureKeys)
 	Rand                io.Reader       // random source
 	KeyStore            session.Store   // for managing session keys
 }
@@ -97,6 +99,11 @@ type DecryptArgs struct {
 // signature could not be verfied an error is returned.
 func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	log.Debugf("msg.Decrypt()")
+
+	// set default
+	if args.NumOfKeys == 0 {
+		args.NumOfKeys = NumOfFutureKeys
+	}
 
 	// read pre-header
 	ph, err := readPreHeader(bytes.NewBuffer(args.PreHeader))
@@ -161,7 +168,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 		}
 		err = rootKeyAgreementRecipient(sender, recipient,
 			&h.SenderSessionPub, &h.SenderIdentityPub, recipientKI, recipientID,
-			nil, args.KeyStore)
+			nil, args.NumOfKeys, args.KeyStore)
 		if err != nil {
 			return "", "", err
 		}
@@ -217,7 +224,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 				}
 				err = rootKeyAgreementRecipient(sender, recipient,
 					&h.SenderSessionPub, &h.SenderIdentityPub, recipientKI, recipientID,
-					nil, args.KeyStore)
+					nil, args.NumOfKeys, args.KeyStore)
 				if err != nil {
 					return "", "", err
 				}
@@ -275,7 +282,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 				err = rootKeyAgreementSender(recipient, sender,
 					&ss.SenderSessionPub, recipientID,
 					&h.SenderSessionPub, &h.SenderIdentityPub,
-					previousRootKeyHash, args.KeyStore)
+					previousRootKeyHash, args.NumOfKeys, args.KeyStore)
 				if err != nil {
 					return "", "", err
 				}
@@ -311,7 +318,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			err = rootKeyAgreementRecipient(sender, recipient,
 				h.NextSenderSessionPub, &h.SenderIdentityPub,
 				&ss.SenderSessionPub, recipientID,
-				previousRootKeyHash, args.KeyStore)
+				previousRootKeyHash, args.NumOfKeys, args.KeyStore)
 			if err != nil {
 				return "", "", err
 			}
@@ -341,11 +348,11 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			return "", "", err
 		}
 		// prevent denial of service attack by very large h.SenderMessageCount
-		numOfKeys := h.SenderMessageCount / NumOfFutureKeys
-		if h.SenderMessageCount%NumOfFutureKeys > 0 {
+		numOfKeys := h.SenderMessageCount / args.NumOfKeys
+		if h.SenderMessageCount%args.NumOfKeys > 0 {
 			numOfKeys++
 		}
-		numOfKeys *= NumOfFutureKeys
+		numOfKeys *= args.NumOfKeys
 		if numOfKeys > mime.MaxMsgSize/MaxContentLength+NumOfFutureKeys {
 			return "", "",
 				log.Errorf("msg: requested number of message keys too large")
