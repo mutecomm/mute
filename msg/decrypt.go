@@ -207,41 +207,48 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 		if h.RecipientTempHash != ss.SenderSessionPub.HASH &&
 			!args.KeyStore.HasSession(recipient, sender, h.RecipientTempHash) { // make sure session is unknown
 			log.Debug("session was refreshed (on the other side)")
-			// make sure we have the correct key
-			if !uid.KeyEntryEqual(ss.NextSenderSessionPub, h.NextRecipientSessionPubSeen) {
-				// TODO: reset session here?
-				return "", "", log.Error("msg: NextSenderSessionPub mismatch")
+			// check if sessions have been started simultaneously
+			if h.NextRecipientSessionPubSeen == nil {
+				return "", "", log.Error("msg: sessions started simultaneously")
+			} else {
+				// make sure we have the correct key
+				if ss.NextSenderSessionPub == nil ||
+					h.NextRecipientSessionPubSeen == nil ||
+					!uid.KeyEntryEqual(ss.NextSenderSessionPub,
+						h.NextRecipientSessionPubSeen) {
+					// TODO: reset session here?
+					return "", "", log.Error("msg: NextSenderSessionPub mismatch")
+				}
+				ss.RecipientTemp = h.SenderSessionPub
+				previousRootKeyHash, err := args.KeyStore.GetRootKeyHash(recipient,
+					sender, ss.SenderSessionPub.HASH)
+				if err != nil {
+					return "", "", err
+				}
+				ss.SenderSessionPub = *ss.NextSenderSessionPub
+				var nextSenderSession uid.KeyEntry
+				if err := nextSenderSession.InitDHKey(args.Rand); err != nil {
+					return "", "", err
+				}
+				ss.NextSenderSessionPub = &nextSenderSession
+				ss.SenderSessionCount = ss.SenderSessionCount + ss.SenderMessageCount
+				ss.SenderMessageCount = 0
+				ss.RecipientSessionCount = h.SenderSessionCount
+				ss.RecipientMessageCount = h.SenderMessageCount
+				// root key agreement
+				err = rootKeyAgreementSender(recipient, sender,
+					&ss.SenderSessionPub, recipientID,
+					&h.SenderSessionPub, &h.SenderIdentityPub,
+					previousRootKeyHash, args.KeyStore)
+				if err != nil {
+					return "", "", err
+				}
+				// store new session state
+				err = args.KeyStore.SetSessionState(recipient, sender, ss)
+				if err != nil {
+					return "", "", err
+				}
 			}
-			ss.RecipientTemp = h.SenderSessionPub
-			previousRootKeyHash, err := args.KeyStore.GetRootKeyHash(recipient,
-				sender, ss.SenderSessionPub.HASH)
-			if err != nil {
-				return "", "", err
-			}
-			ss.SenderSessionPub = *ss.NextSenderSessionPub
-			var nextSenderSession uid.KeyEntry
-			if err := nextSenderSession.InitDHKey(args.Rand); err != nil {
-				return "", "", err
-			}
-			ss.NextSenderSessionPub = &nextSenderSession
-			ss.SenderSessionCount = ss.SenderSessionCount + ss.SenderMessageCount
-			ss.SenderMessageCount = 0
-			ss.RecipientSessionCount = h.SenderSessionCount
-			ss.RecipientMessageCount = h.SenderMessageCount
-			// root key agreement
-			err = rootKeyAgreementSender(recipient, sender,
-				&ss.SenderSessionPub, recipientID,
-				&h.SenderSessionPub, &h.SenderIdentityPub,
-				previousRootKeyHash, args.KeyStore)
-			if err != nil {
-				return "", "", err
-			}
-			// store new session state
-			err = args.KeyStore.SetSessionState(recipient, sender, ss)
-			if err != nil {
-				return "", "", err
-			}
-
 		} else if h.NextSenderSessionPub != nil && // check if we have to refresh the session (on our side)
 			h.NextRecipientSessionPubSeen != nil &&
 			uid.KeyEntryEqual(ss.NextSenderSessionPub, h.NextRecipientSessionPubSeen) {
