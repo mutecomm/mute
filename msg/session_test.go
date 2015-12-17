@@ -20,12 +20,6 @@ import (
 	"github.com/mutecomm/mute/util/times"
 )
 
-func init() {
-	if err := log.Init("info", "msg  ", "", true); err != nil {
-		panic(err)
-	}
-}
-
 func TestKeyStore(t *testing.T) {
 	defer log.Flush()
 	alice := "alice@mute.berlin"
