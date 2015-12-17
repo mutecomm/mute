@@ -17,7 +17,6 @@ import (
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/keyserver/hashchain"
-	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg"
 	"github.com/mutecomm/mute/msg/session"
 	"github.com/mutecomm/mute/msg/session/memstore"
@@ -41,40 +40,38 @@ type operation struct {
 	usePrev  bool   // use previous session for message key check
 }
 
-// An Item is something we manage in a priority queue.
-type Item struct {
-	priority   uint64 // The priority of the item in the queue.
-	ciphertext io.Reader
-	plaintext  string
-	op         op
-	// The index is needed by update and is maintained by the heap.Interface methods.
-	index int // The index of the item in the heap.
+// An item is something we manage in a priority queue.
+type item struct {
+	priority   uint64    // the priority of the item in the queue
+	ciphertext io.Reader // the encrypted message
+	plaintext  string    // the decrypted message
+	op         op        // the encryption operation
+	index      int       // index of the item in the heap, maintained by heap.Interface
 }
 
-// A PriorityQueue implements heap.Interface and holds Items.
-type PriorityQueue []*Item
+// A priorityQueue implements heap.Interface and holds items.
+type priorityQueue []*item
 
-func (pq PriorityQueue) Len() int { return len(pq) }
+func (pq priorityQueue) Len() int { return len(pq) }
 
-func (pq PriorityQueue) Less(i, j int) bool {
-	// We want Pop to give us the highest, not lowest, priority so we use greater than here.
+func (pq priorityQueue) Less(i, j int) bool {
 	return pq[i].priority > pq[j].priority
 }
 
-func (pq PriorityQueue) Swap(i, j int) {
+func (pq priorityQueue) Swap(i, j int) {
 	pq[i], pq[j] = pq[j], pq[i]
 	pq[i].index = i
 	pq[j].index = j
 }
 
-func (pq *PriorityQueue) Push(x interface{}) {
+func (pq *priorityQueue) Push(x interface{}) {
 	n := len(*pq)
-	item := x.(*Item)
+	item := x.(*item)
 	item.index = n
 	*pq = append(*pq, item)
 }
 
-func (pq *PriorityQueue) Pop() interface{} {
+func (pq *priorityQueue) Pop() interface{} {
 	old := *pq
 	n := len(old)
 	item := old[n-1]
@@ -174,7 +171,7 @@ func testRun(r []*operation) error {
 	var (
 		aliceHash string
 		bobHash   string
-		pq        PriorityQueue
+		pq        priorityQueue
 	)
 	heap.Init(&pq)
 	for i := 0; i < len(r); i++ {
@@ -203,7 +200,7 @@ func testRun(r []*operation) error {
 					return errors.New("should fail with session.ErrMessageKeyUsed")
 				}
 			}
-			item := &Item{
+			item := &item{
 				priority:   r[i].prio,
 				ciphertext: &encMsg,
 				plaintext:  msgs.Message1,
@@ -234,7 +231,7 @@ func testRun(r []*operation) error {
 					return errors.New("should fail with session.ErrMessageKeyUsed")
 				}
 			}
-			item := &Item{
+			item := &item{
 				priority:   r[i].prio,
 				ciphertext: &encMsg,
 				plaintext:  msgs.Message2,
@@ -243,7 +240,7 @@ func testRun(r []*operation) error {
 			heap.Push(&pq, item)
 		case r[i].op == decrypt:
 			var res bytes.Buffer
-			item := heap.Pop(&pq).(*Item)
+			item := heap.Pop(&pq).(*item)
 			switch {
 			case item.op == encryptAlice:
 				input := base64.NewDecoder(item.ciphertext)
@@ -336,31 +333,21 @@ func printRun(r []*operation) {
 	fmt.Println("}")
 }
 
+/*
 func TestRandom(t *testing.T) {
 	defer log.Flush()
-	/*
-		for i := 0; i < 100; i++ {
-			r, err := generateRun(100)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if err := testRun(r); err != nil {
-				printRun(r)
-				t.Error(err)
-			}
+	for i := 0; i < 1000; i++ {
+		r, err := generateRun(10)
+		if err != nil {
+			t.Fatal(err)
 		}
-	*/
-	r := []*operation{
-		&operation{op: encryptAlice},
-		&operation{op: decrypt},
-		&operation{op: encryptBob},
-		&operation{op: decrypt},
-	}
-	if err := testRun(r); err != nil {
-		printRun(r)
-		t.Error(err)
+		if err := testRun(r); err != nil {
+			printRun(r)
+			t.Fatal(err)
+		}
 	}
 }
+*/
 
 func TestConversation(t *testing.T) {
 	r := []*operation{
