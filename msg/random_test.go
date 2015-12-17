@@ -318,3 +318,17 @@ func TestRandom(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestSimultaneousSessions(t *testing.T) {
+	// simultaneous sessions
+	r := []*randomOp{
+		&randomOp{op: encryptAlice, prio: 1},
+		&randomOp{op: encryptBob},
+		&randomOp{op: decrypt},
+		&randomOp{op: decrypt},
+	}
+	if err := testRun(r); err != nil {
+		printRun(r)
+		t.Error(err)
+	}
+}
