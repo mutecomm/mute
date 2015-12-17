@@ -33,8 +33,8 @@ const (
 	decrypt
 )
 
-type randomOp struct {
-	op   op     // random operation
+type operation struct {
+	op   op     // operation
 	prio uint64 // priority for decrypt operations
 }
 
@@ -80,9 +80,9 @@ func (pq *PriorityQueue) Pop() interface{} {
 	return item
 }
 
-func generateRun(numOfOps int) ([]*randomOp, error) {
+func generateRun(numOfOps int) ([]*operation, error) {
 	var (
-		ops        []*randomOp
+		ops        []*operation
 		encryptOps int
 	)
 	for i := 0; i < numOfOps; i++ {
@@ -102,21 +102,21 @@ func generateRun(numOfOps int) ([]*randomOp, error) {
 				return nil, err
 			}
 			if n.Int64() == 0 {
-				ops = append(ops, &randomOp{op: encryptAlice, prio: p.Uint64()})
+				ops = append(ops, &operation{op: encryptAlice, prio: p.Uint64()})
 			} else {
-				ops = append(ops, &randomOp{op: encryptBob, prio: p.Uint64()})
+				ops = append(ops, &operation{op: encryptBob, prio: p.Uint64()})
 			}
 			encryptOps++
 		} else {
 			// decrypt
-			ops = append(ops, &randomOp{op: decrypt})
+			ops = append(ops, &operation{op: decrypt})
 			encryptOps--
 		}
 	}
 	return ops, nil
 }
 
-func testRun(r []*randomOp) error {
+func testRun(r []*operation) error {
 	alice := "alice@mute.berlin"
 	aliceUID, err := uid.Create(alice, false, "", "", uid.Strict,
 		hashchain.TestEntry, cipher.RandReader)
@@ -278,16 +278,16 @@ func testRun(r []*randomOp) error {
 	return nil
 }
 
-func printRun(r []*randomOp) {
-	fmt.Println("[]*randomOp{")
+func printRun(r []*operation) {
+	fmt.Println("[]*operation{")
 	for i := 0; i < len(r); i++ {
 		switch {
 		case r[i].op == encryptAlice:
-			fmt.Printf("\t&randomOp{op: encryptAlice, prio: %d},\n", r[i].prio)
+			fmt.Printf("\t&operation{op: encryptAlice, prio: %d},\n", r[i].prio)
 		case r[i].op == encryptBob:
-			fmt.Printf("\t&randomOp{op: encryptBob, prio: %d},\n", r[i].prio)
+			fmt.Printf("\t&operation{op: encryptBob, prio: %d},\n", r[i].prio)
 		case r[i].op == decrypt:
-			fmt.Println("\t&randomOp{op: decrypt},")
+			fmt.Println("\t&operation{op: decrypt},")
 		}
 	}
 	fmt.Println("}")
@@ -307,11 +307,11 @@ func TestRandom(t *testing.T) {
 			}
 		}
 	*/
-	r := []*randomOp{
-		&randomOp{op: encryptAlice},
-		&randomOp{op: decrypt},
-		&randomOp{op: encryptBob},
-		&randomOp{op: decrypt},
+	r := []*operation{
+		&operation{op: encryptAlice},
+		&operation{op: decrypt},
+		&operation{op: encryptBob},
+		&operation{op: decrypt},
 	}
 	if err := testRun(r); err != nil {
 		printRun(r)
@@ -320,17 +320,17 @@ func TestRandom(t *testing.T) {
 }
 
 func TestExhaustSessionSequential(t *testing.T) {
-	r := []*randomOp{
-		&randomOp{op: encryptAlice, prio: 4},
-		&randomOp{op: encryptAlice, prio: 3},
-		&randomOp{op: encryptAlice, prio: 2},
-		&randomOp{op: encryptAlice, prio: 1},
-		&randomOp{op: encryptAlice},
-		&randomOp{op: decrypt},
-		&randomOp{op: decrypt},
-		&randomOp{op: decrypt},
-		&randomOp{op: decrypt},
-		&randomOp{op: decrypt},
+	r := []*operation{
+		&operation{op: encryptAlice, prio: 4},
+		&operation{op: encryptAlice, prio: 3},
+		&operation{op: encryptAlice, prio: 2},
+		&operation{op: encryptAlice, prio: 1},
+		&operation{op: encryptAlice},
+		&operation{op: decrypt},
+		&operation{op: decrypt},
+		&operation{op: decrypt},
+		&operation{op: decrypt},
+		&operation{op: decrypt},
 	}
 	if err := testRun(r); err != nil {
 		printRun(r)
@@ -339,13 +339,13 @@ func TestExhaustSessionSequential(t *testing.T) {
 }
 
 func TestExhaustSessionLast(t *testing.T) {
-	r := []*randomOp{
-		&randomOp{op: encryptAlice},
-		&randomOp{op: encryptAlice},
-		&randomOp{op: encryptAlice},
-		&randomOp{op: encryptAlice},
-		&randomOp{op: encryptAlice, prio: 1},
-		&randomOp{op: decrypt},
+	r := []*operation{
+		&operation{op: encryptAlice},
+		&operation{op: encryptAlice},
+		&operation{op: encryptAlice},
+		&operation{op: encryptAlice},
+		&operation{op: encryptAlice, prio: 1},
+		&operation{op: decrypt},
 	}
 	if err := testRun(r); err != nil {
 		printRun(r)
@@ -355,11 +355,11 @@ func TestExhaustSessionLast(t *testing.T) {
 
 func TestSimultaneousSessions(t *testing.T) {
 	// simultaneous sessions
-	r := []*randomOp{
-		&randomOp{op: encryptAlice, prio: 1},
-		&randomOp{op: encryptBob},
-		&randomOp{op: decrypt},
-		&randomOp{op: decrypt},
+	r := []*operation{
+		&operation{op: encryptAlice, prio: 1},
+		&operation{op: encryptBob},
+		&operation{op: decrypt},
+		&operation{op: decrypt},
 	}
 	if err := testRun(r); err != nil {
 		printRun(r)
