@@ -17,6 +17,7 @@ import (
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/keyserver/hashchain"
+	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg"
 	"github.com/mutecomm/mute/msg/session"
 	"github.com/mutecomm/mute/msg/session/memstore"
@@ -333,11 +334,26 @@ func printRun(r []*operation) {
 	fmt.Println("}")
 }
 
+func TestFailure1(t *testing.T) {
+	defer log.Flush()
+	r := []*operation{
+		&operation{op: encryptAlice},
+		&operation{op: encryptBob, prio: 2},
+		&operation{op: decrypt},
+		&operation{op: encryptAlice, prio: 1},
+		&operation{op: decrypt},
+	}
+	if err := testRun(r); err != nil {
+		printRun(r)
+		t.Error(err)
+	}
+}
+
 /*
 func TestRandom(t *testing.T) {
 	defer log.Flush()
 	for i := 0; i < 1000; i++ {
-		r, err := generateRun(10)
+		r, err := generateRun(5)
 		if err != nil {
 			t.Fatal(err)
 		}
