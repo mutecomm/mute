@@ -96,7 +96,7 @@ type EncryptArgs struct {
 // Encrypt encrypts a message with the argument given in args and returns the
 // nymAddress the message should be delivered to.
 func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
-	log.Infof("msg.Encrypt(): %s -> %s", args.From.Identity(), args.To.Identity())
+	log.Debugf("msg.Encrypt(): %s -> %s", args.From.Identity(), args.To.Identity())
 
 	// set default
 	if args.NumOfKeys == 0 {
@@ -137,7 +137,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	}
 	if ss == nil {
 		// no session found -> start first session
-		log.Info("no session found -> start first session")
+		log.Debug("no session found -> start first session")
 		var recipientTemp *uid.KeyEntry
 		recipientTemp, nymAddress, err = args.KeyStore.GetPublicKeyEntry(args.To)
 		if err != nil {
@@ -177,7 +177,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 			return "", err
 		}
 	} else {
-		log.Info("session found")
+		log.Debug("session found")
 		log.Debugf("got session: %s", ss.SenderSessionPub.HASH)
 	}
 

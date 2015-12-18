@@ -24,7 +24,7 @@ import (
 )
 
 func init() {
-	if err := log.Init("info", "msg  ", "", true); err != nil {
+	if err := log.Init("debug", "msg  ", "", true); err != nil {
 		panic(err)
 	}
 }

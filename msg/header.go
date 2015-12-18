@@ -11,7 +11,6 @@ import (
 	"io"
 
 	"github.com/mutecomm/mute/cipher"
-	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/keyserver/hashchain"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg/padding"
@@ -158,11 +157,11 @@ func newHeaderPacket(h *header, recipientIdentityPub, senderHeaderPriv *[32]byte
 }
 
 func (hp *headerPacket) write(w io.Writer) error {
-	log.Debugf("hp.Nonce: %s", base64.Encode(hp.Nonce[:]))
+	//log.Debugf("hp.Nonce: %s", base64.Encode(hp.Nonce[:]))
 	if _, err := w.Write(hp.Nonce[:]); err != nil {
 		return log.Error(err)
 	}
-	log.Debugf("hp.LengthEncryptedHeader: %d", hp.LengthEncryptedHeader)
+	//log.Debugf("hp.LengthEncryptedHeader: %d", hp.LengthEncryptedHeader)
 	if err := binary.Write(w, binary.BigEndian, hp.LengthEncryptedHeader); err != nil {
 		return log.Error(err)
 	}
@@ -182,12 +181,12 @@ func readHeader(
 	if _, err := io.ReadFull(r, hp.Nonce[:]); err != nil {
 		return 0, nil, nil, log.Error(err)
 	}
-	log.Debugf("hp.Nonce: %s", base64.Encode(hp.Nonce[:]))
+	//log.Debugf("hp.Nonce: %s", base64.Encode(hp.Nonce[:]))
 	// read length of encrypted header
 	if err := binary.Read(r, binary.BigEndian, &hp.LengthEncryptedHeader); err != nil {
 		return 0, nil, nil, log.Error(err)
 	}
-	log.Debugf("hp.LengthEncryptedHeader: %d", hp.LengthEncryptedHeader)
+	////log.Debugf("hp.LengthEncryptedHeader: %d", hp.LengthEncryptedHeader)
 	// read encrypted header
 	hp.EncryptedHeader = make([]byte, hp.LengthEncryptedHeader)
 	if _, err := io.ReadFull(r, hp.EncryptedHeader); err != nil {

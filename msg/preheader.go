@@ -8,7 +8,6 @@ import (
 	"encoding/binary"
 	"io"
 
-	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 )
 
@@ -32,26 +31,26 @@ func newPreHeader(senderHeaderPub []byte) *preHeader {
 }
 
 func (ph *preHeader) write(w io.Writer) error {
-	log.Debugf("ph.Version: %d", ph.Version)
+	//log.Debugf("ph.Version: %d", ph.Version)
 	if err := binary.Write(w, binary.BigEndian, ph.Version); err != nil {
 		return log.Error(err)
 	}
-	log.Debugf("ph.LengthCiphersuite: %d", ph.LengthCiphersuite)
+	//log.Debugf("ph.LengthCiphersuite: %d", ph.LengthCiphersuite)
 	if err := binary.Write(w, binary.BigEndian, ph.LengthCiphersuite); err != nil {
 		return log.Error(err)
 	}
-	log.Debugf("ph.Ciphersuite: %s", ph.Ciphersuite)
+	//log.Debugf("ph.Ciphersuite: %s", ph.Ciphersuite)
 	if _, err := io.WriteString(w, ph.Ciphersuite); err != nil {
 		return log.Error(err)
 	}
-	log.Debugf("ph.LengthSenderHeaderPub: %d", ph.LengthSenderHeaderPub)
+	//log.Debugf("ph.LengthSenderHeaderPub: %d", ph.LengthSenderHeaderPub)
 	if err := binary.Write(w, binary.BigEndian, ph.LengthSenderHeaderPub); err != nil {
 		return log.Error(err)
 	}
 	if _, err := w.Write(ph.SenderHeaderPub); err != nil {
 		return log.Error(err)
 	}
-	log.Debugf("ph.SenderHeaderPub: %s", base64.Encode(ph.SenderHeaderPub))
+	//log.Debugf("ph.SenderHeaderPub: %s", base64.Encode(ph.SenderHeaderPub))
 	return nil
 }
 
@@ -64,7 +63,7 @@ func readPreHeader(r io.Reader) (*preHeader, error) {
 	if ph.Version != Version {
 		return nil, log.Errorf("msg: invalid message version %d", ph.Version)
 	}
-	log.Debugf("ph.Version: %d", ph.Version)
+	//log.Debugf("ph.Version: %d", ph.Version)
 	// read length of ciphersuite
 	if err := binary.Read(r, binary.BigEndian, &ph.LengthCiphersuite); err != nil {
 		return nil, log.Error(err)
@@ -72,7 +71,7 @@ func readPreHeader(r io.Reader) (*preHeader, error) {
 	if ph.LengthCiphersuite != uint16(len(DefaultCiphersuite)) {
 		return nil, log.Errorf("msg: invalid ciphersuite length %d", ph.LengthCiphersuite)
 	}
-	log.Debugf("ph.LengthCiphersuite: %d", ph.LengthCiphersuite)
+	//log.Debugf("ph.LengthCiphersuite: %d", ph.LengthCiphersuite)
 	// read ciphersuite
 	p := make([]byte, ph.LengthCiphersuite)
 	if _, err := io.ReadFull(r, p); err != nil {
@@ -82,16 +81,16 @@ func readPreHeader(r io.Reader) (*preHeader, error) {
 	if ph.Ciphersuite != DefaultCiphersuite {
 		return nil, log.Errorf("msg: invalid ciphersuite '%s'", ph.Ciphersuite)
 	}
-	log.Debugf("ph.Ciphersuite: %s", ph.Ciphersuite)
+	//log.Debugf("ph.Ciphersuite: %s", ph.Ciphersuite)
 	// read length sender header pub
 	if err := binary.Read(r, binary.BigEndian, &ph.LengthSenderHeaderPub); err != nil {
 		return nil, log.Error(err)
 	}
-	log.Debugf("ph.LengthSenderHeaderPub: %d", ph.LengthSenderHeaderPub)
+	//log.Debugf("ph.LengthSenderHeaderPub: %d", ph.LengthSenderHeaderPub)
 	ph.SenderHeaderPub = make([]byte, ph.LengthSenderHeaderPub)
 	if _, err := io.ReadFull(r, ph.SenderHeaderPub); err != nil {
 		return nil, log.Error(err)
 	}
-	log.Debugf("ph.SenderHeaderPub: %s", base64.Encode(ph.SenderHeaderPub))
+	//log.Debugf("ph.SenderHeaderPub: %s", base64.Encode(ph.SenderHeaderPub))
 	return &ph, nil
 }

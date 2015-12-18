@@ -98,7 +98,7 @@ type DecryptArgs struct {
 // the base64 encoded signature is returned. If the message was signed and the
 // signature could not be verfied an error is returned.
 func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
-	log.Info("msg.Decrypt()")
+	log.Debug("msg.Decrypt()")
 
 	// set default
 	if args.NumOfKeys == 0 {
@@ -136,14 +136,14 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	}
 	senderID = h.SenderIdentity
 
-	log.Infof("senderID:    %s", h.SenderIdentityPub.HASH)
-	log.Infof("recipientID: %s", recipientID.HASH)
-	log.Infof("h.SenderSessionCount: %d", h.SenderSessionCount)
-	log.Infof("h.SenderMessageCount: %d", h.SenderMessageCount)
-	log.Infof("h.SenderSessionPub:             %s", h.SenderSessionPub.HASH)
-	log.Infof("h.NextSenderSessionPub:         %s", h.NextSenderSessionPub.HASH)
+	log.Debugf("senderID:    %s", h.SenderIdentityPub.HASH)
+	log.Debugf("recipientID: %s", recipientID.HASH)
+	log.Debugf("h.SenderSessionCount: %d", h.SenderSessionCount)
+	log.Debugf("h.SenderMessageCount: %d", h.SenderMessageCount)
+	log.Debugf("h.SenderSessionPub:             %s", h.SenderSessionPub.HASH)
+	log.Debugf("h.NextSenderSessionPub:         %s", h.NextSenderSessionPub.HASH)
 	if h.NextRecipientSessionPubSeen != nil {
-		log.Infof("h.NextRecipientSessionPubSeen:  %s",
+		log.Debugf("h.NextRecipientSessionPubSeen:  %s",
 			h.NextRecipientSessionPubSeen.HASH)
 	}
 
@@ -154,14 +154,14 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	// get session state
 	sender := h.SenderIdentity
 	recipient := args.Identities[i]
-	log.Infof("%s -> %s", sender, recipient)
+	log.Debugf("%s -> %s", sender, recipient)
 	ss, err := args.KeyStore.GetSessionState(recipient, sender)
 	if err != nil {
 		return "", "", err
 	}
 	if ss == nil {
 		// no session found -> start first session
-		log.Info("no session found -> start first session")
+		log.Debug("no session found -> start first session")
 		// root key agreement
 		recipientKI, err := args.KeyStore.GetPrivateKeyEntry(h.RecipientTempHash)
 		if err != nil {
@@ -195,7 +195,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			return "", "", err
 		}
 	} else {
-		log.Info("session found")
+		log.Debug("session found")
 		log.Debugf("got session: %s", ss.SenderSessionPub.HASH)
 		// make sure the new session key of the other party is up-to-date.
 		if h.NextSenderSessionPub != nil &&
@@ -214,11 +214,11 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 		// check if the session was refreshed (on the other side)
 		if h.RecipientTempHash != ss.SenderSessionPub.HASH &&
 			!args.KeyStore.HasSession(recipient, sender, h.RecipientTempHash) { // make sure session is unknown
-			log.Info("session was refreshed (on the other side)")
+			log.Debug("session was refreshed (on the other side)")
 			// check if sessions have been started simultaneously
 			if h.RecipientTempHash != ss.NextSenderSessionPub.HASH {
 				// start session on this side as well to be able to decrypt
-				log.Info("sessions started simultaneously")
+				log.Debug("sessions started simultaneously")
 				// root key agreement
 				recipientKI, err := args.KeyStore.GetPrivateKeyEntry(h.RecipientTempHash)
 				if err != nil {
@@ -234,7 +234,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 				// use the 'smaller' session as the definite one
 				// TODO: h.SenderSessionPub.HASH < ss.SenderSessionPub.HASH {
 				if sender < recipient {
-					log.Info("use the 'smaller' session as definite one")
+					log.Debug("use the 'smaller' session as definite one")
 					// TODO: extract method from this block?
 					// create next session key
 					var nextSenderSession uid.KeyEntry
@@ -258,10 +258,10 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 						return "", "", err
 					}
 				} else {
-					log.Info("session is 'larger', keep old one")
+					log.Debug("session is 'larger', keep old one")
 				}
 			} else { // session was refreshed on other side
-				log.Info("create new session")
+				log.Debug("create new session")
 				// make sure we have the correct key
 				if ss.NextSenderSessionPub == nil ||
 					h.NextRecipientSessionPubSeen == nil ||
@@ -305,7 +305,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			uid.KeyEntryEqual(ss.NextSenderSessionPub, h.NextRecipientSessionPubSeen) {
 			// sender has sent next session key and own next session key
 			// has been reflected -> refresh session
-			log.Info("refresh session")
+			log.Debug("refresh session")
 			ss.RecipientTemp = *h.NextSenderSessionPub
 			previousRootKeyHash, err := args.KeyStore.GetRootKeyHash(recipient,
 				sender, ss.SenderSessionPub.HASH)
@@ -336,7 +336,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 				return "", "", err
 			}
 		} else {
-			log.Info("refresh not possible")
+			log.Debug("refresh not possible")
 		}
 	}
 
@@ -348,10 +348,10 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	}
 	if h.SenderMessageCount >= n {
 		// generate more message keys
-		log.Infof("generate more message keys (h.SenderMessageCount=%d)",
-			h.SenderMessageCount)
+		log.Debugf("generate more message keys (h.SenderMessageCount=%d, n=%d)",
+			h.SenderMessageCount, n)
 		chainKey, err := args.KeyStore.GetChainKey(recipient, sender,
-			ss.SenderSessionPub.HASH)
+			h.RecipientTempHash)
 		if err != nil {
 			return "", "", err
 		}
@@ -365,10 +365,21 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			return "", "",
 				log.Errorf("msg: requested number of message keys too large")
 		}
-		log.Infof("numOfKeys=%d", numOfKeys)
+		log.Debugf("numOfKeys=%d", numOfKeys)
+		var recipientPub *[32]byte
+		if h.RecipientTempHash == ss.SenderSessionPub.HASH {
+			recipientPub = ss.SenderSessionPub.PublicKey32()
+		} else {
+			log.Debug("different session")
+			recipientKI, err := args.KeyStore.GetPrivateKeyEntry(h.RecipientTempHash)
+			if err != nil {
+				return "", "", err
+			}
+			recipientPub = recipientKI.PublicKey32()
+		}
 		err = generateMessageKeys(sender, recipient, chainKey[:], true,
-			ss.RecipientTemp.PublicKey32(), ss.SenderSessionPub.PublicKey32(),
-			numOfKeys, args.KeyStore)
+			h.SenderSessionPub.PublicKey32(), recipientPub, numOfKeys,
+			args.KeyStore)
 		if err != nil {
 			return "", "", err
 		}
