@@ -99,7 +99,7 @@ Sender constructs header to send to recipient (JSON encoding):
   in NextRecipientSessionPubSeen.
 - NymAddress: Address to receive future messages at.
 - MaxDelay: Maximum delay that sender requests from mix (obfuscated by
-  `rand(1,2*MaxDelay)*MaxDelay`. Constant per session). Can be used in retention
+  `rand(1,2)*MaxDelay`. Constant per session). Can be used in retention
   calculation.
 - SenderSessionCount: Total number of messages sent in sessions before this
   SenderSessionPub was used.
