@@ -21,14 +21,14 @@ func TestKeyList(t *testing.T) {
 	now := times.Now()
 	timeNow = func() int64 { return now - 2 }
 	_, privkey, _ := ed25519.GenerateKey(rand.Reader)
-	kl := New(privkey, "mix@mute.berlin", 5, testDir)
+	kl := New(privkey, "mix@mute.berlin", 5, 5, testDir)
 	kl.AddKey()
 	kl.AddKey()
 	timeNow = func() int64 { return now }
 	kl.AddKey()
 	timeNow = func() int64 { return times.Now() }
 	marshalled := kl.Marshal()
-	kl2 := New(privkey, "mix@mute.berlin", 5, testDir)
+	kl2 := New(privkey, "mix@mute.berlin", 5, 5, testDir)
 	err := kl2.Unmarshal(marshalled)
 	if err != nil {
 		t.Errorf("Unmarshal failed: %s", err)
@@ -55,8 +55,9 @@ func TestKeyList(t *testing.T) {
 	if len(kl2.Keys) != 1 {
 		t.Error("Expire wrong number of keys")
 	}
+	timeNow = func() int64 { return time.Now().Unix() }
 	if !testing.Short() {
-		kl2 = New(privkey, "mix@mute.berlin", 10, testDir)
+		kl2 := New(privkey, "mix@mute.berlin", 20, 10, testDir)
 		kl2.Maintain()
 		time.Sleep(time.Second * 30)
 		close(kl2.stopchan)

@@ -38,25 +38,27 @@ type KeyEntry struct {
 
 // KeyList is a mix-side implementation of public and private key management.
 type KeyList struct {
-	Keys       KeyMap
-	PrivateKey *[ed25519.PrivateKeySize]byte
-	PublicKey  *[ed25519.PublicKeySize]byte
-	Address    string
-	Duration   int64
-	Safedir    string
-	statement  *AddressStatement
-	stopchan   chan bool
-	mutex      *sync.Mutex
+	Keys            KeyMap
+	PrivateKey      *[ed25519.PrivateKeySize]byte
+	PublicKey       *[ed25519.PublicKeySize]byte
+	Address         string
+	Duration        int64
+	NewKeyFrequency int64
+	Safedir         string
+	statement       *AddressStatement
+	stopchan        chan bool
+	mutex           *sync.Mutex
 }
 
 // New returns a new KeyList.
-func New(PrivateKey *[ed25519.PrivateKeySize]byte, address string, duration int64, safedir string) *KeyList {
+func New(PrivateKey *[ed25519.PrivateKeySize]byte, address string, duration, newKeyFrequency int64, safedir string) *KeyList {
 	kl := new(KeyList)
 	kl.PrivateKey = PrivateKey
 	pubkey := getPubKey(PrivateKey)
 	kl.PublicKey = pubkey
 	kl.Keys = make(KeyMap)
 	kl.Address = address
+	kl.NewKeyFrequency = newKeyFrequency
 	kl.Duration = duration
 	kl.Safedir = safedir
 	os.MkdirAll(safedir, 0700)
@@ -95,54 +97,25 @@ func (kl *KeyList) GetKeyEntry(pubkey *[KeySize]byte) *KeyEntry {
 
 // Maintain starts two routines that maintain the key list in memory.
 func (kl *KeyList) Maintain() {
-	// Start two runners, one for expire, one for addition
-	// Execute expire when first hits
-	// Execute addition when last is half reached
 	kl.stopchan = make(chan bool)
-	first, last := kl.GetBoundaryTime()
-	if last == 0 {
-		kl.AddKey()
-		first, last = kl.GetBoundaryTime()
-	}
-	go kl.runExpire(first)
-	go kl.runAdd(last - (kl.Duration / 2))
-
-}
-
-func (kl *KeyList) runExpire(rundate int64) {
-	wait := time.Duration(rundate-timeNow()) * time.Second
-	if rundate <= timeNow() {
-		wait = time.Second * time.Duration(kl.Duration/2)
-	}
-	select {
-	case <-kl.stopchan:
-		// Stop expire maintainer
-		return
-	case <-time.After(wait):
-		if rundate > 0 {
-			kl.Expire()
+	go func() {
+		var lastAdd int64
+		addTicker := time.NewTicker(time.Second * 10)
+		for {
+			select {
+			case <-kl.stopchan:
+				// Stop maintainer
+				return
+			case <-addTicker.C:
+				if lastAdd < timeNow()-kl.NewKeyFrequency {
+					lastAdd = timeNow()
+					kl.AddKey()
+				} else {
+					kl.Expire()
+				}
+			}
 		}
-		first, _ := kl.GetBoundaryTime()
-		go kl.runExpire(first)
-	}
-}
-
-func (kl *KeyList) runAdd(rundate int64) {
-	wait := time.Duration(rundate-timeNow()) * time.Second
-	if rundate <= timeNow() {
-		wait = time.Second * time.Duration(kl.Duration/2)
-	}
-	select {
-	case <-kl.stopchan:
-		// Stop add maintainer
-		return
-	case <-time.After(wait):
-		if rundate > 0 {
-			kl.AddKey()
-		}
-		_, last := kl.GetBoundaryTime()
-		go kl.runAdd(last - (kl.Duration / 2))
-	}
+	}()
 }
 
 // Marshal the keylist.
