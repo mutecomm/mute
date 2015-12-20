@@ -14,7 +14,6 @@ import (
 	"errors"
 	"io"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/mutecomm/mute/mix/mixaddr"
 	"github.com/mutecomm/mute/util/times"
 	"github.com/ronperry/cryptoedge/lioness"
@@ -215,9 +214,8 @@ func (tmp AddressTemplate) NewAddress(MailboxAddress, Nym []byte) ([]byte, error
 	xnym := make([]byte, KeySize)
 	copy(xnym, Nym)
 	Nym = xnym
-	mixAddress := tmp.MixCandidates.Expire(tmp.Expire - 1).Rand() // Select a random mix
+	mixAddress := tmp.MixCandidates.Expire(tmp.Expire).Rand() // Select a random mix
 	if mixAddress == nil {
-		spew.Dump(tmp)
 		return nil, ErrNoMix
 	}
 	pubKeyRand, privKeyRand, err := genKeyRandom()
