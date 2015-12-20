@@ -164,8 +164,6 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 		ss = &session.State{
 			SenderSessionCount:          0,
 			SenderMessageCount:          0,
-			RecipientSessionCount:       0,
-			RecipientMessageCount:       0,
 			RecipientTemp:               *recipientTemp,
 			SenderSessionPub:            senderSession,
 			NextSenderSessionPub:        &nextSenderSession,

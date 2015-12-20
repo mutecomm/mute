@@ -13,8 +13,6 @@ import (
 type State struct {
 	SenderSessionCount          uint64        // total number of messages sent in sessions before this SenderSessionPub was used
 	SenderMessageCount          uint64        // total number of messages sent with this SenderSessionPub
-	RecipientSessionCount       uint64        // total number of messages received in sessions before this SenderSessionPub was used
-	RecipientMessageCount       uint64        // total number of messages received with this SenderSessionPub
 	RecipientTemp               uid.KeyEntry  // RecipientKeyInitPub or RecipientSessionPub
 	SenderSessionPub            uid.KeyEntry  // public session key from sender
 	NextSenderSessionPub        *uid.KeyEntry // new SenderSessionPub to refresh the session

@@ -182,8 +182,6 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 		ss = &session.State{
 			SenderSessionCount:          0,
 			SenderMessageCount:          0,
-			RecipientSessionCount:       0,
-			RecipientMessageCount:       0,
 			RecipientTemp:               h.SenderSessionPub,
 			SenderSessionPub:            *recipientKI,
 			NextSenderSessionPub:        &nextSenderSession,
@@ -245,8 +243,6 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 					ss = &session.State{
 						SenderSessionCount:          0,
 						SenderMessageCount:          0,
-						RecipientSessionCount:       0,
-						RecipientMessageCount:       0,
 						RecipientTemp:               h.SenderSessionPub,
 						SenderSessionPub:            *recipientKI,
 						NextSenderSessionPub:        &nextSenderSession,
@@ -284,8 +280,6 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 				ss.NextSenderSessionPub = &nextSenderSession
 				ss.SenderSessionCount = ss.SenderSessionCount + ss.SenderMessageCount
 				ss.SenderMessageCount = 0
-				ss.RecipientSessionCount = h.SenderSessionCount
-				ss.RecipientMessageCount = h.SenderMessageCount
 				// root key agreement
 				err = rootKeyAgreementSender(recipient, sender,
 					&ss.SenderSessionPub, recipientID,
@@ -320,8 +314,6 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			ss.NextSenderSessionPub = &nextSenderSession
 			ss.SenderSessionCount = ss.SenderSessionCount + ss.SenderMessageCount
 			ss.SenderMessageCount = 0
-			ss.RecipientSessionCount = h.SenderSessionCount + h.SenderMessageCount
-			ss.RecipientMessageCount = 0
 			// root key agreement
 			err = rootKeyAgreementRecipient(sender, recipient,
 				h.NextSenderSessionPub, &h.SenderIdentityPub,
@@ -564,7 +556,6 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	if err != nil {
 		return "", "", err
 	}
-	// TODO: change ss.RecipientMessageCount?
 
 	return
 }

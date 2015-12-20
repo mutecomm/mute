@@ -151,10 +151,8 @@ func TestSessionStore(t *testing.T) {
 func TestSessionState(t *testing.T) {
 	ms := New()
 	ss := &session.State{
-		SenderSessionCount:    1,
-		SenderMessageCount:    2,
-		RecipientSessionCount: 3,
-		RecipientMessageCount: 4,
+		SenderSessionCount: 1,
+		SenderMessageCount: 2,
 	}
 	err := ms.SetSessionState("alice@mute.berlin", "bob@mute.berlin", ss)
 	if err != nil {
