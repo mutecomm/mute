@@ -114,7 +114,7 @@ func TestSendReceiveRelay(t *testing.T) {
 	recAddress := "mailbox001@001."
 	pseudonym := []byte("Pseudonym001")
 	pseudoHash := sha256.Sum256(pseudonym)
-	kl := mixaddr.New(privkey, mixAddress, 7200, "/tmp/mixkeydir")
+	kl := mixaddr.New(privkey, mixAddress, 7200, 24*3600, "/tmp/mixkeydir")
 	kl.AddKey()
 	stmt := kl.GetStatement()
 	// AddressTemplate contains parameters for address creation
