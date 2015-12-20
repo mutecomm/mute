@@ -57,7 +57,7 @@ func deriveRootKey(
 	hkdf := hkdf.New(sha512.New, master, nil, nil)
 
 	// derive root key
-	// TODO: size correct? Shouldn't it be 64 bytes?
+	// TODO: size correct? Shouldn't it be 64 bytes? -> 32 byte (we operate on 256bit security margins)
 	var rootKey [24]byte
 	if _, err := io.ReadFull(hkdf, rootKey[:]); err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func deriveRootKey(
 // keyStore.StoresSession and keyStore.SetSessionState to store the result.
 func generateMessageKeys(
 	senderIdentity, recipientIdentity string,
-	rootKey []byte, // TODO: change to *[64]byte?
+	rootKey []byte, // TODO: change to *[64]byte? -> 32 byte (we operate on 256 bit security margins)
 	recipientKeys bool,
 	senderSessionPub, recipientPub *[32]byte,
 	numOfKeys uint64,
@@ -144,7 +144,7 @@ func deriveSymmetricKeys(messageKey *[64]byte) (
 	cryptoKey, hmacKey []byte,
 	err error,
 ) {
-	// TODO: set optional salt and info?
+	// TODO: set optional salt and info? -> no
 	hkdf := hkdf.New(sha512.New, messageKey[:], nil, nil)
 
 	// derive crypto key for AES-256
@@ -153,7 +153,7 @@ func deriveSymmetricKeys(messageKey *[64]byte) (
 		return nil, nil, err
 	}
 
-	// derive HMAC key for SHA-512 HMAC (TODO: correct size?)
+	// derive HMAC key for SHA-512 HMAC (TODO: correct size? -> only 32 byte)
 	hmacKey = make([]byte, 64)
 	if _, err := io.ReadFull(hkdf, hmacKey); err != nil {
 		return nil, nil, err
