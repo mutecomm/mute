@@ -21,6 +21,7 @@ import (
 )
 
 func rootKeyAgreementRecipient(
+	senderHeaderPub *[32]byte,
 	senderIdentity, recipientIdentity string,
 	senderSession, senderID, recipientKI, recipientID *uid.KeyEntry,
 	previousRootKeyHash *[64]byte,
@@ -40,8 +41,8 @@ func rootKeyAgreementRecipient(
 	log.Debugf("recipientIdentityPub: %s", base64.Encode(recipientIdentityPub[:]))
 	log.Debugf("recipientKeyInitPub:  %s", base64.Encode(recipientKeyInitPub[:]))
 
-	// check keys to prevent reflection attacks
-	err := checkKeys(senderIdentityPub, senderSessionPub,
+	// check keys to prevent reflection attacks and replays
+	err := checkKeys(senderHeaderPub, senderIdentityPub, senderSessionPub,
 		recipientIdentityPub, recipientKeyInitPub)
 	if err != nil {
 		return err
@@ -167,7 +168,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 		if err != nil {
 			return "", "", err
 		}
-		err = rootKeyAgreementRecipient(sender, recipient,
+		err = rootKeyAgreementRecipient(&senderHeaderPub, sender, recipient,
 			&h.SenderSessionPub, &h.SenderIdentityPub, recipientKI, recipientID,
 			nil, args.NumOfKeys, args.KeyStore)
 		if err != nil {
@@ -223,7 +224,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 					// TODO: reset session here?
 					return "", "", err
 				}
-				err = rootKeyAgreementRecipient(sender, recipient,
+				err = rootKeyAgreementRecipient(&senderHeaderPub, sender, recipient,
 					&h.SenderSessionPub, &h.SenderIdentityPub, recipientKI, recipientID,
 					nil, args.NumOfKeys, args.KeyStore)
 				if err != nil {
@@ -281,7 +282,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 				ss.SenderSessionCount = ss.SenderSessionCount + ss.SenderMessageCount
 				ss.SenderMessageCount = 0
 				// root key agreement
-				err = rootKeyAgreementSender(recipient, sender,
+				err = rootKeyAgreementSender(&senderHeaderPub, recipient, sender,
 					&ss.SenderSessionPub, recipientID,
 					&h.SenderSessionPub, &h.SenderIdentityPub,
 					previousRootKeyHash, args.NumOfKeys, args.KeyStore)
@@ -315,7 +316,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			ss.SenderSessionCount = ss.SenderSessionCount + ss.SenderMessageCount
 			ss.SenderMessageCount = 0
 			// root key agreement
-			err = rootKeyAgreementRecipient(sender, recipient,
+			err = rootKeyAgreementRecipient(&senderHeaderPub, sender, recipient,
 				h.NextSenderSessionPub, &h.SenderIdentityPub,
 				&ss.SenderSessionPub, recipientID,
 				previousRootKeyHash, args.NumOfKeys, args.KeyStore)

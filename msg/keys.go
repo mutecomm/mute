@@ -16,9 +16,21 @@ import (
 	"golang.org/x/crypto/hkdf"
 )
 
-// checkKeys checks that the keys k1, k2, k3, and k4 are pairwise different to
-// prevent possible reflection attacks.
-func checkKeys(k1, k2, k3, k4 *[32]byte) error {
+// checkKeys checks that the keys kh, k1, k2, k3, and k4 are pairwise different to
+// prevent possible reflection attacks and replays.
+func checkKeys(kh, k1, k2, k3, k4 *[32]byte) error {
+	if bytes.Equal(kh[:], k1[:]) {
+		return ErrReflection
+	}
+	if bytes.Equal(kh[:], k2[:]) {
+		return ErrReflection
+	}
+	if bytes.Equal(kh[:], k3[:]) {
+		return ErrReflection
+	}
+	if bytes.Equal(kh[:], k4[:]) {
+		return ErrReflection
+	}
 	if bytes.Equal(k1[:], k2[:]) {
 		return ErrReflection
 	}

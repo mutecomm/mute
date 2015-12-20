@@ -138,7 +138,11 @@ func newHeader(
 	return h, nil
 }
 
-func newHeaderPacket(h *header, recipientIdentityPub, senderHeaderPriv *[32]byte, rand io.Reader) (*headerPacket, error) {
+func newHeaderPacket(
+	h *header,
+	recipientIdentityPub, senderHeaderPriv *[32]byte,
+	rand io.Reader,
+) (*headerPacket, error) {
 	var hp headerPacket
 	jsn, err := json.Marshal(h)
 	if err != nil {
@@ -147,11 +151,13 @@ func newHeaderPacket(h *header, recipientIdentityPub, senderHeaderPriv *[32]byte
 	if _, err := io.ReadFull(rand, hp.Nonce[:]); err != nil {
 		return nil, log.Error(err)
 	}
-	hp.EncryptedHeader = box.Seal(hp.EncryptedHeader, jsn, &hp.Nonce, recipientIdentityPub, senderHeaderPriv)
+	hp.EncryptedHeader = box.Seal(hp.EncryptedHeader, jsn, &hp.Nonce,
+		recipientIdentityPub, senderHeaderPriv)
 	hp.LengthEncryptedHeader = uint16(len(hp.EncryptedHeader))
 	if hp.LengthEncryptedHeader != lengthEncryptedHeader {
-		return nil, log.Errorf("msg: encrypted header has wrong length (%d != %d)",
-			hp.LengthEncryptedHeader, lengthEncryptedHeader)
+		return nil,
+			log.Errorf("msg: encrypted header has wrong length (%d != %d)",
+				hp.LengthEncryptedHeader, lengthEncryptedHeader)
 	}
 	return &hp, nil
 }
@@ -206,7 +212,8 @@ func readHeader(
 		}
 	}
 	if !suc {
-		return 0, nil, nil, log.Error("msg: could not find key to decrypt header")
+		return 0, nil, nil,
+			log.Error("msg: could not find key to decrypt header")
 	}
 	var h header
 	if err := json.Unmarshal(jsn, &h); err != nil {

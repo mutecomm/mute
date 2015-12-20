@@ -22,6 +22,7 @@ import (
 )
 
 func rootKeyAgreementSender(
+	senderHeaderPub *[32]byte,
 	senderIdentity, recipientIdentity string,
 	senderSession, senderID, recipientKI, recipientID *uid.KeyEntry,
 	previousRootKeyHash *[64]byte,
@@ -40,8 +41,8 @@ func rootKeyAgreementSender(
 	log.Debugf("recipientIdentityPub: %s", base64.Encode(recipientIdentityPub[:]))
 	log.Debugf("recipientKeyInitPub:  %s", base64.Encode(recipientKeyInitPub[:]))
 
-	// check keys to prevent reflection attacks
-	err := checkKeys(senderIdentityPub, senderSessionPub,
+	// check keys to prevent reflection attacks and replays
+	err := checkKeys(senderHeaderPub, senderIdentityPub, senderSessionPub,
 		recipientIdentityPub, recipientKeyInitPub)
 	if err != nil {
 		return err
@@ -149,9 +150,10 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 			return "", err
 		}
 		// root key agreement
-		err = rootKeyAgreementSender(args.From.Identity(), args.To.Identity(),
-			&senderSession, args.From.PubKey(), recipientTemp,
-			args.To.PubKey(), nil, args.NumOfKeys, args.KeyStore)
+		err = rootKeyAgreementSender(senderHeaderKey.PublicKey(),
+			args.From.Identity(), args.To.Identity(), &senderSession,
+			args.From.PubKey(), recipientTemp, args.To.PubKey(), nil,
+			args.NumOfKeys, args.KeyStore)
 		if err != nil {
 			return "", err
 		}
