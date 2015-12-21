@@ -11,6 +11,7 @@ import (
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
+	"github.com/mutecomm/mute/msg/session"
 	"github.com/mutecomm/mute/msg/session/memstore"
 )
 
@@ -38,17 +39,13 @@ func TestGenerateMessageKeys(t *testing.T) {
 	b := "bob@mute.berlin"
 	ms1 := memstore.New()
 
-	sKey := "sender"
-	sKey += "recipient"
-	sKey += base64.Encode(cipher.SHA512(senderSessionPub[:]))
-	sKey += base64.Encode(cipher.SHA512(recipientPub[:]))
-	senderSessionKey := base64.Encode(cipher.SHA512([]byte(sKey)))
+	senderSessionKey := session.CalcKey("sender", "recipient",
+		base64.Encode(cipher.SHA512(senderSessionPub[:])),
+		base64.Encode(cipher.SHA512(recipientPub[:])))
 
-	sKey = "recipient"
-	sKey += "sender"
-	sKey += base64.Encode(cipher.SHA512(recipientPub[:]))
-	sKey += base64.Encode(cipher.SHA512(senderSessionPub[:]))
-	recipientSessionKey := base64.Encode(cipher.SHA512([]byte(sKey)))
+	recipientSessionKey := session.CalcKey("recipient", "sender",
+		base64.Encode(cipher.SHA512(recipientPub[:])),
+		base64.Encode(cipher.SHA512(senderSessionPub[:])))
 
 	err = generateMessageKeys(a, b, "sender", "recipient", &rootKey, false,
 		&senderSessionPub, &recipientPub, NumOfFutureKeys, ms1)

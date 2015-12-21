@@ -157,18 +157,14 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	sender := h.SenderIdentity
 	recipient := identity.Identity()
 	log.Debugf("%s -> %s", sender, recipient)
-	ssKey := recipientID.PublicKey32()[:]
-	ssKey = append(ssKey, h.SenderIdentityPub.PublicKey32()[:]...)
-	sessionStateKey := base64.Encode(cipher.SHA512(ssKey))
+	sessionStateKey := session.CalcStateKey(recipientID.PublicKey32(),
+		h.SenderIdentityPub.PublicKey32())
 	ss, err := args.KeyStore.GetSessionState(sessionStateKey)
 	if err != nil {
 		return "", "", err
 	}
-	sKey := recipientID.HASH
-	sKey += h.SenderIdentityPub.HASH
-	sKey += h.RecipientTempHash
-	sKey += h.SenderSessionPub.HASH
-	sessionKey := base64.Encode(cipher.SHA512([]byte(sKey)))
+	sessionKey := session.CalcKey(recipientID.HASH, h.SenderIdentityPub.HASH,
+		h.RecipientTempHash, h.SenderSessionPub.HASH)
 	if ss == nil {
 		// no session found -> start first session
 		log.Debug("no session found -> start first session")
@@ -278,11 +274,9 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 					return "", "", log.Error("msg: NextSenderSessionPub mismatch")
 				}
 				ss.RecipientTemp = h.SenderSessionPub
-				sKey = recipientID.HASH
-				sKey += h.SenderIdentityPub.HASH
-				sKey += ss.SenderSessionPub.HASH
-				sKey += h.SenderSessionPub.HASH
-				sessionKey = base64.Encode(cipher.SHA512([]byte(sKey)))
+				sessionKey = session.CalcKey(recipientID.HASH,
+					h.SenderIdentityPub.HASH, ss.SenderSessionPub.HASH,
+					h.SenderSessionPub.HASH)
 				previousRootKeyHash, err := args.KeyStore.GetRootKeyHash(sessionKey)
 				if err != nil {
 					return "", "", err
@@ -315,12 +309,8 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			// sender has sent next session key and own next session key
 			// has been reflected -> refresh session
 			log.Debug("refresh session")
-			ss.RecipientTemp = *h.NextSenderSessionPub
-			sKey = recipientID.HASH
-			sKey += h.SenderIdentityPub.HASH
-			sKey += h.SenderSessionPub.HASH
-			sKey += h.SenderSessionPub.HASH
-			sessionKey = base64.Encode(cipher.SHA512([]byte(sKey)))
+			sessionKey = session.CalcKey(recipientID.HASH, h.SenderIdentityPub.HASH,
+				ss.SenderSessionPub.HASH, h.SenderSessionPub.HASH)
 			previousRootKeyHash, err := args.KeyStore.GetRootKeyHash(sessionKey)
 			if err != nil {
 				return "", "", err

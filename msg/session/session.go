@@ -6,6 +6,8 @@
 package session
 
 import (
+	"github.com/mutecomm/mute/cipher"
+	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/uid"
 )
 
@@ -20,18 +22,6 @@ type State struct {
 }
 
 // The Store interface defines all methods for managing session keys.
-//
-// A sesssion state key is computed as follows:
-//   key := senderUID.PubKey().PublicKey32()[:]
-//   key = append(key, recipientUID.PubKey().PublicKey32()[:]...)
-//   sessionStateKey := base64.Encode(cipher.SHA512(key))
-//
-// A session key is computed as follows:
-//   key := senderUID.PubKey().HASH
-//   key += recipientUID.PubKey().HASH
-//   key += senderSessionPub.HASH
-//   key += recipientTempHash
-//   sessionKey := base64.Encode(cipher.SHA512([]byte(key)))
 type Store interface {
 	// GetSessionState returns the current session state or nil, if no state
 	// exists between the two parties.
@@ -67,4 +57,24 @@ type Store interface {
 	// DelMessageKey deleted the message key with index msgIndex. If sender is
 	// true the sender key is deleted, otherwise the recipient key.
 	DelMessageKey(sessionKey string, sender bool, msgIndex uint64) error
+}
+
+// CalcStateKey computes the session state key from senderIdentityPub and
+// recipientIdentityPub.
+func CalcStateKey(senderIdentityPub, recipientIdentityPub *[32]byte) string {
+	key := append(senderIdentityPub[:], recipientIdentityPub[:]...)
+	return base64.Encode(cipher.SHA512(key))
+}
+
+// CalcKey computes the session key from senderIdentityHash,
+// recipientIdentityHash, senderSessionHash, and recipientSessionHash.
+func CalcKey(
+	senderIdentityHash string,
+	recipientIdentityHash string,
+	senderSessionHash string,
+	recipientSessionHash string,
+) string {
+	key := senderIdentityHash + recipientIdentityHash
+	key += senderSessionHash + recipientSessionHash
+	return base64.Encode(cipher.SHA512([]byte(key)))
 }
