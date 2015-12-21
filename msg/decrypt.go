@@ -83,14 +83,13 @@ func rootKeyAgreementRecipient(
 
 // DecryptArgs contains all arguments for a message decryption.
 type DecryptArgs struct {
-	Writer              io.Writer       // decrypted message is written here
-	Identities          []string        // list of recipient identity strings
-	RecipientIdentities []*uid.KeyEntry // list of recipient identity KeyEntries
-	PreHeader           []byte          // preHeader read with ReadFirstOuterHeader()
-	Reader              io.Reader       // data to decrypt is read here (not base64 encoded)
-	NumOfKeys           uint64          // number of generated sessions keys (default: NumOfFutureKeys)
-	Rand                io.Reader       // random source
-	KeyStore            session.Store   // for managing session keys
+	Writer     io.Writer      // decrypted message is written here
+	Identities []*uid.Message // list of recipient UID messages
+	PreHeader  []byte         // preHeader read with ReadFirstOuterHeader()
+	Reader     io.Reader      // data to decrypt is read here (not base64 encoded)
+	NumOfKeys  uint64         // number of generated sessions keys (default: NumOfFutureKeys)
+	Rand       io.Reader      // random source
+	KeyStore   session.Store  // for managing session keys
 }
 
 // Decrypt decrypts a message with the argument given in args.
@@ -130,12 +129,13 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 		return "", "", log.Error(ErrWrongCount)
 	}
 	count++
-	i, recipientID, h, err := readHeader(&senderHeaderPub,
-		args.RecipientIdentities, bytes.NewBuffer(oh.inner))
+	identity, h, err := readHeader(&senderHeaderPub, args.Identities,
+		bytes.NewBuffer(oh.inner))
 	if err != nil {
 		return "", "", err
 	}
 	senderID = h.SenderIdentity
+	recipientID := identity.PubKey()
 
 	log.Debugf("senderID:    %s", h.SenderIdentityPub.HASH)
 	log.Debugf("recipientID: %s", recipientID.HASH)
@@ -154,7 +154,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 
 	// get session state
 	sender := h.SenderIdentity
-	recipient := args.Identities[i]
+	recipient := identity.Identity()
 	log.Debugf("%s -> %s", sender, recipient)
 	ss, err := args.KeyStore.GetSessionState(recipient, sender)
 	if err != nil {
@@ -521,6 +521,8 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	if uidRes.err != nil {
 		return "", "", uidRes.err
 	}
+
+	// verify signature, if necessary
 	if contentHash != nil {
 		if !ed25519.Verify(uidRes.msg.PublicSigKey32(), contentHash, &sigBuf) {
 			return "", "", log.Error(ErrInvalidSignature)

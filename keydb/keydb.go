@@ -362,6 +362,8 @@ func (keyDB *KeyDB) GetPrivateIdentitiesForDomain(domain string) ([]string, erro
 }
 
 // GetPrivateUID gets a private uid for identity from keyDB.
+//
+// TODO: get all UID messages for given identity which are not expired.
 func (keyDB *KeyDB) GetPrivateUID(
 	identity string,
 	withPrivkeys bool,

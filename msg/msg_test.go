@@ -87,8 +87,7 @@ func decrypt(sender, recipient *uid.Message, r io.Reader, recipientTemp *uid.Key
 	privateKey string, sign bool, chkMsg bool) error {
 	// decrypt
 	var res bytes.Buffer
-	identities := []string{recipient.Identity()}
-	recipientIdentities := []*uid.KeyEntry{recipient.PubKey()}
+	identities := []*uid.Message{recipient}
 	input := base64.NewDecoder(r)
 	version, preHeader, err := ReadFirstOuterHeader(input)
 	if err != nil {
@@ -103,13 +102,12 @@ func decrypt(sender, recipient *uid.Message, r io.Reader, recipientTemp *uid.Key
 	}
 	ms.AddPrivateKeyEntry(recipientTemp)
 	args := &DecryptArgs{
-		Writer:              &res,
-		Identities:          identities,
-		RecipientIdentities: recipientIdentities,
-		PreHeader:           preHeader,
-		Reader:              input,
-		Rand:                cipher.RandReader,
-		KeyStore:            ms,
+		Writer:     &res,
+		Identities: identities,
+		PreHeader:  preHeader,
+		Reader:     input,
+		Rand:       cipher.RandReader,
+		KeyStore:   ms,
 	}
 	_, sig, err := Decrypt(args)
 	if err != nil {
@@ -289,8 +287,7 @@ func TestMaxMessageLength(t *testing.T) {
 	}
 	// decrypt message from Alice to Bob
 	var res bytes.Buffer
-	bobIdentities := []string{bobUID.Identity()}
-	bobRecipientIdentities := []*uid.KeyEntry{bobUID.PubKey()}
+	bobIdentities := []*uid.Message{bobUID}
 	input := base64.NewDecoder(&encMsg)
 	version, preHeader, err := ReadFirstOuterHeader(input)
 	if err != nil {
@@ -305,13 +302,12 @@ func TestMaxMessageLength(t *testing.T) {
 	}
 	bobKeyStore.AddPrivateKeyEntry(bobKE)
 	decryptArgs := &DecryptArgs{
-		Writer:              &res,
-		Identities:          bobIdentities,
-		RecipientIdentities: bobRecipientIdentities,
-		PreHeader:           preHeader,
-		Reader:              input,
-		Rand:                cipher.RandReader,
-		KeyStore:            bobKeyStore,
+		Writer:     &res,
+		Identities: bobIdentities,
+		PreHeader:  preHeader,
+		Reader:     input,
+		Rand:       cipher.RandReader,
+		KeyStore:   bobKeyStore,
 	}
 	_, _, err = Decrypt(decryptArgs)
 	if err != nil {

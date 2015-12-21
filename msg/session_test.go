@@ -151,8 +151,7 @@ func testRun(r []*operation) error {
 		return err
 	}
 
-	aliceIdentities := []string{aliceUID.Identity()}
-	aliceRecipientIdentities := []*uid.KeyEntry{aliceUID.PubKey()}
+	aliceIdentities := []*uid.Message{aliceUID}
 	aliceKeyStore := memstore.New()
 	aliceKeyStore.AddPublicKeyEntry(bob, bobKE)
 	if err := aliceKE.SetPrivateKey(alicePrivateKey); err != nil {
@@ -160,8 +159,7 @@ func testRun(r []*operation) error {
 	}
 	aliceKeyStore.AddPrivateKeyEntry(aliceKE)
 
-	bobIdentities := []string{bobUID.Identity()}
-	bobRecipientIdentities := []*uid.KeyEntry{bobUID.PubKey()}
+	bobIdentities := []*uid.Message{bobUID}
 	bobKeyStore := memstore.New()
 	bobKeyStore.AddPublicKeyEntry(alice, aliceKE)
 	if err := bobKE.SetPrivateKey(bobPrivateKey); err != nil {
@@ -253,14 +251,13 @@ func testRun(r []*operation) error {
 					return errors.New("wrong version")
 				}
 				decryptArgs := &msg.DecryptArgs{
-					Writer:              &res,
-					Identities:          bobIdentities,
-					RecipientIdentities: bobRecipientIdentities,
-					PreHeader:           preHeader,
-					Reader:              input,
-					NumOfKeys:           2,
-					Rand:                cipher.RandReader,
-					KeyStore:            bobKeyStore,
+					Writer:     &res,
+					Identities: bobIdentities,
+					PreHeader:  preHeader,
+					Reader:     input,
+					NumOfKeys:  2,
+					Rand:       cipher.RandReader,
+					KeyStore:   bobKeyStore,
 				}
 				_, _, err = msg.Decrypt(decryptArgs)
 				if err != nil {
@@ -288,14 +285,13 @@ func testRun(r []*operation) error {
 					return errors.New("wrong version")
 				}
 				decryptArgs := &msg.DecryptArgs{
-					Writer:              &res,
-					Identities:          aliceIdentities,
-					RecipientIdentities: aliceRecipientIdentities,
-					PreHeader:           preHeader,
-					Reader:              input,
-					NumOfKeys:           2,
-					Rand:                cipher.RandReader,
-					KeyStore:            aliceKeyStore,
+					Writer:     &res,
+					Identities: aliceIdentities,
+					PreHeader:  preHeader,
+					Reader:     input,
+					NumOfKeys:  2,
+					Rand:       cipher.RandReader,
+					KeyStore:   aliceKeyStore,
 				}
 				_, _, err = msg.Decrypt(decryptArgs)
 				if err != nil {

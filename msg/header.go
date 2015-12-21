@@ -179,51 +179,50 @@ func (hp *headerPacket) write(w io.Writer) error {
 
 func readHeader(
 	senderHeaderPub *[32]byte,
-	recipientIdentities []*uid.KeyEntry,
+	identities []*uid.Message,
 	r io.Reader,
-) (int, *uid.KeyEntry, *header, error) {
+) (*uid.Message, *header, error) {
 	var hp headerPacket
 	// read nonce
 	if _, err := io.ReadFull(r, hp.Nonce[:]); err != nil {
-		return 0, nil, nil, log.Error(err)
+		return nil, nil, log.Error(err)
 	}
 	//log.Debugf("hp.Nonce: %s", base64.Encode(hp.Nonce[:]))
 	// read length of encrypted header
 	if err := binary.Read(r, binary.BigEndian, &hp.LengthEncryptedHeader); err != nil {
-		return 0, nil, nil, log.Error(err)
+		return nil, nil, log.Error(err)
 	}
 	////log.Debugf("hp.LengthEncryptedHeader: %d", hp.LengthEncryptedHeader)
 	// read encrypted header
 	hp.EncryptedHeader = make([]byte, hp.LengthEncryptedHeader)
 	if _, err := io.ReadFull(r, hp.EncryptedHeader); err != nil {
-		return 0, nil, nil, log.Error(err)
+		return nil, nil, log.Error(err)
 	}
 	// try to decrypt header
 	var jsn []byte
 	var suc bool
-	var recipientID *uid.KeyEntry
-	var i int
-	for idx, ke := range recipientIdentities {
-		jsn, suc = box.Open(jsn, hp.EncryptedHeader, &hp.Nonce, senderHeaderPub, ke.PrivateKey32())
+	var identity *uid.Message
+	for _, uidMsg := range identities {
+		jsn, suc = box.Open(jsn, hp.EncryptedHeader, &hp.Nonce,
+			senderHeaderPub, uidMsg.PubKey().PrivateKey32())
 		if suc {
-			i = idx
-			recipientID = ke
+			identity = uidMsg
 			break
 		}
 	}
 	if !suc {
-		return 0, nil, nil,
+		return nil, nil,
 			log.Error("msg: could not find key to decrypt header")
 	}
 	var h header
 	if err := json.Unmarshal(jsn, &h); err != nil {
-		return 0, nil, nil, err
+		return nil, nil, err
 	}
 	// verify header
 	if err := h.verify(); err != nil {
-		return 0, nil, nil, err
+		return nil, nil, err
 	}
-	return i, recipientID, &h, nil
+	return identity, &h, nil
 }
 
 // Verify KeyEntry messages in header.

@@ -18,26 +18,27 @@ import (
 
 // TODO: better selection of identities. Take NOTBEFORE and NOTAFTER into account.
 // At the moment only the most current UID message is used for every identity.
-func (ce *CryptEngine) getRecipientIdentities() ([]string, []*uid.KeyEntry, error) {
-	var recipientIdentities []*uid.KeyEntry
+func (ce *CryptEngine) getRecipientIdentities() ([]*uid.Message, error) {
+	var uidMsgs []*uid.Message
 	identities, err := ce.keyDB.GetPrivateIdentities()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	for _, identity := range identities {
 		log.Debugf("identity=%s", identity)
-		msg, _, err := ce.keyDB.GetPrivateUID(identity, true)
+		// TODO: get all UID messages for given identity which are not expired
+		uidMsg, _, err := ce.keyDB.GetPrivateUID(identity, true)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
-		recipientIdentities = append(recipientIdentities, msg.PubKey())
+		uidMsgs = append(uidMsgs, uidMsg)
 	}
-	return identities, recipientIdentities, nil
+	return uidMsgs, nil
 }
 
 func (ce *CryptEngine) decrypt(w io.Writer, r io.Reader, statusfp *os.File) error {
 	// retrieve all possible recipient identities from keyDB
-	identities, recipientIdentities, err := ce.getRecipientIdentities()
+	identities, err := ce.getRecipientIdentities()
 	if err != nil {
 		return err
 	}
@@ -61,13 +62,12 @@ func (ce *CryptEngine) decrypt(w io.Writer, r io.Reader, statusfp *os.File) erro
 	var senderID string
 	var sig string
 	args := &msg.DecryptArgs{
-		Writer:              w,
-		Identities:          identities,
-		RecipientIdentities: recipientIdentities,
-		PreHeader:           preHeader,
-		Reader:              r,
-		Rand:                cipher.RandReader,
-		KeyStore:            ce,
+		Writer:     w,
+		Identities: identities,
+		PreHeader:  preHeader,
+		Reader:     r,
+		Rand:       cipher.RandReader,
+		KeyStore:   ce,
 	}
 	senderID, sig, err = msg.Decrypt(args)
 	if err != nil {
