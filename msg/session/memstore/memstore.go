@@ -212,19 +212,19 @@ func (ms *MemStore) GetRootKeyHash(
 // GetChainKey implemented in memory.
 func (ms *MemStore) GetChainKey(
 	myID, contactID, senderSessionPubHash string,
-) (*[64]byte, error) {
+) (*[32]byte, error) {
 	s, ok := ms.sessions[myID+"@"+contactID+"@"+senderSessionPubHash]
 	if !ok {
 		return nil, log.Errorf("memstore: no session found for %s and %s",
 			myID, contactID)
 	}
-	// decode root key hash
-	var key [64]byte
+	// decode chain key
+	var key [32]byte
 	k, err := base64.Decode(s.chainKey)
 	if err != nil {
 		return nil, log.Error("memstore: cannot decode chain key")
 	}
-	if copy(key[:], k) != 64 {
+	if copy(key[:], k) != 32 {
 		return nil, log.Errorf("memstore: chain key has wrong length")
 	}
 	return &key, nil

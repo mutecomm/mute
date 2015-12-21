@@ -73,7 +73,7 @@ func rootKeyAgreementRecipient(
 	}
 
 	// generate message keys
-	err = generateMessageKeys(senderIdentity, recipientIdentity, rootKey[:],
+	err = generateMessageKeys(senderIdentity, recipientIdentity, rootKey,
 		true, senderSessionPub, recipientKeyInitPub, numOfKeys, keyStore)
 	if err != nil {
 		return err
@@ -370,7 +370,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			}
 			recipientPub = recipientKI.PublicKey32()
 		}
-		err = generateMessageKeys(sender, recipient, chainKey[:], true,
+		err = generateMessageKeys(sender, recipient, chainKey, true,
 			h.SenderSessionPub.PublicKey32(), recipientPub, numOfKeys,
 			args.KeyStore)
 		if err != nil {

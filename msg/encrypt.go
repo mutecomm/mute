@@ -73,7 +73,7 @@ func rootKeyAgreementSender(
 	}
 
 	// generate message keys
-	err = generateMessageKeys(senderIdentity, recipientIdentity, rootKey[:],
+	err = generateMessageKeys(senderIdentity, recipientIdentity, rootKey,
 		false, senderSessionPub, recipientKeyInitPub, numOfKeys, keyStore)
 	if err != nil {
 		return err
@@ -239,7 +239,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 		if err != nil {
 			return "", err
 		}
-		err = generateMessageKeys(sender, recipient, chainKey[:], false,
+		err = generateMessageKeys(sender, recipient, chainKey, false,
 			ss.SenderSessionPub.PublicKey32(), ss.RecipientTemp.PublicKey32(),
 			args.NumOfKeys, args.KeyStore)
 		if err != nil {

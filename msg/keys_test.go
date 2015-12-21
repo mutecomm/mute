@@ -16,7 +16,7 @@ import (
 
 func TestGenerateMessageKeys(t *testing.T) {
 	defer log.Flush()
-	rk, err := base64.Decode("HdxGXLlSNRhwydGkd4QISqquIQirNtCD")
+	rk, err := base64.Decode("CH9NjvU/usWcT0vNgiiUHNt9UFgWKneEPRgN0HIvlP0=")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -28,7 +28,7 @@ func TestGenerateMessageKeys(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var rootKey [24]byte
+	var rootKey [32]byte
 	var senderSessionPub [32]byte
 	var recipientPub [32]byte
 	copy(rootKey[:], rk)
@@ -40,7 +40,7 @@ func TestGenerateMessageKeys(t *testing.T) {
 	h2 := base64.Encode(cipher.SHA512(recipientPub[:]))
 	ms1 := memstore.New()
 
-	err = generateMessageKeys(a, b, rootKey[:], false, &senderSessionPub,
+	err = generateMessageKeys(a, b, &rootKey, false, &senderSessionPub,
 		&recipientPub, NumOfFutureKeys, ms1)
 	if err != nil {
 		t.Fatal(err)
@@ -51,8 +51,8 @@ func TestGenerateMessageKeys(t *testing.T) {
 		t.Fatal(err)
 	}
 	b64 := base64.Encode(rootKeyHash[:])
-	if b64 != "IiWB61ml7jLQyBx6G3Hak9DoiXxJZGBCesWJ2pesme963rcjWsusi8gdgUic8WhSucqPvsWzXxxzJetJmVJFaw==" {
-		t.Error("wrong rootKeyHash")
+	if b64 != "KJgsEto4kssCEBJAgGJTt2fJ6/FJqMupevapOwtkdgjF0z0VNI8Zzv15hwRVfZPGrGtgc5AGaeZiyao2wZLE2Q==" {
+		t.Errorf("wrong rootKeyHash: %s", b64)
 	}
 
 	key, err := ms1.GetMessageKey(a, b, h1, true, 0)
@@ -60,8 +60,8 @@ func TestGenerateMessageKeys(t *testing.T) {
 		t.Fatal(err)
 	}
 	b64 = base64.Encode(key[:])
-	if b64 != "W0hBJMhJXE8jintu5CoQl+Fr7s0FIlQx3DBGLadUy2smaPMTqOppEvrhr4ch5FNRLCrwsj7/n9Htdf4qe8G6rQ==" {
-		t.Error("wrong message key (sender, 0)")
+	if b64 != "1EaJ70EOJ1tEYEksbmv1FOgmG+SB0A0LMcx4gp687NdrEmeb/T04GYneFw9hAenUGsgkOjGtySLIL36xqQlgmw==" {
+		t.Errorf("wrong message key (sender, 0): %s", b64)
 	}
 
 	key, err = ms1.GetMessageKey(a, b, h1, false, 0)
@@ -69,8 +69,8 @@ func TestGenerateMessageKeys(t *testing.T) {
 		t.Fatal(err)
 	}
 	b64 = base64.Encode(key[:])
-	if b64 != "R1/zJ3bMIWGq6VVVb6jMOXbQvDNv1MGnbgF3BHAaAyhi29zwt6KdksMqIn8vdt9lW8NhjRhOoTt7oV2LH2ZWfQ==" {
-		t.Error("wrong message key (recipient, 0)")
+	if b64 != "o5K0K5cKuWEAMX6g1Cbv2yrcddg2eoB7PhJjtECO1IQsVbNkTf/FqiW4X2/Tmy6XbXhEoysdYPJL4bokoINvsA==" {
+		t.Errorf("wrong message key (recipient, 0): %s", b64)
 	}
 
 	key, err = ms1.GetMessageKey(a, b, h1, true, 49)
@@ -78,8 +78,8 @@ func TestGenerateMessageKeys(t *testing.T) {
 		t.Fatal(err)
 	}
 	b64 = base64.Encode(key[:])
-	if b64 != "8ChnQU0MEuoN4snKjzkVWdAt0tW2pA31v4wDbpNU2nL63ea8ck0ISgrScIFlHeUm1X0GQ1yG+k3/1TojrwP/YQ==" {
-		t.Error("wrong message key (sender, 49)")
+	if b64 != "r1TwPGq7WF5ysN2ZFyX4ZmnnNxMzH3hAAOfWew8mIND7BqFPSY01H/A7U48awcOwFd9pCnVXd5yc5W0TYvON/Q==" {
+		t.Errorf("wrong message key (sender, 49): %s", b64)
 	}
 
 	key, err = ms1.GetMessageKey(a, b, h1, false, 49)
@@ -87,8 +87,8 @@ func TestGenerateMessageKeys(t *testing.T) {
 		t.Fatal(err)
 	}
 	b64 = base64.Encode(key[:])
-	if b64 != "9M98fdyq9z5gb9seYUPcw0Gw1Ec5H3fF0EPVVUdfw7OPnGYfolAJ+UVvgqdzkpklCdx6r2SqyhV3Sbes2QEd6A==" {
-		t.Error("wrong message key (recipient, 49)")
+	if b64 != "d45Eic1g95nDrSncvo4FML/zha9lHtnDO/9kDyARQP3AgguhXD1bjw+/ep8MkI91qjAlnmHcsxVOAEEMbecmaQ==" {
+		t.Errorf("wrong message key (recipient, 49): %s", b64)
 	}
 
 	// generate additional keys from chainKey
@@ -96,7 +96,7 @@ func TestGenerateMessageKeys(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = generateMessageKeys(a, b, chainKey[:], false, &senderSessionPub,
+	err = generateMessageKeys(a, b, chainKey, false, &senderSessionPub,
 		&recipientPub, NumOfFutureKeys, ms1)
 	if err != nil {
 		t.Fatal(err)
@@ -105,7 +105,7 @@ func TestGenerateMessageKeys(t *testing.T) {
 	// generate all keys at the same time
 	ms2 := memstore.New()
 	copy(rootKey[:], rk)
-	err = generateMessageKeys(a, b, rootKey[:], true, &senderSessionPub,
+	err = generateMessageKeys(a, b, &rootKey, true, &senderSessionPub,
 		&recipientPub, 2*NumOfFutureKeys, ms2)
 	if err != nil {
 		t.Fatal(err)
