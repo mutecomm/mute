@@ -73,8 +73,9 @@ func rootKeyAgreementRecipient(
 	}
 
 	// generate message keys
-	err = generateMessageKeys(senderIdentity, recipientIdentity, rootKey,
-		true, senderSessionPub, recipientKeyInitPub, numOfKeys, keyStore)
+	err = generateMessageKeys(senderIdentity, recipientIdentity,
+		senderID.HASH, recipientID.HASH, rootKey, true, senderSessionPub,
+		recipientKeyInitPub, numOfKeys, keyStore)
 	if err != nil {
 		return err
 	}
@@ -156,13 +157,18 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	sender := h.SenderIdentity
 	recipient := identity.Identity()
 	log.Debugf("%s -> %s", sender, recipient)
-	key := recipientID.PublicKey32()[:]
-	key = append(key, h.SenderIdentityPub.PublicKey32()[:]...)
-	sessionStateKey := base64.Encode(cipher.SHA512(key))
+	ssKey := recipientID.PublicKey32()[:]
+	ssKey = append(ssKey, h.SenderIdentityPub.PublicKey32()[:]...)
+	sessionStateKey := base64.Encode(cipher.SHA512(ssKey))
 	ss, err := args.KeyStore.GetSessionState(sessionStateKey)
 	if err != nil {
 		return "", "", err
 	}
+	sKey := recipientID.HASH
+	sKey += h.SenderIdentityPub.HASH
+	sKey += h.RecipientTempHash
+	sKey += h.SenderSessionPub.HASH
+	sessionKey := base64.Encode(cipher.SHA512([]byte(sKey)))
 	if ss == nil {
 		// no session found -> start first session
 		log.Debug("no session found -> start first session")
@@ -216,7 +222,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 		}
 		// check if the session was refreshed (on the other side)
 		if h.RecipientTempHash != ss.SenderSessionPub.HASH &&
-			!args.KeyStore.HasSession(recipient, sender, h.RecipientTempHash) { // make sure session is unknown
+			!args.KeyStore.HasSession(sessionKey) { // make sure session is unknown
 			log.Debug("session was refreshed (on the other side)")
 			// check if sessions have been started simultaneously
 			if h.RecipientTempHash != ss.NextSenderSessionPub.HASH {
@@ -272,8 +278,12 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 					return "", "", log.Error("msg: NextSenderSessionPub mismatch")
 				}
 				ss.RecipientTemp = h.SenderSessionPub
-				previousRootKeyHash, err := args.KeyStore.GetRootKeyHash(recipient,
-					sender, ss.SenderSessionPub.HASH)
+				sKey = recipientID.HASH
+				sKey += h.SenderIdentityPub.HASH
+				sKey += ss.SenderSessionPub.HASH
+				sKey += h.SenderSessionPub.HASH
+				sessionKey = base64.Encode(cipher.SHA512([]byte(sKey)))
+				previousRootKeyHash, err := args.KeyStore.GetRootKeyHash(sessionKey)
 				if err != nil {
 					return "", "", err
 				}
@@ -306,8 +316,12 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			// has been reflected -> refresh session
 			log.Debug("refresh session")
 			ss.RecipientTemp = *h.NextSenderSessionPub
-			previousRootKeyHash, err := args.KeyStore.GetRootKeyHash(recipient,
-				sender, ss.SenderSessionPub.HASH)
+			sKey = recipientID.HASH
+			sKey += h.SenderIdentityPub.HASH
+			sKey += h.SenderSessionPub.HASH
+			sKey += h.SenderSessionPub.HASH
+			sessionKey = base64.Encode(cipher.SHA512([]byte(sKey)))
+			previousRootKeyHash, err := args.KeyStore.GetRootKeyHash(sessionKey)
 			if err != nil {
 				return "", "", err
 			}
@@ -338,8 +352,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	}
 
 	// make sure we got enough message keys
-	n, err := args.KeyStore.NumMessageKeys(recipient, sender,
-		h.RecipientTempHash)
+	n, err := args.KeyStore.NumMessageKeys(sessionKey)
 	if err != nil {
 		return "", "", err
 	}
@@ -347,8 +360,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 		// generate more message keys
 		log.Debugf("generate more message keys (h.SenderMessageCount=%d, n=%d)",
 			h.SenderMessageCount, n)
-		chainKey, err := args.KeyStore.GetChainKey(recipient, sender,
-			h.RecipientTempHash)
+		chainKey, err := args.KeyStore.GetChainKey(sessionKey)
 		if err != nil {
 			return "", "", err
 		}
@@ -374,7 +386,9 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			}
 			recipientPub = recipientKI.PublicKey32()
 		}
-		err = generateMessageKeys(sender, recipient, chainKey, true,
+
+		err = generateMessageKeys(sender, recipient, h.SenderIdentityPub.HASH,
+			recipientID.HASH, chainKey, true,
 			h.SenderSessionPub.PublicKey32(), recipientPub, numOfKeys,
 			args.KeyStore)
 		if err != nil {
@@ -383,8 +397,8 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	}
 
 	// get message key
-	messageKey, err := args.KeyStore.GetMessageKey(recipient, sender,
-		h.RecipientTempHash, false, h.SenderMessageCount)
+	messageKey, err := args.KeyStore.GetMessageKey(sessionKey, false,
+		h.SenderMessageCount)
 	if err != nil {
 		return "", "", err
 	}
@@ -558,8 +572,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	}
 
 	// delete message key
-	err = args.KeyStore.DelMessageKey(recipient, sender,
-		h.RecipientTempHash, false, h.SenderMessageCount)
+	err = args.KeyStore.DelMessageKey(sessionKey, false, h.SenderMessageCount)
 	if err != nil {
 		return "", "", err
 	}

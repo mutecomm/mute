@@ -12,7 +12,6 @@ import (
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg/session"
 	"github.com/mutecomm/mute/uid"
-	"github.com/mutecomm/mute/uid/identity"
 )
 
 type memSession struct {
@@ -24,11 +23,11 @@ type memSession struct {
 
 // MemStore implements the KeyStore interface in memory.
 type MemStore struct {
-	privateKeyEntryMap   map[string]*uid.KeyEntry
-	publicKeyEntryMap    map[string]*uid.KeyEntry
-	sessionStates        map[string]*session.State
-	sessions             map[string]*memSession
-	senderSessionPubHash string
+	privateKeyEntryMap map[string]*uid.KeyEntry
+	publicKeyEntryMap  map[string]*uid.KeyEntry
+	sessionStates      map[string]*session.State
+	sessions           map[string]*memSession
+	sessionKey         string
 }
 
 // New returns a new MemStore.
@@ -41,10 +40,9 @@ func New() *MemStore {
 	}
 }
 
-// SenderSessionPubHash returns the most recent senderSessionPubHash in
-// MemStore.
-func (ms *MemStore) SenderSessionPubHash() string {
-	return ms.senderSessionPubHash
+// SessionKey returns the most recent sessionKey in MemStore.
+func (ms *MemStore) SessionKey() string {
+	return ms.sessionKey
 }
 
 // AddPrivateKeyEntry adds private KeyEntry to memory store.
@@ -76,29 +74,22 @@ func (ms *MemStore) SetSessionState(
 
 // StoreSession implemented in memory.
 func (ms *MemStore) StoreSession(
-	myID, contactID, senderSessionPubHash, rootKeyHash, chainKey string,
+	sessionKey, rootKeyHash, chainKey string,
 	send, recv []string,
 ) error {
-	if err := identity.IsMapped(myID); err != nil {
-		return log.Error(err)
-	}
-	if err := identity.IsMapped(contactID); err != nil {
-		return log.Error(err)
-	}
 	if len(send) != len(recv) {
 		return log.Error("memstore: len(send) != len(recv)")
 	}
-	index := myID + "@" + contactID + "@" + senderSessionPubHash
-	log.Debugf("memstore.StoreSession(): %s", index)
-	s, ok := ms.sessions[index]
+	log.Debugf("memstore.StoreSession(): %s", sessionKey)
+	s, ok := ms.sessions[sessionKey]
 	if !ok {
-		ms.sessions[index] = &memSession{
+		ms.sessions[sessionKey] = &memSession{
 			rootKeyHash: rootKeyHash,
 			chainKey:    chainKey,
 			send:        send,
 			recv:        recv,
 		}
-		ms.senderSessionPubHash = senderSessionPubHash
+		ms.sessionKey = sessionKey
 	} else {
 		// session already exists -> update
 		// rootKeyHash stays the same!
@@ -110,10 +101,8 @@ func (ms *MemStore) StoreSession(
 }
 
 // HasSession implemented in memory.
-func (ms *MemStore) HasSession(
-	myID, contactID, senderSessionPubHash string,
-) bool {
-	_, ok := ms.sessions[myID+"@"+contactID+"@"+senderSessionPubHash]
+func (ms *MemStore) HasSession(sessionKey string) bool {
+	_, ok := ms.sessions[sessionKey]
 	return ok
 }
 
@@ -136,27 +125,23 @@ func (ms *MemStore) GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, strin
 }
 
 // NumMessageKeys implemented in memory.
-func (ms *MemStore) NumMessageKeys(
-	myID, contactID, senderSessionPubHash string,
-) (uint64, error) {
-	s, ok := ms.sessions[myID+"@"+contactID+"@"+senderSessionPubHash]
+func (ms *MemStore) NumMessageKeys(sessionKey string) (uint64, error) {
+	s, ok := ms.sessions[sessionKey]
 	if !ok {
-		return 0, log.Errorf("memstore: no session found for %s and %s",
-			myID, contactID)
+		return 0, log.Errorf("memstore: no session found for %s", sessionKey)
 	}
 	return uint64(len(s.send)), nil
 }
 
 // GetMessageKey implemented in memory.
 func (ms *MemStore) GetMessageKey(
-	myID, contactID, senderSessionPubHash string,
+	sessionKey string,
 	sender bool,
 	msgIndex uint64,
 ) (*[64]byte, error) {
-	s, ok := ms.sessions[myID+"@"+contactID+"@"+senderSessionPubHash]
+	s, ok := ms.sessions[sessionKey]
 	if !ok {
-		return nil, log.Errorf("memstore: no session found for %s and %s",
-			myID, contactID)
+		return nil, log.Errorf("memstore: no session found for %s", sessionKey)
 	}
 	if msgIndex >= uint64(len(s.send)) {
 		return nil, log.Error("memstore: message index out of bounds")
@@ -178,24 +163,23 @@ func (ms *MemStore) GetMessageKey(
 	var messageKey [64]byte
 	k, err := base64.Decode(key)
 	if err != nil {
-		return nil, log.Errorf("memstore: cannot decode %s key for %s and %s: ",
-			party, myID, contactID)
+		return nil,
+			log.Errorf("memstore: cannot decode %s key for %s", party,
+				sessionKey)
 	}
 	if copy(messageKey[:], k) != 64 {
-		return nil, log.Errorf("memstore: %s key for %s and %s has wrong length",
-			party, myID, contactID)
+		return nil,
+			log.Errorf("memstore: %s key for %s has wrong length", party,
+				sessionKey)
 	}
 	return &messageKey, nil
 }
 
 // GetRootKeyHash implemented in memory.
-func (ms *MemStore) GetRootKeyHash(
-	myID, contactID, senderSessionPubHash string,
-) (*[64]byte, error) {
-	s, ok := ms.sessions[myID+"@"+contactID+"@"+senderSessionPubHash]
+func (ms *MemStore) GetRootKeyHash(sessionKey string) (*[64]byte, error) {
+	s, ok := ms.sessions[sessionKey]
 	if !ok {
-		return nil, log.Errorf("memstore: no session found for %s and %s",
-			myID, contactID)
+		return nil, log.Errorf("memstore: no session found for %s", sessionKey)
 	}
 	// decode root key hash
 	var hash [64]byte
@@ -210,13 +194,10 @@ func (ms *MemStore) GetRootKeyHash(
 }
 
 // GetChainKey implemented in memory.
-func (ms *MemStore) GetChainKey(
-	myID, contactID, senderSessionPubHash string,
-) (*[32]byte, error) {
-	s, ok := ms.sessions[myID+"@"+contactID+"@"+senderSessionPubHash]
+func (ms *MemStore) GetChainKey(sessionKey string) (*[32]byte, error) {
+	s, ok := ms.sessions[sessionKey]
 	if !ok {
-		return nil, log.Errorf("memstore: no session found for %s and %s",
-			myID, contactID)
+		return nil, log.Errorf("memstore: no session found for %s", sessionKey)
 	}
 	// decode chain key
 	var key [32]byte
@@ -232,14 +213,13 @@ func (ms *MemStore) GetChainKey(
 
 // DelMessageKey implemented in memory.
 func (ms *MemStore) DelMessageKey(
-	myID, contactID, senderSessionPubHash string,
+	sessionKey string,
 	sender bool,
 	msgIndex uint64,
 ) error {
-	s, ok := ms.sessions[myID+"@"+contactID+"@"+senderSessionPubHash]
+	s, ok := ms.sessions[sessionKey]
 	if !ok {
-		return log.Errorf("memstore: no session found for %s and %s",
-			myID, contactID)
+		return log.Errorf("memstore: no session found for %s", sessionKey)
 	}
 	if msgIndex >= uint64(len(s.send)) {
 		return log.Error("memstore: message index out of bounds")

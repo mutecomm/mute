@@ -73,8 +73,9 @@ func rootKeyAgreementSender(
 	}
 
 	// generate message keys
-	err = generateMessageKeys(senderIdentity, recipientIdentity, rootKey,
-		false, senderSessionPub, recipientKeyInitPub, numOfKeys, keyStore)
+	err = generateMessageKeys(senderIdentity, recipientIdentity,
+		senderID.HASH, recipientID.HASH, rootKey, false, senderSessionPub,
+		recipientKeyInitPub, numOfKeys, keyStore)
 	if err != nil {
 		return err
 	}
@@ -227,9 +228,13 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	}
 	count++
 
+	ssKey := args.From.PubKey().HASH
+	ssKey += args.To.PubKey().HASH
+	ssKey += ss.SenderSessionPub.HASH
+	ssKey += ss.RecipientTemp.HASH
+	sessionKey := base64.Encode(cipher.SHA512([]byte(ssKey)))
 	// make sure we got enough message keys
-	n, err := args.KeyStore.NumMessageKeys(sender, recipient,
-		ss.SenderSessionPub.HASH)
+	n, err := args.KeyStore.NumMessageKeys(sessionKey)
 	if err != nil {
 		return "", err
 	}
@@ -237,12 +242,13 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 		// generate more message keys
 		log.Debugf("generate more message keys (ss.SenderMessageCount=%d)",
 			ss.SenderMessageCount)
-		chainKey, err := args.KeyStore.GetChainKey(sender, recipient,
-			ss.SenderSessionPub.HASH)
+		chainKey, err := args.KeyStore.GetChainKey(sessionKey)
 		if err != nil {
 			return "", err
 		}
-		err = generateMessageKeys(sender, recipient, chainKey, false,
+
+		err = generateMessageKeys(sender, recipient, args.From.PubKey().HASH,
+			args.To.PubKey().HASH, chainKey, false,
 			ss.SenderSessionPub.PublicKey32(), ss.RecipientTemp.PublicKey32(),
 			args.NumOfKeys, args.KeyStore)
 		if err != nil {
@@ -251,8 +257,8 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	}
 
 	// get message key
-	messageKey, err := args.KeyStore.GetMessageKey(sender, recipient,
-		ss.SenderSessionPub.HASH, true, ss.SenderMessageCount)
+	messageKey, err := args.KeyStore.GetMessageKey(sessionKey, true,
+		ss.SenderMessageCount)
 	if err != nil {
 		return "", err
 	}
@@ -388,8 +394,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	}
 
 	// delete message key
-	err = args.KeyStore.DelMessageKey(sender, recipient,
-		ss.SenderSessionPub.HASH, true, ss.SenderMessageCount)
+	err = args.KeyStore.DelMessageKey(sessionKey, true, ss.SenderMessageCount)
 	if err != nil {
 		return "", err
 	}

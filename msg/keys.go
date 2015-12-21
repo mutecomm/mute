@@ -85,6 +85,7 @@ func deriveRootKey(
 // keyStore.StoresSession and keyStore.SetSessionState to store the result.
 func generateMessageKeys(
 	senderIdentity, recipientIdentity string,
+	senderIdentityPubkeyHash, recipientIdentityPubkeyHash string,
 	rootKey *[32]byte,
 	recipientKeys bool,
 	senderSessionPub, recipientPub *[32]byte,
@@ -129,19 +130,26 @@ func generateMessageKeys(
 
 	// reverse key material, if necessary
 	if recipientKeys {
-		senderIdentity, recipientIdentity = recipientIdentity, senderIdentity
 		send, recv = recv, send
 	}
 
 	// store session
-	var pubHash string
+	var sessionKey string
 	if recipientKeys {
-		pubHash = base64.Encode(cipher.SHA512(recipientPub[:]))
+		key := recipientIdentityPubkeyHash
+		key += senderIdentityPubkeyHash
+		key += base64.Encode(cipher.SHA512(recipientPub[:]))
+		key += base64.Encode(cipher.SHA512(senderSessionPub[:]))
+		sessionKey = base64.Encode(cipher.SHA512([]byte(key)))
 	} else {
-		pubHash = base64.Encode(cipher.SHA512(senderSessionPub[:]))
+		key := senderIdentityPubkeyHash
+		key += recipientIdentityPubkeyHash
+		key += base64.Encode(cipher.SHA512(senderSessionPub[:]))
+		key += base64.Encode(cipher.SHA512(recipientPub[:]))
+		sessionKey = base64.Encode(cipher.SHA512([]byte(key)))
 	}
-	err := keyStore.StoreSession(senderIdentity, recipientIdentity, pubHash,
-		rootKeyHash, base64.Encode(chainKey), send, recv)
+	err := keyStore.StoreSession(sessionKey, rootKeyHash,
+		base64.Encode(chainKey), send, recv)
 	if err != nil {
 		return err
 	}

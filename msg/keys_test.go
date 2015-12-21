@@ -36,17 +36,27 @@ func TestGenerateMessageKeys(t *testing.T) {
 	copy(recipientPub[:], rp)
 	a := "alice@mute.berlin"
 	b := "bob@mute.berlin"
-	h1 := base64.Encode(cipher.SHA512(senderSessionPub[:]))
-	h2 := base64.Encode(cipher.SHA512(recipientPub[:]))
 	ms1 := memstore.New()
 
-	err = generateMessageKeys(a, b, &rootKey, false, &senderSessionPub,
-		&recipientPub, NumOfFutureKeys, ms1)
+	sKey := "sender"
+	sKey += "recipient"
+	sKey += base64.Encode(cipher.SHA512(senderSessionPub[:]))
+	sKey += base64.Encode(cipher.SHA512(recipientPub[:]))
+	senderSessionKey := base64.Encode(cipher.SHA512([]byte(sKey)))
+
+	sKey = "recipient"
+	sKey += "sender"
+	sKey += base64.Encode(cipher.SHA512(recipientPub[:]))
+	sKey += base64.Encode(cipher.SHA512(senderSessionPub[:]))
+	recipientSessionKey := base64.Encode(cipher.SHA512([]byte(sKey)))
+
+	err = generateMessageKeys(a, b, "sender", "recipient", &rootKey, false,
+		&senderSessionPub, &recipientPub, NumOfFutureKeys, ms1)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	rootKeyHash, err := ms1.GetRootKeyHash(a, b, h1)
+	rootKeyHash, err := ms1.GetRootKeyHash(senderSessionKey)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -55,7 +65,7 @@ func TestGenerateMessageKeys(t *testing.T) {
 		t.Errorf("wrong rootKeyHash: %s", b64)
 	}
 
-	key, err := ms1.GetMessageKey(a, b, h1, true, 0)
+	key, err := ms1.GetMessageKey(senderSessionKey, true, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -64,7 +74,7 @@ func TestGenerateMessageKeys(t *testing.T) {
 		t.Errorf("wrong message key (sender, 0): %s", b64)
 	}
 
-	key, err = ms1.GetMessageKey(a, b, h1, false, 0)
+	key, err = ms1.GetMessageKey(senderSessionKey, false, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,7 +83,7 @@ func TestGenerateMessageKeys(t *testing.T) {
 		t.Errorf("wrong message key (recipient, 0): %s", b64)
 	}
 
-	key, err = ms1.GetMessageKey(a, b, h1, true, 49)
+	key, err = ms1.GetMessageKey(senderSessionKey, true, 49)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -82,7 +92,7 @@ func TestGenerateMessageKeys(t *testing.T) {
 		t.Errorf("wrong message key (sender, 49): %s", b64)
 	}
 
-	key, err = ms1.GetMessageKey(a, b, h1, false, 49)
+	key, err = ms1.GetMessageKey(senderSessionKey, false, 49)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -92,12 +102,12 @@ func TestGenerateMessageKeys(t *testing.T) {
 	}
 
 	// generate additional keys from chainKey
-	chainKey, err := ms1.GetChainKey(a, b, h1)
+	chainKey, err := ms1.GetChainKey(senderSessionKey)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = generateMessageKeys(a, b, chainKey, false, &senderSessionPub,
-		&recipientPub, NumOfFutureKeys, ms1)
+	err = generateMessageKeys(a, b, "sender", "recipient", chainKey, false,
+		&senderSessionPub, &recipientPub, NumOfFutureKeys, ms1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -105,16 +115,16 @@ func TestGenerateMessageKeys(t *testing.T) {
 	// generate all keys at the same time
 	ms2 := memstore.New()
 	copy(rootKey[:], rk)
-	err = generateMessageKeys(a, b, &rootKey, true, &senderSessionPub,
-		&recipientPub, 2*NumOfFutureKeys, ms2)
+	err = generateMessageKeys(a, b, "sender", "recipient", &rootKey, true,
+		&senderSessionPub, &recipientPub, 2*NumOfFutureKeys, ms2)
 	if err != nil {
 		t.Fatal(err)
 	}
-	n1, err := ms1.NumMessageKeys(a, b, h1)
+	n1, err := ms1.NumMessageKeys(senderSessionKey)
 	if err != nil {
 		t.Fatal(err)
 	}
-	n2, err := ms2.NumMessageKeys(b, a, h2)
+	n2, err := ms2.NumMessageKeys(recipientSessionKey)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -123,11 +133,11 @@ func TestGenerateMessageKeys(t *testing.T) {
 	}
 
 	// compare keys
-	k1, err := ms1.GetMessageKey(a, b, h1, true, NumOfFutureKeys-1)
+	k1, err := ms1.GetMessageKey(senderSessionKey, true, NumOfFutureKeys-1)
 	if err != nil {
 		t.Fatal(err)
 	}
-	k2, err := ms2.GetMessageKey(b, a, h2, false, NumOfFutureKeys-1)
+	k2, err := ms2.GetMessageKey(recipientSessionKey, false, NumOfFutureKeys-1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -135,11 +145,11 @@ func TestGenerateMessageKeys(t *testing.T) {
 		t.Error("keys differ")
 	}
 
-	k1, err = ms1.GetMessageKey(a, b, h1, true, 2*NumOfFutureKeys-1)
+	k1, err = ms1.GetMessageKey(senderSessionKey, true, 2*NumOfFutureKeys-1)
 	if err != nil {
 		t.Fatal(err)
 	}
-	k2, err = ms2.GetMessageKey(b, a, h2, false, 2*NumOfFutureKeys-1)
+	k2, err = ms2.GetMessageKey(recipientSessionKey, false, 2*NumOfFutureKeys-1)
 	if err != nil {
 		t.Fatal(err)
 	}

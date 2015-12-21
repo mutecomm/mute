@@ -27,11 +27,11 @@ type State struct {
 //   sessionStateKey := base64.Encode(cipher.SHA512(key))
 //
 // A session key is computed as follows:
-//   key := senderUID.PubKey()PublicKey32()[:]
-//   key = append(key, recipientUID.PubKey()PublicKey32()[:]...)
-//   key = append(key, senderSessionPub.PublicKey32()[:]...)
-//   key = append(key, recipientTemp.PublicKey32()[:]...)
-//   sessionKey := base64.Encode(cipher.SHA512(key))
+//   key := senderUID.PubKey().HASH
+//   key += recipientUID.PubKey().HASH
+//   key += senderSessionPub.HASH
+//   key += recipientTempHash
+//   sessionKey := base64.Encode(cipher.SHA512([]byte(key)))
 type Store interface {
 	// GetSessionState returns the current session state or nil, if no state
 	// exists between the two parties.
@@ -39,18 +39,14 @@ type Store interface {
 	// SetSesssionState sets the current session state between two parties.
 	SetSessionState(sessionStateKey string, sessionState *State) error
 	// StoreSession stores a new session.
-	// myID is the myID on the local side of the communication.
-	// contactID is the myID on the remote side of the communication.
-	// senderSesssionPubHash is the hash of the SenderSessionPub key.
 	// rootKeyHash is the base64 encoded root key hash.
 	// chainKey is the base64 encoded chain key.
 	// send and recv are arrays containing NumOfFutureKeys many base64 encoded
 	// future keys.
-	StoreSession(myID, contactID, senderSessionPubHash, rootKeyHash,
-		chainKey string, send, recv []string) error
-	// HasSession returns a boolean reporting whether a session between myID
-	// and contactID with senderSessionPubHash exists.
-	HasSession(myID, contactID, senderSessionPubHash string) bool
+	StoreSession(sessionKey, rootKeyHash, chainKey string,
+		send, recv []string) error
+	// HasSession returns a boolean reporting whether a session exists.
+	HasSession(sessionKey string) bool
 	// GetPublicKeyInit returns the private KeyEntry contained in the KeyInit
 	// message with the given pubKeyHash.
 	GetPrivateKeyEntry(pubKeyHash string) (*uid.KeyEntry, error)
@@ -60,21 +56,15 @@ type Store interface {
 	GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, string, error)
 	// GetMessageKey returns the message key with index msgIndex. If sender is
 	// true the sender key is returned, otherwise the recipient key.
-	// senderSesssionPubHash is the hash of the SenderSessionPub key.
-	GetMessageKey(myID, contactID, senderSessionPubHash string, sender bool,
+	GetMessageKey(sessionKey string, sender bool,
 		msgIndex uint64) (*[64]byte, error)
-	// NumMessageKeys returns the number of precomputed messages keys between
-	// myID and contact ID with senderSessionPubHash.
-	NumMessageKeys(myID, contactID, senderSessionPubHash string) (uint64, error)
-	// GetRootKeyHash returns the root key hash for the session between myID
-	// and contactID with senderSessionPubHash.
-	GetRootKeyHash(myID, contactID, senderSessionPubHash string) (*[64]byte,
-		error)
-	// GetChainKey returns the chain key for the session between myID and
-	// contactID with senderSessionPubHash.
-	GetChainKey(myID, contactID, senderSessionPubHash string) (*[32]byte, error)
+	// NumMessageKeys returns the number of precomputed messages keys.
+	NumMessageKeys(sessionKey string) (uint64, error)
+	// GetRootKeyHash returns the root key hash for the session.
+	GetRootKeyHash(sessionKey string) (*[64]byte, error)
+	// GetChainKey returns the chain key for the session.
+	GetChainKey(sessionKey string) (*[32]byte, error)
 	// DelMessageKey deleted the message key with index msgIndex. If sender is
 	// true the sender key is deleted, otherwise the recipient key.
-	DelMessageKey(myID, contactID, senderSessionPubHash string, sender bool,
-		msgIndex uint64) error
+	DelMessageKey(sessionKey string, sender bool, msgIndex uint64) error
 }

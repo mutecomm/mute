@@ -31,17 +31,16 @@ func (ce *CryptEngine) SetSessionState(
 
 // StoreSession implements corresponding method for msg.KeyStore interface.
 func (ce *CryptEngine) StoreSession(
-	myID, contactID, senderSessionPubHash, rootKeyHash, chainKey string,
+	sessionKey, rootKeyHash, chainKey string,
 	send, recv []string,
 ) error {
 	// TODO: use senderSessionPubHash to store sessions!
-	return ce.keyDB.AddSession(myID, contactID, rootKeyHash, chainKey, send, recv)
+	// TODO: return ce.keyDB.AddSession(myID, contactID, rootKeyHash, chainKey, send, recv)
+	return util.ErrNotImplemented
 }
 
 // HasSession implements corresponding method for msg.KeyStore interface.
-func (ce *CryptEngine) HasSession(
-	myID, contactID, senderSessionPubHash string,
-) bool {
+func (ce *CryptEngine) HasSession(sessionKey string) bool {
 	panic(util.ErrNotImplemented)
 }
 
@@ -94,7 +93,7 @@ func (ce *CryptEngine) GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, st
 
 // GetMessageKey implements corresponding method for msg.KeyStore interface.
 func (ce *CryptEngine) GetMessageKey(
-	myID, contactID, senderSessionPubHash string,
+	sessionKey string,
 	sender bool,
 	msgIndex uint64,
 ) (*[64]byte, error) {
@@ -102,29 +101,23 @@ func (ce *CryptEngine) GetMessageKey(
 }
 
 // NumMessageKeys implements corresponding method for msg.KeyStore interface.
-func (ce *CryptEngine) NumMessageKeys(
-	myID, contactID, senderSessionPubHash string,
-) (uint64, error) {
+func (ce *CryptEngine) NumMessageKeys(sessionKey string) (uint64, error) {
 	return 0, util.ErrNotImplemented
 }
 
 // GetRootKeyHash implements corresponding method for msg.KeyStore interface.
-func (ce *CryptEngine) GetRootKeyHash(
-	myID, contactID, senderSessionPubHash string,
-) (*[64]byte, error) {
+func (ce *CryptEngine) GetRootKeyHash(sessionKey string) (*[64]byte, error) {
 	return nil, util.ErrNotImplemented
 }
 
 // GetChainKey implements corresponding method for msg.KeyStore interface.
-func (ce *CryptEngine) GetChainKey(
-	myID, contactID, senderSessionPubHash string,
-) (*[32]byte, error) {
+func (ce *CryptEngine) GetChainKey(sessionKey string) (*[32]byte, error) {
 	return nil, util.ErrNotImplemented
 }
 
 // DelMessageKey implements corresponding method for msg.KeyStore interface.
 func (ce *CryptEngine) DelMessageKey(
-	myID, contactID, senderSessionPubHash string,
+	sessionKey string,
 	sender bool,
 	msgIndex uint64,
 ) error {
