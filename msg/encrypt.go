@@ -132,7 +132,10 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	// get session state
 	sender := args.From.Identity()
 	recipient := args.To.Identity()
-	ss, err := args.KeyStore.GetSessionState(sender, recipient)
+	key := args.From.PubKey().PublicKey32()[:]
+	key = append(key, args.To.PubKey().PublicKey32()[:]...)
+	sessionStateKey := base64.Encode(cipher.SHA512(key))
+	ss, err := args.KeyStore.GetSessionState(sessionStateKey)
 	if err != nil {
 		return "", err
 	}
@@ -172,7 +175,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 			NextRecipientSessionPubSeen: nil,
 		}
 		log.Debugf("set session: %s", ss.SenderSessionPub.HASH)
-		err = args.KeyStore.SetSessionState(sender, recipient, ss)
+		err = args.KeyStore.SetSessionState(sessionStateKey, ss)
 		if err != nil {
 			return "", err
 		}
@@ -392,7 +395,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	}
 	// increase SenderMessageCount
 	ss.SenderMessageCount++
-	err = args.KeyStore.SetSessionState(sender, recipient, ss)
+	err = args.KeyStore.SetSessionState(sessionStateKey, ss)
 	if err != nil {
 		return "", err
 	}

@@ -156,7 +156,10 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	sender := h.SenderIdentity
 	recipient := identity.Identity()
 	log.Debugf("%s -> %s", sender, recipient)
-	ss, err := args.KeyStore.GetSessionState(recipient, sender)
+	key := recipientID.PublicKey32()[:]
+	key = append(key, h.SenderIdentityPub.PublicKey32()[:]...)
+	sessionStateKey := base64.Encode(cipher.SHA512(key))
+	ss, err := args.KeyStore.GetSessionState(sessionStateKey)
 	if err != nil {
 		return "", "", err
 	}
@@ -179,6 +182,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 		if err := nextSenderSession.InitDHKey(args.Rand); err != nil {
 			return "", "", err
 		}
+		// TODO: compute and set session state timeout
 		// set session state
 		ss = &session.State{
 			SenderSessionCount:          0,
@@ -189,7 +193,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			NextRecipientSessionPubSeen: h.NextSenderSessionPub,
 		}
 		log.Debugf("set session: %s", ss.SenderSessionPub.HASH)
-		err = args.KeyStore.SetSessionState(recipient, sender, ss)
+		err = args.KeyStore.SetSessionState(sessionStateKey, ss)
 		if err != nil {
 			return "", "", err
 		}
@@ -204,7 +208,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 					ss.NextRecipientSessionPubSeen.HASH)
 			}
 			ss.NextRecipientSessionPubSeen = h.NextSenderSessionPub
-			err = args.KeyStore.SetSessionState(recipient, sender, ss)
+			err = args.KeyStore.SetSessionState(sessionStateKey, ss)
 			log.Debug("update session key")
 			if err != nil {
 				return "", "", err
@@ -250,7 +254,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 						NextRecipientSessionPubSeen: h.NextSenderSessionPub,
 					}
 					log.Debugf("set session: %s", ss.SenderSessionPub.HASH)
-					err = args.KeyStore.SetSessionState(recipient, sender, ss)
+					err = args.KeyStore.SetSessionState(sessionStateKey, ss)
 					if err != nil {
 						return "", "", err
 					}
@@ -290,7 +294,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 					return "", "", err
 				}
 				// store new session state
-				err = args.KeyStore.SetSessionState(recipient, sender, ss)
+				err = args.KeyStore.SetSessionState(sessionStateKey, ss)
 				if err != nil {
 					return "", "", err
 				}
@@ -324,7 +328,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 				return "", "", err
 			}
 			// store new session state
-			err = args.KeyStore.SetSessionState(recipient, sender, ss)
+			err = args.KeyStore.SetSessionState(sessionStateKey, ss)
 			if err != nil {
 				return "", "", err
 			}

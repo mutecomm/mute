@@ -20,16 +20,24 @@ type State struct {
 }
 
 // The Store interface defines all methods for managing session keys.
+//
+// A sesssion state key is computed as follows:
+//   key := senderUID.PubKey().PublicKey32()[:]
+//   key = append(key, recipientUID.PubKey().PublicKey32()[:]...)
+//   sessionStateKey := base64.Encode(cipher.SHA512(key))
+//
+// A session key is computed as follows:
+//   key := senderUID.PubKey()PublicKey32()[:]
+//   key = append(key, recipientUID.PubKey()PublicKey32()[:]...)
+//   key = append(key, senderSessionPub.PublicKey32()[:]...)
+//   key = append(key, recipientTemp.PublicKey32()[:]...)
+//   sessionKey := base64.Encode(cipher.SHA512(key))
 type Store interface {
 	// GetSessionState returns the current session state or nil, if no state
 	// exists between the two parties.
-	// myID is the myID on the local side of the communication.
-	// contactID is the myID on the remote side of the communication.
-	GetSessionState(myID, contactID string) (*State, error)
+	GetSessionState(sessionStateKey string) (*State, error)
 	// SetSesssionState sets the current session state between two parties.
-	// myID is the myID on the local side of the communication.
-	// contactID is the myID on the remote side of the communication.
-	SetSessionState(myID, contactID string, sessionState *State) error
+	SetSessionState(sessionStateKey string, sessionState *State) error
 	// StoreSession stores a new session.
 	// myID is the myID on the local side of the communication.
 	// contactID is the myID on the remote side of the communication.

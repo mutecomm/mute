@@ -58,19 +58,19 @@ func (ms *MemStore) AddPublicKeyEntry(identity string, ke *uid.KeyEntry) {
 }
 
 // GetSessionState implemented in memory.
-func (ms *MemStore) GetSessionState(myID, contactID string) (
+func (ms *MemStore) GetSessionState(sessionStateKey string) (
 	*session.State,
 	error,
 ) {
-	return ms.sessionStates[myID+"@"+contactID], nil
+	return ms.sessionStates[sessionStateKey], nil
 }
 
 // SetSessionState implemented in memory.
 func (ms *MemStore) SetSessionState(
-	myID, contactID string,
+	sessionStateKey string,
 	sessionState *session.State,
 ) error {
-	ms.sessionStates[myID+"@"+contactID] = sessionState
+	ms.sessionStates[sessionStateKey] = sessionState
 	return nil
 }
 

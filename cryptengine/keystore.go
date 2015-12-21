@@ -14,7 +14,7 @@ import (
 )
 
 // GetSessionState implements corresponding method for msg.KeyStore interface.
-func (ce *CryptEngine) GetSessionState(myID, contactID string) (
+func (ce *CryptEngine) GetSessionState(sessionStateKey string) (
 	*session.State,
 	error,
 ) {
@@ -23,7 +23,7 @@ func (ce *CryptEngine) GetSessionState(myID, contactID string) (
 
 // SetSessionState implements corresponding method for msg.KeyStore interface.
 func (ce *CryptEngine) SetSessionState(
-	myID, contactID string,
+	sessionStateKey string,
 	sessionState *session.State,
 ) error {
 	return util.ErrNotImplemented
