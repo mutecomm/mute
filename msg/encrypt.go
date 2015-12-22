@@ -202,6 +202,11 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 			if err := nextSenderSession.InitDHKey(args.Rand); err != nil {
 				return "", err
 			}
+			// store next session key
+			if err := addSessionKey(args.KeyStore, &nextSenderSession); err != nil {
+				return "", err
+			}
+			// update session state
 			ss.NextSenderSessionPub = &nextSenderSession
 			log.Debugf("set session: %s", ss.SenderSessionPub.HASH)
 			err = args.KeyStore.SetSessionState(sessionStateKey, ss)
