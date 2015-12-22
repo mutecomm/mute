@@ -159,6 +159,10 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 		if err := senderSession.InitDHKey(args.Rand); err != nil {
 			return "", err
 		}
+		// store session key
+		if err := addSessionKey(args.KeyStore, &senderSession); err != nil {
+			return "", err
+		}
 		// root key agreement
 		err = rootKeyAgreementSender(senderHeaderKey.PublicKey(),
 			args.From.Identity(), args.To.Identity(), &senderSession,
