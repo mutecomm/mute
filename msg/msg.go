@@ -16,6 +16,12 @@ const DefaultCiphersuite = "CURVE25519 XSALSA20 POLY1305"
 // are precomputed.
 const NumOfFutureKeys = 50
 
+// AverageSessionSize defines the average session size. That is, the number of
+// keys used in a session before a new session is started.
+// For every encrypted message there is the probability of
+// 1/AverageSessionSize that it starts a new session.
+const AverageSessionSize = 1000
+
 // EncodedMsgSize is the size of a base64 encoded encrypted message.
 const EncodedMsgSize = 65536 // 64KB
 

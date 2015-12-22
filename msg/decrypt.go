@@ -143,7 +143,9 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	log.Debugf("h.SenderSessionCount: %d", h.SenderSessionCount)
 	log.Debugf("h.SenderMessageCount: %d", h.SenderMessageCount)
 	log.Debugf("h.SenderSessionPub:             %s", h.SenderSessionPub.HASH)
-	log.Debugf("h.NextSenderSessionPub:         %s", h.NextSenderSessionPub.HASH)
+	if h.NextSenderSessionPub != nil {
+		log.Debugf("h.NextSenderSessionPub:         %s", h.NextSenderSessionPub.HASH)
+	}
 	if h.NextRecipientSessionPubSeen != nil {
 		log.Debugf("h.NextRecipientSessionPubSeen:  %s",
 			h.NextRecipientSessionPubSeen.HASH)
@@ -221,7 +223,8 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			!args.KeyStore.HasSession(sessionKey) { // make sure session is unknown
 			log.Debug("session was refreshed (on the other side)")
 			// check if sessions have been started simultaneously
-			if h.RecipientTempHash != ss.NextSenderSessionPub.HASH {
+			if ss.NextSenderSessionPub != nil &&
+				h.RecipientTempHash != ss.NextSenderSessionPub.HASH {
 				// start session on this side as well to be able to decrypt
 				log.Debug("sessions started simultaneously")
 				// root key agreement

@@ -8,9 +8,11 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/hmac"
+	"crypto/rand"
 	"crypto/sha512"
 	"io"
 	"io/ioutil"
+	"math/big"
 
 	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/cipher"
@@ -91,6 +93,7 @@ type EncryptArgs struct {
 	PrivateSigKey          *[64]byte     // if this is s not nil the message is signed with the key
 	Reader                 io.Reader     // data to encrypt is read here
 	NumOfKeys              uint64        // number of generated sessions keys (default: NumOfFutureKeys)
+	AvgSessionSize         uint          // average session size (default: AverageSessionSize)
 	Rand                   io.Reader     // random source
 	KeyStore               session.Store // for managing session keys
 }
@@ -100,9 +103,12 @@ type EncryptArgs struct {
 func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	log.Debugf("msg.Encrypt(): %s -> %s", args.From.Identity(), args.To.Identity())
 
-	// set default
+	// set defaults
 	if args.NumOfKeys == 0 {
 		args.NumOfKeys = NumOfFutureKeys
+	}
+	if args.AvgSessionSize == 0 {
+		args.AvgSessionSize = AverageSessionSize
 	}
 
 	// create sender key
@@ -160,18 +166,13 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 		if err != nil {
 			return "", err
 		}
-		// create next session key
-		var nextSenderSession uid.KeyEntry
-		if err := nextSenderSession.InitDHKey(args.Rand); err != nil {
-			return "", err
-		}
 		// set session state
 		ss = &session.State{
 			SenderSessionCount:          0,
 			SenderMessageCount:          0,
 			RecipientTemp:               *recipientTemp,
 			SenderSessionPub:            senderSession,
-			NextSenderSessionPub:        &nextSenderSession,
+			NextSenderSessionPub:        nil,
 			NextRecipientSessionPubSeen: nil,
 		}
 		log.Debugf("set session: %s", ss.SenderSessionPub.HASH)
@@ -182,6 +183,24 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	} else {
 		log.Debug("session found")
 		log.Debugf("got session: %s", ss.SenderSessionPub.HASH)
+		// start new session in randomized fashion
+		n, err := rand.Int(cipher.RandReader, big.NewInt(int64(args.AvgSessionSize)))
+		if err != nil {
+			return "", err
+		}
+		if n.Int64() == 0 {
+			// create next session key
+			var nextSenderSession uid.KeyEntry
+			if err := nextSenderSession.InitDHKey(args.Rand); err != nil {
+				return "", err
+			}
+			ss.NextSenderSessionPub = &nextSenderSession
+			log.Debugf("set session: %s", ss.SenderSessionPub.HASH)
+			err = args.KeyStore.SetSessionState(sessionStateKey, ss)
+			if err != nil {
+				return "", err
+			}
+		}
 	}
 
 	// create header
@@ -198,7 +217,9 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 		return "", err
 	}
 	log.Debugf("h.SenderSessionPub:             %s", h.SenderSessionPub.HASH)
-	log.Debugf("h.NextSenderSessionPub:         %s", h.NextSenderSessionPub.HASH)
+	if h.NextSenderSessionPub != nil {
+		log.Debugf("h.NextSenderSessionPub:         %s", h.NextSenderSessionPub.HASH)
+	}
 	if h.NextRecipientSessionPubSeen != nil {
 		log.Debugf("h.NextRecipientSessionPubSeen:  %s",
 			h.NextRecipientSessionPubSeen.HASH)

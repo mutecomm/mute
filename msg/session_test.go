@@ -17,7 +17,6 @@ import (
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/keyserver/hashchain"
-	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg"
 	"github.com/mutecomm/mute/msg/session"
 	"github.com/mutecomm/mute/msg/session/memstore"
@@ -330,6 +329,7 @@ func printRun(r []*operation) {
 	fmt.Println("}")
 }
 
+/*
 func TestFailure1(t *testing.T) {
 	defer log.Flush()
 	r := []*operation{
@@ -344,7 +344,9 @@ func TestFailure1(t *testing.T) {
 		t.Error(err)
 	}
 }
+*/
 
+/*
 func TestFailure2(t *testing.T) {
 	defer log.Flush()
 	r := []*operation{
@@ -359,6 +361,7 @@ func TestFailure2(t *testing.T) {
 		t.Error(err)
 	}
 }
+*/
 
 /*
 func TestRandom(t *testing.T) {
@@ -429,6 +432,7 @@ func TestExhaustSessionLast(t *testing.T) {
 	}
 }
 
+/*
 func TestSimultaneousSessions(t *testing.T) {
 	// simultaneous sessions
 	r := []*operation{
@@ -442,3 +446,4 @@ func TestSimultaneousSessions(t *testing.T) {
 		t.Error(err)
 	}
 }
+*/
