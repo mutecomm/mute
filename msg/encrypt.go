@@ -142,9 +142,12 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	recipient := args.To.Identity()
 	sessionStateKey := session.CalcStateKey(args.From.PubKey().PublicKey32(),
 		args.To.PubKey().PublicKey32())
-	ss, err := args.KeyStore.GetSessionState(sessionStateKey)
-	if err != nil {
-		return "", err
+	var ss *session.State
+	if args.StatusCode != StatusReset {
+		ss, err = args.KeyStore.GetSessionState(sessionStateKey)
+		if err != nil {
+			return "", err
+		}
 	}
 	if ss == nil {
 		// no session found -> start first session
@@ -187,7 +190,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 		if err != nil {
 			return "", err
 		}
-	} else {
+	} else if args.StatusCode != StatusError { // do not update sessions for StatusError messages
 		log.Debug("session found")
 		log.Debugf("got session: %s", ss.SenderSessionPub.HASH)
 		nymAddress = ss.NymAddress
@@ -320,9 +323,12 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	}
 
 	// actual encryption
-	content, err := ioutil.ReadAll(args.Reader)
-	if err != nil {
-		return "", log.Error(err)
+	var content []byte
+	if args.StatusCode == StatusOK { // StatusReset and StatusError messages are empty
+		content, err = ioutil.ReadAll(args.Reader)
+		if err != nil {
+			return "", log.Error(err)
+		}
 	}
 	// enforce maximum content length
 	if len(content) > MaxContentLength {
