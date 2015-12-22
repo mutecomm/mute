@@ -171,10 +171,12 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 		ss = &session.State{
 			SenderSessionCount:          0,
 			SenderMessageCount:          0,
+			MaxRecipientCount:           0,
 			RecipientTemp:               *recipientTemp,
 			SenderSessionPub:            senderSession,
 			NextSenderSessionPub:        nil,
 			NextRecipientSessionPubSeen: nil,
+			NymAddress:                  nymAddress,
 		}
 		log.Debugf("set session: %s", ss.SenderSessionPub.HASH)
 		err = args.KeyStore.SetSessionState(sessionStateKey, ss)
@@ -184,6 +186,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	} else {
 		log.Debug("session found")
 		log.Debugf("got session: %s", ss.SenderSessionPub.HASH)
+		nymAddress = ss.NymAddress
 		// start new session in randomized fashion
 		n, err := rand.Int(cipher.RandReader, big.NewInt(int64(args.AvgSessionSize)))
 		if err != nil {

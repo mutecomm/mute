@@ -15,10 +15,12 @@ import (
 type State struct {
 	SenderSessionCount          uint64        // total number of messages sent in sessions before this SenderSessionPub was used
 	SenderMessageCount          uint64        // total number of messages sent with this SenderSessionPub
+	MaxRecipientCount           uint64        // the highest SenderMessageCount from recipient (for message key timeouts)
 	RecipientTemp               uid.KeyEntry  // RecipientKeyInitPub or RecipientSessionPub
 	SenderSessionPub            uid.KeyEntry  // public session key from sender
 	NextSenderSessionPub        *uid.KeyEntry // new SenderSessionPub to refresh the session
 	NextRecipientSessionPubSeen *uid.KeyEntry // currently known NextSenderSessionPub of the other party
+	NymAddress                  string        // current NymAddress from recipient
 }
 
 // The Store interface defines all methods for managing session keys.
