@@ -51,3 +51,6 @@ var ErrNotData = errors.New("msg: expected inner data header")
 
 // ErrReflection is raised when a possible reflection attack has been detected.
 var ErrReflection = errors.New("msg: reflection attack detected")
+
+// ErrStatusError is raised when a decryption operation lead to a StatusCode StatusError.
+var ErrStatusError = errors.New("msg: StatusCode == StatusError")

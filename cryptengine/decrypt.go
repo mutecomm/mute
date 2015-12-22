@@ -71,6 +71,8 @@ func (ce *CryptEngine) decrypt(w io.Writer, r io.Reader, statusfp *os.File) erro
 	}
 	senderID, sig, err = msg.Decrypt(args)
 	if err != nil {
+		// TODO: handle msg.ErrStatusError, should trigger a subsequent
+		// encrypted message with StatusError
 		return err
 	}
 	fmt.Fprintf(statusfp, "SENDERIDENTITY:\t%s\n", senderID)
