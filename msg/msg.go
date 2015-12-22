@@ -32,3 +32,11 @@ const UnencodedMsgSize = EncodedMsgSize / 4 * 3 // 49152
 const MaxContentLength = UnencodedMsgSize - preHeaderSize - encryptedHeaderSize -
 	cryptoSetupSize - encryptedPacketSize - signatureSize - innerHeaderSize -
 	hmacSize // 41691
+
+// SendTime defines how long key material can be used for sending.
+const SendTime = 172800 // 48h
+
+// CleanupTime defines the time how long key material should be retained.
+//
+// TODO: Define and use MixMax instead of 7200.
+const CleanupTime = 2*SendTime + 2*7200
