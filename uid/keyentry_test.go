@@ -73,3 +73,22 @@ func TestKeyEntry(t *testing.T) {
 		t.Error("public keys differ")
 	}
 }
+
+func TestKeyEntryJSON(t *testing.T) {
+	var keA KeyEntry
+	if err := keA.InitDHKey(cipher.RandReader); err != nil {
+		t.Fatal(err)
+	}
+	pk := keA.PrivateKey()
+	jsn := keA.JSON()
+	keB, err := NewJSONKeyEntry(jsn)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := keB.SetPrivateKey(pk); err != nil {
+		t.Fatal(err)
+	}
+	if !KeyEntryEqual(&keA, keB) {
+		t.Error("KeyEntry A and B differ")
+	}
+}

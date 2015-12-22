@@ -7,6 +7,7 @@ package uid
 import (
 	"bytes"
 	"crypto/sha512"
+	"encoding/json"
 	"io"
 
 	"github.com/mutecomm/mute/cipher"
@@ -126,6 +127,21 @@ func (ke *KeyEntry) initSigKey(rand io.Reader) error {
 	return nil
 }
 
+// NewJSONKeyEntry returns a new KeyEntry message initialized with the
+// parameters given in the JSON byte array.
+func NewJSONKeyEntry(keyEntry []byte) (*KeyEntry, error) {
+	var ke KeyEntry
+	if err := json.Unmarshal(keyEntry, &ke); err != nil {
+		return nil, err
+	}
+	return &ke, nil
+}
+
+// JSON encodes KeyEntry as a JSON string.
+func (ke *KeyEntry) JSON() []byte {
+	return marshalSorted(ke)
+}
+
 // PublicKey32 returns the 32-byte public key of KeyEntry.
 func (ke *KeyEntry) PublicKey32() *[32]byte {
 	if !ke.publicKeySet {
@@ -178,6 +194,21 @@ func (ke *KeyEntry) PrivateKey64() *[64]byte {
 	switch ke.FUNCTION {
 	case "ED25519":
 		return ke.ed25519Key.PrivateKey()
+	default:
+		panic(log.Critical("uid: wrong private key size"))
+	}
+}
+
+// PrivateKey returns the base64 encoded private key of KeyEntry.
+func (ke *KeyEntry) PrivateKey() string {
+	if !ke.privateKeySet {
+		panic(log.Critical("uid: private key not set"))
+	}
+	switch ke.FUNCTION {
+	case "ECDHE25519":
+		return base64.Encode(ke.curve25519Key.PrivateKey()[:])
+	case "ED25519":
+		return base64.Encode(ke.ed25519Key.PrivateKey()[:])
 	default:
 		panic(log.Critical("uid: wrong private key size"))
 	}
