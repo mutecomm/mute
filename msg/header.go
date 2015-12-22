@@ -28,11 +28,14 @@ const lengthEncryptedHeader = 7168
 // Some wiggle room which can be taken out of padding if the need arises.
 const wiggleRoom = 1316
 
-// Header status codes.
+// StatusCode is the type of header status codes.
+type StatusCode uint8
+
+// Possible header status codes.
 const (
-	statusOK    = 0
-	statusReset = 1
-	statusError = 2
+	StatusOK    = 0
+	StatusReset = 1
+	StatusError = 2
 )
 
 type header struct {
@@ -51,7 +54,7 @@ type header struct {
 	SenderMessageCount          uint64        // total number of messages sent with this SenderSessionPub
 	SenderUID                   string        // complete UID message in JSON
 	SenderLastKeychainHash      string        // last entry known to sender from keyserver hashchain
-	Status                      uint8         // always a single digit in JSON!
+	Status                      StatusCode    // always a single digit in JSON!
 	Padding                     string        // header padding
 }
 
@@ -69,6 +72,7 @@ func newHeader(
 	senderSessionCount, senderMessageCount uint64,
 	senderLastKeychainHash string,
 	rand io.Reader,
+	statusCode StatusCode,
 ) (*header, error) {
 	if len(senderLastKeychainHash) != hashchain.EntryBase64Len {
 		return nil, log.Errorf("msg: last hashchain entry '%s' does not have base64 length %d (but %d)",
@@ -90,8 +94,8 @@ func newHeader(
 		SenderMessageCount:          senderMessageCount,
 		SenderUID:                   string(sender.JSON()),
 		SenderLastKeychainHash:      senderLastKeychainHash,
-		Status:                      statusOK, // TODO
-		Padding:                     "",       // is set below
+		Status:                      statusCode,
+		Padding:                     "", // is set below
 	}
 
 	// calculate padding length

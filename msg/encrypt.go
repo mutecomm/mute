@@ -91,11 +91,12 @@ type EncryptArgs struct {
 	To                     *uid.Message  // recipient UID
 	SenderLastKeychainHash string        // last hash chain entry known to the sender
 	PrivateSigKey          *[64]byte     // if this is s not nil the message is signed with the key
-	Reader                 io.Reader     // data to encrypt is read here
+	Reader                 io.Reader     // data to encrypt is read here (only for StatusCode == StatusOK)
 	NumOfKeys              uint64        // number of generated sessions keys (default: NumOfFutureKeys)
 	AvgSessionSize         uint          // average session size (default: AverageSessionSize)
 	Rand                   io.Reader     // random source
 	KeyStore               session.Store // for managing session keys
+	StatusCode             StatusCode    // status code of the encrypted message
 }
 
 // Encrypt encrypts a message with the argument given in args and returns the
@@ -212,7 +213,8 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	h, err := newHeader(args.From, args.To, ss.RecipientTemp.HASH,
 		&ss.SenderSessionPub, ss.NextSenderSessionPub,
 		ss.NextRecipientSessionPubSeen, ss.SenderSessionCount,
-		ss.SenderMessageCount, args.SenderLastKeychainHash, args.Rand)
+		ss.SenderMessageCount, args.SenderLastKeychainHash, args.Rand,
+		args.StatusCode)
 	if err != nil {
 		return "", err
 	}

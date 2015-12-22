@@ -71,7 +71,7 @@ func TestEncrypteHeaderSizeAndPadding(t *testing.T) {
 
 	// create unencrypted header
 	h, err := newHeader(aliceUID, bobUID, bobKE.HASH, aliceKE, nil, nil, 0, 0,
-		hashchain.TestEntry, cipher.RandReader)
+		hashchain.TestEntry, cipher.RandReader, StatusOK)
 	if err != nil {
 		t.Fatal(err)
 	}
