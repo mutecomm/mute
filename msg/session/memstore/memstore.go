@@ -21,12 +21,19 @@ type memSession struct {
 	recv        []string
 }
 
+type sessionKey struct {
+	json        string
+	privKey     string
+	cleanupTime uint64
+}
+
 // MemStore implements the KeyStore interface in memory.
 type MemStore struct {
 	privateKeyEntryMap map[string]*uid.KeyEntry
 	publicKeyEntryMap  map[string]*uid.KeyEntry
 	sessionStates      map[string]*session.State
 	sessions           map[string]*memSession
+	sessionKeys        map[string]*sessionKey
 	sessionKey         string
 }
 
@@ -37,6 +44,7 @@ func New() *MemStore {
 		publicKeyEntryMap:  make(map[string]*uid.KeyEntry),
 		sessionStates:      make(map[string]*session.State),
 		sessions:           make(map[string]*memSession),
+		sessionKeys:        make(map[string]*sessionKey),
 	}
 }
 
@@ -229,6 +237,51 @@ func (ms *MemStore) DelMessageKey(
 		s.send[msgIndex] = ""
 	} else {
 		s.recv[msgIndex] = ""
+	}
+	return nil
+}
+
+// AddSessionKey implemented in memory.
+func (ms *MemStore) AddSessionKey(
+	hash, json, privKey string,
+	cleanupTime uint64,
+) error {
+	ms.sessionKeys[hash] = &sessionKey{
+		json:        json,
+		privKey:     privKey,
+		cleanupTime: cleanupTime,
+	}
+	return nil
+}
+
+// GetSessionKey implemented in memory.
+func (ms *MemStore) GetSessionKey(hash string) (
+	json, privKey string,
+	err error,
+) {
+	sk, ok := ms.sessionKeys[hash]
+	if !ok {
+		return "", "", log.Errorf("memstore: session key not found: %s", hash)
+	}
+	return sk.json, sk.privKey, nil
+}
+
+// DelSessionKey implemented in memory.
+func (ms *MemStore) DelSessionKey(hash string) error {
+	delete(ms.sessionKeys, hash)
+	return nil
+}
+
+// CleanupSessionKeys implemented in memory.
+func (ms *MemStore) CleanupSessionKeys(t uint64) error {
+	var oldKeys []string
+	for hash, sk := range ms.sessionKeys {
+		if sk.cleanupTime < t {
+			oldKeys = append(oldKeys, hash)
+		}
+	}
+	for _, hash := range oldKeys {
+		delete(ms.sessionKeys, hash)
 	}
 	return nil
 }

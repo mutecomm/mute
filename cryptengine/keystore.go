@@ -123,3 +123,29 @@ func (ce *CryptEngine) DelMessageKey(
 ) error {
 	return util.ErrNotImplemented
 }
+
+// AddSessionKey implements corresponding method for msg.KeyStore interface.
+func (ce *CryptEngine) AddSessionKey(
+	hash, json, privKey string,
+	cleanupTime uint64,
+) error {
+	return util.ErrNotImplemented
+}
+
+// GetSessionKey implements corresponding method for msg.KeyStore interface.
+func (ce *CryptEngine) GetSessionKey(hash string) (
+	json, privKey string,
+	err error,
+) {
+	return "", "", util.ErrNotImplemented
+}
+
+// DelSessionKey implements corresponding method for msg.KeyStore interface.
+func (ce *CryptEngine) DelSessionKey(hash string) error {
+	return util.ErrNotImplemented
+}
+
+// CleanupSessionKeys implements corresponding method for msg.KeyStore interface.
+func (ce *CryptEngine) CleanupSessionKeys(t uint64) error {
+	return util.ErrNotImplemented
+}

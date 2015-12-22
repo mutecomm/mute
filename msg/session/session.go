@@ -57,6 +57,15 @@ type Store interface {
 	// DelMessageKey deleted the message key with index msgIndex. If sender is
 	// true the sender key is deleted, otherwise the recipient key.
 	DelMessageKey(sessionKey string, sender bool, msgIndex uint64) error
+
+	// AddSessionKey adds a session key.
+	AddSessionKey(hash, json, privKey string, cleanupTime uint64) error
+	// GetSessionKey returns a session key.
+	GetSessionKey(hash string) (json, privKey string, err error)
+	// DelSessionKey deletes a session key.
+	DelSessionKey(hash string) error
+	// CleanupSessionKeys deletes all session keys with a cleanup time before t.
+	CleanupSessionKeys(t uint64) error
 }
 
 // CalcStateKey computes the session state key from senderIdentityPub and
