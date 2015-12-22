@@ -11,12 +11,14 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/configclient"
 	"github.com/mutecomm/mute/log"
 	mixclient "github.com/mutecomm/mute/mix/client"
+	"github.com/mutecomm/mute/msg"
 	"github.com/mutecomm/mute/serviceguard/client"
 	"github.com/mutecomm/mute/serviceguard/client/guardrpc"
 	"github.com/mutecomm/mute/serviceguard/client/keylookup"
@@ -68,6 +70,17 @@ func InitMute(config *configclient.Config) error {
 	if err != nil {
 		return err
 	}
+
+	// set msg.CleanupTime
+	mm, ok := config.Map["mix.MaxDelay"]
+	if !ok {
+		return log.Error("config.Map[\"mix.MaxDelay\"] undefined")
+	}
+	mixMax, err := strconv.ParseUint(mm, 10, 64)
+	if err != nil {
+		return log.Error("cannot parse config.Map[\"mix.MaxDelay\"]")
+	}
+	msg.CleanupTime = 2*msg.SendTime + 2*mixMax
 
 	// set CA cert
 	CACert = config.CACert

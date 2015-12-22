@@ -37,6 +37,5 @@ const MaxContentLength = UnencodedMsgSize - preHeaderSize - encryptedHeaderSize 
 const SendTime = 172800 // 48h
 
 // CleanupTime defines the time how long key material should be retained.
-//
-// TODO: Define and use MixMax instead of 7200.
-const CleanupTime = 2*SendTime + 2*7200
+// Initialized via def.InitMute().
+var CleanupTime uint64
