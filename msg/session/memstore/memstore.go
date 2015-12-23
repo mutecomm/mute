@@ -264,9 +264,13 @@ func (ms *MemStore) GetSessionKey(hash string) (
 	return sk.json, sk.privKey, nil
 }
 
-// DelSessionKey implemented in memory.
-func (ms *MemStore) DelSessionKey(hash string) error {
-	delete(ms.sessionKeys, hash)
+// DelPrivSessionKey implemented in memory.
+func (ms *MemStore) DelPrivSessionKey(hash string) error {
+	sk, ok := ms.sessionKeys[hash]
+	if !ok {
+		return log.Error(session.ErrNoKeyEntry)
+	}
+	sk.privKey = ""
 	return nil
 }
 

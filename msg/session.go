@@ -26,8 +26,10 @@ func getSessionKey(ss session.Store, hash string) (*uid.KeyEntry, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := ke.SetPrivateKey(privKey); err != nil {
-		return nil, err
+	if privKey != "" {
+		if err := ke.SetPrivateKey(privKey); err != nil {
+			return nil, err
+		}
 	}
 	return ke, err
 }

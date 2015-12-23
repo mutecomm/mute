@@ -143,8 +143,8 @@ func (ce *CryptEngine) GetSessionKey(hash string) (
 	return "", "", util.ErrNotImplemented
 }
 
-// DelSessionKey implements corresponding method for msg.KeyStore interface.
-func (ce *CryptEngine) DelSessionKey(hash string) error {
+// DelPrivSessionKey implements corresponding method for msg.KeyStore interface.
+func (ce *CryptEngine) DelPrivSessionKey(hash string) error {
 	return util.ErrNotImplemented
 }
 

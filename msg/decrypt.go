@@ -339,7 +339,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			}
 		}
 		// a message with this session key has been decrypted -> delete key
-		if err := args.KeyStore.DelSessionKey(h.RecipientTempHash); err != nil {
+		if err := args.KeyStore.DelPrivSessionKey(h.RecipientTempHash); err != nil {
 			return "", "", err
 		}
 	}
@@ -374,10 +374,20 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 		} else {
 			log.Debug("different session")
 			recipientKI, err := args.KeyStore.GetPrivateKeyEntry(h.RecipientTempHash)
-			if err != nil {
+			if err != nil && err != session.ErrNoKeyEntry {
 				return "", "", err
 			}
-			recipientPub = recipientKI.PublicKey32()
+			if err != session.ErrNoKeyEntry {
+				recipientPub = recipientKI.PublicKey32()
+			} else {
+				recipientKE, err := getSessionKey(args.KeyStore,
+					h.RecipientTempHash)
+				if err != nil {
+					log.Debug("nope")
+					return "", "", err
+				}
+				recipientPub = recipientKE.PublicKey32()
+			}
 		}
 
 		err = generateMessageKeys(sender, recipient, h.SenderIdentityPub.HASH,

@@ -67,9 +67,9 @@ type Store interface {
 	// GetSessionKey returns a session key.
 	// If no such session key is available, ErrNoKeyEntry is returned.
 	GetSessionKey(hash string) (json, privKey string, err error)
-	// DelSessionKey deletes a session key.
-	// It should not fail if the key has already been deleted.
-	DelSessionKey(hash string) error
+	// DelPrivSessionKey deletes the private key of a session key.
+	// It should not fail if the private key has already been deleted.
+	DelPrivSessionKey(hash string) error
 	// CleanupSessionKeys deletes all session keys with a cleanup time before t.
 	CleanupSessionKeys(t uint64) error
 }
