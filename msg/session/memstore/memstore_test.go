@@ -58,8 +58,8 @@ func TestKeyEntry(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, _, err := ms.GetPublicKeyEntry(uidMsg); err != session.ErrNoKeyInit {
-		t.Error("should fail with session.ErrNoKeyInit")
+	if _, _, err := ms.GetPublicKeyEntry(uidMsg); err != session.ErrNoKeyEntry {
+		t.Error("should fail with session.ErrNoKeyEntry")
 	}
 }
 
@@ -81,11 +81,12 @@ func TestSessionStore(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	sessionKey := base64.Encode(cipher.SHA512([]byte("sessionkey")))
 	rootKeyHash := cipher.SHA512([]byte("rootkey"))
-	if ms.HasSession("alice@mute.berlin", "bob@mute.berlin", "hash") {
+	if ms.HasSession(sessionKey) {
 		t.Error("HasSession() should fail")
 	}
-	err = ms.StoreSession("alice@mute.berlin", "bob@mute.berlin", "hash",
+	err = ms.StoreSession(sessionKey,
 		base64.Encode(rootKeyHash),
 		base64.Encode(cipher.SHA512([]byte("chainkey"))),
 		[]string{base64.Encode(sendKey[:])},
@@ -93,14 +94,14 @@ func TestSessionStore(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !ms.HasSession("alice@mute.berlin", "bob@mute.berlin", "hash") {
+	if !ms.HasSession(sessionKey) {
 		t.Error("HasSession() should succeed")
 	}
-	if ms.SenderSessionPubHash() != "hash" {
-		t.Error("wrong SenderSessionPubHash() result")
+	if ms.SessionKey() != sessionKey {
+		t.Error("wrong SessionKey() result")
 	}
 	// test root key hash
-	h, err := ms.GetRootKeyHash("alice@mute.berlin", "bob@mute.berlin", "hash")
+	h, err := ms.GetRootKeyHash(sessionKey)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -108,41 +109,35 @@ func TestSessionStore(t *testing.T) {
 		t.Error("root key hashes are not equal")
 	}
 	// test sender key
-	key, err := ms.GetMessageKey("alice@mute.berlin", "bob@mute.berlin",
-		"hash", true, 0)
+	key, err := ms.GetMessageKey(sessionKey, true, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !bytes.Equal(key[:], sendKey[:]) {
 		t.Error("send key differs")
 	}
-	err = ms.DelMessageKey("alice@mute.berlin", "bob@mute.berlin", "hash",
-		true, 0)
+	err = ms.DelMessageKey(sessionKey, true, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = ms.GetMessageKey("alice@mute.berlin", "bob@mute.berlin", "hash",
-		true, 0)
+	_, err = ms.GetMessageKey(sessionKey, true, 0)
 	if err != session.ErrMessageKeyUsed {
 		t.Error("should fail with session.ErrMessageKeyUsed")
 	}
 	// test receiver key
-	key, err = ms.GetMessageKey("alice@mute.berlin", "bob@mute.berlin",
-		"hash", false, 0)
+	key, err = ms.GetMessageKey(sessionKey, false, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !bytes.Equal(key[:], recvKey[:]) {
 		t.Error("recv key differs")
 	}
-	err = ms.DelMessageKey("alice@mute.berlin", "bob@mute.berlin", "hash",
-		false, 0)
+	err = ms.DelMessageKey(sessionKey, false, 0)
 	if err != nil {
 
 		t.Fatal(err)
 	}
-	_, err = ms.GetMessageKey("alice@mute.berlin", "bob@mute.berlin", "hash",
-		false, 0)
+	_, err = ms.GetMessageKey(sessionKey, false, 0)
 	if err != session.ErrMessageKeyUsed {
 		t.Error("should fail with session.ErrMessageKeyUsed")
 	}
@@ -154,11 +149,12 @@ func TestSessionState(t *testing.T) {
 		SenderSessionCount: 1,
 		SenderMessageCount: 2,
 	}
-	err := ms.SetSessionState("alice@mute.berlin", "bob@mute.berlin", ss)
+	sessionStateKey := base64.Encode(cipher.SHA512([]byte("sessionstatekey")))
+	err := ms.SetSessionState(sessionStateKey, ss)
 	if err != nil {
 		t.Fatal(err)
 	}
-	sss, err := ms.GetSessionState("alice@mute.berlin", "bob@mute.berlin")
+	sss, err := ms.GetSessionState(sessionStateKey)
 	if err != nil {
 		t.Fatal(err)
 	}
