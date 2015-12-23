@@ -24,6 +24,42 @@ type State struct {
 	KeyInitSession              bool          // this session was started with a KeyInit message
 }
 
+// StateEqual returns a boolean reporting whether a and b have the same exported fields.
+func StateEqual(a, b *State) bool {
+	if a == b {
+		return true
+	}
+	if a.SenderSessionCount != b.SenderSessionCount {
+		return false
+	}
+	if a.SenderMessageCount != b.SenderMessageCount {
+		return false
+	}
+	if a.MaxRecipientCount != b.MaxRecipientCount {
+		return false
+	}
+	if !uid.KeyEntryEqual(&a.RecipientTemp, &b.RecipientTemp) {
+		return false
+	}
+	if !uid.KeyEntryEqual(&a.SenderSessionPub, &b.SenderSessionPub) {
+		return false
+	}
+	if !uid.KeyEntryEqual(a.NextSenderSessionPub, b.NextSenderSessionPub) {
+		return false
+	}
+	if !uid.KeyEntryEqual(a.NextRecipientSessionPubSeen,
+		b.NextRecipientSessionPubSeen) {
+		return false
+	}
+	if a.NymAddress != b.NymAddress {
+		return false
+	}
+	if a.KeyInitSession != b.KeyInitSession {
+		return false
+	}
+	return true
+}
+
 // The Store interface defines all methods for managing session keys.
 type Store interface {
 	// GetSessionState returns the current session state or nil, if no state
