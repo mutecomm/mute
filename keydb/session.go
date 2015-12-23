@@ -29,42 +29,84 @@ func (keyDB *KeyDB) AddSession(
 	if len(send) != len(recv) {
 		return log.Error("keydb: len(send) != len(recv)")
 	}
-	// store session
-	// TODO: allow to update session
-	res, err := keyDB.insertSessionQuery.Exec(sessionKey, rootKeyHash, chainKey)
+
+	// start transaction
+	tx, err := keyDB.encDB.Begin()
 	if err != nil {
 		return log.Error(err)
 	}
+
+	var res sql.Result
+	_, _, offset, err := keyDB.GetSession(sessionKey)
+	switch {
+	case err == sql.ErrNoRows:
+		// store new session
+		res, err = tx.Stmt(keyDB.insertSessionQuery).Exec(sessionKey,
+			rootKeyHash, chainKey, len(send))
+		if err != nil {
+			tx.Rollback()
+			return log.Error(err)
+		}
+	case err != nil:
+		tx.Rollback()
+		return log.Error(err)
+	default:
+		// update session
+		res, err = tx.Stmt(keyDB.updateSessionQuery).Exec(chainKey,
+			offset+uint64(len(send)), sessionKey)
+		if err != nil {
+			tx.Rollback()
+			return log.Error(err)
+		}
+	}
+
 	// get session ID
 	sessionID, err := res.LastInsertId()
 	if err != nil {
+		tx.Rollback()
 		return log.Error(err)
 	}
+
 	// stores message keys
-	// TODO: key numbering for updates!
 	for i := range send {
-		_, err = keyDB.addMessageKeyQuery.Exec(sessionID, i, send[i], 0)
+		_, err = tx.Stmt(keyDB.addMessageKeyQuery).Exec(sessionID,
+			offset+uint64(i), send[i], 0)
 		if err != nil {
+			tx.Rollback()
 			return log.Error(err)
 		}
-		_, err = keyDB.addMessageKeyQuery.Exec(sessionID, i, recv[i], 1)
+		_, err = tx.Stmt(keyDB.addMessageKeyQuery).Exec(sessionID,
+			offset+uint64(i), recv[i], 1)
 		if err != nil {
+			tx.Rollback()
 			return log.Error(err)
 		}
 	}
+
+	// commit transaction
+	if err := tx.Commit(); err != nil {
+		tx.Rollback()
+		return log.Error(err)
+	}
+
 	return nil
 }
 
-// GetSession returns the session rootKeyHash for the given sessionKey.
-func (keyDB *KeyDB) GetSession(sessionKey string) (string, error) {
-	var rootKeyHash string
-	err := keyDB.getSessionQuery.QueryRow(sessionKey).Scan(&rootKeyHash)
+// GetSession returns the session for the given sessionKey.
+func (keyDB *KeyDB) GetSession(sessionKey string) (
+	rootKeyHash string,
+	chainKey string,
+	numOfKeys uint64,
+	err error,
+) {
+	var n int64
+	err = keyDB.getSessionQuery.QueryRow(sessionKey).Scan(&rootKeyHash, &chainKey, &n)
 	switch {
 	case err == sql.ErrNoRows:
-		return "", nil
+		return "", "", 0, sql.ErrNoRows
 	case err != nil:
-		return "", log.Error(err)
-	default:
-		return rootKeyHash, nil
+		return "", "", 0, log.Error(err)
 	}
+	numOfKeys = uint64(n)
+	return
 }

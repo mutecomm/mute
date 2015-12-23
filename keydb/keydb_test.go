@@ -6,16 +6,13 @@ package keydb
 
 import (
 	"bytes"
-	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/mutecomm/mute/cipher"
-	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/keyserver/hashchain"
-	"github.com/mutecomm/mute/msg"
 	"github.com/mutecomm/mute/uid"
 	"github.com/mutecomm/mute/util"
 	"github.com/mutecomm/mute/util/times"
@@ -277,21 +274,6 @@ func TestPublicKeyInit(t *testing.T) {
 	if !bytes.Equal(rKI.JSON(), ki.JSON()) {
 		t.Error("KeyInits differ")
 	}
-}
-
-func deriveKeys(chainKey []byte, kdf io.Reader) (send, recv []string, err error) {
-	buffer := make([]byte, 64)
-	for i := 0; i < msg.NumOfFutureKeys; i++ {
-		if _, err := io.ReadFull(kdf, buffer); err != nil {
-			return nil, nil, err
-		}
-		send = append(send, base64.Encode(cipher.HMAC(chainKey, buffer)))
-		if _, err := io.ReadFull(kdf, buffer); err != nil {
-			return nil, nil, err
-		}
-		recv = append(recv, base64.Encode(cipher.HMAC(chainKey, buffer)))
-	}
-	return
 }
 
 var testHashchain = []string{

@@ -68,7 +68,8 @@ CREATE TABLE Sessions (
   SessionID   INTEGER PRIMARY KEY,
   SessionKey  TEXT    NOT NULL,
   RootKeyHash TEXT    NOT NULL,
-  ChainKey    TEXT    NOT NULL
+  ChainKey    TEXT    NOT NULL,
+  NumOfKeys   INTEGER NOT NULL
 );`
 	createQueryMessageKeys = `
 CREATE TABLE MessageKeys (
@@ -76,8 +77,9 @@ CREATE TABLE MessageKeys (
   SessionID INTEGER NOT NULL,
   Number    INTEGER NOT NULL, -- the key number
   Key       TEXT    NOT NULL, -- the actual key (JSON encoded)
-  Direction INTEGER NOT NULL, -- 0: sender key, 1: receiver key
-  FOREIGN KEY(SessionID) REFERENCES Sessions(SessionID) ON DELETE CASCADE
+  Direction INTEGER NOT NULL  -- 0: sender key, 1: receiver key
+  -- TODO: fix this:
+  -- FOREIGN KEY(SessionID) REFERENCES Sessions(SessionID) ON DELETE CASCADE
 );`
 	createQueryHashchains = `
 CREATE TABLE Hashchains (
@@ -122,8 +124,9 @@ CREATE TABLE SessionKeys (
 	getPublicKeyInitQuery     = "SELECT KeyInit FROM PublicKeyInits WHERE SIGKEYHASH=?;"
 	addPublicUIDQuery         = "INSERT INTO PublicUIDs (IDENTITY, MSGCOUNT, POSITION, UIDMessage) VALUES (?, ?, ?, ?);"
 	getPublicUIDQuery         = "SELECT UIDMessage, POSITION FROM PublicUIDs WHERE IDENTITY=? and POSITION<=? ORDER BY POSITION DESC;"
-	getSessionQuery           = "SELECT RootKeyHash FROM Sessions WHERE SessionKey=?;"
-	insertSessionQuery        = "INSERT INTO Sessions(SessionKey, RootKeyHash, ChainKey) VALUES (?, ?, ?);"
+	getSessionQuery           = "SELECT RootKeyHash, ChainKey, NumOfKeys FROM Sessions WHERE SessionKey=?;"
+	updateSessionQuery        = "UPDATE Sessions SET ChainKey=?, NumOfKeys=? WHERE SessionKey=?;"
+	insertSessionQuery        = "INSERT INTO Sessions(SessionKey, RootKeyHash, ChainKey, NumOfKeys) VALUES (?, ?, ?, ?);"
 	addMessageKeyQuery        = "INSERT INTO MessageKeys(SessionID, Number, Key, Direction) VALUES (?, ?, ?, ?);"
 	addHashChainEntryQuery    = "INSERT INTO Hashchains(DOMAIN, POSITION, ENTRY) VALUES (?, ?, ?);"
 	getHashChainEntryQuery    = "SELECT ENTRY FROM Hashchains WHERE DOMAIN=? AND POSITION=?;"
@@ -161,6 +164,7 @@ type KeyDB struct {
 	addPublicUIDQuery         *sql.Stmt
 	getPublicUIDQuery         *sql.Stmt
 	getSessionQuery           *sql.Stmt
+	updateSessionQuery        *sql.Stmt
 	insertSessionQuery        *sql.Stmt
 	addMessageKeyQuery        *sql.Stmt
 	addHashChainEntryQuery    *sql.Stmt
@@ -263,6 +267,9 @@ func Open(dbname string, passphrase []byte) (*KeyDB, error) {
 		return nil, err
 	}
 	if keyDB.getSessionQuery, err = keyDB.encDB.Prepare(getSessionQuery); err != nil {
+		return nil, err
+	}
+	if keyDB.updateSessionQuery, err = keyDB.encDB.Prepare(updateSessionQuery); err != nil {
 		return nil, err
 	}
 	if keyDB.insertSessionQuery, err = keyDB.encDB.Prepare(insertSessionQuery); err != nil {
