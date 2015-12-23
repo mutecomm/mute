@@ -77,7 +77,7 @@ CREATE TABLE MessageKeys (
   SessionID INTEGER NOT NULL,
   Number    INTEGER NOT NULL, -- the key number
   Key       TEXT    NOT NULL, -- the actual key (JSON encoded)
-  Direction INTEGER NOT NULL  -- 0: sender key, 1: receiver key
+  Direction INTEGER NOT NULL  -- 1: sender key, 0: receiver key
   -- TODO: fix this:
   -- FOREIGN KEY(SessionID) REFERENCES Sessions(SessionID) ON DELETE CASCADE
 );`
@@ -125,9 +125,12 @@ CREATE TABLE SessionKeys (
 	addPublicUIDQuery         = "INSERT INTO PublicUIDs (IDENTITY, MSGCOUNT, POSITION, UIDMessage) VALUES (?, ?, ?, ?);"
 	getPublicUIDQuery         = "SELECT UIDMessage, POSITION FROM PublicUIDs WHERE IDENTITY=? and POSITION<=? ORDER BY POSITION DESC;"
 	getSessionQuery           = "SELECT RootKeyHash, ChainKey, NumOfKeys FROM Sessions WHERE SessionKey=?;"
+	getSessionIDQuery         = "SELECT SessionID FROM Sessions WHERE SessionKey=?;"
 	updateSessionQuery        = "UPDATE Sessions SET ChainKey=?, NumOfKeys=? WHERE SessionKey=?;"
 	insertSessionQuery        = "INSERT INTO Sessions(SessionKey, RootKeyHash, ChainKey, NumOfKeys) VALUES (?, ?, ?, ?);"
 	addMessageKeyQuery        = "INSERT INTO MessageKeys(SessionID, Number, Key, Direction) VALUES (?, ?, ?, ?);"
+	delMessageKeyQuery        = "DELETE FROM MessageKeys WHERE SessionID=? AND Number=? AND Direction=?;"
+	getMessageKeyQuery        = "SELECT Key FROM MessageKeys WHERE SessionID=? AND Number=? AND Direction=?;"
 	addHashChainEntryQuery    = "INSERT INTO Hashchains(DOMAIN, POSITION, ENTRY) VALUES (?, ?, ?);"
 	getHashChainEntryQuery    = "SELECT ENTRY FROM Hashchains WHERE DOMAIN=? AND POSITION=?;"
 	getLastHashChainPosQuery  = "SELECT POSITION FROM Hashchains WHERE DOMAIN=? ORDER BY POSITION DESC;"
@@ -164,9 +167,12 @@ type KeyDB struct {
 	addPublicUIDQuery         *sql.Stmt
 	getPublicUIDQuery         *sql.Stmt
 	getSessionQuery           *sql.Stmt
+	getSessionIDQuery         *sql.Stmt
 	updateSessionQuery        *sql.Stmt
 	insertSessionQuery        *sql.Stmt
 	addMessageKeyQuery        *sql.Stmt
+	delMessageKeyQuery        *sql.Stmt
+	getMessageKeyQuery        *sql.Stmt
 	addHashChainEntryQuery    *sql.Stmt
 	getHashChainEntryQuery    *sql.Stmt
 	getLastHashChainPosQuery  *sql.Stmt
@@ -269,6 +275,9 @@ func Open(dbname string, passphrase []byte) (*KeyDB, error) {
 	if keyDB.getSessionQuery, err = keyDB.encDB.Prepare(getSessionQuery); err != nil {
 		return nil, err
 	}
+	if keyDB.getSessionIDQuery, err = keyDB.encDB.Prepare(getSessionIDQuery); err != nil {
+		return nil, err
+	}
 	if keyDB.updateSessionQuery, err = keyDB.encDB.Prepare(updateSessionQuery); err != nil {
 		return nil, err
 	}
@@ -276,6 +285,12 @@ func Open(dbname string, passphrase []byte) (*KeyDB, error) {
 		return nil, err
 	}
 	if keyDB.addMessageKeyQuery, err = keyDB.encDB.Prepare(addMessageKeyQuery); err != nil {
+		return nil, err
+	}
+	if keyDB.delMessageKeyQuery, err = keyDB.encDB.Prepare(delMessageKeyQuery); err != nil {
+		return nil, err
+	}
+	if keyDB.getMessageKeyQuery, err = keyDB.encDB.Prepare(getMessageKeyQuery); err != nil {
 		return nil, err
 	}
 	if keyDB.addHashChainEntryQuery, err = keyDB.encDB.Prepare(addHashChainEntryQuery); err != nil {

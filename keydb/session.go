@@ -70,13 +70,13 @@ func (keyDB *KeyDB) AddSession(
 	// stores message keys
 	for i := range send {
 		_, err = tx.Stmt(keyDB.addMessageKeyQuery).Exec(sessionID,
-			offset+uint64(i), send[i], 0)
+			offset+uint64(i), send[i], 1)
 		if err != nil {
 			tx.Rollback()
 			return log.Error(err)
 		}
 		_, err = tx.Stmt(keyDB.addMessageKeyQuery).Exec(sessionID,
-			offset+uint64(i), recv[i], 1)
+			offset+uint64(i), recv[i], 0)
 		if err != nil {
 			tx.Rollback()
 			return log.Error(err)
@@ -109,4 +109,49 @@ func (keyDB *KeyDB) GetSession(sessionKey string) (
 	}
 	numOfKeys = uint64(n)
 	return
+}
+
+// GetMessageKey returns the message key for the given sessionKey.
+func (keyDB *KeyDB) GetMessageKey(
+	sessionKey string,
+	sender bool,
+	msgIndex uint64,
+) (string, error) {
+	var sessionID int64
+	err := keyDB.getSessionIDQuery.QueryRow(sessionKey).Scan(&sessionID)
+	if err != nil {
+		return "", err
+	}
+	var d int64
+	if sender {
+		d = 1
+	}
+	var key string
+	err = keyDB.getMessageKeyQuery.QueryRow(sessionID, msgIndex, d).Scan(&key)
+	if err != nil {
+		return "", err
+	}
+	return key, nil
+}
+
+// DelMessageKey deletes the message key for the given sessionKey.
+func (keyDB *KeyDB) DelMessageKey(
+	sessionKey string,
+	sender bool,
+	msgIndex uint64,
+) error {
+	var sessionID int64
+	err := keyDB.getSessionIDQuery.QueryRow(sessionKey).Scan(&sessionID)
+	if err != nil {
+		return err
+	}
+	var d int64
+	if sender {
+		d = 1
+	}
+	_, err = keyDB.delMessageKeyQuery.Exec(sessionID, msgIndex, d)
+	if err != nil {
+		return err
+	}
+	return nil
 }

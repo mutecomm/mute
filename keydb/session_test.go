@@ -101,4 +101,13 @@ func TestSessions(t *testing.T) {
 	if n != 2*msg.NumOfFutureKeys {
 		t.Error("n is supposed to equal 2*msg.NumOfFutureKeys")
 	}
+
+	// TODO: improve tests for message keys
+	_, err = keyDB.GetMessageKey(sessionKey, true, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := keyDB.DelMessageKey(sessionKey, true, 0); err != nil {
+		t.Fatal(err)
+	}
 }

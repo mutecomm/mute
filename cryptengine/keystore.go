@@ -111,7 +111,22 @@ func (ce *CryptEngine) GetMessageKey(
 	sender bool,
 	msgIndex uint64,
 ) (*[64]byte, error) {
-	return nil, util.ErrNotImplemented
+	key, err := ce.keyDB.GetMessageKey(sessionKey, sender, msgIndex)
+	if err != nil {
+		return nil, err
+	}
+	// decode key
+	var messageKey [64]byte
+	k, err := base64.Decode(key)
+	if err != nil {
+		return nil,
+			log.Errorf("cryptengine: cannot decode key for %s", sessionKey)
+	}
+	if copy(messageKey[:], k) != 64 {
+		return nil,
+			log.Errorf("cryptengine: key for %s has wrong length", sessionKey)
+	}
+	return &messageKey, nil
 }
 
 // NumMessageKeys implements corresponding method for msg.KeyStore interface.
@@ -165,7 +180,7 @@ func (ce *CryptEngine) DelMessageKey(
 	sender bool,
 	msgIndex uint64,
 ) error {
-	return util.ErrNotImplemented
+	return ce.keyDB.DelMessageKey(sessionKey, sender, msgIndex)
 }
 
 // AddSessionKey implements corresponding method for msg.KeyStore interface.
