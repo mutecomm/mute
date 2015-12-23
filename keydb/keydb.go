@@ -104,6 +104,14 @@ CREATE TABLE SessionStates (
   NymAddress                  TEXT    NOT NULL,
   KeyInitSession              INTEGER NOT NULL
 );`
+	createQuerySessionKeys = `
+CREATE TABLE SessionKeys (
+  ID          INTEGER PRIMARY KEY,
+  Hash        TEXT    NOT NULL,
+  Json        TEXT    NOT NULL,
+  PrivKey     TEXT,
+  CleanupTime INTEGER NOT NULL
+);`
 	updateValueQuery          = "UPDATE KeyValueStore SET ValueEntry=? WHERE KeyEntry=?;"
 	insertValueQuery          = "INSERT INTO KeyValueStore (KeyEntry, ValueEntry) VALUES (?, ?);"
 	getValueQuery             = "SELECT ValueEntry FROM KeyValueStore WHERE KeyEntry=?;"
@@ -135,6 +143,9 @@ CREATE TABLE SessionStates (
 	getSessionStateQuery = "SELECT SenderSessionCount, SenderMessageCount, MaxRecipientCount, " +
 		"RecipientTemp, SenderSessionPub, NextSenderSessionPub, NextRecipientSessionPubSeen, " +
 		"NymAddress, KeyInitSession FROM SessionStates WHERE SessionStateKey=?;"
+	updateSessionKeyQuery = "UPDATE SessionKeys SET PrivKey=? WHERE Hash=?;"
+	insertSessionKeyQuery = "INSERT INTO SessionKeys (Hash, Json, PrivKey, CleanupTime) VALUES (?, ?, ?, ?);"
+	getSessionKeyQuery    = "SELECT Json, PrivKey FROM SessionKeys WHERE Hash=?;"
 )
 
 // KeyDB is a handle for an encrypted database used to store mute keys.
@@ -164,6 +175,9 @@ type KeyDB struct {
 	updateSessionStateQuery   *sql.Stmt
 	insertSessionStateQuery   *sql.Stmt
 	getSessionStateQuery      *sql.Stmt
+	updateSessionKeyQuery     *sql.Stmt
+	insertSessionKeyQuery     *sql.Stmt
+	getSessionKeyQuery        *sql.Stmt
 }
 
 // Create returns a new KEY database with the given dbname.
@@ -179,6 +193,7 @@ func Create(dbname string, passphrase []byte, iter int) error {
 		createQueryMessageKeys,
 		createQueryHashchains,
 		createQuerySessionStates,
+		createQuerySessionKeys,
 	})
 	if err != nil {
 		return err
@@ -281,6 +296,15 @@ func Open(dbname string, passphrase []byte) (*KeyDB, error) {
 		return nil, err
 	}
 	if keyDB.getSessionStateQuery, err = keyDB.encDB.Prepare(getSessionStateQuery); err != nil {
+		return nil, err
+	}
+	if keyDB.updateSessionKeyQuery, err = keyDB.encDB.Prepare(updateSessionKeyQuery); err != nil {
+		return nil, err
+	}
+	if keyDB.insertSessionKeyQuery, err = keyDB.encDB.Prepare(insertSessionKeyQuery); err != nil {
+		return nil, err
+	}
+	if keyDB.getSessionKeyQuery, err = keyDB.encDB.Prepare(getSessionKeyQuery); err != nil {
 		return nil, err
 	}
 	return &keyDB, nil

@@ -136,7 +136,7 @@ func (ce *CryptEngine) AddSessionKey(
 	hash, json, privKey string,
 	cleanupTime uint64,
 ) error {
-	return util.ErrNotImplemented
+	return ce.keyDB.AddSessionKey(hash, json, privKey, cleanupTime)
 }
 
 // GetSessionKey implements corresponding method for msg.KeyStore interface.
@@ -144,12 +144,19 @@ func (ce *CryptEngine) GetSessionKey(hash string) (
 	json, privKey string,
 	err error,
 ) {
-	return "", "", util.ErrNotImplemented
+	json, privKey, err = ce.keyDB.GetSessionKey(hash)
+	switch {
+	case err == sql.ErrNoRows:
+		return "", "", log.Error(session.ErrNoKeyEntry)
+	case err != nil:
+		return "", "", err
+	}
+	return
 }
 
 // DelPrivSessionKey implements corresponding method for msg.KeyStore interface.
 func (ce *CryptEngine) DelPrivSessionKey(hash string) error {
-	return util.ErrNotImplemented
+	return ce.keyDB.DelPrivSessionKey(hash)
 }
 
 // CleanupSessionKeys implements corresponding method for msg.KeyStore interface.
