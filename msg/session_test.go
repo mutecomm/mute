@@ -403,7 +403,7 @@ func TestFailure4(t *testing.T) {
 func TestRandom(t *testing.T) {
 	defer log.Flush()
 	for i := 0; i < 1000; i++ {
-		r, err := generateRun(9)
+		r, err := generateRun(100)
 		if err != nil {
 			t.Fatal(err)
 		}

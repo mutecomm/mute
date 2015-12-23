@@ -184,7 +184,6 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			}
 
 			// TODO: delete single-use KeyInit message
-			// TODO: answer directly with NextSession
 
 			// use the 'smaller' session as the definite one
 			// TODO: h.SenderSessionPub.HASH < ss.SenderSessionPub.HASH
@@ -383,13 +382,11 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 				recipientKE, err := getSessionKey(args.KeyStore,
 					h.RecipientTempHash)
 				if err != nil {
-					log.Debug("nope")
 					return "", "", err
 				}
 				recipientPub = recipientKE.PublicKey32()
 			}
 		}
-
 		err = generateMessageKeys(sender, recipient, h.SenderIdentityPub.HASH,
 			recipientID.HASH, chainKey, true,
 			h.SenderSessionPub.PublicKey32(), recipientPub, numOfKeys,

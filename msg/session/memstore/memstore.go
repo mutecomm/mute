@@ -268,7 +268,7 @@ func (ms *MemStore) GetSessionKey(hash string) (
 func (ms *MemStore) DelPrivSessionKey(hash string) error {
 	sk, ok := ms.sessionKeys[hash]
 	if !ok {
-		return log.Error(session.ErrNoKeyEntry)
+		return nil
 	}
 	sk.privKey = ""
 	return nil
