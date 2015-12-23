@@ -7,6 +7,7 @@ package cryptengine
 import (
 	"database/sql"
 
+	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg/session"
 	"github.com/mutecomm/mute/uid"
@@ -43,7 +44,15 @@ func (ce *CryptEngine) StoreSession(
 
 // HasSession implements corresponding method for msg.KeyStore interface.
 func (ce *CryptEngine) HasSession(sessionKey string) bool {
-	panic(util.ErrNotImplemented)
+	_, _, _, err := ce.keyDB.GetSession(sessionKey)
+	switch {
+	case err == sql.ErrNoRows:
+		return false
+	case err != nil:
+		// TODO: handle this without panic!
+		panic(log.Critical(err))
+	}
+	return true
 }
 
 // GetPrivateKeyEntry implements corresponding method for msg.KeyStore interface.
@@ -107,17 +116,47 @@ func (ce *CryptEngine) GetMessageKey(
 
 // NumMessageKeys implements corresponding method for msg.KeyStore interface.
 func (ce *CryptEngine) NumMessageKeys(sessionKey string) (uint64, error) {
-	return 0, util.ErrNotImplemented
+	_, _, n, err := ce.keyDB.GetSession(sessionKey)
+	if err != nil {
+		return 0, err
+	}
+	return n, nil
 }
 
 // GetRootKeyHash implements corresponding method for msg.KeyStore interface.
 func (ce *CryptEngine) GetRootKeyHash(sessionKey string) (*[64]byte, error) {
-	return nil, util.ErrNotImplemented
+	rootKeyHash, _, _, err := ce.keyDB.GetSession(sessionKey)
+	if err != nil {
+		return nil, err
+	}
+	// decode root key hash
+	var hash [64]byte
+	k, err := base64.Decode(rootKeyHash)
+	if err != nil {
+		return nil, log.Error("cryptengine: cannot decode root key hash")
+	}
+	if copy(hash[:], k) != 64 {
+		return nil, log.Errorf("cryptengine: root key hash has wrong length")
+	}
+	return &hash, nil
 }
 
 // GetChainKey implements corresponding method for msg.KeyStore interface.
 func (ce *CryptEngine) GetChainKey(sessionKey string) (*[32]byte, error) {
-	return nil, util.ErrNotImplemented
+	_, chainKey, _, err := ce.keyDB.GetSession(sessionKey)
+	if err != nil {
+		return nil, err
+	}
+	// decode chain key
+	var key [32]byte
+	k, err := base64.Decode(chainKey)
+	if err != nil {
+		return nil, log.Error("cryptengine: cannot decode chain key")
+	}
+	if copy(key[:], k) != 32 {
+		return nil, log.Errorf("cryptengine: chain key has wrong length")
+	}
+	return &key, nil
 }
 
 // DelMessageKey implements corresponding method for msg.KeyStore interface.
