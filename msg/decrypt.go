@@ -207,21 +207,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 				}
 			}
 		} else { // no KeyInit message found
-			// try to start session with session key
-			/*
-				recipientKE, err := getSessionKey(args.KeyStore, h.RecipientTempHash)
-				if err != nil && err != session.ErrNoKeyEntry {
-					return "", "", err
-				}
-			*/
-			/*
-				if err != session.ErrNoKeyEntry {
-
-				} else {
-
-				}
-			*/
-
+			// TODO: ???
 		}
 	} else { // session known
 		log.Debug("session known")
