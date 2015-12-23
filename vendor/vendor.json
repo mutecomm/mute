@@ -19,8 +19,8 @@
 		},
 		{
 			"path": "github.com/codegangsta/cli",
-			"revision": "b5232bb2934f606f9f27a1305f1eea224e8e8b88",
-			"revisionTime": "2015-12-12T19:52:18-05:00"
+			"revision": "c31a7975863e7810c92e2e288a9ab074f9a88f29",
+			"revisionTime": "2015-12-21T13:40:36-05:00"
 		},
 		{
 			"path": "github.com/fatih/structs",
