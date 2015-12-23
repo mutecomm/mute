@@ -132,7 +132,7 @@ func (ke *KeyEntry) initSigKey(rand io.Reader) error {
 func NewJSONKeyEntry(keyEntry []byte) (*KeyEntry, error) {
 	var ke KeyEntry
 	if err := json.Unmarshal(keyEntry, &ke); err != nil {
-		return nil, err
+		return nil, log.Error(err)
 	}
 	return &ke, nil
 }

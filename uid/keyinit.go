@@ -49,7 +49,7 @@ const MaxNotAfter = uint64(90 * 24 * 60 * 60) // 90 days
 func NewJSONKeyInit(keyInit []byte) (*KeyInit, error) {
 	var ki KeyInit
 	if err := json.Unmarshal(keyInit, &ki); err != nil {
-		return nil, err
+		return nil, log.Error(err)
 	}
 	return &ki, nil
 }
@@ -129,7 +129,7 @@ func (ki *KeyInit) SessionAnchor(sigPubKey string) (*SessionAnchor, error) {
 	txt := cipher.AES256CTRDecrypt(keyHash[:32], enc)
 	var sa SessionAnchor
 	if err := json.Unmarshal(txt, &sa); err != nil {
-		return nil, err
+		return nil, log.Error(err)
 	}
 	if ki.Contents.SESSIONANCHORHASH != base64.Encode(cipher.SHA512(sa.json())) {
 		log.Error(ErrSessionAnchor)

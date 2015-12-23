@@ -387,7 +387,7 @@ func CreateReply(
 func NewJSON(uid string) (*Message, error) {
 	var msg Message
 	if err := json.Unmarshal([]byte(uid), &msg); err != nil {
-		return nil, err
+		return nil, log.Error(err)
 	}
 	return &msg, nil
 }
@@ -397,7 +397,7 @@ func NewJSON(uid string) (*Message, error) {
 func NewJSONReply(uid string) (*MessageReply, error) {
 	var reply MessageReply
 	if err := json.Unmarshal([]byte(uid), &reply); err != nil {
-		return nil, err
+		return nil, log.Error(err)
 	}
 	return &reply, nil
 }
