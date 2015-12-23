@@ -21,6 +21,7 @@ type State struct {
 	NextSenderSessionPub        *uid.KeyEntry // new SenderSessionPub to refresh the session
 	NextRecipientSessionPubSeen *uid.KeyEntry // currently known NextSenderSessionPub of the other party
 	NymAddress                  string        // current NymAddress from recipient
+	KeyInitSession              bool          // this session was started with a KeyInit message
 }
 
 // The Store interface defines all methods for managing session keys.
@@ -41,10 +42,11 @@ type Store interface {
 	HasSession(sessionKey string) bool
 	// GetPublicKeyInit returns the private KeyEntry contained in the KeyInit
 	// message with the given pubKeyHash.
+	// If no such KeyEntry is available, ErrNoKeyEntry is returned.
 	GetPrivateKeyEntry(pubKeyHash string) (*uid.KeyEntry, error)
 	// GetPrivateKeyInit returns a public KeyEntry and NYMADDRESS contained in
 	// the KeyInit message for the given uidMsg.
-	// If no such KeyEntry is available, ErrNoKeyInit is returned.
+	// If no such KeyEntry is available, ErrNoKeyEntry is returned.
 	GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, string, error)
 	// GetMessageKey returns the message key with index msgIndex. If sender is
 	// true the sender key is returned, otherwise the recipient key.
@@ -63,8 +65,10 @@ type Store interface {
 	// AddSessionKey adds a session key.
 	AddSessionKey(hash, json, privKey string, cleanupTime uint64) error
 	// GetSessionKey returns a session key.
+	// If no such session key is available, ErrNoKeyEntry is returned.
 	GetSessionKey(hash string) (json, privKey string, err error)
 	// DelSessionKey deletes a session key.
+	// It should not fail if the key has already been deleted.
 	DelSessionKey(hash string) error
 	// CleanupSessionKeys deletes all session keys with a cleanup time before t.
 	CleanupSessionKeys(t uint64) error

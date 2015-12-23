@@ -5,6 +5,8 @@
 package msg
 
 import (
+	"io"
+
 	"github.com/mutecomm/mute/msg/session"
 	"github.com/mutecomm/mute/uid"
 	"github.com/mutecomm/mute/util/times"
@@ -28,4 +30,28 @@ func getSessionKey(ss session.Store, hash string) (*uid.KeyEntry, error) {
 		return nil, err
 	}
 	return ke, err
+}
+
+func setNextSenderSessionPub(
+	keyStore session.Store,
+	sessionState *session.State,
+	sessionStateKey string,
+	rand io.Reader,
+) (*uid.KeyEntry, error) {
+	// create next session key
+	var nextSenderSession uid.KeyEntry
+	if err := nextSenderSession.InitDHKey(rand); err != nil {
+		return nil, err
+	}
+	// store next session key
+	if err := addSessionKey(keyStore, &nextSenderSession); err != nil {
+		return nil, err
+	}
+	// update session state
+	sessionState.NextSenderSessionPub = &nextSenderSession
+	err := keyStore.SetSessionState(sessionStateKey, sessionState)
+	if err != nil {
+		return nil, err
+	}
+	return &nextSenderSession, nil
 }

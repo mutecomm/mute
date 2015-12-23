@@ -6,8 +6,6 @@
 package memstore
 
 import (
-	"fmt"
-
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg/session"
@@ -118,7 +116,7 @@ func (ms *MemStore) HasSession(sessionKey string) bool {
 func (ms *MemStore) GetPrivateKeyEntry(pubKeyHash string) (*uid.KeyEntry, error) {
 	ke, ok := ms.privateKeyEntryMap[pubKeyHash]
 	if !ok {
-		return nil, fmt.Errorf("memstore: could not find key entry %s", pubKeyHash)
+		return nil, log.Error(session.ErrNoKeyEntry)
 	}
 	return ke, nil
 }
@@ -127,7 +125,7 @@ func (ms *MemStore) GetPrivateKeyEntry(pubKeyHash string) (*uid.KeyEntry, error)
 func (ms *MemStore) GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, string, error) {
 	ke, ok := ms.publicKeyEntryMap[uidMsg.Identity()]
 	if !ok {
-		return nil, "", log.Error(session.ErrNoKeyInit)
+		return nil, "", log.Error(session.ErrNoKeyEntry)
 	}
 	return ke, "undefined", nil
 }
@@ -261,7 +259,7 @@ func (ms *MemStore) GetSessionKey(hash string) (
 ) {
 	sk, ok := ms.sessionKeys[hash]
 	if !ok {
-		return "", "", log.Errorf("memstore: session key not found: %s", hash)
+		return "", "", log.Error(session.ErrNoKeyEntry)
 	}
 	return sk.json, sk.privKey, nil
 }

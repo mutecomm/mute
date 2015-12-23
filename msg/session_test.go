@@ -17,6 +17,7 @@ import (
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/keyserver/hashchain"
+	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg"
 	"github.com/mutecomm/mute/msg/session"
 	"github.com/mutecomm/mute/msg/session/memstore"
@@ -183,6 +184,7 @@ func testRun(r []*operation) error {
 				SenderLastKeychainHash: hashchain.TestEntry,
 				Reader:                 bytes.NewBufferString(msgs.Message1),
 				NumOfKeys:              2,
+				AvgSessionSize:         1,
 				Rand:                   cipher.RandReader,
 				KeyStore:               aliceKeyStore,
 			}
@@ -214,6 +216,7 @@ func testRun(r []*operation) error {
 				SenderLastKeychainHash: hashchain.TestEntry,
 				Reader:                 bytes.NewBufferString(msgs.Message2),
 				NumOfKeys:              2,
+				AvgSessionSize:         1,
 				Rand:                   cipher.RandReader,
 				KeyStore:               bobKeyStore,
 			}
@@ -329,7 +332,6 @@ func printRun(r []*operation) {
 	fmt.Println("}")
 }
 
-/*
 func TestFailure1(t *testing.T) {
 	defer log.Flush()
 	r := []*operation{
@@ -344,9 +346,7 @@ func TestFailure1(t *testing.T) {
 		t.Error(err)
 	}
 }
-*/
 
-/*
 func TestFailure2(t *testing.T) {
 	defer log.Flush()
 	r := []*operation{
@@ -361,7 +361,6 @@ func TestFailure2(t *testing.T) {
 		t.Error(err)
 	}
 }
-*/
 
 /*
 func TestRandom(t *testing.T) {
@@ -379,24 +378,23 @@ func TestRandom(t *testing.T) {
 }
 */
 
-/*
 func TestConversation(t *testing.T) {
+	defer log.Flush()
 	r := []*operation{
-		&operation{op: encryptAlice, checkKey: true},
-		&operation{op: decrypt, checkKey: true},
-		&operation{op: encryptBob, checkKey: true, usePrev: true},
-		&operation{op: decrypt, checkKey: true, usePrev: true},
-		&operation{op: encryptAlice, checkKey: true},
-		&operation{op: decrypt, checkKey: true},
-		&operation{op: encryptBob, checkKey: true, usePrev: true},
-		&operation{op: decrypt, checkKey: true, usePrev: true},
+		&operation{op: encryptAlice, checkKey: true},                // start first session (Alice)
+		&operation{op: decrypt, checkKey: true},                     // start first session (Bob)
+		&operation{op: encryptBob, checkKey: true, usePrev: true},   // set nextSenderSession (Bob)
+		&operation{op: decrypt, checkKey: true, usePrev: true},      // set nextSenderSession(Alice)
+		&operation{op: encryptAlice, checkKey: true, usePrev: true}, // Alice saw Bob's new key
+		&operation{op: decrypt, checkKey: true, usePrev: true},      // Bob updates session
+		&operation{op: encryptBob, checkKey: true},                  // Bob encrypts with new session
+		&operation{op: decrypt, checkKey: true},                     // Alice sees new session and switches
 	}
 	if err := testRun(r); err != nil {
 		printRun(r)
 		t.Error(err)
 	}
 }
-*/
 
 func TestExhaustSessionSequential(t *testing.T) {
 	r := []*operation{
@@ -432,7 +430,6 @@ func TestExhaustSessionLast(t *testing.T) {
 	}
 }
 
-/*
 func TestSimultaneousSessions(t *testing.T) {
 	// simultaneous sessions
 	r := []*operation{
@@ -446,4 +443,3 @@ func TestSimultaneousSessions(t *testing.T) {
 		t.Error(err)
 	}
 }
-*/

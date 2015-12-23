@@ -49,6 +49,9 @@ func (ce *CryptEngine) GetPrivateKeyEntry(pubKeyHash string) (*uid.KeyEntry, err
 	log.Debugf("ce.FindKeyEntry: pubKeyHash=%s", pubKeyHash)
 	ki, sigPubKey, privateKey, err := ce.keyDB.GetPrivateKeyInit(pubKeyHash)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, session.ErrNoKeyEntry
+		}
 		return nil, err
 	}
 	// decrypt KeyEntry
@@ -74,7 +77,7 @@ func (ce *CryptEngine) GetPublicKeyEntry(uidMsg *uid.Message) (*uid.KeyEntry, st
 	ki, err := ce.keyDB.GetPublicKeyInit(sigKeyHash)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, "", session.ErrNoKeyInit
+			return nil, "", session.ErrNoKeyEntry
 		}
 		return nil, "", err
 	}

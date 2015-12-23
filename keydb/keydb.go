@@ -435,8 +435,6 @@ func (keyDB *KeyDB) GetPrivateKeyInit(
 	var json string
 	err = keyDB.getPrivateKeyInitQuery.QueryRow(pubKeyHash).Scan(&json, &sigPubKey, &privKey)
 	switch {
-	case err == sql.ErrNoRows:
-		return nil, "", "", log.Errorf("keydb: no key init for pubKeyHash '%s' found", pubKeyHash)
 	case err != nil:
 		return nil, "", "", log.Error(err)
 	default:

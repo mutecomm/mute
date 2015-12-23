@@ -184,6 +184,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 			NextSenderSessionPub:        nil,
 			NextRecipientSessionPubSeen: nil,
 			NymAddress:                  nymAddress,
+			KeyInitSession:              true,
 		}
 		log.Debugf("set session: %s", ss.SenderSessionPub.HASH)
 		err = args.KeyStore.SetSessionState(sessionStateKey, ss)
@@ -194,27 +195,31 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 		log.Debug("session found")
 		log.Debugf("got session: %s", ss.SenderSessionPub.HASH)
 		nymAddress = ss.NymAddress
-		// start new session in randomized fashion
-		n, err := rand.Int(cipher.RandReader, big.NewInt(int64(args.AvgSessionSize)))
-		if err != nil {
-			return "", err
-		}
-		if n.Int64() == 0 {
-			// create next session key
-			var nextSenderSession uid.KeyEntry
-			if err := nextSenderSession.InitDHKey(args.Rand); err != nil {
-				return "", err
-			}
-			// store next session key
-			if err := addSessionKey(args.KeyStore, &nextSenderSession); err != nil {
-				return "", err
-			}
-			// update session state
-			ss.NextSenderSessionPub = &nextSenderSession
-			log.Debugf("set session: %s", ss.SenderSessionPub.HASH)
-			err = args.KeyStore.SetSessionState(sessionStateKey, ss)
+		if ss.NextSenderSessionPub == nil {
+			// start new session in randomized fashion
+			n, err := rand.Int(cipher.RandReader, big.NewInt(int64(args.AvgSessionSize)))
 			if err != nil {
 				return "", err
+			}
+			if n.Int64() == 0 {
+				// TODO: use setNextSenderSession()!
+
+				// create next session key
+				var nextSenderSession uid.KeyEntry
+				if err := nextSenderSession.InitDHKey(args.Rand); err != nil {
+					return "", err
+				}
+				// store next session key
+				if err := addSessionKey(args.KeyStore, &nextSenderSession); err != nil {
+					return "", err
+				}
+				// update session state
+				ss.NextSenderSessionPub = &nextSenderSession
+				log.Debugf("set session: %s", ss.SenderSessionPub.HASH)
+				err = args.KeyStore.SetSessionState(sessionStateKey, ss)
+				if err != nil {
+					return "", err
+				}
 			}
 		}
 	}
