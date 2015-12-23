@@ -362,11 +362,29 @@ func TestFailure2(t *testing.T) {
 	}
 }
 
+func TestFailure3(t *testing.T) {
+	defer log.Flush()
+	r := []*operation{
+		&operation{op: encryptAlice},
+		&operation{op: encryptAlice, prio: 1},
+		&operation{op: decrypt},
+		&operation{op: decrypt},
+		&operation{op: encryptBob},
+		&operation{op: decrypt},
+		&operation{op: encryptAlice},
+		&operation{op: decrypt},
+	}
+	if err := testRun(r); err != nil {
+		printRun(r)
+		t.Error(err)
+	}
+}
+
 /*
 func TestRandom(t *testing.T) {
 	defer log.Flush()
 	for i := 0; i < 1000; i++ {
-		r, err := generateRun(5)
+		r, err := generateRun(8)
 		if err != nil {
 			t.Fatal(err)
 		}

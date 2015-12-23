@@ -189,6 +189,31 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 			// use the 'smaller' session as the definite one
 			// TODO: h.SenderSessionPub.HASH < ss.SenderSessionPub.HASH
 			if ss == nil || (ss.KeyInitSession && sender < recipient) {
+				// create next session key
+				var nextSenderSession uid.KeyEntry
+				if err := nextSenderSession.InitDHKey(args.Rand); err != nil {
+					return "", "", err
+				}
+				// store next session key
+				err := addSessionKey(args.KeyStore, &nextSenderSession)
+				if err != nil {
+					return "", "", err
+				}
+				// if we already got h.NextSenderSessionPub prepare next session
+				if h.NextSenderSessionPub != nil {
+					previousRootKeyHash, err := args.KeyStore.GetRootKeyHash(sessionKey)
+					if err != nil {
+						return "", "", err
+					}
+					// root key agreement
+					err = rootKeyAgreementSender(&senderHeaderPub, recipient,
+						sender, &nextSenderSession, recipientID,
+						h.NextSenderSessionPub, &h.SenderIdentityPub,
+						previousRootKeyHash, args.NumOfKeys, args.KeyStore)
+					if err != nil {
+						return "", "", err
+					}
+				}
 				// set session state
 				ss = &session.State{
 					SenderSessionCount:          0,
@@ -196,7 +221,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 					MaxRecipientCount:           0,
 					RecipientTemp:               h.SenderSessionPub,
 					SenderSessionPub:            *recipientKI,
-					NextSenderSessionPub:        nil,
+					NextSenderSessionPub:        &nextSenderSession,
 					NextRecipientSessionPubSeen: h.NextSenderSessionPub,
 					NymAddress:                  h.NymAddress,
 					KeyInitSession:              false,
