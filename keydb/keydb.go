@@ -90,6 +90,20 @@ CREATE TABLE Hashchains (
   POSITION INTEGER NOT NULL,
   ENTRY    TEXT    NOT NULL
 );`
+	createQuerySessionStates = `
+CREATE TABLE SessionStates (
+  ID                          INTEGER PRIMARY KEY,
+  SessionStateKey             TEXT    NOT NULL,
+  SenderSessionCount          INTEGER NOT NULL,
+  SenderMessageCount          INTEGER NOT NULL,
+  MaxRecipientCount           INTEGER NOT NULL,
+  RecipientTemp               TEXT    NOT NULL,
+  SenderSessionPub            TEXT    NOT NULL,
+  NextSenderSessionPub        TEXT,
+  NextRecipientSessionPubSeen TEXT,
+  NymAddress                  TEXT    NOT NULL,
+  KeyInitSession              INTEGER NOT NULL
+);`
 	updateValueQuery          = "UPDATE KeyValueStore SET ValueEntry=? WHERE KeyEntry=?;"
 	insertValueQuery          = "INSERT INTO KeyValueStore (KeyEntry, ValueEntry) VALUES (?, ?);"
 	getValueQuery             = "SELECT ValueEntry FROM KeyValueStore WHERE KeyEntry=?;"
@@ -111,6 +125,16 @@ CREATE TABLE Hashchains (
 	addHashChainEntryQuery    = "INSERT INTO Hashchains(DOMAIN, POSITION, ENTRY) VALUES (?, ?, ?);"
 	getHashChainEntryQuery    = "SELECT ENTRY FROM Hashchains WHERE DOMAIN=? AND POSITION=?;"
 	getLastHashChainPosQuery  = "SELECT POSITION FROM Hashchains WHERE DOMAIN=? ORDER BY POSITION DESC;"
+	updateSessionStateQuery   = "UPDATE SessionStates SET SenderSessionCount=?, SenderMessageCount=?, " +
+		"MaxRecipientCount=?, RecipientTemp=?, SenderSessionPub=?, NextSenderSessionPub=?, " +
+		"NextRecipientSessionPubSeen=?, NymAddress=?, KeyInitSession=? WHERE SessionStateKey=?;"
+	insertSessionStateQuery = "INSERT INTO SessionStates (SessionStateKey, SenderSessionCount, " +
+		"SenderMessageCount, MaxRecipientCount, RecipientTemp, SenderSessionPub, " +
+		"NextSenderSessionPub, NextRecipientSessionPubSeen, NymAddress, KeyInitSession) VALUES " +
+		"(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+	getSessionStateQuery = "SELECT SenderSessionCount, SenderMessageCount, MaxRecipientCount, " +
+		"RecipientTemp, SenderSessionPub, NextSenderSessionPub, NextRecipientSessionPubSeen, " +
+		"NymAddress, KeyInitSession FROM SessionStates WHERE SessionStateKey=?;"
 )
 
 // KeyDB is a handle for an encrypted database used to store mute keys.
@@ -137,6 +161,9 @@ type KeyDB struct {
 	addHashChainEntryQuery    *sql.Stmt
 	getHashChainEntryQuery    *sql.Stmt
 	getLastHashChainPosQuery  *sql.Stmt
+	updateSessionStateQuery   *sql.Stmt
+	insertSessionStateQuery   *sql.Stmt
+	getSessionStateQuery      *sql.Stmt
 }
 
 // Create returns a new KEY database with the given dbname.
@@ -151,6 +178,7 @@ func Create(dbname string, passphrase []byte, iter int) error {
 		createQuerySessions,
 		createQueryMessageKeys,
 		createQueryHashchains,
+		createQuerySessionStates,
 	})
 	if err != nil {
 		return err
@@ -244,6 +272,15 @@ func Open(dbname string, passphrase []byte) (*KeyDB, error) {
 		return nil, err
 	}
 	if keyDB.getLastHashChainPosQuery, err = keyDB.encDB.Prepare(getLastHashChainPosQuery); err != nil {
+		return nil, err
+	}
+	if keyDB.updateSessionStateQuery, err = keyDB.encDB.Prepare(updateSessionStateQuery); err != nil {
+		return nil, err
+	}
+	if keyDB.insertSessionStateQuery, err = keyDB.encDB.Prepare(insertSessionStateQuery); err != nil {
+		return nil, err
+	}
+	if keyDB.getSessionStateQuery, err = keyDB.encDB.Prepare(getSessionStateQuery); err != nil {
 		return nil, err
 	}
 	return &keyDB, nil

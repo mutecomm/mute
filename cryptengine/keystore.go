@@ -18,7 +18,11 @@ func (ce *CryptEngine) GetSessionState(sessionStateKey string) (
 	*session.State,
 	error,
 ) {
-	return nil, util.ErrNotImplemented
+	ss, err := ce.keyDB.GetSessionState(sessionStateKey)
+	if err != nil {
+		return nil, err
+	}
+	return ss, nil
 }
 
 // SetSessionState implements corresponding method for msg.KeyStore interface.
@@ -26,7 +30,7 @@ func (ce *CryptEngine) SetSessionState(
 	sessionStateKey string,
 	sessionState *session.State,
 ) error {
-	return util.ErrNotImplemented
+	return ce.keyDB.SetSessionState(sessionStateKey, sessionState)
 }
 
 // StoreSession implements corresponding method for msg.KeyStore interface.
