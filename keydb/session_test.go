@@ -25,7 +25,9 @@ func TestSessions(t *testing.T) {
 	defer os.RemoveAll(tmpdir)
 	defer keyDB.Close()
 	// make sure sessions are empty initially
-	rootKeyHash, err := keyDB.GetSession("alice@mute.berlin", "bob@mute.berlin")
+	sessionKey1 := base64.Encode(cipher.SHA512([]byte("key1")))
+	sessionKey2 := base64.Encode(cipher.SHA512([]byte("key2")))
+	rootKeyHash, err := keyDB.GetSession(sessionKey1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -47,12 +49,12 @@ func TestSessions(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = keyDB.AddSession("alice@mute.berlin", "bob@mute.berlin", a, base64.Encode(chainKey), send, recv)
+	err = keyDB.AddSession(sessionKey1, a, base64.Encode(chainKey), send, recv)
 	if err != nil {
 		t.Fatal(err)
 	}
 	// check root key hash
-	rootKeyHash, err = keyDB.GetSession("alice@mute.berlin", "bob@mute.berlin")
+	rootKeyHash, err = keyDB.GetSession(sessionKey1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -69,12 +71,12 @@ func TestSessions(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = keyDB.AddSession("alice@mute.berlin", "bob@mute.berlin", b, base64.Encode(chainKey), send, recv)
+	err = keyDB.AddSession(sessionKey2, b, base64.Encode(chainKey), send, recv)
 	if err != nil {
 		t.Fatal(err)
 	}
 	// check updated root key hash
-	rootKeyHash, err = keyDB.GetSession("alice@mute.berlin", "bob@mute.berlin")
+	rootKeyHash, err = keyDB.GetSession(sessionKey2)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -15,10 +15,6 @@ import (
 	"github.com/mutecomm/mute/uid/identity"
 )
 
-// TODO:
-// - link Sessions to MessageKeys with foreign key?
-// - how to handle old messages keys if a session is updated?
-
 // Version is the current keydb version.
 const Version = "1"
 
@@ -69,19 +65,19 @@ CREATE TABLE PublicKeyInits (
  );`
 	createQuerySessions = `
 CREATE TABLE Sessions (
-  ID          INTEGER PRIMARY KEY,
-  IDENTITY    TEXT    NOT NULL,
-  PARTNER     TEXT    NOT NULL,
-  ROOTKEYHASH TEXT    NOT NULL,
-  CHAINKEY    TEXT    NOT NULL
+  SessionID   INTEGER PRIMARY KEY,
+  SessionKey  TEXT    NOT NULL,
+  RootKeyHash TEXT    NOT NULL,
+  ChainKey    TEXT    NOT NULL
 );`
 	createQueryMessageKeys = `
 CREATE TABLE MessageKeys (
-  ID          INTEGER PRIMARY KEY,
-  ROOTKEYHASH TEXT    NOT NULL,
-  I           INTEGER NOT NULL,
-  SEND        TEXT    NOT NULL,
-  RECV        TEXT    NOT NULL
+  ID        INTEGER PRIMARY KEY,
+  SessionID INTEGER NOT NULL,
+  Number    INTEGER NOT NULL, -- the key number
+  Key       TEXT    NOT NULL, -- the actual key (JSON encoded)
+  Direction INTEGER NOT NULL, -- 0: sender key, 1: receiver key
+  FOREIGN KEY(SessionID) REFERENCES Sessions(SessionID) ON DELETE CASCADE
 );`
 	createQueryHashchains = `
 CREATE TABLE Hashchains (
@@ -126,10 +122,9 @@ CREATE TABLE SessionKeys (
 	getPublicKeyInitQuery     = "SELECT KeyInit FROM PublicKeyInits WHERE SIGKEYHASH=?;"
 	addPublicUIDQuery         = "INSERT INTO PublicUIDs (IDENTITY, MSGCOUNT, POSITION, UIDMessage) VALUES (?, ?, ?, ?);"
 	getPublicUIDQuery         = "SELECT UIDMessage, POSITION FROM PublicUIDs WHERE IDENTITY=? and POSITION<=? ORDER BY POSITION DESC;"
-	getSessionQuery           = "SELECT ROOTKEYHASH FROM Sessions WHERE IDENTITY=? AND PARTNER=?;"
-	insertSessionQuery        = "INSERT INTO Sessions(IDENTITY, PARTNER, ROOTKEYHASH, CHAINKEY) VALUES (?, ?, ?, ?);"
-	updateSessionQuery        = "UPDATE Sessions SET ROOTKEYHASH=?, CHAINKEY=? WHERE IDENTITY=? and PARTNER=?;"
-	addMessageKeyQuery        = "INSERT INTO MessageKeys(ROOTKEYHASH, I, SEND, RECV) VALUES (?, ?, ?, ?);"
+	getSessionQuery           = "SELECT RootKeyHash FROM Sessions WHERE SessionKey=?;"
+	insertSessionQuery        = "INSERT INTO Sessions(SessionKey, RootKeyHash, ChainKey) VALUES (?, ?, ?);"
+	addMessageKeyQuery        = "INSERT INTO MessageKeys(SessionID, Number, Key, Direction) VALUES (?, ?, ?, ?);"
 	addHashChainEntryQuery    = "INSERT INTO Hashchains(DOMAIN, POSITION, ENTRY) VALUES (?, ?, ?);"
 	getHashChainEntryQuery    = "SELECT ENTRY FROM Hashchains WHERE DOMAIN=? AND POSITION=?;"
 	getLastHashChainPosQuery  = "SELECT POSITION FROM Hashchains WHERE DOMAIN=? ORDER BY POSITION DESC;"
@@ -167,7 +162,6 @@ type KeyDB struct {
 	getPublicUIDQuery         *sql.Stmt
 	getSessionQuery           *sql.Stmt
 	insertSessionQuery        *sql.Stmt
-	updateSessionQuery        *sql.Stmt
 	addMessageKeyQuery        *sql.Stmt
 	addHashChainEntryQuery    *sql.Stmt
 	getHashChainEntryQuery    *sql.Stmt
@@ -272,9 +266,6 @@ func Open(dbname string, passphrase []byte) (*KeyDB, error) {
 		return nil, err
 	}
 	if keyDB.insertSessionQuery, err = keyDB.encDB.Prepare(insertSessionQuery); err != nil {
-		return nil, err
-	}
-	if keyDB.updateSessionQuery, err = keyDB.encDB.Prepare(updateSessionQuery); err != nil {
 		return nil, err
 	}
 	if keyDB.addMessageKeyQuery, err = keyDB.encDB.Prepare(addMessageKeyQuery); err != nil {

@@ -38,9 +38,7 @@ func (ce *CryptEngine) StoreSession(
 	sessionKey, rootKeyHash, chainKey string,
 	send, recv []string,
 ) error {
-	// TODO: use senderSessionPubHash to store sessions!
-	// TODO: return ce.keyDB.AddSession(myID, contactID, rootKeyHash, chainKey, send, recv)
-	return util.ErrNotImplemented
+	return ce.keyDB.AddSession(sessionKey, rootKeyHash, chainKey, send, recv)
 }
 
 // HasSession implements corresponding method for msg.KeyStore interface.
