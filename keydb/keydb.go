@@ -428,12 +428,13 @@ func (keyDB *KeyDB) GetPrivateIdentitiesForDomain(domain string) ([]string, erro
 	if err != nil {
 		return nil, err
 	}
+	dmn := identity.MapDomain(domain)
 	for _, id := range all {
 		_, idDomain, err := identity.Split(id)
 		if err != nil {
 			return nil, err
 		}
-		if idDomain == domain {
+		if idDomain == dmn {
 			identities = append(identities, id)
 		}
 	}
@@ -596,7 +597,8 @@ func (keyDB *KeyDB) AddHashChainEntry(
 	position uint64,
 	entry string,
 ) error {
-	_, err := keyDB.addHashChainEntryQuery.Exec(domain, position, entry)
+	dmn := identity.MapDomain(domain)
+	_, err := keyDB.addHashChainEntryQuery.Exec(dmn, position, entry)
 	if err != nil {
 		return err
 	}
@@ -611,7 +613,8 @@ func (keyDB *KeyDB) GetLastHashChainPos(domain string) (
 	found bool,
 	err error,
 ) {
-	err = keyDB.getLastHashChainPosQuery.QueryRow(domain).Scan(&pos)
+	dmn := identity.MapDomain(domain)
+	err = keyDB.getLastHashChainPosQuery.QueryRow(dmn).Scan(&pos)
 	switch {
 	case err == sql.ErrNoRows:
 		return 0, false, nil
@@ -626,7 +629,8 @@ func (keyDB *KeyDB) GetLastHashChainPos(domain string) (
 // position from keydb.
 func (keyDB *KeyDB) GetHashChainEntry(domain string, position uint64) (string, error) {
 	var entry string
-	err := keyDB.getHashChainEntryQuery.QueryRow(domain, position).Scan(&entry)
+	dmn := identity.MapDomain(domain)
+	err := keyDB.getHashChainEntryQuery.QueryRow(dmn, position).Scan(&entry)
 	switch {
 	case err != nil:
 		return "", log.Error(err)
@@ -637,14 +641,15 @@ func (keyDB *KeyDB) GetHashChainEntry(domain string, position uint64) (string, e
 
 // GetLastHashChainEntry returns the last hash chain entry for the given domain.
 func (keyDB *KeyDB) GetLastHashChainEntry(domain string) (string, error) {
-	pos, found, err := keyDB.GetLastHashChainPos(domain)
+	dmn := identity.MapDomain(domain)
+	pos, found, err := keyDB.GetLastHashChainPos(dmn)
 	if err != nil {
 		return "", err
 	}
 	if !found {
-		return "", log.Errorf("keydb: no entry found for domain '%s'", domain)
+		return "", log.Errorf("keydb: no entry found for domain '%s'", dmn)
 	}
-	entry, err := keyDB.GetHashChainEntry(domain, pos)
+	entry, err := keyDB.GetHashChainEntry(dmn, pos)
 	if err != nil {
 		return "", err
 	}
@@ -653,7 +658,8 @@ func (keyDB *KeyDB) GetLastHashChainEntry(domain string) (string, error) {
 
 // DelHashChain deletes the hash chain for the given domain.
 func (keyDB *KeyDB) DelHashChain(domain string) error {
-	if _, err := keyDB.delHashChainQuery.Exec(domain); err != nil {
+	dmn := identity.MapDomain(domain)
+	if _, err := keyDB.delHashChainQuery.Exec(dmn); err != nil {
 		return err
 	}
 	return nil
