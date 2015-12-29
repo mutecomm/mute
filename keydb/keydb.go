@@ -600,9 +600,13 @@ func (keyDB *KeyDB) AddHashChainEntry(
 
 // GetLastHashChainPos returns the last hash chain position for the given
 // domain from keydb.
-func (keyDB *KeyDB) GetLastHashChainPos(domain string) (uint64, bool, error) {
-	var pos uint64
-	err := keyDB.getLastHashChainPosQuery.QueryRow(domain).Scan(&pos)
+// The return value found indicates if a hash chain entry for domain exists.
+func (keyDB *KeyDB) GetLastHashChainPos(domain string) (
+	pos uint64,
+	found bool,
+	err error,
+) {
+	err = keyDB.getLastHashChainPosQuery.QueryRow(domain).Scan(&pos)
 	switch {
 	case err == sql.ErrNoRows:
 		return 0, false, nil
