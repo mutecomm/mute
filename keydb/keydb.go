@@ -386,8 +386,8 @@ func (keyDB *KeyDB) AddPrivateUIDReply(
 	return nil
 }
 
-// DeletePrivateUID deletes the given UID message from keyDB.
-func (keyDB *KeyDB) DeletePrivateUID(msg *uid.Message) error {
+// DelPrivateUID deletes the given UID message from keyDB.
+func (keyDB *KeyDB) DelPrivateUID(msg *uid.Message) error {
 	if _, err := keyDB.delPrivateUIDQuery.Exec(msg.JSON()); err != nil {
 		return err
 	}

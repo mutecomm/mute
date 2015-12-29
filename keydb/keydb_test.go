@@ -160,7 +160,7 @@ func TestPrivateUID(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := keyDB.DeletePrivateUID(alice); err != nil {
+	if err := keyDB.DelPrivateUID(alice); err != nil {
 		t.Fatal(err)
 	}
 	_, _, err = keyDB.GetPrivateUID("alice@mute.berlin", false)

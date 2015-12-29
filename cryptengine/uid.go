@@ -188,7 +188,7 @@ func (ce *CryptEngine) deleteUID(pseudonym string, force bool) error {
 	}
 
 	// delete UID from keyDB
-	if err := ce.keyDB.DeletePrivateUID(msg); err != nil {
+	if err := ce.keyDB.DelPrivateUID(msg); err != nil {
 		return err
 	}
 	return nil
