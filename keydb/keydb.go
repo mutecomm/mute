@@ -84,9 +84,9 @@ CREATE TABLE MessageKeys (
 	createQueryHashchains = `
 CREATE TABLE Hashchains (
   ID       INTEGER PRIMARY KEY,
-  DOMAIN   TEXT    NOT NULL,
-  POSITION INTEGER NOT NULL,
-  ENTRY    TEXT    NOT NULL
+  Domain   TEXT    NOT NULL,
+  Position INTEGER NOT NULL,
+  Entry    TEXT    NOT NULL
 );`
 	createQuerySessionStates = `
 CREATE TABLE SessionStates (
@@ -131,10 +131,10 @@ CREATE TABLE SessionKeys (
 	addMessageKeyQuery        = "INSERT INTO MessageKeys(SessionID, Number, Key, Direction) VALUES (?, ?, ?, ?);"
 	delMessageKeyQuery        = "DELETE FROM MessageKeys WHERE SessionID=? AND Number=? AND Direction=?;"
 	getMessageKeyQuery        = "SELECT Key FROM MessageKeys WHERE SessionID=? AND Number=? AND Direction=?;"
-	addHashChainEntryQuery    = "INSERT INTO Hashchains(DOMAIN, POSITION, ENTRY) VALUES (?, ?, ?);"
-	getHashChainEntryQuery    = "SELECT ENTRY FROM Hashchains WHERE DOMAIN=? AND POSITION=?;"
-	getLastHashChainPosQuery  = "SELECT POSITION FROM Hashchains WHERE DOMAIN=? ORDER BY POSITION DESC;"
-	delHashChainQuery         = "DELETE FROM Hashchains WHERE DOMAIN=?;"
+	addHashChainEntryQuery    = "INSERT INTO Hashchains(Domain, Position, Entry) VALUES (?, ?, ?);"
+	getHashChainEntryQuery    = "SELECT Entry FROM Hashchains WHERE Domain=? AND Position=?;"
+	getLastHashChainPosQuery  = "SELECT Position FROM Hashchains WHERE Domain=? ORDER BY Position DESC;"
+	delHashChainQuery         = "DELETE FROM Hashchains WHERE Domain=?;"
 	updateSessionStateQuery   = "UPDATE SessionStates SET SenderSessionCount=?, SenderMessageCount=?, " +
 		"MaxRecipientCount=?, RecipientTemp=?, SenderSessionPub=?, NextSenderSessionPub=?, " +
 		"NextRecipientSessionPubSeen=?, NymAddress=?, KeyInitSession=? WHERE SessionStateKey=?;"
