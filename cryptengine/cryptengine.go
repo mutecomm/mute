@@ -201,6 +201,10 @@ func New() *CryptEngine {
 	ce.app.Action = func(c *cli.Context) {
 		ce.loop(c)
 	}
+	domainFlag := cli.StringFlag{
+		Name:  "domain",
+		Usage: "key server domain",
+	}
 	ce.app.Commands = []cli.Command{
 		{
 			Name:  "db",
@@ -344,10 +348,7 @@ func New() *CryptEngine {
 					Name:  "get",
 					Usage: "get key server capabilities",
 					Flags: []cli.Flag{
-						cli.StringFlag{
-							Name:  "domain",
-							Usage: "key server domain [:port]",
-						},
+						domainFlag,
 						cli.StringFlag{
 							Name:  "host",
 							Usage: "alternative hostname",
@@ -373,10 +374,7 @@ func New() *CryptEngine {
 					Name:  "show",
 					Usage: "show key server capabilities",
 					Flags: []cli.Flag{
-						cli.StringFlag{
-							Name:  "domain",
-							Usage: "key server domain",
-						},
+						domainFlag,
 						cli.StringFlag{
 							Name:  "host",
 							Usage: "alternative hostname",
@@ -688,10 +686,7 @@ Delete a user ID (registered or unregistered).
 					Name:  "sync",
 					Usage: "sync hash chain with key server",
 					Flags: []cli.Flag{
-						cli.StringFlag{
-							Name:  "domain",
-							Usage: "key server domain",
-						},
+						domainFlag,
 					},
 					Before: func(c *cli.Context) error {
 						if len(c.Args()) > 0 {
@@ -713,10 +708,7 @@ Delete a user ID (registered or unregistered).
 					Name:  "validate",
 					Usage: "validate local hash chain",
 					Flags: []cli.Flag{
-						cli.StringFlag{
-							Name:  "domain",
-							Usage: "key server domain",
-						},
+						domainFlag,
 					},
 					Before: func(c *cli.Context) error {
 						if len(c.Args()) > 0 {
@@ -788,10 +780,7 @@ Delete a user ID (registered or unregistered).
 					Name:  "show",
 					Usage: "show local hash chain copy on output-fd",
 					Flags: []cli.Flag{
-						cli.StringFlag{
-							Name:  "domain",
-							Usage: "key server domain",
-						},
+						domainFlag,
 					},
 					Before: func(c *cli.Context) error {
 						if len(c.Args()) > 0 {
