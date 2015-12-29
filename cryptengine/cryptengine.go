@@ -798,6 +798,28 @@ Delete a user ID (registered or unregistered).
 						ce.err = ce.showHashChain(c.String("domain"))
 					},
 				},
+				{
+					Name:  "delete",
+					Usage: "delete local hash chain copy",
+					Flags: []cli.Flag{
+						domainFlag,
+					},
+					Before: func(c *cli.Context) error {
+						if len(c.Args()) > 0 {
+							return log.Errorf("superfluous argument(s): %s", strings.Join(c.Args(), " "))
+						}
+						if !c.IsSet("domain") {
+							return log.Error("option --domain is mandatory")
+						}
+						if err := ce.prepare(c, true); err != nil {
+							return err
+						}
+						return nil
+					},
+					Action: func(c *cli.Context) {
+						ce.err = ce.deleteHashChain(c.String("domain"))
+					},
+				},
 			},
 		},
 		{
