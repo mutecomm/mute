@@ -167,7 +167,7 @@ func mutecryptNewUID(
 		"--token", base64.Encode(token.Token) + "\n",
 	}, " "))
 	if err != nil {
-		// client.UnlockToken(token.Hash)
+		client.UnlockToken(token.Hash)
 		return err
 	}
 
@@ -181,13 +181,13 @@ func mutecryptNewUID(
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		// client.UnlockToken(token.Hash)
+		client.UnlockToken(token.Hash)
 		return err
 	}
 
 	// delete UID, if registration was not successful
 	if cryptErr != nil {
-		// client.UnlockToken(token.Hash)
+		client.UnlockToken(token.Hash)
 		_, err = io.WriteString(commandWriter, strings.Join([]string{
 			"uid", "delete",
 			"--force",
@@ -207,7 +207,7 @@ func mutecryptNewUID(
 			return err
 		}
 	} else {
-		// client.DelToken(token.Hash)
+		client.DelToken(token.Hash)
 	}
 
 	// add KeyInit messages
@@ -223,7 +223,7 @@ func mutecryptNewUID(
 		"--token", base64.Encode(token.Token) + "\n",
 	}, " "))
 	if err != nil {
-		// client.UnlockToken(token.Hash)
+		client.UnlockToken(token.Hash)
 		return err
 	}
 	for scanner.Scan() {
@@ -234,10 +234,10 @@ func mutecryptNewUID(
 		break
 	}
 	if err := scanner.Err(); err != nil {
-		// client.UnlockToken(token.Hash)
+		client.UnlockToken(token.Hash)
 		return err
 	}
-	// client.DelToken(token.Hash)
+	client.DelToken(token.Hash)
 
 	// quit mutecrypt
 	if _, err := io.WriteString(commandWriter, "quit\n"); err != nil {
