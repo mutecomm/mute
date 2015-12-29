@@ -7,6 +7,7 @@ package cryptengine
 import (
 	"bytes"
 	"crypto/sha256"
+	"fmt"
 
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
@@ -14,7 +15,6 @@ import (
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/uid"
 	"github.com/mutecomm/mute/uid/identity"
-	"github.com/mutecomm/mute/util"
 )
 
 // syncHashChain brings local hash chain in sync with key server at the given
@@ -506,5 +506,23 @@ func (ce *CryptEngine) lookupHashChain(id string) error {
 
 // showHashChain shows the hash chain of the given domain on output-fd.
 func (ce *CryptEngine) showHashChain(domain string) error {
-	return util.ErrNotImplemented
+	// make sure we have a hashchain for the given domain
+	max, found, err := ce.keyDB.GetLastHashChainPos(domain)
+	if err != nil {
+		return err
+	}
+	if !found {
+		return log.Errorf("no hash chain entries found for domain '%s'", domain)
+	}
+
+	// show hash chain
+	for i := uint64(0); i <= max; i++ {
+		entry, err := ce.keyDB.GetHashChainEntry(domain, i)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintln(ce.fileTable.OutputFP, entry)
+	}
+
+	return nil
 }
