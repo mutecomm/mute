@@ -135,7 +135,7 @@ func (ce *CryptEngine) validateHashChain(domain string) error {
 			return err
 		}
 		if !bytes.Equal(TYPE, hashchain.Type) {
-			return log.Error("cryptengine: invalid entry type")
+			return log.Error("cryptengine: invalid hash chain entry type")
 		}
 
 		entryN := make([]byte, 153)
@@ -146,7 +146,7 @@ func (ce *CryptEngine) validateHashChain(domain string) error {
 		copy(entryN[89:], UIDIndex)
 		copy(entryN[121:], hashEntryNminus1)
 		if !bytes.Equal(hashEntryN, cipher.SHA256(entryN)) {
-			return log.Errorf("cryptengine: entry %d invalid", i)
+			return log.Errorf("cryptengine: hash chain entry %d invalid", i)
 		}
 	}
 
@@ -283,14 +283,14 @@ func (ce *CryptEngine) searchHashChain(id string) error {
 		if err != nil {
 			return err
 		}
-		log.Debugf("cryptengine: search entry %d: %s", i, hcEntry)
+		log.Debugf("cryptengine: search hash chain entry %d: %s", i, hcEntry)
 
 		_, TYPE, NONCE, HashID, CrUID, UIDIndex, err = hashchain.SplitEntry(hcEntry)
 		if err != nil {
 			return err
 		}
 		if !bytes.Equal(TYPE, hashchain.Type) {
-			return log.Error("cryptengine: invalid entry type")
+			return log.Error("cryptengine: invalid hash chain entry type")
 		}
 
 		// Compute k1, k2 = CKDF(NONCE)
