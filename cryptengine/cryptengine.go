@@ -759,7 +759,6 @@ Delete a user ID (registered or unregistered).
 						ce.err = ce.searchHashChain(c.String("id"))
 					},
 				},
-
 				{
 					Name:  "lookup",
 					Usage: "lookup ID on key server",
@@ -783,6 +782,31 @@ Delete a user ID (registered or unregistered).
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.lookupHashChain(c.String("id"))
+					},
+				},
+				{
+					Name:  "show",
+					Usage: "show local hash chain copy on output-fd",
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "domain",
+							Usage: "key server domain",
+						},
+					},
+					Before: func(c *cli.Context) error {
+						if len(c.Args()) > 0 {
+							return log.Errorf("superfluous argument(s): %s", strings.Join(c.Args(), " "))
+						}
+						if !c.IsSet("domain") {
+							return log.Error("option --domain is mandatory")
+						}
+						if err := ce.prepare(c, true); err != nil {
+							return err
+						}
+						return nil
+					},
+					Action: func(c *cli.Context) {
+						ce.err = ce.showHashChain(c.String("domain"))
 					},
 				},
 			},

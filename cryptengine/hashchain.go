@@ -14,6 +14,7 @@ import (
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/uid"
 	"github.com/mutecomm/mute/uid/identity"
+	"github.com/mutecomm/mute/util"
 )
 
 // syncHashChain brings local hash chain in sync with key server at the given
@@ -501,4 +502,9 @@ func (ce *CryptEngine) lookupHashChain(id string) error {
 	}
 
 	return log.Errorf("lookup found no entry of id '%s'", id)
+}
+
+// showHashChain shows the hash chain of the given domain on output-fd.
+func (ce *CryptEngine) showHashChain(domain string) error {
+	return util.ErrNotImplemented
 }
