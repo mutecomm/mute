@@ -134,6 +134,7 @@ CREATE TABLE SessionKeys (
 	addHashChainEntryQuery    = "INSERT INTO Hashchains(DOMAIN, POSITION, ENTRY) VALUES (?, ?, ?);"
 	getHashChainEntryQuery    = "SELECT ENTRY FROM Hashchains WHERE DOMAIN=? AND POSITION=?;"
 	getLastHashChainPosQuery  = "SELECT POSITION FROM Hashchains WHERE DOMAIN=? ORDER BY POSITION DESC;"
+	delHashChainQuery         = "DELETE FROM Hashchains WHERE DOMAIN=?;"
 	updateSessionStateQuery   = "UPDATE SessionStates SET SenderSessionCount=?, SenderMessageCount=?, " +
 		"MaxRecipientCount=?, RecipientTemp=?, SenderSessionPub=?, NextSenderSessionPub=?, " +
 		"NextRecipientSessionPubSeen=?, NymAddress=?, KeyInitSession=? WHERE SessionStateKey=?;"
@@ -176,6 +177,7 @@ type KeyDB struct {
 	addHashChainEntryQuery    *sql.Stmt
 	getHashChainEntryQuery    *sql.Stmt
 	getLastHashChainPosQuery  *sql.Stmt
+	delHashChainQuery         *sql.Stmt
 	updateSessionStateQuery   *sql.Stmt
 	insertSessionStateQuery   *sql.Stmt
 	getSessionStateQuery      *sql.Stmt
@@ -300,6 +302,9 @@ func Open(dbname string, passphrase []byte) (*KeyDB, error) {
 		return nil, err
 	}
 	if keyDB.getLastHashChainPosQuery, err = keyDB.encDB.Prepare(getLastHashChainPosQuery); err != nil {
+		return nil, err
+	}
+	if keyDB.delHashChainQuery, err = keyDB.encDB.Prepare(delHashChainQuery); err != nil {
 		return nil, err
 	}
 	if keyDB.updateSessionStateQuery, err = keyDB.encDB.Prepare(updateSessionStateQuery); err != nil {
@@ -644,4 +649,12 @@ func (keyDB *KeyDB) GetLastHashChainEntry(domain string) (string, error) {
 		return "", err
 	}
 	return entry, nil
+}
+
+// DelHashChain deletes the hash chain for the given domain.
+func (keyDB *KeyDB) DelHashChain(domain string) error {
+	if _, err := keyDB.delHashChainQuery.Exec(domain); err != nil {
+		return err
+	}
+	return nil
 }

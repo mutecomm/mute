@@ -290,12 +290,19 @@ func TestHashchain(t *testing.T) {
 	}
 	defer os.RemoveAll(tmpdir)
 	defer keyDB.Close()
+	pos, found, err := keyDB.GetLastHashChainPos("mute.berlin")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if found {
+		t.Error("should not find hash chain entry")
+	}
 	for i, v := range testHashchain {
 		if err := keyDB.AddHashChainEntry("mute.berlin", uint64(i), v); err != nil {
 			t.Fatal(err)
 		}
 	}
-	pos, found, err := keyDB.GetLastHashChainPos("mute.berlin")
+	pos, found, err = keyDB.GetLastHashChainPos("mute.berlin")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -331,5 +338,19 @@ func TestHashchain(t *testing.T) {
 	_, err = keyDB.GetLastHashChainEntry("gmail.rocks")
 	if err == nil {
 		t.Error("should fail")
+	}
+	if err := keyDB.DelHashChain("mute.berlin"); err != nil {
+		t.Fatal(err)
+	}
+	pos, found, err = keyDB.GetLastHashChainPos("mute.berlin")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if found {
+		t.Error("should not find hash chain entry")
+	}
+	// deleting empty hash chain shouldn't produce an error
+	if err := keyDB.DelHashChain("mute.berlin"); err != nil {
+		t.Fatal(err)
 	}
 }
