@@ -175,7 +175,7 @@ CREATE TABLE MessageIDCache(
 	getAccountTimeQuery         = "SELECT LoadTime FROM Accounts WHERE MyID=? AND ContactID=?;"
 	addMsgQuery                 = "INSERT INTO Messages (Self, Peer, Direction, ToSend, \"From\", \"To\", Date, Subject, Message, Sign, MinDelay, MaxDelay, Read, Star) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0);"
 	getMsgQuery                 = "SELECT Self, Peer, Direction, Message FROM Messages WHERE MsgID=?;"
-	getMsgsQuery                = "SELECT MsgID, \"From\", \"To\", Date, Subject FROM Messages WHERE Self=?;"
+	getMsgsQuery                = "SELECT MsgID, \"From\", \"To\", Direction, Date, Subject FROM Messages WHERE Self=?;"
 	getUndeliveredMsgQuery      = "SELECT MsgID, Peer, Message, Sign, MinDelay, MaxDelay FROM Messages WHERE Peer=? AND ToSend=1 ORDER BY MsgID ASC LIMIT 1;"
 	updateDeliveryMsgQuery      = "UPDATE Messages SET ToSend=0 WHERE MsgID=?;"
 	updateMsgDateQuery          = "UPDATE Messages SET Date=? WHERE MsgID=?;"

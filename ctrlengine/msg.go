@@ -729,7 +729,14 @@ func (ce *CtrlEngine) msgList(w io.Writer, id string) error {
 		return err
 	}
 	for _, id := range ids {
-		fmt.Fprintf(w, "%d\t%s\t%s\t%s\t%s\n",
+		var direction rune
+		if id.Sent {
+			direction = '<'
+		} else {
+			direction = '>'
+		}
+		fmt.Fprintf(w, "%c %d\t%s\t%s\t%s\t%s\n",
+			direction,
 			id.MsgID,
 			time.Unix(id.Date, 0).Format(time.RFC3339),
 			id.From,

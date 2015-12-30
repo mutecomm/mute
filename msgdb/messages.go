@@ -108,6 +108,7 @@ type MsgID struct {
 	MsgID   int64
 	From    string
 	To      string
+	Sent    bool
 	Date    int64
 	Subject string
 }
@@ -128,18 +129,26 @@ func (msgDB *MsgDB) GetMsgIDs(myID string) ([]*MsgID, error) {
 	var msgIDs []*MsgID
 	defer rows.Close()
 	for rows.Next() {
-		var id int64
-		var from string
-		var to string
-		var date int64
-		var subject string
-		if err := rows.Scan(&id, &from, &to, &date, &subject); err != nil {
+		var (
+			id      int64
+			from    string
+			to      string
+			d       int64
+			date    int64
+			subject string
+		)
+		if err := rows.Scan(&id, &from, &to, &d, &date, &subject); err != nil {
 			return nil, log.Error(err)
+		}
+		var sent bool
+		if d > 0 {
+			sent = true
 		}
 		msgIDs = append(msgIDs, &MsgID{
 			MsgID:   id,
 			From:    from,
 			To:      to,
+			Sent:    sent,
 			Date:    date,
 			Subject: subject,
 		})
