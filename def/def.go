@@ -113,6 +113,8 @@ func InitMute(config *configclient.Config) error {
 // If MUTETESTNET is set to "1" or "true", the configuration parameters for
 // the testnet are returned.
 // Otherwise the parameters for the main net are returned.
+//
+// TODO: The testnet is currently is unused. Keep this in anyway for later use.
 func ConfigParams() (netDomain, pubkeyStr, configURL string) {
 	testnet := os.Getenv("MUTETESTNET")
 	if testnet == "true" || testnet == "1" {
