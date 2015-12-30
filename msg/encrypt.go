@@ -89,6 +89,7 @@ type EncryptArgs struct {
 	Writer                 io.Writer     // encrypted messagte is written here (base64 encoded)
 	From                   *uid.Message  // sender UID
 	To                     *uid.Message  // recipient UID
+	NymAddress             string        // address to receive future messages at
 	SenderLastKeychainHash string        // last hash chain entry known to the sender
 	PrivateSigKey          *[64]byte     // if this is s not nil the message is signed with the key
 	Reader                 io.Reader     // data to encrypt is read here (only for StatusCode == StatusOK)
@@ -219,7 +220,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	log.Debugf("ss.RecipientTempHash:  %s", ss.RecipientTemp.HASH)
 	h, err := newHeader(args.From, args.To, ss.RecipientTemp.HASH,
 		&ss.SenderSessionPub, ss.NextSenderSessionPub,
-		ss.NextRecipientSessionPubSeen, ss.SenderSessionCount,
+		ss.NextRecipientSessionPubSeen, args.NymAddress, ss.SenderSessionCount,
 		ss.SenderMessageCount, args.SenderLastKeychainHash, args.Rand,
 		args.StatusCode)
 	if err != nil {

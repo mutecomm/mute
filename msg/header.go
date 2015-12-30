@@ -69,6 +69,7 @@ func newHeader(
 	recipientTempHash string,
 	senderSessionPub, nextSenderSessionPub,
 	nextRecipientSessionPubSeen *uid.KeyEntry,
+	nymAddress string,
 	senderSessionCount, senderMessageCount uint64,
 	senderLastKeychainHash string,
 	rand io.Reader,
@@ -88,8 +89,8 @@ func newHeader(
 		SenderIdentityPub:           *sender.PubKey(),
 		NextSenderSessionPub:        nextSenderSessionPub,
 		NextRecipientSessionPubSeen: nextRecipientSessionPubSeen,
-		NymAddress:                  sender.UIDContent.NYMADDRESS, // TODO: set the correct nymaddress!
-		MaxDelay:                    0,                            // TODO
+		NymAddress:                  nymAddress,
+		MaxDelay:                    0, // TODO
 		SenderSessionCount:          senderSessionCount,
 		SenderMessageCount:          senderMessageCount,
 		SenderUID:                   string(sender.JSON()),
