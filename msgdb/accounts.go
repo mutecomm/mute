@@ -18,6 +18,7 @@ func (msgDB *MsgDB) AddAccount(
 	privkey *[ed25519.PrivateKeySize]byte,
 	server string,
 	secret *[64]byte,
+	minDelay, maxDelay int32,
 ) error {
 	if err := identity.IsMapped(myID); err != nil {
 		return log.Error(err)
@@ -42,7 +43,7 @@ func (msgDB *MsgDB) AddAccount(
 	}
 	// add account
 	_, err := msgDB.addAccountQuery.Exec(mID, cID, base64.Encode(privkey[:]),
-		server, base64.Encode(secret[:]), 0, 0)
+		server, base64.Encode(secret[:]), minDelay, maxDelay, 0, 0)
 	if err != nil {
 		return log.Error(err)
 	}
@@ -125,49 +126,50 @@ func (msgDB *MsgDB) GetAccount(
 	privkey *[ed25519.PrivateKeySize]byte,
 	server string,
 	secret *[64]byte,
+	minDelay, maxDelay int32,
 	lastMessageTime int64,
 	err error,
 ) {
 	if err := identity.IsMapped(myID); err != nil {
-		return nil, "", nil, 0, log.Error(err)
+		return nil, "", nil, 0, 0, 0, log.Error(err)
 	}
 	if contactID != "" {
 		if err := identity.IsMapped(contactID); err != nil {
-			return nil, "", nil, 0, log.Error(err)
+			return nil, "", nil, 0, 0, 0, log.Error(err)
 		}
 	}
 	// get MyID
 	var mID int
 	if err := msgDB.getNymUIDQuery.QueryRow(myID).Scan(&mID); err != nil {
-		return nil, "", nil, 0, log.Error(err)
+		return nil, "", nil, 0, 0, 0, log.Error(err)
 	}
 	// get ContactID
 	var cID int
 	if contactID != "" {
 		err := msgDB.getContactUIDQuery.QueryRow(mID, contactID).Scan(&cID)
 		if err != nil {
-			return nil, "", nil, 0, log.Error(err)
+			return nil, "", nil, 0, 0, 0, log.Error(err)
 		}
 	}
 	// get account data
 	var pks string
 	var scrts string
 	err = msgDB.getAccountQuery.QueryRow(mID, cID).Scan(&pks, &server, &scrts,
-		&lastMessageTime)
+		&minDelay, &maxDelay, &lastMessageTime)
 	if err != nil {
-		return nil, "", nil, 0, log.Error(err)
+		return nil, "", nil, 0, 0, 0, log.Error(err)
 	}
 	// decode private key
 	pk, err := base64.Decode(pks)
 	if err != nil {
-		return nil, "", nil, 0, log.Error(err)
+		return nil, "", nil, 0, 0, 0, log.Error(err)
 	}
 	privkey = new([ed25519.PrivateKeySize]byte)
 	copy(privkey[:], pk)
 	// decode secret
 	scrt, err := base64.Decode(scrts)
 	if err != nil {
-		return nil, "", nil, 0, log.Error(err)
+		return nil, "", nil, 0, 0, 0, log.Error(err)
 	}
 	secret = new([64]byte)
 	copy(secret[:], scrt)

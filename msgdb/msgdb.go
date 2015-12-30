@@ -60,6 +60,8 @@ CREATE TABLE Accounts (
   PrivKey     TEXT    NOT NULL,    -- private key of account (Ed25519)
   Server      TEXT    NOT NULL,    -- account server
   Secret      TEXT    NOT NULL,    -- secret used for nym addresses (64 byte random data)
+  MinDelay    INTEGER NOT NULL,    -- TODO: is this the best place to store this?
+  MaxDelay    INTEGER NOT NULL,    -- TODO: is this the best place to store this?
   LoadTime    INTEGER NOT NULL,    -- time when the account will expire
   LastMsgTime INTEGER NOT NULL,    -- time of the last read message
   UNIQUE     (MyID, ContactID),  -- only one account per pair
@@ -165,10 +167,10 @@ CREATE TABLE MessageIDCache(
 	updateContactQuery          = "UPDATE Contacts SET UnmappedID=?, FullName=?, Blocked=? WHERE MyID=? AND MappedID=?;"
 	insertContactQuery          = "INSERT INTO Contacts (MyID, MappedID, UnmappedID, FullName, Blocked) VALUES (?, ?, ?, ?, ?);"
 	delContactQuery             = "UPDATE Contacts SET Blocked=1 WHERE MyID=? AND MappedID=?;"
-	addAccountQuery             = "INSERT INTO Accounts (MyID, ContactID, PrivKey, Server, Secret, LoadTime, LastMsgTime) VALUES (?, ?, ?, ?, ?, ?, ?);"
+	addAccountQuery             = "INSERT INTO Accounts (MyID, ContactID, PrivKey, Server, Secret, MinDelay, MaxDelay, LoadTime, LastMsgTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);"
 	setAccountTimeQuery         = "UPDATE Accounts SET LoadTime=? WHERE MyID=? AND ContactID=?;"
 	setAccountLastTimeQuery     = "UPDATE Accounts SET LastMsgTime=? WHERE MyID=? AND ContactID=?;"
-	getAccountQuery             = "SELECT PrivKey, Server, Secret, LastMsgTime FROM Accounts WHERE MyID=? AND ContactID=?;"
+	getAccountQuery             = "SELECT PrivKey, Server, Secret, MinDelay, MaxDelay, LastMsgTime FROM Accounts WHERE MyID=? AND ContactID=?;"
 	getAccountsQuery            = "SELECT ContactID FROM Accounts WHERE MyID=?;"
 	getAccountTimeQuery         = "SELECT LoadTime FROM Accounts WHERE MyID=? AND ContactID=?;"
 	addMsgQuery                 = "INSERT INTO Messages (Self, Peer, Direction, ToSend, \"From\", \"To\", Date, Subject, Message, Sign, MinDelay, MaxDelay, Read, Star) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0);"

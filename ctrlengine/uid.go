@@ -336,7 +336,8 @@ func (ce *CtrlEngine) uidNew(
 	}
 
 	// register account for UID
-	err = ce.msgDB.AddAccount(id, "", privkey, server, &secret)
+	err = ce.msgDB.AddAccount(id, "", privkey, server, &secret,
+		minDelay, maxDelay)
 	if err != nil {
 		return err
 	}
@@ -475,7 +476,7 @@ func (ce *CtrlEngine) uidDelete(
 	var privkeys []*[ed25519.PrivateKeySize]byte
 	var servers []string
 	for _, contact := range contacts {
-		privkey, server, _, _, err := ce.msgDB.GetAccount(mappedID, contact)
+		privkey, server, _, _, _, _, err := ce.msgDB.GetAccount(mappedID, contact)
 		if err != nil {
 			return err
 		}

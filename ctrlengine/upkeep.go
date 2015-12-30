@@ -356,7 +356,7 @@ func (ce *CtrlEngine) upkeepAccounts(
 	}
 
 	for _, contact := range contacts {
-		privkey, server, _, _, err := ce.msgDB.GetAccount(mappedID, contact)
+		privkey, server, _, _, _, _, err := ce.msgDB.GetAccount(mappedID, contact)
 		if err != nil {
 			return err
 		}

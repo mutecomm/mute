@@ -12,6 +12,7 @@ import (
 
 	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/cipher"
+	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/util/times"
 )
 
@@ -49,7 +50,9 @@ func TestAccount(t *testing.T) {
 	if _, err := io.ReadFull(cipher.RandReader, secret2[:]); err != nil {
 		t.Fatal(err)
 	}
-	if err := msgDB.AddAccount(a, "", privkey1, server1, &secret1); err != nil {
+	err = msgDB.AddAccount(a, "", privkey1, server1, &secret1,
+		def.MinMinDelay, def.MinMaxDelay)
+	if err != nil {
 		t.Fatal(err)
 	}
 	contacts, err := msgDB.GetAccounts(a)
@@ -63,7 +66,9 @@ func TestAccount(t *testing.T) {
 			t.Error("contacts[0] != \"\"")
 		}
 	}
-	if err := msgDB.AddAccount(a, b, privkey2, server2, &secret2); err != nil {
+	err = msgDB.AddAccount(a, b, privkey2, server2, &secret2,
+		def.MinMinDelay, def.MinMaxDelay)
+	if err != nil {
 		t.Fatal(err)
 	}
 	// set account time
@@ -80,7 +85,7 @@ func TestAccount(t *testing.T) {
 		t.Fatal(err)
 	}
 	// get account
-	pk1, srv1, scrt1, lastTime1, err := msgDB.GetAccount(a, "")
+	pk1, srv1, scrt1, minDelay, maxDelay, lastTime1, err := msgDB.GetAccount(a, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -93,10 +98,16 @@ func TestAccount(t *testing.T) {
 	if !bytes.Equal(scrt1[:], secret1[:]) {
 		t.Error("scrt1 != secret1")
 	}
+	if minDelay != def.MinMinDelay {
+		t.Error("minDelay != def.MinMinDelay")
+	}
+	if maxDelay != def.MinMaxDelay {
+		t.Error("maxDelay != def.MinMaxDelay")
+	}
 	if lastTime1 != 0 {
 		t.Error("lastTime1 != 0")
 	}
-	pk2, srv2, scrt2, lastTime2, err := msgDB.GetAccount(a, b)
+	pk2, srv2, scrt2, _, _, lastTime2, err := msgDB.GetAccount(a, b)
 	if err != nil {
 		t.Fatal(err)
 	}

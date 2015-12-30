@@ -257,7 +257,7 @@ func (ce *CtrlEngine) msgSend(
 	}
 	for _, nym := range nyms {
 		// TODO!
-		privkey, server, secret, _, err := ce.msgDB.GetAccount(nym, "")
+		privkey, server, secret, minDelay, maxDelay, _, err := ce.msgDB.GetAccount(nym, "")
 		if err != nil {
 			return err
 		}
@@ -270,8 +270,6 @@ func (ce *CtrlEngine) msgSend(
 		singleUse := false                // TODO correct?
 		var pubkey [ed25519.PublicKeySize]byte
 		copy(pubkey[:], privkey[32:])
-		minDelay := int32(def.MinMinDelay) // TODO
-		maxDelay := int32(def.MinMaxDelay) // TODO
 		_, recvNymAddress, err := util.NewNymAddress(domain, secret[:], expire,
 			singleUse, minDelay, maxDelay, id, &pubkey, server, def.CACert)
 		if err != nil {
@@ -599,7 +597,7 @@ func (ce *CtrlEngine) procInQueue(c *cli.Context, host string) error {
 			if err != nil {
 				return log.Error(err)
 			}
-			privkey, server, secret, _, err := ce.msgDB.GetAccount(myID, contactID)
+			privkey, server, secret, _, _, _, err := ce.msgDB.GetAccount(myID, contactID)
 			if err != nil {
 				return err
 			}
@@ -690,7 +688,7 @@ func (ce *CtrlEngine) msgFetch(
 			return err
 		}
 		for _, contact := range contacts {
-			privkey, server, _, lastMessageTime, err := ce.msgDB.GetAccount(nym, contact)
+			privkey, server, _, _, _, lastMessageTime, err := ce.msgDB.GetAccount(nym, contact)
 			if err != nil {
 				return err
 			}

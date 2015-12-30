@@ -239,7 +239,9 @@ func TestNymUpdate(t *testing.T) {
 	if _, err := io.ReadFull(cipher.RandReader, secret[:]); err != nil {
 		t.Fatal(err)
 	}
-	if err := msgDB.AddAccount(a, "", privkey, server, &secret); err != nil {
+	err = msgDB.AddAccount(a, "", privkey, server, &secret,
+		def.MinMinDelay, def.MinMaxDelay)
+	if err != nil {
 		t.Fatal(err)
 	}
 	if err := msgDB.getNymUIDQuery.QueryRow(a).Scan(&uid); err != nil {
