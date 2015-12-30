@@ -39,6 +39,12 @@ func mutecryptEncrypt(
 	sign bool,
 	nymAddress string,
 ) (enc, nymaddress string, err error) {
+	if err := identity.IsMapped(from); err != nil {
+		return "", "", log.Error(err)
+	}
+	if err := identity.IsMapped(to); err != nil {
+		return "", "", log.Error(err)
+	}
 	args := []string{
 		"--homedir", c.GlobalString("homedir"),
 		"--loglevel", c.GlobalString("loglevel"),
@@ -271,7 +277,7 @@ func (ce *CtrlEngine) msgSend(
 		var pubkey [ed25519.PublicKeySize]byte
 		copy(pubkey[:], privkey[32:])
 		_, recvNymAddress, err := util.NewNymAddress(domain, secret[:], expire,
-			singleUse, minDelay, maxDelay, id, &pubkey, server, def.CACert)
+			singleUse, minDelay, maxDelay, nym, &pubkey, server, def.CACert)
 		if err != nil {
 			return err
 		}
@@ -613,7 +619,7 @@ func (ce *CtrlEngine) procInQueue(c *cli.Context, host string) error {
 			}
 			if !bytes.Equal(nym, cipher.SHA256([]byte(myID))) {
 				// discard message
-				log.Warnf("ctrlengine: hashed nym does not match %s", myID)
+				log.Warnf("ctrlengine: hashed nym does not match %s -> discard message", myID)
 				if err := ce.msgDB.DeleteInQueue(iqIdx); err != nil {
 					return err
 				}
