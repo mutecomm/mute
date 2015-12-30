@@ -838,6 +838,10 @@ Delete a user ID (registered or unregistered).
 					Name:  "sign",
 					Usage: "sign message with permanent signature",
 				},
+				cli.StringFlag{
+					Name:  "nymaddress",
+					Usage: "nymaddress to receive future messages at",
+				},
 			},
 			Before: func(c *cli.Context) error {
 				if len(c.Args()) > 0 {
@@ -849,6 +853,9 @@ Delete a user ID (registered or unregistered).
 				if !c.IsSet("to") {
 					return log.Error("option --to is mandatory")
 				}
+				if !c.IsSet("nymaddress") {
+					return log.Error("option --nymaddress is mandatory")
+				}
 				if err := ce.prepare(c, true); err != nil {
 					return err
 				}
@@ -856,8 +863,8 @@ Delete a user ID (registered or unregistered).
 			},
 			Action: func(c *cli.Context) {
 				ce.err = ce.encrypt(ce.fileTable.OutputFP, c.String("from"),
-					c.String("to"), c.Bool("sign"), ce.fileTable.InputFP,
-					ce.fileTable.StatusFP)
+					c.String("to"), c.Bool("sign"), c.String("nymaddress"),
+					ce.fileTable.InputFP, ce.fileTable.StatusFP)
 			},
 		},
 		{

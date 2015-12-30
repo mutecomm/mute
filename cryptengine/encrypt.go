@@ -22,6 +22,7 @@ func (ce *CryptEngine) encrypt(
 	w io.Writer,
 	from, to string,
 	sign bool,
+	nymAddress string,
 	r io.Reader,
 	statusfp *os.File,
 ) error {
@@ -57,16 +58,17 @@ func (ce *CryptEngine) encrypt(
 		privateSigKey = fromUID.PrivateSigKey64()
 	}
 	args := &msg.EncryptArgs{
-		Writer: w,
-		From:   fromUID,
-		To:     toUID,
+		Writer:                 w,
+		From:                   fromUID,
+		To:                     toUID,
+		NymAddress:             nymAddress,
 		SenderLastKeychainHash: senderLastKeychainHash,
 		PrivateSigKey:          privateSigKey,
 		Reader:                 r,
 		Rand:                   cipher.RandReader,
 		KeyStore:               ce,
 	}
-	nymAddress, err := msg.Encrypt(args)
+	nymAddress, err = msg.Encrypt(args)
 	if err != nil {
 		return err
 	}

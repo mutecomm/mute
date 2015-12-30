@@ -16,8 +16,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/agl/ed25519"
 	"github.com/codegangsta/cli"
 	"github.com/mutecomm/mute/cipher"
+	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/mix/mixcrypt"
@@ -35,6 +37,7 @@ func mutecryptEncrypt(
 	from, to string,
 	passphrase, msg []byte,
 	sign bool,
+	nymAddress string,
 ) (enc, nymaddress string, err error) {
 	args := []string{
 		"--homedir", c.GlobalString("homedir"),
@@ -43,6 +46,7 @@ func mutecryptEncrypt(
 		"encrypt",
 		"--from", from,
 		"--to", to,
+		"--nymaddress", nymAddress,
 	}
 	if sign {
 		args = append(args, "--sign")
@@ -252,6 +256,28 @@ func (ce *CtrlEngine) msgSend(
 		nyms = append(nyms, idMapped)
 	}
 	for _, nym := range nyms {
+		// TODO!
+		privkey, server, secret, _, err := ce.msgDB.GetAccount(nym, "")
+		if err != nil {
+			return err
+		}
+		_, domain, err := identity.Split(nym)
+		if err != nil {
+			return err
+		}
+		// nymaddress for encryption
+		expire := times.ThirtyDaysLater() // TODO: make this settable
+		singleUse := false                // TODO correct?
+		var pubkey [ed25519.PublicKeySize]byte
+		copy(pubkey[:], privkey[32:])
+		minDelay := int32(def.MinMinDelay) // TODO
+		maxDelay := int32(def.MinMaxDelay) // TODO
+		_, recvNymAddress, err := util.NewNymAddress(domain, secret[:], expire,
+			singleUse, minDelay, maxDelay, id, &pubkey, server, def.CACert)
+		if err != nil {
+			return err
+		}
+
 		// add all undelivered messages to outqueue
 		for {
 			msgID, peer, msg, sign, minDelay, maxDelay, err :=
@@ -263,7 +289,8 @@ func (ce *CtrlEngine) msgSend(
 				break // no more undelivered messages
 			}
 			// encrypt
-			enc, nymaddress, err := mutecryptEncrypt(c, nym, peer, ce.passphrase, msg, sign)
+			enc, nymaddress, err := mutecryptEncrypt(c, nym, peer,
+				ce.passphrase, msg, sign, recvNymAddress)
 			if err != nil {
 				return log.Error(err)
 			}
