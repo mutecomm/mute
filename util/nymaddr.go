@@ -14,6 +14,7 @@ import (
 	"github.com/mutecomm/mute/mix/client"
 	"github.com/mutecomm/mute/mix/mixcrypt"
 	"github.com/mutecomm/mute/mix/nymaddr"
+	"github.com/mutecomm/mute/uid/identity"
 )
 
 // MixAddress defines the mix address.
@@ -34,11 +35,14 @@ func NewNymAddress(
 	expire int64,
 	singleUse bool,
 	minDelay, maxDelay int32,
-	identity string,
+	id string,
 	pubkey *[ed25519.PublicKeySize]byte,
 	server string,
 	caCert []byte,
 ) (mixaddress, nymaddress string, err error) {
+	if err := identity.IsMapped(id); err != nil {
+		return "", "", log.Error(err)
+	}
 	if MixAddress == "" {
 		return "", "", log.Error("util: MixAddress undefined")
 	}
@@ -56,7 +60,7 @@ func NewNymAddress(
 		MaxDelay:      maxDelay,
 	}
 	nymAddress, err := tmp.NewAddress(MailboxAddress(pubkey, server),
-		cipher.SHA256([]byte(identity)))
+		cipher.SHA256([]byte(id)))
 	if err != nil {
 		return "", "", log.Error(err)
 	}
