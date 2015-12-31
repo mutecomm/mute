@@ -20,7 +20,11 @@ func TestMessages(t *testing.T) {
 	defer msgDB.Close()
 	a := "alice@mute.berlin"
 	b := "bob@mute.berlin"
+	tr := "trent@mute.berlin"
 	if err := msgDB.AddNym(a, a, "Alice"); err != nil {
+		t.Fatal(err)
+	}
+	if err := msgDB.AddNym(tr, tr, "Trent"); err != nil {
 		t.Fatal(err)
 	}
 	if err := msgDB.AddContact(a, b, b, "Bob", WhiteList); err != nil {
@@ -86,5 +90,17 @@ func TestMessages(t *testing.T) {
 	}
 	if msg != "pong" {
 		t.Error("msg != \"pong\"")
+	}
+	if err := msgDB.DelMessage(tr, 1); err == nil {
+		t.Fatal("should fail")
+	}
+	if err := msgDB.DelMessage(b, 1); err == nil {
+		t.Fatal("should fail")
+	}
+	if err := msgDB.DelMessage(a, 1); err != nil {
+		t.Fatal(err)
+	}
+	if err := msgDB.DelMessage(a, 1); err == nil {
+		t.Fatal("should fail")
 	}
 }

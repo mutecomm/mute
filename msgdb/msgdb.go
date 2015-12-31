@@ -174,6 +174,7 @@ CREATE TABLE MessageIDCache(
 	getAccountsQuery            = "SELECT ContactID FROM Accounts WHERE MyID=?;"
 	getAccountTimeQuery         = "SELECT LoadTime FROM Accounts WHERE MyID=? AND ContactID=?;"
 	addMsgQuery                 = "INSERT INTO Messages (Self, Peer, Direction, ToSend, \"From\", \"To\", Date, Subject, Message, Sign, MinDelay, MaxDelay, Read, Star) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0);"
+	delMsgQuery                 = "DELETE FROM Messages WHERE MsgID=? AND Self=?;"
 	getMsgQuery                 = "SELECT Self, Peer, Direction, Message FROM Messages WHERE MsgID=?;"
 	getMsgsQuery                = "SELECT MsgID, \"From\", \"To\", Direction, Date, Subject FROM Messages WHERE Self=?;"
 	getUndeliveredMsgQuery      = "SELECT MsgID, Peer, Message, Sign, MinDelay, MaxDelay FROM Messages WHERE Peer=? AND ToSend=1 ORDER BY MsgID ASC LIMIT 1;"
@@ -226,6 +227,7 @@ type MsgDB struct {
 	getAccountsQuery            *sql.Stmt
 	getAccountTimeQuery         *sql.Stmt
 	addMsgQuery                 *sql.Stmt
+	delMsgQuery                 *sql.Stmt
 	getMsgQuery                 *sql.Stmt
 	getMsgsQuery                *sql.Stmt
 	getUndeliveredMsgQuery      *sql.Stmt
@@ -367,6 +369,9 @@ func Open(dbname string, passphrase []byte) (*MsgDB, error) {
 		return nil, err
 	}
 	if msgDB.addMsgQuery, err = msgDB.encDB.Prepare(addMsgQuery); err != nil {
+		return nil, err
+	}
+	if msgDB.delMsgQuery, err = msgDB.encDB.Prepare(delMsgQuery); err != nil {
 		return nil, err
 	}
 	if msgDB.getMsgQuery, err = msgDB.encDB.Prepare(getMsgQuery); err != nil {

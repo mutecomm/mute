@@ -65,7 +65,7 @@ func (msgDB *MsgDB) AddMessage(
 	return nil
 }
 
-// GetMessage returns the message with the given msgID.
+// GetMessage returns the message from user myID with the given msgID.
 func (msgDB *MsgDB) GetMessage(
 	myID string,
 	msgID int64,
@@ -101,6 +101,30 @@ func (msgDB *MsgDB) GetMessage(
 		to = selfID
 	}
 	return
+}
+
+// DelMessage deletes the message from user myID with the given msgID.
+func (msgDB *MsgDB) DelMessage(myID string, msgID int64) error {
+	if err := identity.IsMapped(myID); err != nil {
+		return log.Error(err)
+	}
+	var self int
+	if err := msgDB.getNymUIDQuery.QueryRow(myID).Scan(&self); err != nil {
+		return log.Error(err)
+	}
+	res, err := msgDB.delMsgQuery.Exec(msgID, self)
+	if err != nil {
+		return log.Error(err)
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return log.Error(err)
+	}
+	if n < 1 {
+		return log.Errorf("msgdb: unknown msgid %d for user ID %s",
+			msgID, myID)
+	}
+	return nil
 }
 
 // MsgID is the info type that is returned by GetMsgIDs.
