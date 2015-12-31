@@ -16,6 +16,7 @@ import (
 // true, it is a sent message. Otherwise a received message.
 func (msgDB *MsgDB) AddMessage(
 	selfID, peerID string,
+	date uint64,
 	sent bool,
 	message string,
 	sign bool,
@@ -34,7 +35,8 @@ func (msgDB *MsgDB) AddMessage(
 	}
 	// get peer
 	var peer int64
-	if err := msgDB.getContactUIDQuery.QueryRow(self, peerID).Scan(&peer); err != nil {
+	err := msgDB.getContactUIDQuery.QueryRow(self, peerID).Scan(&peer)
+	if err != nil {
 		return log.Error(err)
 	}
 	// add message
@@ -57,7 +59,7 @@ func (msgDB *MsgDB) AddMessage(
 	}
 	parts := strings.SplitN(message, "\n", 2)
 	subject := parts[0]
-	_, err := msgDB.addMsgQuery.Exec(self, peer, d, d, from, to, 0, subject,
+	_, err = msgDB.addMsgQuery.Exec(self, peer, d, d, from, to, date, subject,
 		message, s, minDelay, maxDelay)
 	if err != nil {
 		return log.Error(err)

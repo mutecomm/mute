@@ -27,8 +27,9 @@ func TestOutQueue(t *testing.T) {
 	if err := msgDB.AddContact(a, b, b, "Bob", WhiteList); err != nil {
 		t.Fatal(err)
 	}
-	err = msgDB.AddMessage(a, b, true, "ping", false, def.MinDelay,
-		def.MaxDelay)
+	now := times.Now()
+	err = msgDB.AddMessage(a, b, uint64(now), true, "ping", false,
+		def.MinDelay, def.MaxDelay)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -104,7 +105,6 @@ func TestOutQueue(t *testing.T) {
 		t.Error("should be an envelope")
 	}
 	// remove envelope from outqueue
-	now := times.Now()
 	if err := msgDB.RemoveOutQueue(oqIdx, now); err != nil {
 		t.Fatal(err)
 	}

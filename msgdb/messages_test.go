@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/mutecomm/mute/def"
+	"github.com/mutecomm/mute/util/times"
 )
 
 func TestMessages(t *testing.T) {
@@ -37,11 +38,14 @@ func TestMessages(t *testing.T) {
 	if num != 0 {
 		t.Errorf("num != 0 == %d", num)
 	}
-	err = msgDB.AddMessage(a, b, true, "ping", false, def.MinDelay, def.MaxDelay)
+	now := uint64(times.Now())
+	err = msgDB.AddMessage(a, b, now, true, "ping", false,
+		def.MinDelay, def.MaxDelay)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = msgDB.AddMessage(a, b, false, "pong", false, def.MinDelay, def.MaxDelay)
+	err = msgDB.AddMessage(a, b, now, false, "pong", false,
+		def.MinDelay, def.MaxDelay)
 	if err != nil {
 		t.Fatal(err)
 	}

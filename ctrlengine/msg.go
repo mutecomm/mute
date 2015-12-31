@@ -158,7 +158,8 @@ func (ce *CtrlEngine) msgAdd(
 	}
 
 	// store message in message DB
-	err = ce.msgDB.AddMessage(fromMapped, toMapped, true, string(msg),
+	now := uint64(times.Now())
+	err = ce.msgDB.AddMessage(fromMapped, toMapped, now, true, string(msg),
 		permanentSignature, minDelay, maxDelay)
 	if err != nil {
 		return err
