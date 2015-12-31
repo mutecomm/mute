@@ -1,0 +1,10 @@
+set mbox_type=Maildir
+set folder="~/.config/mute/MailDir"
+set mask="!^\\.[^.]"
+set mbox="~/.config/mute/MailDir"
+set record="+.Sent"
+set postponed="+.Drafts"
+set spoolfile="~/.config/mute/MailDir"
+mailboxes `echo -n "+ "; find ~/.config/mute/MailDir -maxdepth 1 -type d -name ".*" -printf "+'%f' "`
+set sendmail="MuteSend.sh"
+set editor="vim"
