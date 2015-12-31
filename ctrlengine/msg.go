@@ -736,14 +736,24 @@ func (ce *CtrlEngine) msgList(w io.Writer, id string) error {
 		return err
 	}
 	for _, id := range ids {
-		var direction rune
-		if id.Sent {
-			direction = '<'
-		} else {
+		var (
+			direction rune
+			status    rune
+		)
+		if id.Incoming {
 			direction = '>'
+			// TODO: determine new/read status (N/R)
+		} else {
+			direction = '<'
+			if id.Sent {
+				status = 'S'
+			} else {
+				status = 'P'
+			}
 		}
-		fmt.Fprintf(w, "%c %d\t%s\t%s\t%s\t%s\n",
+		fmt.Fprintf(w, "%c%c %d\t%s\t%s\t%s\t%s\n",
 			direction,
+			status,
 			id.MsgID,
 			time.Unix(id.Date, 0).Format(time.RFC3339),
 			id.From,

@@ -114,7 +114,8 @@ func (msgDB *MsgDB) RemoveInQueue(
 	parts := strings.SplitN(plainMsg, "\n", 2)
 	subject := parts[0]
 	if !drop {
-		_, err = tx.Stmt(msgDB.addMsgQuery).Exec(mID, cID, 0, 0, fromID, to, date, subject, plainMsg, 0, 0, 0)
+		_, err = tx.Stmt(msgDB.addMsgQuery).Exec(mID, cID, 0, 0, 0, fromID,
+			to, date, subject, plainMsg, 0, 0, 0)
 		if err != nil {
 			tx.Rollback()
 			return log.Error(err)

@@ -59,8 +59,8 @@ func (msgDB *MsgDB) AddMessage(
 	}
 	parts := strings.SplitN(message, "\n", 2)
 	subject := parts[0]
-	_, err = msgDB.addMsgQuery.Exec(self, peer, d, d, from, to, date, subject,
-		message, s, minDelay, maxDelay)
+	_, err = msgDB.addMsgQuery.Exec(self, peer, d, d, 0, from, to, date,
+		subject, message, s, minDelay, maxDelay)
 	if err != nil {
 		return log.Error(err)
 	}
@@ -131,12 +131,13 @@ func (msgDB *MsgDB) DelMessage(myID string, msgID int64) error {
 
 // MsgID is the info type that is returned by GetMsgIDs.
 type MsgID struct {
-	MsgID   int64
-	From    string
-	To      string
-	Sent    bool
-	Date    int64
-	Subject string
+	MsgID    int64  // the message ID
+	From     string // sender
+	To       string // recipient
+	Incoming bool   // an incoming message, outgoing otherwise
+	Sent     bool   // outgoing message has been sent
+	Date     int64
+	Subject  string
 }
 
 // GetMsgIDs returns all message IDs (sqlite row IDs) for the user ID myID.
@@ -160,23 +161,31 @@ func (msgDB *MsgDB) GetMsgIDs(myID string) ([]*MsgID, error) {
 			from    string
 			to      string
 			d       int64
+			s       int64
 			date    int64
 			subject string
 		)
-		if err := rows.Scan(&id, &from, &to, &d, &date, &subject); err != nil {
+		if err := rows.Scan(&id, &from, &to, &d, &s, &date, &subject); err != nil {
 			return nil, log.Error(err)
 		}
-		var sent bool
-		if d > 0 {
+		var (
+			incoming bool
+			sent     bool
+		)
+		if d == 0 {
+			incoming = true
+		}
+		if s > 0 {
 			sent = true
 		}
 		msgIDs = append(msgIDs, &MsgID{
-			MsgID:   id,
-			From:    from,
-			To:      to,
-			Sent:    sent,
-			Date:    date,
-			Subject: subject,
+			MsgID:    id,
+			From:     from,
+			To:       to,
+			Incoming: incoming,
+			Sent:     sent,
+			Date:     date,
+			Subject:  subject,
 		})
 	}
 	if err := rows.Err(); err != nil {

@@ -82,6 +82,7 @@ CREATE TABLE Messages (
   Peer        INTEGER NOT NULL, -- foreign key to Contacts table
   Direction   INTEGER NOT NULL, -- 0: received message, 1: sent message
   ToSend      INTEGER NOT NULL, -- 1: message still has to be encrypted and added to out queue
+  Sent        INTEGER NOT NULL, -- 0: message pending or received message, 1: message has been sent
   "From"      TEXT    NOT NULL, -- sender nym
   "To"        TEXT    NOT NULL, -- comma separated list of recipient nyms (first
                                 -- one is 'To:', the optional following ones 'Cc:')
@@ -173,13 +174,13 @@ CREATE TABLE MessageIDCache(
 	getAccountQuery             = "SELECT PrivKey, Server, Secret, MinDelay, MaxDelay, LastMsgTime FROM Accounts WHERE MyID=? AND ContactID=?;"
 	getAccountsQuery            = "SELECT ContactID FROM Accounts WHERE MyID=?;"
 	getAccountTimeQuery         = "SELECT LoadTime FROM Accounts WHERE MyID=? AND ContactID=?;"
-	addMsgQuery                 = "INSERT INTO Messages (Self, Peer, Direction, ToSend, \"From\", \"To\", Date, Subject, Message, Sign, MinDelay, MaxDelay, Read, Star) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0);"
+	addMsgQuery                 = "INSERT INTO Messages (Self, Peer, Direction, ToSend, Sent, \"From\", \"To\", Date, Subject, Message, Sign, MinDelay, MaxDelay, Read, Star) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0);"
 	delMsgQuery                 = "DELETE FROM Messages WHERE MsgID=? AND Self=?;"
 	getMsgQuery                 = "SELECT Self, Peer, Direction, Message FROM Messages WHERE MsgID=?;"
-	getMsgsQuery                = "SELECT MsgID, \"From\", \"To\", Direction, Date, Subject FROM Messages WHERE Self=?;"
+	getMsgsQuery                = "SELECT MsgID, \"From\", \"To\", Direction, Sent, Date, Subject FROM Messages WHERE Self=?;"
 	getUndeliveredMsgQuery      = "SELECT MsgID, Peer, Message, Sign, MinDelay, MaxDelay FROM Messages WHERE Peer=? AND ToSend=1 ORDER BY MsgID ASC LIMIT 1;"
 	updateDeliveryMsgQuery      = "UPDATE Messages SET ToSend=0 WHERE MsgID=?;"
-	updateMsgDateQuery          = "UPDATE Messages SET Date=? WHERE MsgID=?;"
+	updateMsgDateQuery          = "UPDATE Messages SET Date=?, Sent=? WHERE MsgID=?;"
 	getUpkeepAllQuery           = "SELECT UpkeepAll FROM Nyms WHERE MappedID=?;"
 	setUpkeepAllQuery           = "UPDATE Nyms SET UpkeepAll=? WHERE MappedID=?;"
 	getUpkeepAccountsQuery      = "SELECT UpkeepAccounts FROM Nyms WHERE MappedID=?;"
