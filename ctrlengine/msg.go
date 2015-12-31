@@ -766,3 +766,14 @@ func (ce *CtrlEngine) msgRead(w io.Writer, myID string, msgID int64) error {
 	fmt.Fprintf(w, "%s", msg)
 	return nil
 }
+
+func (ce *CtrlEngine) msgDelete(myID string, msgID int64) error {
+	idMapped, err := identity.Map(myID)
+	if err != nil {
+		return err
+	}
+	if err := ce.msgDB.DelMessage(idMapped, msgID); err != nil {
+		return err
+	}
+	return nil
+}

@@ -496,6 +496,10 @@ func New() *CtrlEngine {
 		Name:  "nodelaycheck",
 		Usage: "disable delay checks (for testing purposes only!)",
 	}
+	msgIDFlag := cli.IntFlag{
+		Name:  "msgid",
+		Usage: "message ID to process",
+	}
 	ce.app.Commands = []cli.Command{
 		{
 			Name:  "db",
@@ -1106,10 +1110,7 @@ Tries to register a new user ID with the corresponding key server.
 					Usage: "read message",
 					Flags: []cli.Flag{
 						idFlag,
-						cli.IntFlag{
-							Name:  "msgid",
-							Usage: "message ID to read",
-						},
+						msgIDFlag,
 					},
 					Before: func(c *cli.Context) error {
 						if len(c.Args()) > 0 {
@@ -1129,6 +1130,36 @@ Tries to register a new user ID with the corresponding key server.
 					Action: func(c *cli.Context) {
 						ce.err = ce.msgRead(ce.fileTable.OutputFP, ce.getID(c),
 							int64(c.Int("msgid")))
+					},
+				},
+				{
+					Name:  "delete",
+					Usage: "delete a message",
+					Description: `
+Deletes a message.					
+A deleted message is permanently gone. Handle with care!
+					`,
+					Flags: []cli.Flag{
+						idFlag,
+						msgIDFlag,
+					},
+					Before: func(c *cli.Context) error {
+						if len(c.Args()) > 0 {
+							return log.Errorf("superfluous argument(s): %s", strings.Join(c.Args(), " "))
+						}
+						if !interactive && !c.IsSet("id") {
+							return log.Error("option --id is mandatory")
+						}
+						if !c.IsSet("msgid") {
+							return log.Error("option --msgid is mandatory")
+						}
+						if err := ce.prepare(c, true, true); err != nil {
+							return err
+						}
+						return nil
+					},
+					Action: func(c *cli.Context) {
+						ce.err = ce.msgDelete(ce.getID(c), int64(c.Int("msgid")))
 					},
 				},
 			},
