@@ -588,6 +588,7 @@ func mutecryptDecrypt(
 }
 
 func (ce *CtrlEngine) procInQueue(c *cli.Context, host string) error {
+	log.Debug("procInQueue()")
 	for {
 		// get message from msgDB
 		iqIdx, myID, contactID, msg, envelope, err := ce.msgDB.GetInQueue()
@@ -595,9 +596,11 @@ func (ce *CtrlEngine) procInQueue(c *cli.Context, host string) error {
 			return err
 		}
 		if myID == "" {
+			log.Debug("no more messages in inqueue")
 			break // no more messages in inqueue
 		}
 		if envelope {
+			log.Debug("decrypt envelope")
 			// decrypt envelope
 			message, err := base64.Decode(msg)
 			if err != nil {
@@ -624,12 +627,14 @@ func (ce *CtrlEngine) procInQueue(c *cli.Context, host string) error {
 					return err
 				}
 			} else {
+				log.Info("envelope successfully decrypted")
 				err := ce.msgDB.SetInQueue(iqIdx, base64.Encode(dec))
 				if err != nil {
 					return err
 				}
 			}
 		} else {
+			log.Debug("decrypt message")
 			senderID, plainMsg, err := mutecryptDecrypt(c, ce.passphrase, []byte(msg))
 			if err != nil {
 				return log.Error(err)
@@ -650,6 +655,7 @@ func (ce *CtrlEngine) procInQueue(c *cli.Context, host string) error {
 				}
 			} else if contactType == msgdb.BlackList {
 				// messages from black listed contacts are dropped directly
+				log.Debug("message from black listed contact dropped")
 				drop = true
 			}
 			err = ce.msgDB.RemoveInQueue(iqIdx, plainMsg, senderID, drop)
