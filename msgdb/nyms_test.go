@@ -107,7 +107,7 @@ func TestDeleteNym(t *testing.T) {
 	a := "alice@mute.berlin"
 	b := "bob@mute.berlin"
 	e := "eve@mute.berlin"
-	if err := msgDB.DeleteNym(a); err == nil {
+	if err := msgDB.DelNym(a); err == nil {
 		t.Error("should fail")
 	}
 	if err := msgDB.AddNym(p, p, ""); err != nil {
@@ -136,7 +136,7 @@ func TestDeleteNym(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := msgDB.DeleteNym(a); err != nil {
+	if err := msgDB.DelNym(a); err != nil {
 		t.Fatal(err)
 	}
 	num, err := msgDB.numberOfContacts()

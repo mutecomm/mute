@@ -94,7 +94,7 @@ CREATE TABLE Messages (
   Sign        INTEGER NOT NULL, -- permanent signature
   MinDelay    INTEGER NOT NULL, -- minimum delay of message
   MaxDelay    INTEGER NOT NULL, -- maximum delay of message
-  Read        INTEGER NOT NULL,
+  Read        INTEGER NOT NULL, -- 0: received message is new, 1: message read
   Star        INTEGER NOT NULL,
   FOREIGN KEY(Self) REFERENCES Nyms(UID) ON DELETE CASCADE,
   FOREIGN KEY(Peer) REFERENCES Contacts(UID)

@@ -624,7 +624,7 @@ func (ce *CtrlEngine) procInQueue(c *cli.Context, host string) error {
 			if !bytes.Equal(nym, cipher.SHA256([]byte(myID))) {
 				// discard message
 				log.Warnf("ctrlengine: hashed nym does not match %s -> discard message", myID)
-				if err := ce.msgDB.DeleteInQueue(iqIdx); err != nil {
+				if err := ce.msgDB.DelInQueue(iqIdx); err != nil {
 					return err
 				}
 			} else {

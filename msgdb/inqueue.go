@@ -132,8 +132,8 @@ func (msgDB *MsgDB) RemoveInQueue(
 	return nil
 }
 
-// DeleteInQueue deletes the entry  with index iqIdx from inqueue.
-func (msgDB *MsgDB) DeleteInQueue(iqIdx int64) error {
+// DelInQueue deletes the entry  with index iqIdx from inqueue.
+func (msgDB *MsgDB) DelInQueue(iqIdx int64) error {
 	if _, err := msgDB.removeInQueueQuery.Exec(iqIdx); err != nil {
 		return log.Error(err)
 	}

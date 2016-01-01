@@ -100,9 +100,8 @@ func (msgDB *MsgDB) GetNyms(mapped bool) ([]string, error) {
 	return nyms, nil
 }
 
-// DeleteNym deletes the nym mappedID and all associated contacts and
-// messages!
-func (msgDB *MsgDB) DeleteNym(mappedID string) error {
+// DelNym deletes the nym mappedID and all associated contacts and messages!
+func (msgDB *MsgDB) DelNym(mappedID string) error {
 	if err := identity.IsMapped(mappedID); err != nil {
 		return log.Error(err)
 	}

@@ -80,7 +80,7 @@ func TestInQueue(t *testing.T) {
 	if err := msgDB.SetInQueue(iqIdx, "encrypted2"); err != nil {
 		t.Fatal(err)
 	}
-	if err := msgDB.DeleteInQueue(iqIdx); err != nil {
+	if err := msgDB.DelInQueue(iqIdx); err != nil {
 		t.Fatal(err)
 	}
 	_, myID, _, _, _, err = msgDB.GetInQueue()

@@ -485,7 +485,7 @@ func (ce *CtrlEngine) uidDelete(
 	}
 
 	// remove user ID from message DB
-	if err := ce.msgDB.DeleteNym(mappedID); err != nil {
+	if err := ce.msgDB.DelNym(mappedID); err != nil {
 		return err
 	}
 
