@@ -94,7 +94,7 @@ CREATE TABLE Messages (
   Sign        INTEGER NOT NULL, -- permanent signature
   MinDelay    INTEGER NOT NULL, -- minimum delay of message
   MaxDelay    INTEGER NOT NULL, -- maximum delay of message
-  Read        INTEGER NOT NULL, -- 0: received message is new, 1: message read
+  Read        INTEGER NOT NULL, -- 0: message is new, 1: message read
   Star        INTEGER NOT NULL,
   FOREIGN KEY(Self) REFERENCES Nyms(UID) ON DELETE CASCADE,
   FOREIGN KEY(Peer) REFERENCES Contacts(UID)
@@ -177,6 +177,7 @@ CREATE TABLE MessageIDCache(
 	addMsgQuery                 = "INSERT INTO Messages (Self, Peer, Direction, ToSend, Sent, \"From\", \"To\", Date, Subject, Message, Sign, MinDelay, MaxDelay, Read, Star) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0);"
 	delMsgQuery                 = "DELETE FROM Messages WHERE MsgID=? AND Self=?;"
 	getMsgQuery                 = "SELECT Self, Peer, Direction, Message FROM Messages WHERE MsgID=?;"
+	readMsgQuery                = "UPDATE Messages SET Read=1 WHERE MsgID=?;"
 	getMsgsQuery                = "SELECT MsgID, \"From\", \"To\", Direction, Sent, Date, Subject FROM Messages WHERE Self=?;"
 	getUndeliveredMsgQuery      = "SELECT MsgID, Peer, Message, Sign, MinDelay, MaxDelay FROM Messages WHERE Peer=? AND ToSend=1 ORDER BY MsgID ASC LIMIT 1;"
 	updateDeliveryMsgQuery      = "UPDATE Messages SET ToSend=0 WHERE MsgID=?;"
@@ -230,6 +231,7 @@ type MsgDB struct {
 	addMsgQuery                 *sql.Stmt
 	delMsgQuery                 *sql.Stmt
 	getMsgQuery                 *sql.Stmt
+	readMsgQuery                *sql.Stmt
 	getMsgsQuery                *sql.Stmt
 	getUndeliveredMsgQuery      *sql.Stmt
 	updateDeliveryMsgQuery      *sql.Stmt
@@ -376,6 +378,9 @@ func Open(dbname string, passphrase []byte) (*MsgDB, error) {
 		return nil, err
 	}
 	if msgDB.getMsgQuery, err = msgDB.encDB.Prepare(getMsgQuery); err != nil {
+		return nil, err
+	}
+	if msgDB.readMsgQuery, err = msgDB.encDB.Prepare(readMsgQuery); err != nil {
 		return nil, err
 	}
 	if msgDB.getMsgsQuery, err = msgDB.encDB.Prepare(getMsgsQuery); err != nil {

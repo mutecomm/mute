@@ -82,6 +82,9 @@ func TestMessages(t *testing.T) {
 	if msg != "ping" {
 		t.Error("msg != \"ping\"")
 	}
+	if err := msgDB.ReadMessage(1); err != nil {
+		t.Error(err)
+	}
 	from, to, msg, err = msgDB.GetMessage(a, 2)
 	if err != nil {
 		t.Fatal(err)
@@ -94,6 +97,9 @@ func TestMessages(t *testing.T) {
 	}
 	if msg != "pong" {
 		t.Error("msg != \"pong\"")
+	}
+	if err := msgDB.ReadMessage(2); err != nil {
+		t.Error(err)
 	}
 	if err := msgDB.DelMessage(tr, 1); err == nil {
 		t.Fatal("should fail")

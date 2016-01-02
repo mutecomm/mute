@@ -105,6 +105,14 @@ func (msgDB *MsgDB) GetMessage(
 	return
 }
 
+// ReadMessage sets the message with the given msgID as read.
+func (msgDB *MsgDB) ReadMessage(msgID int64) error {
+	if _, err := msgDB.readMsgQuery.Exec(msgID); err != nil {
+		return log.Error(err)
+	}
+	return nil
+}
+
 // DelMessage deletes the message from user myID with the given msgID.
 func (msgDB *MsgDB) DelMessage(myID string, msgID int64) error {
 	if err := identity.IsMapped(myID); err != nil {
