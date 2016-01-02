@@ -59,7 +59,7 @@ func TestKeyList(t *testing.T) {
 	if !testing.Short() {
 		kl2 := New(privkey, "mix@mute.berlin", 20, 10, testDir)
 		kl2.Maintain()
-		time.Sleep(time.Second * 30)
+		time.Sleep(time.Second * 33)
 		close(kl2.stopchan)
 		time.Sleep(time.Second * 1)
 		if len(kl2.Keys) > 4 || len(kl2.Keys) < 2 {
