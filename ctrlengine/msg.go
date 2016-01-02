@@ -742,7 +742,11 @@ func (ce *CtrlEngine) msgList(w io.Writer, id string) error {
 		)
 		if id.Incoming {
 			direction = '>'
-			// TODO: determine new/read status (N/R)
+			if id.Read {
+				status = 'R'
+			} else {
+				status = 'N'
+			}
 		} else {
 			direction = '<'
 			if id.Sent {

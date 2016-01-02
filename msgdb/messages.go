@@ -146,6 +146,7 @@ type MsgID struct {
 	Sent     bool   // outgoing message has been sent
 	Date     int64
 	Subject  string
+	Read     bool
 }
 
 // GetMsgIDs returns all message IDs (sqlite row IDs) for the user ID myID.
@@ -172,19 +173,25 @@ func (msgDB *MsgDB) GetMsgIDs(myID string) ([]*MsgID, error) {
 			s       int64
 			date    int64
 			subject string
+			r       int64
 		)
-		if err := rows.Scan(&id, &from, &to, &d, &s, &date, &subject); err != nil {
+		err = rows.Scan(&id, &from, &to, &d, &s, &date, &subject, &r)
+		if err != nil {
 			return nil, log.Error(err)
 		}
 		var (
 			incoming bool
 			sent     bool
+			read     bool
 		)
 		if d == 0 {
 			incoming = true
 		}
 		if s > 0 {
 			sent = true
+		}
+		if r > 0 {
+			read = true
 		}
 		msgIDs = append(msgIDs, &MsgID{
 			MsgID:    id,
@@ -194,6 +201,7 @@ func (msgDB *MsgDB) GetMsgIDs(myID string) ([]*MsgID, error) {
 			Sent:     sent,
 			Date:     date,
 			Subject:  subject,
+			Read:     read,
 		})
 	}
 	if err := rows.Err(); err != nil {

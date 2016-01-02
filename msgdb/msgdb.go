@@ -178,7 +178,7 @@ CREATE TABLE MessageIDCache(
 	delMsgQuery                 = "DELETE FROM Messages WHERE MsgID=? AND Self=?;"
 	getMsgQuery                 = "SELECT Self, Peer, Direction, Message FROM Messages WHERE MsgID=?;"
 	readMsgQuery                = "UPDATE Messages SET Read=1 WHERE MsgID=?;"
-	getMsgsQuery                = "SELECT MsgID, \"From\", \"To\", Direction, Sent, Date, Subject FROM Messages WHERE Self=?;"
+	getMsgsQuery                = "SELECT MsgID, \"From\", \"To\", Direction, Sent, Date, Subject, Read FROM Messages WHERE Self=?;"
 	getUndeliveredMsgQuery      = "SELECT MsgID, Peer, Message, Sign, MinDelay, MaxDelay FROM Messages WHERE Peer=? AND ToSend=1 ORDER BY MsgID ASC LIMIT 1;"
 	updateDeliveryMsgQuery      = "UPDATE Messages SET ToSend=0 WHERE MsgID=?;"
 	updateMsgDateQuery          = "UPDATE Messages SET Date=?, Sent=? WHERE MsgID=?;"
