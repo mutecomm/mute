@@ -106,11 +106,11 @@ func generateKeyfile(filename string, passphrase []byte, iter int) (key []byte, 
 	return rawKey, nil
 }
 
-// readKeyFile reads a randomly generated and encrypted AES-256 key from the
+// ReadKeyfile reads a randomly generated and encrypted AES-256 key from the
 // file with the given filename and returns it in unencrypted form.
 // The key is protected by a passphrase, which is processed by PBKDF2 to
 // derive the AES-256 key to decrypt the generated key.
-func readKeyfile(filename string, passphrase []byte) (key []byte, err error) {
+func ReadKeyfile(filename string, passphrase []byte) (key []byte, err error) {
 	// open keyfile
 	keyfile, err := os.Open(filename)
 	if err != nil {
@@ -124,7 +124,7 @@ func readKeyfile(filename string, passphrase []byte) (key []byte, err error) {
 	}
 	uiter := encode.ToUint64(biter)
 	if uiter > 2147483647 {
-		return nil, log.Errorf("encdb: readKeyfile: invalid iter value")
+		return nil, log.Errorf("encdb: ReadKeyfile: invalid iter value")
 	}
 	iter := int(uiter)
 	// read salt
@@ -144,7 +144,7 @@ func readKeyfile(filename string, passphrase []byte) (key []byte, err error) {
 }
 
 func replaceKeyfile(filename string, oldPassphrase, newPassphrase []byte, newIter int) error {
-	key, err := readKeyfile(filename, oldPassphrase)
+	key, err := ReadKeyfile(filename, oldPassphrase)
 	if err != nil {
 		return err
 	}

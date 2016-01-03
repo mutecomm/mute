@@ -110,7 +110,7 @@ func Open(dbname string, passphrase []byte) (*sql.DB, error) {
 		return nil, log.Error(err)
 	}
 	// get key from keyfile
-	key, err := readKeyfile(keyfile, passphrase)
+	key, err := ReadKeyfile(keyfile, passphrase)
 	if err != nil {
 		return nil, err
 	}
