@@ -25,7 +25,7 @@ func TestGenerateRead(t *testing.T) {
 		t.Fatal(err)
 	}
 	// read keyfile
-	rkey, err := readKeyfile(keyfile, passphrase)
+	rkey, err := ReadKeyfile(keyfile, passphrase)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -57,7 +57,7 @@ func TestFailingRead(t *testing.T) {
 	}
 	defer os.RemoveAll(tmpdir)
 	keyfile := filepath.Join(tmpdir, "keyfile_test.key")
-	if _, err := readKeyfile(keyfile, passphrase); err == nil {
+	if _, err := ReadKeyfile(keyfile, passphrase); err == nil {
 		t.Fatal("read should fail")
 	}
 }
@@ -81,7 +81,7 @@ func TestInvalidIterRead(t *testing.T) {
 		t.Fatal(err)
 	}
 	fp.Close()
-	if _, err := readKeyfile(keyfile, passphrase); err == nil {
+	if _, err := ReadKeyfile(keyfile, passphrase); err == nil {
 		t.Fatalf("read should fail")
 	}
 }
@@ -102,7 +102,7 @@ func bogusElementRead(t *testing.T, size int) {
 		t.Fatal(err)
 	}
 	fp.Close()
-	if _, err := readKeyfile(keyfile, passphrase); err == nil {
+	if _, err := ReadKeyfile(keyfile, passphrase); err == nil {
 		t.Fatalf("read should fail")
 	}
 }
