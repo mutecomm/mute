@@ -34,10 +34,11 @@ import (
 	"github.com/mutecomm/mute/util"
 )
 
-const (
-	dbsuffix  = ".db"
-	keysuffix = ".key"
-)
+// DBSuffix defines the suffix for database files.
+const DBSuffix = ".db"
+
+// KeySuffix defines the suffix for key files.
+const KeySuffix = ".key"
 
 func createTables(db *sql.DB, createStmts []string) error {
 	for _, stmt := range createStmts {
@@ -60,8 +61,8 @@ func createTables(db *sql.DB, createStmts []string) error {
 // In case of error (for example, the database files do exist already or
 // cannot be created) an error is returned.
 func Create(dbname string, passphrase []byte, iter int, createStmts []string) error {
-	dbfile := dbname + dbsuffix
-	keyfile := dbname + keysuffix
+	dbfile := dbname + DBSuffix
+	keyfile := dbname + KeySuffix
 	// make sure files do not exist already
 	if _, err := os.Stat(dbfile); err == nil {
 		return log.Errorf("encdb: dbfile '%s' exists already", dbfile)
@@ -99,8 +100,8 @@ func Create(dbname string, passphrase []byte, iter int, createStmts []string) er
 // In case of error (for example, the database files do not exist or the
 // passphrase is wrong) an error is returned.
 func Open(dbname string, passphrase []byte) (*sql.DB, error) {
-	dbfile := dbname + dbsuffix
-	keyfile := dbname + keysuffix
+	dbfile := dbname + DBSuffix
+	keyfile := dbname + KeySuffix
 	// make sure files exists
 	if _, err := os.Stat(dbfile); err != nil {
 		return nil, log.Error(err)
@@ -148,7 +149,7 @@ func Rekey(dbname string, oldPassphrase, newPassphrase []byte, newIter int) erro
 		return err
 	}
 	defer encdb.Close()
-	keyfile := dbname + keysuffix
+	keyfile := dbname + KeySuffix
 	return replaceKeyfile(keyfile, oldPassphrase, newPassphrase, newIter)
 }
 
