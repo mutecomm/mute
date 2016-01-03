@@ -9,7 +9,7 @@ if [ ! -f ~/.config/mute/MuttUser ]; then
   exit 1
 fi
 
-echo "WARNING: Usage of MuteMutt is insecure since the passphrase is chached on disk."
+echo "WARNING: Usage of MuteMutt is insecure since the passphrase is cached on disk."
 read -p "Passphrase: " -s passphrase
 echo
 echo "${passphrase}" > ~/.config/mute/passphrase.f
