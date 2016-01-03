@@ -22,12 +22,13 @@ var (
 )
 
 const (
-	createQuery = `CREATE TABLE IF NOT EXISTS keypool (
-						KeyID VARCHAR(128),
-						KeyUsage VARCHAR(255),
-						KeyData TEXT,
-						CONSTRAINT KeyID UNIQUE (KeyID)
-					);`
+	createQuery = `
+CREATE TABLE IF NOT EXISTS keypool (
+  KeyID VARCHAR(128),
+  KeyUsage VARCHAR(255),
+  KeyData TEXT,
+  CONSTRAINT KeyID UNIQUE (KeyID)
+);`
 	selectQuery = `SELECT KeyData FROM keypool WHERE KeyID=?;`
 	insertQuery = `INSERT INTO keypool (KeyID, KeyUsage, KeyData) VALUES (?, ?, ?);`
 	loadQuery   = `SELECT KeyData FROM keypool;`

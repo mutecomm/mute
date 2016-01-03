@@ -20,27 +20,29 @@ import (
 )
 
 const (
-	createQueryTokens = `CREATE TABLE IF NOT EXISTS walletTokens (
-							LockTime INT NOT NULL,
-							LockID INT NOT NULL,
-							Hash CHAR(64) NOT NULL,
-							Token TEXT NOT NULL,
-							OwnerPubKey VARCHAR(255) NOT NULL,
-							OwnerPrivKey VARCHAR(255) NOT NULL,
-							Renewable bool NOT NULL,
-							CanReissue bool NOT NULL,
-							UsageStr VARCHAR(255) NOT NULL,
-							Expire INT UNSIGNED NOT NULL,
-							OwnedSelf bool NOT NULL,
-							HasParams bool NOT NULL,
-							HasState bool NOT NULL,
-							CONSTRAINT Hash UNIQUE (Hash)
-						);`
-	createQueryState = `CREATE TABLE IF NOT EXISTS walletState (
-							Hash CHAR(64),
-							State TEXT,
-							CONSTRAINT Hash UNIQUE (Hash)
-						);`
+	createQueryTokens = `
+CREATE TABLE IF NOT EXISTS walletTokens (
+  LockTime INT NOT NULL,
+  LockID INT NOT NULL,
+  Hash CHAR(64) NOT NULL,
+  Token TEXT NOT NULL,
+  OwnerPubKey VARCHAR(255) NOT NULL,
+  OwnerPrivKey VARCHAR(255) NOT NULL,
+  Renewable bool NOT NULL,
+  CanReissue bool NOT NULL,
+  UsageStr VARCHAR(255) NOT NULL,
+  Expire INT UNSIGNED NOT NULL,
+  OwnedSelf bool NOT NULL,
+  HasParams bool NOT NULL,
+  HasState bool NOT NULL,
+  CONSTRAINT Hash UNIQUE (Hash)
+);`
+	createQueryState = `
+CREATE TABLE IF NOT EXISTS walletState (
+  Hash CHAR(64),
+  State TEXT,
+  CONSTRAINT Hash UNIQUE (Hash)
+);`
 	setTokenQuery = `INSERT INTO walletTokens (LockTime, LockID, Hash, Token, OwnerPubKey, OwnerPrivKey, Renewable, CanReissue,
 						 UsageStr, Expire, OwnedSelf, HasParams, HasState) VALUES (0,0,?,?,?,?,?,?,?,?,?,?,?);`
 	setTokenUpdateQuery = `UPDATE walletTokens SET Hash=?, Token=?, OwnerPubKey=?, OwnerPrivKey=?, 
