@@ -371,6 +371,7 @@ func muteprotoFetch(
 	privkey, server string,
 	lastMessageTime int64,
 ) (newMessageTime int64, err error) {
+	log.Debug("muteprotoFetch()")
 	args := []string{
 		"--homedir", c.GlobalString("homedir"),
 		"--loglevel", c.GlobalString("loglevel"),

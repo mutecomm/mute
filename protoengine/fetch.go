@@ -38,6 +38,7 @@ func (pe *ProtoEngine) fetch(
 	}
 	var privkey [ed25519.PrivateKeySize]byte
 	copy(privkey[:], pk)
+	log.Debugf("lastMessageTime=%d", lastMessageTime)
 	messages, err := client.ListMessages(&privkey, lastMessageTime, server,
 		def.CACert)
 	if err != nil {
