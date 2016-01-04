@@ -54,7 +54,7 @@ var (
 	// ErrOffline is returned if the client is offline
 	ErrOffline = errors.New("client: Offline")
 	// ErrFinal is returned on final errors that cannot continue
-	ErrFinal = errors.New("client: Final error")
+	ErrFinal = errors.New("client: Final serviceguard error")
 	// ErrFatal is returned on fatal errors produced by the client implementation itself
 	ErrFatal = errors.New("client: Fatal client error")
 	// ErrNeedReissue is returned if a non-renewable token was issued by the walletserver but not owner was specified
