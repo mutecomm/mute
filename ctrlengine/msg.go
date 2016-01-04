@@ -264,27 +264,8 @@ func (ce *CtrlEngine) msgSend(
 		nyms = append(nyms, idMapped)
 	}
 	for _, nym := range nyms {
-		// TODO! (implement more accounts? delay settings?)
-		privkey, server, secret, minDelay, maxDelay, _, err := ce.msgDB.GetAccount(nym, "")
-		if err != nil {
-			return err
-		}
-		_, domain, err := identity.Split(nym)
-		if err != nil {
-			return err
-		}
-		// nymaddress for encryption
-		expire := times.ThirtyDaysLater() // TODO: make this settable
-		singleUse := false                // TODO correct?
-		var pubkey [ed25519.PublicKeySize]byte
-		copy(pubkey[:], privkey[32:])
-		_, recvNymAddress, err := util.NewNymAddress(domain, secret[:], expire,
-			singleUse, minDelay, maxDelay, nym, &pubkey, server, def.CACert)
-		if err != nil {
-			return err
-		}
-
 		// add all undelivered messages to outqueue
+		var recvNymAddress string
 		for {
 			msgID, peer, msg, sign, minDelay, maxDelay, err :=
 				ce.msgDB.GetUndeliveredMessage(nym)
@@ -294,6 +275,31 @@ func (ce *CtrlEngine) msgSend(
 			if peer == "" {
 				break // no more undelivered messages
 			}
+
+			// determine recipient nymaddress for encryption, if necessary
+			if recvNymAddress == "" {
+				// TODO! (implement more accounts? delay settings?)
+				privkey, server, secret, minDelay, maxDelay, _, err :=
+					ce.msgDB.GetAccount(nym, "")
+				if err != nil {
+					return err
+				}
+				_, domain, err := identity.Split(nym)
+				if err != nil {
+					return err
+				}
+				expire := times.ThirtyDaysLater() // TODO: make this settable
+				singleUse := false                // TODO correct?
+				var pubkey [ed25519.PublicKeySize]byte
+				copy(pubkey[:], privkey[32:])
+				_, recvNymAddress, err = util.NewNymAddress(domain, secret[:],
+					expire, singleUse, minDelay, maxDelay, nym, &pubkey, server,
+					def.CACert)
+				if err != nil {
+					return err
+				}
+			}
+
 			// encrypt
 			enc, nymaddress, err := mutecryptEncrypt(c, nym, peer,
 				ce.passphrase, msg, sign, recvNymAddress)
