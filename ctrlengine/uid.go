@@ -255,7 +255,6 @@ func mutecryptNewUID(
 	}
 
 	if err := cmd.Wait(); err != nil {
-		//return fmt.Errorf("%s: %s", err, errbuf.String())
 		return err
 	}
 
@@ -429,7 +428,7 @@ func mutecryptDeleteUID(c *cli.Context, id string, passphrase []byte) error {
 	ppW.Close()
 	cmd.ExtraFiles = append(cmd.ExtraFiles, ppR)
 	if err := cmd.Run(); err != nil {
-		return log.Error(err)
+		return log.Errorf("%s: %s", err, strings.TrimSpace(errbuf.String()))
 	}
 	return nil
 }

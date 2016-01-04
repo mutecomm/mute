@@ -15,6 +15,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/codegangsta/cli"
@@ -435,7 +436,7 @@ func mutecryptHashchainSync(
 	ppW.Close()
 	cmd.ExtraFiles = append(cmd.ExtraFiles, ppR)
 	if err := cmd.Run(); err != nil {
-		return log.Errorf("%s: %s", err, errbuf.String())
+		return log.Errorf("%s: %s", err, strings.TrimSpace(errbuf.String()))
 	}
 	return nil
 }
@@ -471,7 +472,7 @@ func mutecryptHashchainVerify(
 	ppW.Close()
 	cmd.ExtraFiles = append(cmd.ExtraFiles, ppR)
 	if err := cmd.Run(); err != nil {
-		return log.Errorf("%s: %s", err, errbuf.String())
+		return log.Errorf("%s: %s", err, strings.TrimSpace(errbuf.String()))
 	}
 	return nil
 }

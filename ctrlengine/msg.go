@@ -82,10 +82,11 @@ func mutecryptEncrypt(
 	}
 	stdin.Close()
 	if err := cmd.Wait(); err != nil {
-		return "", "", fmt.Errorf("%s: %s", err, errbuf.String())
+		return "", "",
+			fmt.Errorf("%s: %s", err, strings.TrimSpace(errbuf.String()))
 	}
 	// parse nymaddress
-	parts := strings.Split(strings.TrimRight(errbuf.String(), "\n"), "\t")
+	parts := strings.Split(strings.TrimSpace(errbuf.String()), "\t")
 	if len(parts) != 2 || parts[0] != "NYMADDRESS:" {
 		return "", "", fmt.Errorf("ctrlengine: mutecrypt status output not parsable: %s",
 			errbuf.String())
@@ -201,7 +202,7 @@ func muteprotoCreate(
 	}
 	stdin.Close()
 	if err := cmd.Wait(); err != nil {
-		return "", fmt.Errorf("%s: %s", err, errbuf.String())
+		return "", fmt.Errorf("%s: %s", err, strings.TrimSpace(errbuf.String()))
 	}
 	return outbuf.String(), nil
 }
@@ -231,10 +232,11 @@ func muteprotoDeliver(
 	}
 	stdin.Close()
 	if err := cmd.Wait(); err != nil {
-		return false, fmt.Errorf("%s: %s", err, errbuf.String())
+		return false,
+			fmt.Errorf("%s: %s", err, strings.TrimSpace(errbuf.String()))
 	}
 	if len(errbuf.String()) > 0 {
-		if errbuf.String() != "RESEND\n" {
+		if strings.TrimSpace(errbuf.String()) != "RESEND" {
 			return false, fmt.Errorf("ctrlengine: muteproto status output not parsable: %s",
 				errbuf.String())
 		}

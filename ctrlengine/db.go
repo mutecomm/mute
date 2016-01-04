@@ -13,6 +13,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/agl/ed25519"
 	"github.com/codegangsta/cli"
@@ -61,7 +62,7 @@ func createKeyDB(c *cli.Context, w io.Writer, passphrase []byte) error {
 	}
 	stdin.Close()
 	if err := cmd.Wait(); err != nil {
-		return fmt.Errorf("%s: %s", err, errbuf.String())
+		return fmt.Errorf("%s: %s", err, strings.TrimSpace(errbuf.String()))
 	}
 	return nil
 }
@@ -179,7 +180,7 @@ func rekeyKeyDB(c *cli.Context, oldPassphrase, newPassphrase []byte) error {
 	}
 	stdin.Close()
 	if err := cmd.Wait(); err != nil {
-		return fmt.Errorf("%s: %s", err, errbuf.String())
+		return fmt.Errorf("%s: %s", err, strings.TrimSpace(errbuf.String()))
 	}
 	return nil
 }
@@ -264,7 +265,7 @@ func mutecryptDBStatus(c *cli.Context, w io.Writer, passphrase []byte) error {
 		return err
 	}
 	if err := cmd.Wait(); err != nil {
-		return fmt.Errorf("%s: %s", err, errbuf.String())
+		return fmt.Errorf("%s: %s", err, strings.TrimSpace(errbuf.String()))
 	}
 	return nil
 }
@@ -312,7 +313,7 @@ func mutecryptDBVacuum(
 		return err
 	}
 	if err := cmd.Wait(); err != nil {
-		return fmt.Errorf("%s: %s", err, errbuf.String())
+		return fmt.Errorf("%s: %s", err, strings.TrimSpace(errbuf.String()))
 	}
 	return nil
 }
@@ -356,7 +357,7 @@ func mutecryptDBIncremental(
 		return err
 	}
 	if err := cmd.Wait(); err != nil {
-		return fmt.Errorf("%s: %s", err, errbuf.String())
+		return fmt.Errorf("%s: %s", err, strings.TrimSpace(errbuf.String()))
 	}
 	return nil
 }
@@ -395,7 +396,7 @@ func mutecryptDBVersion(c *cli.Context, w io.Writer, passphrase []byte) error {
 		return err
 	}
 	if err := cmd.Wait(); err != nil {
-		return fmt.Errorf("%s: %s", err, errbuf.String())
+		return fmt.Errorf("%s: %s", err, strings.TrimSpace(errbuf.String()))
 	}
 	return nil
 }
