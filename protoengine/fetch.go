@@ -51,6 +51,13 @@ func (pe *ProtoEngine) fetch(
 		}
 		return log.Error(err)
 	}
+	/*
+		for _, message := range messages {
+			messageID := base64.Encode(message.MessageID)
+			log.Debugf("messageID=%s, ReceiveTime=%d, ReadTime=%d", messageID,
+				message.ReceiveTime, message.ReadTime)
+		}
+	*/
 	scanner := bufio.NewScanner(command)
 	for _, message := range messages {
 		msg, err := client.FetchMessage(&privkey, message.MessageID, server,
