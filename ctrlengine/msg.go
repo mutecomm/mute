@@ -243,6 +243,73 @@ func muteprotoDeliver(
 	return
 }
 
+func (ce *CtrlEngine) procOutQueue(
+	c *cli.Context,
+	nym string,
+	failDelivery bool,
+) error {
+	log.Debug("procOutQueue()")
+	for {
+		oqIdx, msg, nymaddress, minDelay, maxDelay, envelope, err :=
+			ce.msgDB.GetOutQueue(nym)
+		if err != nil {
+			return err
+		}
+		if msg == "" {
+			break // no more messages in outqueue
+		}
+		if !envelope {
+			// parse nymaddress
+			na, err := base64.Decode(nymaddress)
+			if err != nil {
+				return log.Error(na)
+			}
+			addr, err := nymaddr.ParseAddress(na)
+			if err != nil {
+				return err
+			}
+			// get token from wallet
+			var pubkey [32]byte
+			copy(pubkey[:], addr.TokenPubKey)
+			token, err := wallet.GetToken(ce.client, "Message", &pubkey)
+			if err != nil {
+				return err
+			}
+			// `muteproto create`
+			env, err := muteprotoCreate(c, msg, minDelay, maxDelay,
+				base64.Encode(token.Token), nymaddress)
+			if err != nil {
+				return log.Error(err)
+			}
+			// update outqueue
+			if err := ce.msgDB.SetOutQueue(oqIdx, env); err != nil {
+				ce.client.UnlockToken(token.Hash)
+				return err
+			}
+			ce.client.DelToken(token.Hash)
+			msg = env
+		}
+		// `muteproto deliver`
+		if failDelivery {
+			return log.Error(ErrDeliveryFailed)
+		}
+		sendTime := times.Now() + int64(minDelay) // earliest
+		resend, err := muteprotoDeliver(c, msg)
+		if err != nil {
+			return log.Error(err)
+		}
+		// TODO: implement resend
+		if resend {
+			return log.Errorf("ctrlengine: `muteproto deliver` returned RESEND")
+		}
+		// remove from outqueue
+		if err := ce.msgDB.RemoveOutQueue(oqIdx, sendTime); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (ce *CtrlEngine) msgSend(
 	c *cli.Context,
 	id string,
@@ -311,64 +378,10 @@ func (ce *CtrlEngine) msgSend(
 				return log.Error(err)
 			}
 		}
-		// process outqueue
-		for {
-			oqIdx, msg, nymaddress, minDelay, maxDelay, envelope, err :=
-				ce.msgDB.GetOutQueue(nym)
-			if err != nil {
-				return err
-			}
-			if msg == "" {
-				break // no more messages in outqueue
-			}
-			if !envelope {
-				// parse nymaddress
-				na, err := base64.Decode(nymaddress)
-				if err != nil {
-					return log.Error(na)
-				}
-				addr, err := nymaddr.ParseAddress(na)
-				if err != nil {
-					return err
-				}
-				// get token from wallet
-				var pubkey [32]byte
-				copy(pubkey[:], addr.TokenPubKey)
-				token, err := wallet.GetToken(ce.client, "Message", &pubkey)
-				if err != nil {
-					return err
-				}
-				// `muteproto create`
-				env, err := muteprotoCreate(c, msg, minDelay, maxDelay,
-					base64.Encode(token.Token), nymaddress)
-				if err != nil {
-					return log.Error(err)
-				}
-				// update outqueue
-				if err := ce.msgDB.SetOutQueue(oqIdx, env); err != nil {
-					ce.client.UnlockToken(token.Hash)
-					return err
-				}
-				ce.client.DelToken(token.Hash)
-				msg = env
-			}
-			// `muteproto deliver`
-			if failDelivery {
-				return log.Error(ErrDeliveryFailed)
-			}
-			sendTime := times.Now() + int64(minDelay) // earliest
-			resend, err := muteprotoDeliver(c, msg)
-			if err != nil {
-				return log.Error(err)
-			}
-			// TODO: implement resend
-			if resend {
-				return log.Errorf("ctrlengie: `muteproto deliver` returned RESEND")
-			}
-			// remove from outqueue
-			if err := ce.msgDB.RemoveOutQueue(oqIdx, sendTime); err != nil {
-				return err
-			}
+
+		// process new messages in outqueue
+		if err := ce.procOutQueue(c, nym, failDelivery); err != nil {
+			return err
 		}
 	}
 	return nil
