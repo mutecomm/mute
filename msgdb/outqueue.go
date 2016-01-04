@@ -102,7 +102,7 @@ func (msgDB *MsgDB) RemoveOutQueue(oqIdx, date int64) error {
 		return log.Error(err)
 	}
 	// set date for message
-	_, err = tx.Stmt(msgDB.updateMsgDateQuery).Exec(date, 1, msgID)
+	_, err = tx.Stmt(msgDB.updateMsgDateQuery).Exec(date, msgID)
 	if err != nil {
 		tx.Rollback()
 		return log.Error(err)

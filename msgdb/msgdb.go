@@ -182,7 +182,7 @@ CREATE TABLE MessageIDCache(
 	getMsgsQuery                = "SELECT MsgID, \"From\", \"To\", Direction, Sent, Date, Subject, Read FROM Messages WHERE Self=?;"
 	getUndeliveredMsgQuery      = "SELECT MsgID, Peer, Message, Sign, MinDelay, MaxDelay FROM Messages WHERE Peer=? AND ToSend=1 ORDER BY MsgID ASC LIMIT 1;"
 	updateDeliveryMsgQuery      = "UPDATE Messages SET ToSend=0 WHERE MsgID=?;"
-	updateMsgDateQuery          = "UPDATE Messages SET Date=?, Sent=? WHERE MsgID=?;"
+	updateMsgDateQuery          = "UPDATE Messages SET Date=?, Sent=1 WHERE MsgID=?;"
 	getUpkeepAllQuery           = "SELECT UpkeepAll FROM Nyms WHERE MappedID=?;"
 	setUpkeepAllQuery           = "UPDATE Nyms SET UpkeepAll=? WHERE MappedID=?;"
 	getUpkeepAccountsQuery      = "SELECT UpkeepAccounts FROM Nyms WHERE MappedID=?;"
