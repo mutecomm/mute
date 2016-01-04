@@ -298,13 +298,16 @@ func (ce *CtrlEngine) procOutQueue(
 		if err != nil {
 			return log.Error(err)
 		}
-		// TODO: implement resend
 		if resend {
-			return log.Errorf("ctrlengine: `muteproto deliver` returned RESEND")
-		}
-		// remove from outqueue
-		if err := ce.msgDB.RemoveOutQueue(oqIdx, sendTime); err != nil {
-			return err
+			// set resend status
+			if err := ce.msgDB.SetResendOutQueue(oqIdx); err != nil {
+				return err
+			}
+		} else {
+			// remove from outqueue
+			if err := ce.msgDB.RemoveOutQueue(oqIdx, sendTime); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -331,6 +334,11 @@ func (ce *CtrlEngine) msgSend(
 		nyms = append(nyms, idMapped)
 	}
 	for _, nym := range nyms {
+		// clear resend status for old messages in outqueue
+		if err := ce.msgDB.ClearResendOutQueue(nym); err != nil {
+			return err
+		}
+
 		// process old messages in outqueue
 		if err := ce.procOutQueue(c, nym, failDelivery); err != nil {
 			return err
