@@ -247,6 +247,7 @@ func (ce *CtrlEngine) msgSend(
 	c *cli.Context,
 	id string,
 	all bool,
+	failDelivery bool,
 ) error {
 	var nyms []string
 	if all {
@@ -346,6 +347,9 @@ func (ce *CtrlEngine) msgSend(
 				msg = env
 			}
 			// `muteproto deliver`
+			if failDelivery {
+				return log.Error(ErrDeliveryFailed)
+			}
 			sendTime := times.Now() + int64(minDelay) // earliest
 			resend, err := muteprotoDeliver(c, msg)
 			if err != nil {

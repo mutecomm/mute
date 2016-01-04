@@ -1041,6 +1041,10 @@ Tries to register a new user ID with the corresponding key server.
 					Flags: []cli.Flag{
 						idFlag,
 						allFlag,
+						cli.BoolFlag{
+							Name:  "fail-delivery",
+							Usage: "Fail on first delivery attempt (for testing purposes)",
+						},
 					},
 					Before: func(c *cli.Context) error {
 						if len(c.Args()) > 0 {
@@ -1055,7 +1059,8 @@ Tries to register a new user ID with the corresponding key server.
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						ce.err = ce.msgSend(c, ce.getID(c), c.Bool("all"))
+						ce.err = ce.msgSend(c, ce.getID(c), c.Bool("all"),
+							c.Bool("fail-delivery"))
 					},
 				},
 				{
