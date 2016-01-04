@@ -246,6 +246,7 @@ func (ce *CtrlEngine) contactAdd(
 	contactType msgdb.ContactType,
 	c *cli.Context,
 ) error {
+	log.Infof("contact add --id %s --contact %s", id, contact)
 	idMapped, domain, err := identity.MapPlus(id)
 	if err != nil {
 		return err
@@ -254,10 +255,29 @@ func (ce *CtrlEngine) contactAdd(
 	if err != nil {
 		return err
 	}
+	// check if contact is already known and white listed
+	unmappedID, fullName, contactType, err := ce.msgDB.GetContact(idMapped,
+		contactMapped)
+	if err != nil {
+		return err
+	}
+	if unmappedID != "" {
+		log.Infof("contact already known -> make sure it is white listed")
+		if contactType != msgdb.WhiteList {
+			err = ce.msgDB.AddContact(idMapped, contactMapped, unmappedID, fullName,
+				msgdb.WhiteList)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	// add new contact
 	err = mutecryptAddContact(c, ce.passphrase, contactMapped, domain, host, ce.client)
 	if err != nil {
 		return err
 	}
+	log.Info("add contact")
 	return add(ce.msgDB, idMapped, contactMapped, fullName, contactType)
 }
 
