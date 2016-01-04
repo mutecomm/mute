@@ -365,6 +365,16 @@ func (ce *CtrlEngine) msgSend(
 			return err
 		}
 
+		/*
+			ids, err := ce.msgDB.GetMsgIDs(nym)
+			if err != nil {
+				return err
+			}
+			for _, id := range ids {
+				log.Debugf("id=%d, to=%s", id.MsgID, id.To)
+			}
+		*/
+
 		// add all undelivered messages to outqueue
 		var recvNymAddress string
 		for {
@@ -374,6 +384,7 @@ func (ce *CtrlEngine) msgSend(
 				return err
 			}
 			if peer == "" {
+				log.Debug("break")
 				break // no more undelivered messages
 			}
 
@@ -408,6 +419,7 @@ func (ce *CtrlEngine) msgSend(
 				return log.Error(err)
 			}
 			// add to outqueue
+			log.Debug("add")
 			err = ce.msgDB.AddOutQueue(nym, msgID, enc, nymaddress,
 				minDelay, maxDelay)
 			if err != nil {
