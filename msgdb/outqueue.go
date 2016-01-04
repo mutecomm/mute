@@ -30,7 +30,7 @@ func (msgDB *MsgDB) AddOutQueue(
 	if err != nil {
 		return log.Error(err)
 	}
-	if _, err := tx.Stmt(msgDB.updateDeliveryMsgQuery).Exec(msgID); err != nil {
+	if _, err := tx.Stmt(msgDB.updateDeliveryMsgQuery).Exec(0, msgID); err != nil {
 		tx.Rollback()
 		return log.Error(err)
 	}
@@ -103,6 +103,38 @@ func (msgDB *MsgDB) RemoveOutQueue(oqIdx, date int64) error {
 	}
 	// set date for message
 	_, err = tx.Stmt(msgDB.updateMsgDateQuery).Exec(date, msgID)
+	if err != nil {
+		tx.Rollback()
+		return log.Error(err)
+	}
+	// remove entry from outqueue
+	if _, err := tx.Stmt(msgDB.removeOutQueueQuery).Exec(oqIdx); err != nil {
+		tx.Rollback()
+		return log.Error(err)
+	}
+	if err := tx.Commit(); err != nil {
+		tx.Rollback()
+		return log.Error(err)
+	}
+	return nil
+}
+
+// RetractOutQueue retract the message corresponding to oqIdx from the outqueue
+// and sets the corresponding message to 'ToSend' again.
+func (msgDB *MsgDB) RetractOutQueue(oqIdx int64) error {
+	tx, err := msgDB.encDB.Begin()
+	if err != nil {
+		return log.Error(err)
+	}
+	var msgID int64
+	// get corresponding msgID
+	err = tx.Stmt(msgDB.getOutQueueMsgIDQuery).QueryRow(oqIdx).Scan(&msgID)
+	if err != nil {
+		tx.Rollback()
+		return log.Error(err)
+	}
+	// set date for message
+	_, err = tx.Stmt(msgDB.updateDeliveryMsgQuery).Exec(1, msgID)
 	if err != nil {
 		tx.Rollback()
 		return log.Error(err)

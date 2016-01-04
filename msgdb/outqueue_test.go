@@ -86,6 +86,29 @@ func TestOutQueue(t *testing.T) {
 	if envelope {
 		t.Error("should not be an envelope")
 	}
+	// retract message from outqueue
+	if err := msgDB.RetractOutQueue(oqIdx); err != nil {
+		t.Fatal(err)
+	}
+	// message should be back
+	_, peer, _, _, _, _, err = msgDB.GetUndeliveredMessage(a)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if peer != b {
+		t.Error("peer != b")
+	}
+	// add encrypted message to outqueue (again)
+	err = msgDB.AddOutQueue(a, msgID, "encrypted", "nymaddress", minDelay,
+		maxDelay)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// afterwards there should be no undelivered message
+	_, peer, _, _, _, _, err = msgDB.GetUndeliveredMessage(a)
+	if err != nil {
+		t.Fatal(err)
+	}
 	// change message in outqueue to envelope
 	if err := msgDB.SetOutQueue(oqIdx, "envelope"); err != nil {
 		t.Fatal(err)
