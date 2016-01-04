@@ -23,7 +23,7 @@ import (
 var (
 	// ErrNoSigner is returned if a generator is missing a private key for
 	// signing its keys.
-	ErrNoSigner = errors.New("keygen: No signer")
+	ErrNoSigner = errors.New("keygen: no signer")
 )
 
 const (

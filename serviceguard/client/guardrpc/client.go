@@ -18,7 +18,7 @@ import (
 
 var (
 	// ErrParams is returned if a call returned bad parameters
-	ErrParams = errors.New("guardrpc: Bad RPC parameters")
+	ErrParams = errors.New("guardrpc: bad RPC parameters")
 )
 
 // ServiceURL is the URL template for issuers. Notice the leading dot and trailing slash

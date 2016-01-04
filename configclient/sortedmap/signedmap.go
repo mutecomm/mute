@@ -14,11 +14,11 @@ import (
 
 var (
 	// ErrNoVerify is returned when a signature could not be verified.
-	ErrNoVerify = errors.New("sortedmap: Signature verification failed")
+	ErrNoVerify = errors.New("sortedmap: signature verification failed")
 	// ErrBadTime is returned if a signature time is either too old or too young.
-	ErrBadTime = errors.New("sortedmap: Signature time wrong")
+	ErrBadTime = errors.New("sortedmap: signature time wrong")
 	// ErrWalkBack is returned if an old certificate was presented.
-	ErrWalkBack = errors.New("sortedmap: Expired certificate replayed")
+	ErrWalkBack = errors.New("sortedmap: expired certificate replayed")
 )
 
 // MaxSignatureAge is the maximum difference between now and the signature time.

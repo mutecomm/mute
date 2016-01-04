@@ -19,11 +19,11 @@ import (
 
 var (
 	// ErrBadToken signals that the token is invalid.
-	ErrBadToken = errors.New("walletauth: Bad Token")
+	ErrBadToken = errors.New("walletauth: bad token")
 	// ErrBadSignature signals that a token signature does not verify.
-	ErrBadSignature = errors.New("walletauth: Bad Signature")
+	ErrBadSignature = errors.New("walletauth: bad signature")
 	// ErrReplay is returned if a replay was detected in authentication.
-	ErrReplay = errors.New("walletauth: Replay on authentication")
+	ErrReplay = errors.New("walletauth: replay on authentication")
 )
 
 // TokenSize is the size of a token.

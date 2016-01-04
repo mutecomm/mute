@@ -19,12 +19,12 @@ import (
 var (
 	// ErrSignerNeeded signals that a packet verification failed because no
 	// public key was present but the packet was signed.
-	ErrSignerNeeded = errors.New("types: Signer needed for verification")
+	ErrSignerNeeded = errors.New("types: signer needed for verification")
 	// ErrBadSignature signals that a packet signature did not verify.
-	ErrBadSignature = errors.New("types: Bad signature")
+	ErrBadSignature = errors.New("types: bad signature")
 	// ErrWrongSigner signals that the signer to be verified is not the signer
 	// of the packet.
-	ErrWrongSigner = errors.New("types: Wrong signer")
+	ErrWrongSigner = errors.New("types: wrong signer")
 )
 
 const (

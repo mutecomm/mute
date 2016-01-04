@@ -16,17 +16,17 @@ import (
 
 var (
 	// ErrNotFound is returned if the keyid could not be found in the keypool
-	ErrNotFound = errors.New("keypool: Not found")
+	ErrNotFound = errors.New("keypool: not found")
 	// ErrNoGenerator is returned if Current() is called on a keypool that has no private signature key
-	ErrNoGenerator = errors.New("keypool: Not a generator")
+	ErrNoGenerator = errors.New("keypool: not a generator")
 	// ErrBadUsage is returned if a key to load does not match the usage configuration
-	ErrBadUsage = errors.New("keypool: Bad usage setting of key")
+	ErrBadUsage = errors.New("keypool: bad usage setting of key")
 	// ErrExpired is returned if a key has already expired
-	ErrExpired = errors.New("keypool: Expired key")
+	ErrExpired = errors.New("keypool: expired key")
 	// ErrBadSigner is returned if a key signature cannot be verified
-	ErrBadSigner = errors.New("keypool: Bad signature")
+	ErrBadSigner = errors.New("keypool: bad signature")
 	// ErrExists is returned if a key to load is already loaded
-	ErrExists = errors.New("keypool: Key exists")
+	ErrExists = errors.New("keypool: key exists")
 )
 
 type (

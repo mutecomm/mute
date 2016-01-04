@@ -26,13 +26,13 @@ var (
 
 var (
 	// ErrNoKeys is returned if not enough keys are known
-	ErrNoKeys = errors.New("mixcrypt: Keys missing")
+	ErrNoKeys = errors.New("mixcrypt: keys missing")
 	// ErrTooShort is returned if a message is too short
-	ErrTooShort = errors.New("mixcrypt: Too short")
+	ErrTooShort = errors.New("mixcrypt: too short")
 	// ErrSize is returned if a message is too long/short
-	ErrSize = errors.New("mixcrypt: Message out of bounds")
+	ErrSize = errors.New("mixcrypt: message out of bounds")
 	// ErrBadSystem is returned if a message for a wrong system was received
-	ErrBadSystem = errors.New("mixcrypt: Bad system")
+	ErrBadSystem = errors.New("mixcrypt: bad system")
 )
 
 // MuteSystemDomain is the domain of the Mute System.

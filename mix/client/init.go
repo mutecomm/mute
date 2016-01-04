@@ -18,17 +18,17 @@ var MaxMessageSize = 266240
 
 var (
 	// ErrMaxSize is returned if a message is too long.
-	ErrMaxSize = errors.New("mixclient: Message too long")
+	ErrMaxSize = errors.New("mixclient: message too long")
 	// ErrNoHost is returned if no host could be selected.
-	ErrNoHost = errors.New("mixclient: No RPC host found")
+	ErrNoHost = errors.New("mixclient: no RPC host found")
 	// ErrNIL is returned when operating on nil value because of coding errors.
-	ErrNIL = errors.New("mixclient: NIL value")
+	ErrNIL = errors.New("mixclient: nil value")
 	// ErrAlreadySent is returned if trying to resend a message. Coding error!
-	ErrAlreadySent = errors.New("mixclient: Already sent")
+	ErrAlreadySent = errors.New("mixclient: already sent")
 	// ErrProto is returned if there was a protocol error in RPC.
-	ErrProto = errors.New("mixclient: Bad RPC protocol")
+	ErrProto = errors.New("mixclient: bad RPC protocol")
 	// ErrNoMatch is returned if no account was found.
-	ErrNoMatch = errors.New("mixclient: No match")
+	ErrNoMatch = errors.New("mixclient: no match")
 )
 
 // DefaultClientFactory is the default factory for new clients.

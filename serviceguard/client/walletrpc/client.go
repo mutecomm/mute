@@ -17,7 +17,7 @@ import (
 
 var (
 	// ErrParams is returned if a call returned bad parameters
-	ErrParams = errors.New("walletrpc: Bad RPC parameters")
+	ErrParams = errors.New("walletrpc: bad RPC parameters")
 )
 
 // DefaultClientFactory is the default factory for new clients

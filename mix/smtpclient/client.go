@@ -21,15 +21,15 @@ import (
 
 var (
 	// ErrNoHost is returned if no delivery host could be found
-	ErrNoHost = errors.New("smtpclient: No host")
+	ErrNoHost = errors.New("smtpclient: no host")
 	// ErrNoTLS is returned if TLS was not offered though it was expected
-	ErrNoTLS = errors.New("smtpclient: No TLS")
+	ErrNoTLS = errors.New("smtpclient: no TLS")
 	// ErrNoAuth is returned if authentication was not offered though it was expected
-	ErrNoAuth = errors.New("smtpclient: No AUTH")
+	ErrNoAuth = errors.New("smtpclient: no AUTH")
 	// ErrFinal is returned if a resend-attempt will fail
-	ErrFinal = errors.New("smtpclient: Final error")
+	ErrFinal = errors.New("smtpclient: final error")
 	// ErrRetry is retured if a resend-attempt might work
-	ErrRetry = errors.New("smtpclient: Retry")
+	ErrRetry = errors.New("smtpclient: retry")
 )
 
 // LookupMX returns the primary MX for a domain

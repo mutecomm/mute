@@ -22,15 +22,15 @@ import (
 
 var (
 	// ErrNoMix is returned if no mix could be found.
-	ErrNoMix = errors.New("nymaddr: No mix found")
+	ErrNoMix = errors.New("nymaddr: no mix found")
 	// ErrNoKey is returned if a private key was unavailable.
-	ErrNoKey = errors.New("nymaddr: Private key not found")
+	ErrNoKey = errors.New("nymaddr: private key not found")
 	// ErrExpired is returned if a nymaddr has already expired.
-	ErrExpired = errors.New("nymaddr: Expired")
+	ErrExpired = errors.New("nymaddr: expired")
 	// ErrHMAC is returned if a nym-header HMAC verification failed.
 	ErrHMAC = errors.New("nymaddr: HMAC mismatch")
 	// ErrBadKey is returned if a header key is not reproduceable.
-	ErrBadKey = errors.New("nymaddr: Bad key in header")
+	ErrBadKey = errors.New("nymaddr: bad key in header")
 )
 
 // Rand is the random source of this package.

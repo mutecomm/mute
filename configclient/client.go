@@ -25,7 +25,7 @@ var (
 	// ErrHashWrong is returned if the cacert could not be verified.
 	ErrHashWrong = errors.New("configclient: CACert hash wrong")
 	// ErrNoServers is returned if no valid servers were configured.
-	ErrNoServers = errors.New("configclient: No available servers")
+	ErrNoServers = errors.New("configclient: no available servers")
 )
 
 // MaxReadBody is the maximum size of the body that is transferred.

@@ -20,11 +20,11 @@ import (
 
 var (
 	// ErrBadSigner is returned if a verification pubkey list was signed by the wrong signer
-	ErrBadSigner = errors.New("keylookup: Bad Signer")
+	ErrBadSigner = errors.New("keylookup: bad signer")
 	// ErrParams is returned if a call returned bad parameters
-	ErrParams = errors.New("keylookup: Bad RPC parameters")
+	ErrParams = errors.New("keylookup: bad RPC parameters")
 	// ErrBadSignature signals that a packet signature did not verify
-	ErrBadSignature = errors.New("keylookup: Bad signature")
+	ErrBadSignature = errors.New("keylookup: bad signature")
 )
 
 // DefaultClientFactory is the default factory for new clients
