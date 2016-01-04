@@ -334,25 +334,40 @@ func (ce *CtrlEngine) procOutQueue(
 	return nil
 }
 
+func (ce *CtrlEngine) getNyms(id string, all bool) ([]string, error) {
+	var nyms []string
+	if all {
+		ids, err := ce.msgDB.GetNyms(true)
+		if err != nil {
+			return nil, err
+		}
+		nyms = append(nyms, ids...)
+	} else {
+		idMapped, err := identity.Map(id)
+		if err != nil {
+			return nil, err
+		}
+		prev, _, err := ce.msgDB.GetNym(idMapped)
+		if err != nil {
+			return nil, err
+		}
+		if prev == "" {
+			return nil, log.Errorf("user ID %s not found", id)
+		}
+		nyms = append(nyms, idMapped)
+	}
+	return nyms, nil
+}
+
 func (ce *CtrlEngine) msgSend(
 	c *cli.Context,
 	id string,
 	all bool,
 	failDelivery bool,
 ) error {
-	var nyms []string
-	if all {
-		ids, err := ce.msgDB.GetNyms(true)
-		if err != nil {
-			return err
-		}
-		nyms = append(nyms, ids...)
-	} else {
-		idMapped, err := identity.Map(id)
-		if err != nil {
-			return err
-		}
-		nyms = append(nyms, idMapped)
+	nyms, err := ce.getNyms(id, all)
+	if err != nil {
+		return err
 	}
 	for _, nym := range nyms {
 		// clear resend status for old messages in outqueue
@@ -751,19 +766,9 @@ func (ce *CtrlEngine) msgFetch(
 		return err
 	}
 
-	var nyms []string
-	if all {
-		ids, err := ce.msgDB.GetNyms(true)
-		if err != nil {
-			return err
-		}
-		nyms = append(nyms, ids...)
-	} else {
-		idMapped, err := identity.Map(id)
-		if err != nil {
-			return err
-		}
-		nyms = append(nyms, idMapped)
+	nyms, err := ce.getNyms(id, all)
+	if err != nil {
+		return err
 	}
 
 	// put new messages from server into in inqueue
