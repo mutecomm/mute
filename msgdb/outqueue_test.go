@@ -104,6 +104,30 @@ func TestOutQueue(t *testing.T) {
 	if !envelope {
 		t.Error("should be an envelope")
 	}
+	// set envelope to resend
+	if err := msgDB.SetResendOutQueue(oqIdx); err != nil {
+		t.Fatal(err)
+	}
+	// get head of outqueue
+	_, env, _, _, _, _, err = msgDB.GetOutQueue(a)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if env != "" {
+		t.Error("envelope should be empty")
+	}
+	// clear resend status
+	if err := msgDB.ClearResendOutQueue(a); err != nil {
+		t.Fatal(err)
+	}
+	// get head of outqueue
+	_, env, _, _, _, _, err = msgDB.GetOutQueue(a)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if env != "envelope" {
+		t.Error("wrong envelope message")
+	}
 	// remove envelope from outqueue
 	if err := msgDB.RemoveOutQueue(oqIdx, now); err != nil {
 		t.Fatal(err)

@@ -48,6 +48,7 @@ func (msgDB *MsgDB) AddOutQueue(
 }
 
 // GetOutQueue returns the first entry in the outqueue for myID.
+// Entries which need to be resend are ignored.
 func (msgDB *MsgDB) GetOutQueue(myID string) (
 	oqIdx int64,
 	msg, nymaddress string,
@@ -113,6 +114,29 @@ func (msgDB *MsgDB) RemoveOutQueue(oqIdx, date int64) error {
 	}
 	if err := tx.Commit(); err != nil {
 		tx.Rollback()
+		return log.Error(err)
+	}
+	return nil
+}
+
+// SetResendOutQueue sets the message in outqueue with index oqIdx to resend.
+func (msgDB *MsgDB) SetResendOutQueue(oqIdx int64) error {
+	if _, err := msgDB.setResendOutQueueQuery.Exec(oqIdx); err != nil {
+		return log.Error(err)
+	}
+	return nil
+}
+
+// ClearResendOutQueue clears the resend status in the outqueue for myID.
+func (msgDB *MsgDB) ClearResendOutQueue(myID string) error {
+	if err := identity.IsMapped(myID); err != nil {
+		return log.Error(err)
+	}
+	var mID int64
+	if err := msgDB.getNymUIDQuery.QueryRow(myID).Scan(&mID); err != nil {
+		return log.Error(err)
+	}
+	if _, err := msgDB.clearResendOutQueueQuery.Exec(mID); err != nil {
 		return log.Error(err)
 	}
 	return nil

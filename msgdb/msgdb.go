@@ -130,6 +130,7 @@ CREATE TABLE Chunks (
   MinDelay   INTEGER NOT NULL, -- minimum delay of message
   MaxDelay   INTEGER NOT NULL, -- maximum delay of message
   Envelope   INTEGER NOT NULL, -- 0: basic encrypted message, 1: with envelope and ready to send
+  Resend     INTEGER NOT NULL, -- 0: process message normally, 1: message needs resend
   FOREIGN KEY(Self) REFERENCES Nyms(UID) ON DELETE CASCADE
   FOREIGN KEY(MsgID) REFERENCES Messages(MsgID) ON DELETE CASCADE
 );`
@@ -186,11 +187,13 @@ CREATE TABLE MessageIDCache(
 	setUpkeepAllQuery           = "UPDATE Nyms SET UpkeepAll=? WHERE MappedID=?;"
 	getUpkeepAccountsQuery      = "SELECT UpkeepAccounts FROM Nyms WHERE MappedID=?;"
 	setUpkeepAccountsQuery      = "UPDATE Nyms SET UpkeepAccounts=? WHERE MappedID=?;"
-	addOutQueueQuery            = "INSERT INTO OutQueue (Self, MsgID, Msg, NymAddress, MinDelay, MaxDelay, Envelope) VALUES (?, ?, ?, ?, ?, ?, 0);"
-	getOutQueueQuery            = "SELECT OQIdx, Msg, NymAddress, MinDelay, MaxDelay, Envelope FROM OutQueue WHERE Self=? ORDER BY OQIdx ASC LIMIT 1;"
+	addOutQueueQuery            = "INSERT INTO OutQueue (Self, MsgID, Msg, NymAddress, MinDelay, MaxDelay, Envelope, Resend) VALUES (?, ?, ?, ?, ?, ?, 0, 0);"
+	getOutQueueQuery            = "SELECT OQIdx, Msg, NymAddress, MinDelay, MaxDelay, Envelope FROM OutQueue WHERE Self=? AND Resend=0 ORDER BY OQIdx ASC LIMIT 1;"
 	getOutQueueMsgIDQuery       = "SELECT MsgID FROM OutQueue WHERE OQIdx=?;"
 	setOutQueueQuery            = "UPDATE OutQueue SET Msg=?, Envelope=1 WHERE OQIdx=?;"
 	removeOutQueueQuery         = "DELETE FROM OutQueue WHERE OQIdx=?;"
+	setResendOutQueueQuery      = "UPDATE OutQueue SET Resend=1 WHERE OQIdx=?;"
+	clearResendOutQueueQuery    = "UPDATE OutQueue SET Resend=0 WHERE Self=? AND Resend=1;"
 	addInQueueQuery             = "INSERT INTO InQueue (MyID, ContactID, Date, Msg, Envelope) VALUES (?, ?, ?, ?, 1);"
 	getInQueueQuery             = "SELECT IQIdx, MyID, ContactID, Msg, Envelope FROM InQueue ORDER BY IQIdx ASC LIMIT 1;"
 	getInQueueIDsQuery          = "SELECT MyID, ContactID, Date FROM InQueue WHERE IQIdx=?;"
@@ -245,6 +248,8 @@ type MsgDB struct {
 	getOutQueueMsgIDQuery       *sql.Stmt
 	setOutQueueQuery            *sql.Stmt
 	removeOutQueueQuery         *sql.Stmt
+	setResendOutQueueQuery      *sql.Stmt
+	clearResendOutQueueQuery    *sql.Stmt
 	addInQueueQuery             *sql.Stmt
 	getInQueueQuery             *sql.Stmt
 	getInQueueIDsQuery          *sql.Stmt
@@ -420,6 +425,12 @@ func Open(dbname string, passphrase []byte) (*MsgDB, error) {
 		return nil, err
 	}
 	if msgDB.removeOutQueueQuery, err = msgDB.encDB.Prepare(removeOutQueueQuery); err != nil {
+		return nil, err
+	}
+	if msgDB.setResendOutQueueQuery, err = msgDB.encDB.Prepare(setResendOutQueueQuery); err != nil {
+		return nil, err
+	}
+	if msgDB.clearResendOutQueueQuery, err = msgDB.encDB.Prepare(clearResendOutQueueQuery); err != nil {
 		return nil, err
 	}
 	if msgDB.addInQueueQuery, err = msgDB.encDB.Prepare(addInQueueQuery); err != nil {
