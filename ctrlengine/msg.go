@@ -263,7 +263,7 @@ func (ce *CtrlEngine) msgSend(
 		nyms = append(nyms, idMapped)
 	}
 	for _, nym := range nyms {
-		// TODO!
+		// TODO! (implement more accounts? delay settings?)
 		privkey, server, secret, minDelay, maxDelay, _, err := ce.msgDB.GetAccount(nym, "")
 		if err != nil {
 			return err
