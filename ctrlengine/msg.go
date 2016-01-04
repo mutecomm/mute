@@ -25,6 +25,7 @@ import (
 	"github.com/mutecomm/mute/mix/mixcrypt"
 	"github.com/mutecomm/mute/mix/nymaddr"
 	"github.com/mutecomm/mute/msgdb"
+	"github.com/mutecomm/mute/serviceguard/client"
 	"github.com/mutecomm/mute/uid/identity"
 	"github.com/mutecomm/mute/util"
 	"github.com/mutecomm/mute/util/times"
@@ -258,9 +259,11 @@ func (ce *CtrlEngine) procOutQueue(
 			return err
 		}
 		if msg == "" {
+			log.Debug("break")
 			break // no more messages in outqueue
 		}
 		if !envelope {
+			log.Debug("envelope")
 			// parse nymaddress
 			na, err := base64.Decode(nymaddress)
 			if err != nil {
@@ -298,15 +301,31 @@ func (ce *CtrlEngine) procOutQueue(
 		sendTime := times.Now() + int64(minDelay) // earliest
 		resend, err := muteprotoDeliver(c, msg)
 		if err != nil {
+			// If the message delivery failed because the token expired in the
+			// meantime we retract the message from the outqueue (setting it
+			// back to 'ToSend') and start the delivery process for this
+			// message all over again.
+			// Matching the error message string is not optimal, but the best
+			// available solution since the error results from calling another
+			// binary (muteproto).
+			if strings.HasSuffix(err.Error(), client.ErrFinal.Error()) {
+				log.Debug("retract")
+				if err := ce.msgDB.RetractOutQueue(oqIdx); err != nil {
+					return err
+				}
+				continue
+			}
 			return log.Error(err)
 		}
 		if resend {
 			// set resend status
+			log.Debug("resend")
 			if err := ce.msgDB.SetResendOutQueue(oqIdx); err != nil {
 				return err
 			}
 		} else {
 			// remove from outqueue
+			log.Debug("remove")
 			if err := ce.msgDB.RemoveOutQueue(oqIdx, sendTime); err != nil {
 				return err
 			}
