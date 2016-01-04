@@ -331,6 +331,11 @@ func (ce *CtrlEngine) msgSend(
 		nyms = append(nyms, idMapped)
 	}
 	for _, nym := range nyms {
+		// process old messages in outqueue
+		if err := ce.procOutQueue(c, nym, failDelivery); err != nil {
+			return err
+		}
+
 		// add all undelivered messages to outqueue
 		var recvNymAddress string
 		for {
@@ -374,7 +379,9 @@ func (ce *CtrlEngine) msgSend(
 				return log.Error(err)
 			}
 			// add to outqueue
-			if err := ce.msgDB.AddOutQueue(nym, msgID, enc, nymaddress, minDelay, maxDelay); err != nil {
+			err = ce.msgDB.AddOutQueue(nym, msgID, enc, nymaddress,
+				minDelay, maxDelay)
+			if err != nil {
 				return log.Error(err)
 			}
 		}
