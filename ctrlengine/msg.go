@@ -234,13 +234,15 @@ func muteprotoDeliver(
 	stdin.Close()
 	if err := cmd.Wait(); err != nil {
 		return false,
-			fmt.Errorf("%s: %s", err, strings.TrimSpace(errbuf.String()))
+			log.Errorf("%s: %s", err, strings.TrimSpace(errbuf.String()))
 	}
 	if len(errbuf.String()) > 0 {
-		if strings.TrimSpace(errbuf.String()) != "RESEND" {
-			return false, fmt.Errorf("ctrlengine: muteproto status output not parsable: %s",
-				errbuf.String())
+		errstr := strings.TrimSpace(errbuf.String())
+		if !strings.HasPrefix(errstr, "RESEND:\t") {
+			return false,
+				log.Errorf("ctrlengine: muteproto status output not parsable: %s", errstr)
 		}
+		log.Warn(errstr)
 		resend = true
 	}
 	return

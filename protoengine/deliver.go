@@ -27,7 +27,8 @@ func (pe *ProtoEngine) deliver(statusfp io.Writer, r io.Reader) error {
 	messageOut, err := mm.Unmarshal().Deliver()
 	if err != nil {
 		if messageOut.Resend {
-			fmt.Fprintf(statusfp, "RESEND\n")
+			log.Info("write: RESEND:\t%s", err.Error())
+			fmt.Fprintf(statusfp, "RESEND:\t%s\n", err.Error())
 			return nil
 		}
 		return log.Error(err)
