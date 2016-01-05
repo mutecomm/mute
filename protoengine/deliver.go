@@ -8,14 +8,13 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"os"
 
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/mix/client"
 )
 
-func (pe *ProtoEngine) deliver(statusfp *os.File, r io.Reader) error {
+func (pe *ProtoEngine) deliver(statusfp io.Writer, r io.Reader) error {
 	enc, err := ioutil.ReadAll(r)
 	if err != nil {
 		return log.Error(err)
