@@ -99,11 +99,44 @@ func (msgDB *MsgDB) GetMessage(
 		return "", "", "", 0, log.Error(err)
 	}
 	if direction == 1 {
-		from = selfID
-		to = peerID
+		unmappedID, fullName, err := msgDB.GetNym(selfID)
+		if err != nil {
+			return "", "", "", 0, err
+		}
+		if fullName == "" {
+			from = unmappedID
+		} else {
+			from = fullName + " <" + unmappedID + ">"
+		}
+		unmappedID, fullName, _, err = msgDB.GetContact(selfID, peerID)
+		if err != nil {
+			return "", "", "", 0, err
+		}
+		if fullName == "" {
+			to = unmappedID
+		} else {
+			to = fullName + " <" + unmappedID + ">"
+		}
 	} else {
-		from = peerID
-		to = selfID
+		unmappedID, fullName, _, err := msgDB.GetContact(selfID, peerID)
+		if err != nil {
+			return "", "", "", 0, err
+		}
+		if fullName == "" {
+			from = unmappedID
+		} else {
+			from = fullName + " <" + unmappedID + ">"
+
+		}
+		unmappedID, fullName, err = msgDB.GetNym(selfID)
+		if err != nil {
+			return "", "", "", 0, err
+		}
+		if fullName == "" {
+			to = unmappedID
+		} else {
+			to = fullName + " <" + unmappedID + ">"
+		}
 	}
 	return
 }

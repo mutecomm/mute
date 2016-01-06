@@ -22,13 +22,13 @@ func TestMessages(t *testing.T) {
 	a := "alice@mute.berlin"
 	b := "bob@mute.berlin"
 	tr := "trent@mute.berlin"
-	if err := msgDB.AddNym(a, a, "Alice"); err != nil {
+	if err := msgDB.AddNym(a, a, ""); err != nil {
 		t.Fatal(err)
 	}
 	if err := msgDB.AddNym(tr, tr, "Trent"); err != nil {
 		t.Fatal(err)
 	}
-	if err := msgDB.AddContact(a, b, b, "Bob", WhiteList); err != nil {
+	if err := msgDB.AddContact(a, b, b, "", WhiteList); err != nil {
 		t.Fatal(err)
 	}
 	num, err := msgDB.numberOfMessages()
