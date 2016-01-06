@@ -537,7 +537,11 @@ func muteprotoFetch(
 			log.Debug("read: NONE")
 			break
 		}
-		parts := strings.Split(strings.TrimRight(line, "\n"), "\t")
+		if strings.HasSuffix(line, "accountdb: nothing found") {
+			log.Info("account has no messages")
+			return 0, nil
+		}
+		parts := strings.Split(line, "\t")
 		if len(parts) != 2 || parts[0] != "MESSAGEID:" {
 			return 0, log.Errorf("ctrlengine: MESSAGEID line expected from muteproto, got: %s", line)
 		}
