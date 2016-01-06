@@ -26,7 +26,7 @@ func (pe *ProtoEngine) fetch(
 	command io.Reader,
 ) error {
 	// read passphrase
-	log.Infof("read passphrase from fd %d", pe.fileTable.PassphraseFD)
+	log.Infof("read private key from fd %d", pe.fileTable.PassphraseFD)
 	pks, err := util.Readline(pe.fileTable.PassphraseFP)
 	if err != nil {
 		return err
