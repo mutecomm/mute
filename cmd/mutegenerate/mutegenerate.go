@@ -21,9 +21,11 @@ import (
 
 func printCode(w io.Writer, release bool, commit, date string) {
 	if release {
+		fmt.Fprintf(w, "{\n")
 		fmt.Fprintf(w, "  \"release.Version\": \"%s\",\n", version.Number)
 		fmt.Fprintf(w, "  \"release.Commit\": \"%s\",\n", commit)
 		fmt.Fprintf(w, "  \"release.Date\": \"%s\"\n", date)
+		fmt.Fprintf(w, "}\n")
 	} else {
 		fmt.Fprintf(w, "package release\n")
 		fmt.Fprintf(w, "\n")
