@@ -79,38 +79,43 @@
 		},
 		{
 			"path": "golang.org/x/crypto/curve25519",
-			"revision": "f18420efc3b4f8e9f3d51f6bd2476e92c46260e9",
-			"revisionTime": "2015-12-15T11:40:13-07:00"
+			"revision": "552e9d568fde9701ea1944fb01c8aadaceaa7353",
+			"revisionTime": "2015-12-29T10:28:12-05:00"
 		},
 		{
 			"path": "golang.org/x/crypto/hkdf",
-			"revision": "f18420efc3b4f8e9f3d51f6bd2476e92c46260e9",
-			"revisionTime": "2015-12-15T11:40:13-07:00"
+			"revision": "552e9d568fde9701ea1944fb01c8aadaceaa7353",
+			"revisionTime": "2015-12-29T10:28:12-05:00"
 		},
 		{
 			"path": "golang.org/x/crypto/nacl/box",
-			"revision": "f18420efc3b4f8e9f3d51f6bd2476e92c46260e9",
-			"revisionTime": "2015-12-15T11:40:13-07:00"
+			"revision": "552e9d568fde9701ea1944fb01c8aadaceaa7353",
+			"revisionTime": "2015-12-29T10:28:12-05:00"
 		},
 		{
 			"path": "golang.org/x/crypto/nacl/secretbox",
-			"revision": "f18420efc3b4f8e9f3d51f6bd2476e92c46260e9",
-			"revisionTime": "2015-12-15T11:40:13-07:00"
+			"revision": "552e9d568fde9701ea1944fb01c8aadaceaa7353",
+			"revisionTime": "2015-12-29T10:28:12-05:00"
 		},
 		{
 			"path": "golang.org/x/crypto/pbkdf2",
-			"revision": "f18420efc3b4f8e9f3d51f6bd2476e92c46260e9",
-			"revisionTime": "2015-12-15T11:40:13-07:00"
+			"revision": "552e9d568fde9701ea1944fb01c8aadaceaa7353",
+			"revisionTime": "2015-12-29T10:28:12-05:00"
 		},
 		{
 			"path": "golang.org/x/crypto/poly1305",
-			"revision": "f18420efc3b4f8e9f3d51f6bd2476e92c46260e9",
-			"revisionTime": "2015-12-15T11:40:13-07:00"
+			"revision": "552e9d568fde9701ea1944fb01c8aadaceaa7353",
+			"revisionTime": "2015-12-29T10:28:12-05:00"
 		},
 		{
 			"path": "golang.org/x/crypto/salsa20/salsa",
-			"revision": "f18420efc3b4f8e9f3d51f6bd2476e92c46260e9",
-			"revisionTime": "2015-12-15T11:40:13-07:00"
+			"revision": "552e9d568fde9701ea1944fb01c8aadaceaa7353",
+			"revisionTime": "2015-12-29T10:28:12-05:00"
+		},
+		{
+			"path": "golang.org/x/crypto/ssh/terminal",
+			"revision": "552e9d568fde9701ea1944fb01c8aadaceaa7353",
+			"revisionTime": "2015-12-29T10:28:12-05:00"
 		}
 	]
 }
