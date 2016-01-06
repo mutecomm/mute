@@ -71,29 +71,32 @@ func (msgDB *MsgDB) AddMessage(
 func (msgDB *MsgDB) GetMessage(
 	myID string,
 	msgID int64,
-) (from, to, msg string, err error) {
+) (from, to, msg string, date int64, err error) {
 	if err := identity.IsMapped(myID); err != nil {
-		return "", "", "", log.Error(err)
+		return "", "", "", 0, log.Error(err)
 	}
-	var self int64
-	var peer int64
-	var direction int64
-	err = msgDB.getMsgQuery.QueryRow(msgID).Scan(&self, &peer, &direction, &msg)
+	var (
+		self      int64
+		peer      int64
+		direction int64
+	)
+	err = msgDB.getMsgQuery.QueryRow(msgID).Scan(&self, &peer, &direction,
+		&date, &msg)
 	if err != nil {
-		return "", "", "", err
+		return "", "", "", 0, err
 	}
 	var selfID string
 	err = msgDB.getNymMappedQuery.QueryRow(self).Scan(&selfID)
 	if err != nil {
-		return "", "", "", log.Error(err)
+		return "", "", "", 0, log.Error(err)
 	}
 	if myID != selfID {
-		return "", "", "", log.Error("msgdb: unknown message")
+		return "", "", "", 0, log.Error("msgdb: unknown message")
 	}
 	var peerID string
 	err = msgDB.getContactMappedQuery.QueryRow(self, peer).Scan(&peerID)
 	if err != nil {
-		return "", "", "", log.Error(err)
+		return "", "", "", 0, log.Error(err)
 	}
 	if direction == 1 {
 		from = selfID

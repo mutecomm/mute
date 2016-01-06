@@ -862,13 +862,15 @@ func (ce *CtrlEngine) msgRead(w io.Writer, myID string, msgID int64) error {
 	if err != nil {
 		return err
 	}
-	from, to, msg, err := ce.msgDB.GetMessage(idMapped, msgID)
+	from, to, msg, date, err := ce.msgDB.GetMessage(idMapped, msgID)
 	if err != nil {
 		return err
 	}
 	if err := ce.msgDB.ReadMessage(msgID); err != nil {
 		return err
 	}
+	fmt.Fprintf(w, "Date: %s\r\n",
+		time.Unix(date, 0).UTC().Format(time.RFC1123Z))
 	fmt.Fprintf(w, "From: %s\r\n", from)
 	fmt.Fprintf(w, "To: %s\r\n", to)
 	fmt.Fprintf(w, "\r\n")

@@ -38,13 +38,13 @@ func TestMessages(t *testing.T) {
 	if num != 0 {
 		t.Errorf("num != 0 == %d", num)
 	}
-	now := uint64(times.Now())
-	err = msgDB.AddMessage(a, b, now, true, "ping", false,
+	now := times.Now()
+	err = msgDB.AddMessage(a, b, uint64(now), true, "ping", false,
 		def.MinDelay, def.MaxDelay)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = msgDB.AddMessage(a, b, now, false, "pong", false,
+	err = msgDB.AddMessage(a, b, uint64(now), false, "pong", false,
 		def.MinDelay, def.MaxDelay)
 	if err != nil {
 		t.Fatal(err)
@@ -69,7 +69,7 @@ func TestMessages(t *testing.T) {
 	if ids[1].MsgID != 2 {
 		t.Error("ids[1].MsgID != 2")
 	}
-	from, to, msg, err := msgDB.GetMessage(a, 1)
+	from, to, msg, date, err := msgDB.GetMessage(a, 1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -82,10 +82,13 @@ func TestMessages(t *testing.T) {
 	if msg != "ping" {
 		t.Error("msg != \"ping\"")
 	}
+	if date != now {
+		t.Error("date != now")
+	}
 	if err := msgDB.ReadMessage(1); err != nil {
 		t.Error(err)
 	}
-	from, to, msg, err = msgDB.GetMessage(a, 2)
+	from, to, msg, date, err = msgDB.GetMessage(a, 2)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -97,6 +100,9 @@ func TestMessages(t *testing.T) {
 	}
 	if msg != "pong" {
 		t.Error("msg != \"pong\"")
+	}
+	if date != now {
+		t.Error("date != now")
 	}
 	if err := msgDB.ReadMessage(2); err != nil {
 		t.Error(err)
