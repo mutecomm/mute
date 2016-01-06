@@ -72,7 +72,6 @@ func (msgDB *MsgDB) AddContact(
 }
 
 // GetContact retrieves the (possibly blocked) contact contactID for myID.
-// Contacts containd in the gray list are not returned!
 func (msgDB *MsgDB) GetContact(myID, contactID string) (
 	unmappedID, fullName string,
 	contactType ContactType,
