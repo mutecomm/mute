@@ -123,9 +123,16 @@ func multipartMIME(
 	return nil
 }
 
-func getSubject(msg string) string {
+// SplitMessage splits a given Mute message msg into subject line (before the
+// first newline) and actual message (after the first newline).
+func SplitMessage(msg string) (subject, message string) {
 	parts := strings.SplitN(msg, "\n", 2)
-	return strings.TrimRight(parts[0], "\r") // better safe than sorry
+	subject = strings.TrimRight(parts[0], "\r") // better safe than sorry
+	if len(parts) == 1 {
+		return subject, ""
+	}
+	message = parts[1]
+	return
 }
 
 // New writes a MIME encoded message to w.
@@ -136,7 +143,8 @@ func New(
 	attachments []*Attachment,
 ) error {
 	writer := multipart.NewWriter(w)
-	err := mailHeader(w, header, getSubject(msg), writer.Boundary())
+	subject, _ := SplitMessage(msg)
+	err := mailHeader(w, header, subject, writer.Boundary())
 	if err != nil {
 		return err
 	}
