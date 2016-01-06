@@ -16,7 +16,7 @@ import (
 // true, it is a sent message. Otherwise a received message.
 func (msgDB *MsgDB) AddMessage(
 	selfID, peerID string,
-	date uint64,
+	date int64,
 	sent bool,
 	message string,
 	sign bool,

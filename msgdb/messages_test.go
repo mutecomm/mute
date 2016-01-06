@@ -39,12 +39,12 @@ func TestMessages(t *testing.T) {
 		t.Errorf("num != 0 == %d", num)
 	}
 	now := times.Now()
-	err = msgDB.AddMessage(a, b, uint64(now), true, "ping", false,
+	err = msgDB.AddMessage(a, b, now, true, "ping", false,
 		def.MinDelay, def.MaxDelay)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = msgDB.AddMessage(a, b, uint64(now), false, "pong", false,
+	err = msgDB.AddMessage(a, b, now, false, "pong", false,
 		def.MinDelay, def.MaxDelay)
 	if err != nil {
 		t.Fatal(err)

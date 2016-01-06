@@ -125,7 +125,7 @@ func TestDeleteNym(t *testing.T) {
 	if err := msgDB.AddContact(a, e, e, "Eve", BlackList); err != nil {
 		t.Fatal(err)
 	}
-	now := uint64(times.Now())
+	now := times.Now()
 	err = msgDB.AddMessage(a, b, now, true, "ping", false,
 		def.MinDelay, def.MaxDelay)
 	if err != nil {

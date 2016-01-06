@@ -28,7 +28,7 @@ func TestOutQueue(t *testing.T) {
 		t.Fatal(err)
 	}
 	now := times.Now()
-	err = msgDB.AddMessage(a, b, uint64(now), true, "ping", false,
+	err = msgDB.AddMessage(a, b, now, true, "ping", false,
 		def.MinDelay, def.MaxDelay)
 	if err != nil {
 		t.Fatal(err)
