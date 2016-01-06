@@ -879,6 +879,7 @@ func (ce *CtrlEngine) msgRead(w io.Writer, myID string, msgID int64) error {
 	if subject != "" {
 		fmt.Fprintf(w, "Subject: %s\r\n", mime.QEncoding.Encode("utf-8", subject))
 	}
+	fmt.Fprintf(w, "MIME-Version: 1.0\r\n")
 	fmt.Fprintf(w, "Content-Type: text/plain; charset=UTF-8\r\n")
 	fmt.Fprintf(w, "\r\n")
 	fmt.Fprintf(w, "%s", message)
