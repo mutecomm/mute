@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"mime"
 	"os"
 	"os/exec"
 	"strconv"
@@ -24,6 +25,7 @@ import (
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/mix/mixcrypt"
 	"github.com/mutecomm/mute/mix/nymaddr"
+	mimeMsg "github.com/mutecomm/mute/msg/mime"
 	"github.com/mutecomm/mute/msgdb"
 	"github.com/mutecomm/mute/serviceguard/client"
 	"github.com/mutecomm/mute/uid/identity"
@@ -869,13 +871,17 @@ func (ce *CtrlEngine) msgRead(w io.Writer, myID string, msgID int64) error {
 	if err := ce.msgDB.ReadMessage(msgID); err != nil {
 		return err
 	}
+	subject, message := mimeMsg.SplitMessage(msg)
 	fmt.Fprintf(w, "Date: %s\r\n",
 		time.Unix(date, 0).UTC().Format(time.RFC1123Z))
 	fmt.Fprintf(w, "From: %s\r\n", from)
 	fmt.Fprintf(w, "To: %s\r\n", to)
+	if subject != "" {
+		fmt.Fprintf(w, "Subject: %s\r\n", mime.QEncoding.Encode("utf-8", subject))
+	}
 	fmt.Fprintf(w, "Content-Type: text/plain; charset=UTF-8\r\n")
 	fmt.Fprintf(w, "\r\n")
-	fmt.Fprintf(w, "%s", msg)
+	fmt.Fprintf(w, "%s", message)
 	return nil
 }
 
