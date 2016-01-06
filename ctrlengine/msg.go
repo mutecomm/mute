@@ -869,8 +869,9 @@ func (ce *CtrlEngine) msgRead(w io.Writer, myID string, msgID int64) error {
 	if err := ce.msgDB.ReadMessage(msgID); err != nil {
 		return err
 	}
-	fmt.Fprintf(w, "From: %s\n", from)
-	fmt.Fprintf(w, "To: %s\n", to)
+	fmt.Fprintf(w, "From: %s\r\n", from)
+	fmt.Fprintf(w, "To: %s\r\n", to)
+	fmt.Fprintf(w, "\r\n")
 	fmt.Fprintf(w, "%s", msg)
 	return nil
 }
