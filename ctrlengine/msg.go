@@ -873,6 +873,7 @@ func (ce *CtrlEngine) msgRead(w io.Writer, myID string, msgID int64) error {
 		time.Unix(date, 0).UTC().Format(time.RFC1123Z))
 	fmt.Fprintf(w, "From: %s\r\n", from)
 	fmt.Fprintf(w, "To: %s\r\n", to)
+	fmt.Fprintf(w, "Content-Type: text/plain; charset=UTF-8\r\n")
 	fmt.Fprintf(w, "\r\n")
 	fmt.Fprintf(w, "%s", msg)
 	return nil
