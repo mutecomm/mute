@@ -139,6 +139,8 @@ func (ce *CtrlEngine) msgAdd(
 		}
 	} else if line != nil {
 		// read message from terminal
+		fmt.Fprintln(ce.fileTable.StatusFP,
+			"type message (end with Ctrl-D on empty line):")
 		var inbuf bytes.Buffer
 		for {
 			ln, err := line.Prompt("")
@@ -165,6 +167,11 @@ func (ce *CtrlEngine) msgAdd(
 		permanentSignature, minDelay, maxDelay)
 	if err != nil {
 		return err
+	}
+
+	log.Info("message added")
+	if line != nil {
+		fmt.Fprintln(ce.fileTable.StatusFP, "message added")
 	}
 
 	return nil
