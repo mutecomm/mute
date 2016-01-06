@@ -1420,9 +1420,10 @@ func (ce *CtrlEngine) openMsgDB(
 	homedir string,
 ) error {
 	// read passphrase
-	fmt.Fprintf(ce.fileTable.StatusFP, "read passphrase from fd %d\n",
+	fmt.Fprintf(ce.fileTable.StatusFP, "read passphrase from fd %d (not echoed)\n",
 		ce.fileTable.PassphraseFD)
-	log.Infof("read passphrase from fd %d", ce.fileTable.PassphraseFD)
+	log.Infof("read passphrase from fd %d (not echoed)",
+		ce.fileTable.PassphraseFD)
 	var err error
 	ce.passphrase, err = util.Readline(ce.fileTable.PassphraseFP)
 	if err != nil {

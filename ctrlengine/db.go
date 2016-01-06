@@ -22,6 +22,7 @@ import (
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msgdb"
 	"github.com/mutecomm/mute/util/bzero"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 func createKeyDB(c *cli.Context, w io.Writer, passphrase []byte) error {
@@ -75,28 +76,49 @@ func (ce *CtrlEngine) dbCreate(
 ) error {
 	msgdbname := filepath.Join(c.GlobalString("homedir"), "msgs")
 	// read passphrase
-	fmt.Fprintf(statusfp, "read passphrase from fd %d\n",
+	fmt.Fprintf(statusfp, "read passphrase from fd %d (not echoed)\n",
 		ce.fileTable.PassphraseFD)
-	log.Infof("read passphrase from fd %d", ce.fileTable.PassphraseFD)
-	scanner := bufio.NewScanner(ce.fileTable.PassphraseFP)
-	var passphrase []byte
+	log.Infof("read passphrase from fd %d (not echoed)",
+		ce.fileTable.PassphraseFD)
+	var (
+		scanner     *bufio.Scanner
+		passphrase  []byte
+		passphrase2 []byte
+		err         error
+	)
 	defer bzero.Bytes(passphrase)
-	if scanner.Scan() {
-		passphrase = scanner.Bytes()
-	} else if err := scanner.Err(); err != nil {
-		return log.Error(err)
+	defer bzero.Bytes(passphrase2)
+	isTerminal := terminal.IsTerminal(int(ce.fileTable.PassphraseFD))
+	if isTerminal {
+		passphrase, err = terminal.ReadPassword(int(ce.fileTable.PassphraseFD))
+		if err != nil {
+			return log.Error(err)
+		}
+	} else {
+		scanner = bufio.NewScanner(ce.fileTable.PassphraseFP)
+		if scanner.Scan() {
+			passphrase = scanner.Bytes()
+		} else if err := scanner.Err(); err != nil {
+			return log.Error(err)
+		}
 	}
 	log.Info("done")
 	// read passphrase again
-	fmt.Fprintf(statusfp, "read passphrase from fd %d again\n",
+	fmt.Fprintf(statusfp, "read passphrase from fd %d again (not echoed)\n",
 		ce.fileTable.PassphraseFD)
-	log.Infof("read passphrase from fd %d again", ce.fileTable.PassphraseFD)
-	var passphrase2 []byte
-	defer bzero.Bytes(passphrase2)
-	if scanner.Scan() {
-		passphrase2 = scanner.Bytes()
-	} else if err := scanner.Err(); err != nil {
-		return log.Error(err)
+	log.Infof("read passphrase from fd %d again (not echoed)",
+		ce.fileTable.PassphraseFD)
+	if isTerminal {
+		passphrase2, err = terminal.ReadPassword(int(ce.fileTable.PassphraseFD))
+		if err != nil {
+			return log.Error(err)
+		}
+	} else {
+		if scanner.Scan() {
+			passphrase2 = scanner.Bytes()
+		} else if err := scanner.Err(); err != nil {
+			return log.Error(err)
+		}
 	}
 	log.Info("done")
 	// compare passphrases
@@ -189,40 +211,69 @@ func rekeyKeyDB(c *cli.Context, oldPassphrase, newPassphrase []byte) error {
 func (ce *CtrlEngine) dbRekey(statusfp io.Writer, c *cli.Context) error {
 	msgdbname := filepath.Join(c.GlobalString("homedir"), "msgs")
 	// read old passphrase
-	fmt.Fprintf(statusfp, "read old passphrase from fd %d\n",
+	fmt.Fprintf(statusfp, "read old passphrase from fd %d (not echoed)\n",
 		ce.fileTable.PassphraseFD)
-	log.Infof("read old passphrase from fd %d", ce.fileTable.PassphraseFD)
-	scanner := bufio.NewScanner(ce.fileTable.PassphraseFP)
-	var oldPassphrase []byte
+	log.Infof("read old passphrase from fd %d (not echoed)",
+		ce.fileTable.PassphraseFD)
+	var (
+		scanner        *bufio.Scanner
+		oldPassphrase  []byte
+		newPassphrase  []byte
+		newPassphrase2 []byte
+		err            error
+	)
 	defer bzero.Bytes(oldPassphrase)
-	if scanner.Scan() {
-		oldPassphrase = scanner.Bytes()
-	} else if err := scanner.Err(); err != nil {
-		return log.Error(err)
+	defer bzero.Bytes(newPassphrase)
+	defer bzero.Bytes(newPassphrase2)
+	isTerminal := terminal.IsTerminal(int(ce.fileTable.PassphraseFD))
+	if isTerminal {
+		oldPassphrase, err = terminal.ReadPassword(int(ce.fileTable.PassphraseFD))
+		if err != nil {
+			return log.Error(err)
+		}
+	} else {
+		scanner = bufio.NewScanner(ce.fileTable.PassphraseFP)
+		if scanner.Scan() {
+			oldPassphrase = scanner.Bytes()
+		} else if err := scanner.Err(); err != nil {
+			return log.Error(err)
+		}
 	}
 	log.Info("done")
 	// read new passphrase
-	fmt.Fprintf(statusfp, "read new passphrase from fd %d\n",
+	fmt.Fprintf(statusfp, "read new passphrase from fd %d (not echoed)\n",
 		ce.fileTable.PassphraseFD)
-	log.Infof("read new passphrase from fd %d", ce.fileTable.PassphraseFD)
-	var newPassphrase []byte
-	defer bzero.Bytes(newPassphrase)
-	if scanner.Scan() {
-		newPassphrase = scanner.Bytes()
-	} else if err := scanner.Err(); err != nil {
-		return log.Error(err)
+	log.Infof("read new passphrase from fd %d (not echoed)",
+		ce.fileTable.PassphraseFD)
+	if isTerminal {
+		newPassphrase, err = terminal.ReadPassword(int(ce.fileTable.PassphraseFD))
+		if err != nil {
+			return log.Error(err)
+		}
+	} else {
+		if scanner.Scan() {
+			newPassphrase = scanner.Bytes()
+		} else if err := scanner.Err(); err != nil {
+			return log.Error(err)
+		}
 	}
 	log.Info("done")
 	// read new passphrase again
-	fmt.Fprintf(statusfp, "read new passphrase from fd %d again\n",
+	fmt.Fprintf(statusfp, "read new passphrase from fd %d again (not echoed)\n",
 		ce.fileTable.PassphraseFD)
-	log.Infof("read new passphrase from fd %d again", ce.fileTable.PassphraseFD)
-	var newPassphrase2 []byte
-	defer bzero.Bytes(newPassphrase2)
-	if scanner.Scan() {
-		newPassphrase2 = scanner.Bytes()
-	} else if err := scanner.Err(); err != nil {
-		return log.Error(err)
+	log.Infof("read new passphrase from fd %d again (not echoed)",
+		ce.fileTable.PassphraseFD)
+	if isTerminal {
+		newPassphrase2, err = terminal.ReadPassword(int(ce.fileTable.PassphraseFD))
+		if err != nil {
+			return log.Error(err)
+		}
+	} else {
+		if scanner.Scan() {
+			newPassphrase2 = scanner.Bytes()
+		} else if err := scanner.Err(); err != nil {
+			return log.Error(err)
+		}
 	}
 	log.Info("done")
 	// compare new passphrases

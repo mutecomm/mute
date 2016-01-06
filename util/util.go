@@ -13,6 +13,7 @@ import (
 	"os"
 
 	"github.com/mutecomm/mute/log"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 // ErrNotImplemented is returned if the used functionality is not implemented y
@@ -31,6 +32,10 @@ func Fatal(err error) {
 // Make sure you do not call it multiple times on the same file pointer!
 func Readline(fp *os.File) ([]byte, error) {
 	defer fp.Close()
+	fd := int(fp.Fd())
+	if terminal.IsTerminal(fd) {
+		return terminal.ReadPassword(fd)
+	}
 	scanner := bufio.NewScanner(fp)
 	var line []byte
 	if scanner.Scan() {
