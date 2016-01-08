@@ -92,8 +92,9 @@ func mutecryptEncrypt(
 	// parse nymaddress
 	parts := strings.Split(strings.TrimSpace(errbuf.String()), "\t")
 	if len(parts) != 2 || parts[0] != "NYMADDRESS:" {
-		return "", "", fmt.Errorf("ctrlengine: mutecrypt status output not parsable: %s",
-			errbuf.String())
+		return "", "",
+			fmt.Errorf("ctrlengine: mutecrypt status output not parsable: %s",
+				strings.TrimSpace(errbuf.String()))
 	}
 	enc = outbuf.String()
 	nymaddress = parts[1]
@@ -678,7 +679,8 @@ func mutecryptDecrypt(
 	}
 	stdin.Close()
 	if err := cmd.Wait(); err != nil {
-		return "", "", fmt.Errorf("%s: %s", err, errbuf.String())
+		return "", "",
+			fmt.Errorf("%s: %s", err, strings.TrimSpace(errbuf.String()))
 	}
 	// TODO: parse and process signature!
 	scanner := bufio.NewScanner(&errbuf)
