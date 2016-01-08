@@ -77,7 +77,7 @@ CREATE TABLE Accounts (
 	*/
 	createQueryMessages = `
 CREATE TABLE Messages (
-  MsgID       INTEGER PRIMARY KEY,
+  MsgID       INTEGER PRIMARY KEY, -- TODO: rename to MsgNum
   Self        INTEGER NOT NULL, -- foreign key to Nyms table
   Peer        INTEGER NOT NULL, -- foreign key to Contacts table
   Direction   INTEGER NOT NULL, -- 0: received message, 1: sent message

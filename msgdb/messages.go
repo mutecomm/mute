@@ -67,10 +67,10 @@ func (msgDB *MsgDB) AddMessage(
 	return nil
 }
 
-// GetMessage returns the message from user myID with the given msgID.
+// GetMessage returns the message from user myID with the given msgNum.
 func (msgDB *MsgDB) GetMessage(
 	myID string,
-	msgID int64,
+	msgNum int64,
 ) (from, to, msg string, date int64, err error) {
 	if err := identity.IsMapped(myID); err != nil {
 		return "", "", "", 0, log.Error(err)
@@ -80,7 +80,7 @@ func (msgDB *MsgDB) GetMessage(
 		peer      int64
 		direction int64
 	)
-	err = msgDB.getMsgQuery.QueryRow(msgID).Scan(&self, &peer, &direction,
+	err = msgDB.getMsgQuery.QueryRow(msgNum).Scan(&self, &peer, &direction,
 		&date, &msg)
 	if err != nil {
 		return "", "", "", 0, err
@@ -141,16 +141,16 @@ func (msgDB *MsgDB) GetMessage(
 	return
 }
 
-// ReadMessage sets the message with the given msgID as read.
-func (msgDB *MsgDB) ReadMessage(msgID int64) error {
-	if _, err := msgDB.readMsgQuery.Exec(msgID); err != nil {
+// ReadMessage sets the message with the given msgNum as read.
+func (msgDB *MsgDB) ReadMessage(msgNum int64) error {
+	if _, err := msgDB.readMsgQuery.Exec(msgNum); err != nil {
 		return log.Error(err)
 	}
 	return nil
 }
 
-// DelMessage deletes the message from user myID with the given msgID.
-func (msgDB *MsgDB) DelMessage(myID string, msgID int64) error {
+// DelMessage deletes the message from user myID with the given msgNum.
+func (msgDB *MsgDB) DelMessage(myID string, msgNum int64) error {
 	if err := identity.IsMapped(myID); err != nil {
 		return log.Error(err)
 	}
@@ -158,7 +158,7 @@ func (msgDB *MsgDB) DelMessage(myID string, msgID int64) error {
 	if err := msgDB.getNymUIDQuery.QueryRow(myID).Scan(&self); err != nil {
 		return log.Error(err)
 	}
-	res, err := msgDB.delMsgQuery.Exec(msgID, self)
+	res, err := msgDB.delMsgQuery.Exec(msgNum, self)
 	if err != nil {
 		return log.Error(err)
 	}
@@ -167,8 +167,8 @@ func (msgDB *MsgDB) DelMessage(myID string, msgID int64) error {
 		return log.Error(err)
 	}
 	if n < 1 {
-		return log.Errorf("msgdb: unknown msgid %d for user ID %s",
-			msgID, myID)
+		return log.Errorf("msgdb: unknown msgnum %d for user ID %s",
+			msgNum, myID)
 	}
 	return nil
 }
@@ -249,7 +249,7 @@ func (msgDB *MsgDB) GetMsgIDs(myID string) ([]*MsgID, error) {
 // GetUndeliveredMessage returns the oldest undelivered message for myID from
 // msgDB.
 func (msgDB *MsgDB) GetUndeliveredMessage(myID string) (
-	msgID int64,
+	msgNum int64,
 	contactID string,
 	msg []byte,
 	sign bool,
@@ -265,7 +265,7 @@ func (msgDB *MsgDB) GetUndeliveredMessage(myID string) (
 	}
 	var cID int64
 	var s int64
-	err = msgDB.getUndeliveredMsgQuery.QueryRow(mID).Scan(&msgID, &cID, &msg,
+	err = msgDB.getUndeliveredMsgQuery.QueryRow(mID).Scan(&msgNum, &cID, &msg,
 		&s, &minDelay, &maxDelay)
 	switch {
 	case err == sql.ErrNoRows:
