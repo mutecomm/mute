@@ -716,7 +716,7 @@ func (ce *CtrlEngine) procInQueue(c *cli.Context, host string) error {
 			break // no more messages in inqueue
 		}
 		if envelope {
-			log.Debug("decrypt envelope")
+			log.Debugf("decrypt envelope (iqIdx=%d)", iqIdx)
 			// decrypt envelope
 			message, err := base64.Decode(msg)
 			if err != nil {
@@ -750,7 +750,7 @@ func (ce *CtrlEngine) procInQueue(c *cli.Context, host string) error {
 				}
 			}
 		} else {
-			log.Debug("decrypt message")
+			log.Debugf("decrypt message (iqIdx=%d)", iqIdx)
 			senderID, plainMsg, err := mutecryptDecrypt(c, ce.passphrase, []byte(msg))
 			if err != nil {
 				return log.Error(err)

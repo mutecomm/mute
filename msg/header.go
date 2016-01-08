@@ -11,6 +11,7 @@ import (
 	"io"
 
 	"github.com/mutecomm/mute/cipher"
+	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/keyserver/hashchain"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg/padding"
@@ -156,6 +157,7 @@ func newHeaderPacket(
 	if _, err := io.ReadFull(rand, hp.Nonce[:]); err != nil {
 		return nil, log.Error(err)
 	}
+	log.Debugf("recvPub=%s\n", base64.Encode(recipientIdentityPub[:]))
 	hp.EncryptedHeader = box.Seal(hp.EncryptedHeader, jsn, &hp.Nonce,
 		recipientIdentityPub, senderHeaderPriv)
 	hp.LengthEncryptedHeader = uint16(len(hp.EncryptedHeader))
@@ -197,7 +199,7 @@ func readHeader(
 	if err := binary.Read(r, binary.BigEndian, &hp.LengthEncryptedHeader); err != nil {
 		return nil, nil, log.Error(err)
 	}
-	////log.Debugf("hp.LengthEncryptedHeader: %d", hp.LengthEncryptedHeader)
+	//log.Debugf("hp.LengthEncryptedHeader: %d", hp.LengthEncryptedHeader)
 	// read encrypted header
 	hp.EncryptedHeader = make([]byte, hp.LengthEncryptedHeader)
 	if _, err := io.ReadFull(r, hp.EncryptedHeader); err != nil {
@@ -208,6 +210,10 @@ func readHeader(
 	var suc bool
 	var identity *uid.Message
 	for _, uidMsg := range identities {
+		log.Debugf("try identity %s (#%d)", uidMsg.Identity(),
+			uidMsg.UIDContent.MSGCOUNT)
+		log.Debugf("recvPub=%s\n",
+			base64.Encode(uidMsg.PubKey().PublicKey32()[:]))
 		jsn, suc = box.Open(jsn, hp.EncryptedHeader, &hp.Nonce,
 			senderHeaderPub, uidMsg.PubKey().PrivateKey32())
 		if suc {
