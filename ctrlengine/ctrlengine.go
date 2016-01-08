@@ -979,7 +979,13 @@ Tries to register a new user ID with the corresponding key server.
 			Subcommands: []cli.Command{
 				{
 					Name:  "add",
-					Usage: "add a new message to out queue",
+					Usage: "add a new message to outqueue",
+					Description: `
+Add a new message to outqueue.
+If option --mail-input is set the input is parsed as an email message and the
+'To' field is used as recipient and the optional 'Subject' combined with the
+email body as the actual message.
+`,
 					Flags: []cli.Flag{
 						cli.StringFlag{
 							Name:  "from, id",
@@ -992,6 +998,10 @@ Tries to register a new user ID with the corresponding key server.
 						cli.StringFlag{
 							Name:  "file",
 							Usage: "read message from file",
+						},
+						cli.BoolFlag{
+							Name:  "mail-input",
+							Usage: "treat input as email message",
 						},
 						// TODO: implement options
 						/*
@@ -1016,8 +1026,11 @@ Tries to register a new user ID with the corresponding key server.
 						if !interactive && !c.IsSet("from") {
 							return log.Error("option --from is mandatory")
 						}
-						if !c.IsSet("to") {
+						if !c.IsSet("mail-input") && !c.IsSet("to") {
 							return log.Error("option --to is mandatory")
+						}
+						if c.IsSet("mail-input") && c.IsSet("to") {
+							return log.Error("options --to and --mail-input exclude each other")
 						}
 						if err := checkDelayArgs(c); err != nil {
 							return err
@@ -1029,7 +1042,8 @@ Tries to register a new user ID with the corresponding key server.
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.msgAdd(c, ce.getID(c), c.String("to"),
-							c.String("file"), c.Bool("permanent-signature"),
+							c.String("file"), c.Bool("mail-input"),
+							c.Bool("permanent-signature"),
 							c.StringSlice("attach"),
 							int32(c.Int("mindelay")), int32(c.Int("maxdelay")),
 							line, ce.fileTable.InputFP)

@@ -20,6 +20,7 @@ import (
 	"github.com/agl/ed25519"
 	"github.com/codegangsta/cli"
 	"github.com/mutecomm/mute/cipher"
+	"github.com/mutecomm/mute/ctrlengine/mail"
 	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
@@ -102,7 +103,7 @@ func mutecryptEncrypt(
 func (ce *CtrlEngine) msgAdd(
 	c *cli.Context,
 	from, to, file string,
-	permanentSignature bool,
+	mailInput, permanentSignature bool,
 	attachments []string,
 	minDelay, maxDelay int32,
 	line *liner.State,
@@ -118,17 +119,6 @@ func (ce *CtrlEngine) msgAdd(
 	}
 	if prev == "" {
 		return log.Errorf("user ID %s not found", from)
-	}
-	toMapped, err := identity.Map(to)
-	if err != nil {
-		return err
-	}
-	prev, _, contactType, err := ce.msgDB.GetContact(fromMapped, toMapped)
-	if err != nil {
-		return err
-	}
-	if prev == "" || contactType == msgdb.GrayList || contactType == msgdb.BlackList {
-		return log.Errorf("contact %s not found (for user ID %s)", to, from)
 	}
 
 	// TODO: handle attachments
@@ -161,6 +151,27 @@ func (ce *CtrlEngine) msgAdd(
 		if err != nil {
 			return log.Error(err)
 		}
+	}
+
+	if mailInput {
+		recipient, message, err := mail.Parse(bytes.NewBuffer(msg))
+		if err != nil {
+			return err
+		}
+		to = recipient
+		msg = []byte(message)
+	}
+
+	toMapped, err := identity.Map(to)
+	if err != nil {
+		return err
+	}
+	prev, _, contactType, err := ce.msgDB.GetContact(fromMapped, toMapped)
+	if err != nil {
+		return err
+	}
+	if prev == "" || contactType == msgdb.GrayList || contactType == msgdb.BlackList {
+		return log.Errorf("contact %s not found (for user ID %s)", to, from)
 	}
 
 	// store message in message DB
