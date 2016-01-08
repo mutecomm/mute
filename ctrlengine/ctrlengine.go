@@ -496,8 +496,8 @@ func New() *CtrlEngine {
 		Name:  "nodelaycheck",
 		Usage: "disable delay checks (for testing purposes only!)",
 	}
-	msgIDFlag := cli.IntFlag{
-		Name:  "msgid",
+	msgNumFlag := cli.IntFlag{
+		Name:  "msgnum",
 		Usage: "message ID to process",
 	}
 	ce.app.Commands = []cli.Command{
@@ -1129,7 +1129,7 @@ email body as the actual message.
 					Usage: "read message",
 					Flags: []cli.Flag{
 						idFlag,
-						msgIDFlag,
+						msgNumFlag,
 					},
 					Before: func(c *cli.Context) error {
 						if len(c.Args()) > 0 {
@@ -1138,8 +1138,8 @@ email body as the actual message.
 						if !interactive && !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if !c.IsSet("msgid") {
-							return log.Error("option --msgid is mandatory")
+						if !c.IsSet("msgnum") {
+							return log.Error("option --msgnum is mandatory")
 						}
 						if err := ce.prepare(c, true, true); err != nil {
 							return err
@@ -1148,7 +1148,7 @@ email body as the actual message.
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.msgRead(ce.fileTable.OutputFP, ce.getID(c),
-							int64(c.Int("msgid")))
+							int64(c.Int("msgnum")))
 					},
 				},
 				{
@@ -1160,7 +1160,7 @@ A deleted message is permanently gone. Handle with care!
 					`,
 					Flags: []cli.Flag{
 						idFlag,
-						msgIDFlag,
+						msgNumFlag,
 					},
 					Before: func(c *cli.Context) error {
 						if len(c.Args()) > 0 {
@@ -1169,8 +1169,8 @@ A deleted message is permanently gone. Handle with care!
 						if !interactive && !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if !c.IsSet("msgid") {
-							return log.Error("option --msgid is mandatory")
+						if !c.IsSet("msgnum") {
+							return log.Error("option --msgnum is mandatory")
 						}
 						if err := ce.prepare(c, true, true); err != nil {
 							return err
@@ -1178,7 +1178,7 @@ A deleted message is permanently gone. Handle with care!
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						ce.err = ce.msgDelete(ce.getID(c), int64(c.Int("msgid")))
+						ce.err = ce.msgDelete(ce.getID(c), int64(c.Int("msgnum")))
 					},
 				},
 			},

@@ -12,10 +12,10 @@ exec 3<~/.config/mute/passphrase.f ; mutectrl msg list --id "${username}" 2> /de
 	id=$(echo ${entry} | cut -d$'\t'  -f1 | cut -d\  -f2)
 	if [ "${entry:0:2}" == "<S" ]; then
 		# ToDo: Test that message has already been sent and not just queued for sending
-		exec 3<~/.config/mute/passphrase.f ; mutectrl msg read --id "${username}" --msgid ${id} 2> /dev/null > ~/.config/mute/MailDir/.Sent/new/${n}
-		exec 3<~/.config/mute/passphrase.f ; mutectrl msg delete --id "${username}" --msgid ${id}
+		exec 3<~/.config/mute/passphrase.f ; mutectrl msg read --id "${username}" --msgnum ${id} 2> /dev/null > ~/.config/mute/MailDir/.Sent/new/${n}
+		exec 3<~/.config/mute/passphrase.f ; mutectrl msg delete --id "${username}" --msgnum ${id}
 	elif [ "${entry:0:2}" == ">N" ]; then
-		exec 3<~/.config/mute/passphrase.f ; mutectrl msg read --id "${username}" --msgid ${id} 2> /dev/null > ~/.config/mute/MailDir/new/${n}
+		exec 3<~/.config/mute/passphrase.f ; mutectrl msg read --id "${username}" --msgnum ${id} 2> /dev/null > ~/.config/mute/MailDir/new/${n}
 	else
 		echo Error...Undirected message
 	fi
