@@ -38,17 +38,17 @@ func TestMessageID(t *testing.T) {
 	if len(parts) != 4 {
 		t.Fatal("len(parts) != 4")
 	}
-	if parts[0] != a {
-		t.Error("parts[0] != a")
+	if parts[0] != time.Now().UTC().Format("2006") {
+		t.Error("parts[0] != year")
 	}
-	if parts[1] != time.Now().UTC().Format("2006") {
-		t.Error("parts[1] != year")
+	if parts[1] != time.Now().UTC().Format("01") {
+		t.Error("parts[1] != month")
 	}
-	if parts[2] != time.Now().UTC().Format("01") {
-		t.Error("parts[2] != month")
+	if len(parts[2]) != 32 {
+		t.Error("len(parts[2]) != 32")
 	}
-	if len(parts[3]) != 16 {
-		t.Error("len(parts[3]) != 16")
+	if parts[3] != a {
+		t.Error("parts[3] != a")
 	}
 	if Parse(a) != "" {
 		t.Error("should fail")
