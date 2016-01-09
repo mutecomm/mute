@@ -11,6 +11,10 @@ import (
 // ErrNotPreHeader is raised when a message doesn't start with a pre-header.
 var ErrNotPreHeader = errors.New("msg: message doesn't start with pre-header")
 
+// ErrNoPreHeaderKey is raised when the key to decrypt the pre-header could
+// not be found.
+var ErrNoPreHeaderKey = errors.New("msg: could not find key to decrypt pre-header")
+
 // ErrNotEncryptedHeader is raised when a message doesn't has an encrypted
 // header after the pre-header.
 var ErrNotEncryptedHeader = errors.New("msg: message doesn't have encrypted header")

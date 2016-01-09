@@ -222,8 +222,7 @@ func readHeader(
 		}
 	}
 	if !suc {
-		return nil, nil,
-			log.Error("msg: could not find key to decrypt header")
+		return nil, nil, log.Error(ErrNoPreHeaderKey)
 	}
 	var h header
 	if err := json.Unmarshal(jsn, &h); err != nil {
