@@ -26,6 +26,7 @@ import (
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/mix/mixcrypt"
 	"github.com/mutecomm/mute/mix/nymaddr"
+	"github.com/mutecomm/mute/msg"
 	mimeMsg "github.com/mutecomm/mute/msg/mime"
 	"github.com/mutecomm/mute/msgdb"
 	"github.com/mutecomm/mute/serviceguard/client"
@@ -647,7 +648,8 @@ func muteprotoFetch(
 func mutecryptDecrypt(
 	c *cli.Context,
 	passphrase, enc []byte,
-) (senderID, msg string, err error) {
+	statusFP io.Writer,
+) (senderID, message string, err error) {
 	args := []string{
 		"--homedir", c.GlobalString("homedir"),
 		"--loglevel", c.GlobalString("loglevel"),
@@ -665,22 +667,28 @@ func mutecryptDecrypt(
 	cmd.Stderr = &errbuf
 	ppR, ppW, err := os.Pipe()
 	if err != nil {
-		return "", "", err
+		return "", "", log.Error(err)
 	}
 	defer ppR.Close()
 	ppW.Write(passphrase)
 	ppW.Close()
 	cmd.ExtraFiles = append(cmd.ExtraFiles, ppR)
 	if err := cmd.Start(); err != nil {
-		return "", "", err
+		return "", "", log.Error(err)
 	}
 	if _, err := stdin.Write(enc); err != nil {
-		return "", "", err
+		return "", "", log.Error(err)
 	}
 	stdin.Close()
 	if err := cmd.Wait(); err != nil {
-		return "", "",
-			fmt.Errorf("%s: %s", err, strings.TrimSpace(errbuf.String()))
+		errstr := strings.TrimSpace(errbuf.String())
+		if strings.HasSuffix(errstr, msg.ErrNoPreHeaderKey.Error()) {
+			log.Warn("could not decrypt pre-header, message dropped")
+			fmt.Fprintf(statusFP,
+				"could not decrypt pre-header, message dropped\n")
+			return "", "", nil
+		}
+		return "", "", log.Errorf("%s: %s", err, errstr)
 	}
 	// TODO: parse and process signature!
 	scanner := bufio.NewScanner(&errbuf)
@@ -689,7 +697,7 @@ func mutecryptDecrypt(
 		parts := strings.Split(line, "\t")
 		if len(parts) != 2 || parts[0] != "SENDERIDENTITY:" {
 			return "", "",
-				fmt.Errorf("ctrlengine: mutecrypt status output not parsable: %s", line)
+				log.Errorf("ctrlengine: mutecrypt status output not parsable: %s", line)
 		}
 		senderID = parts[1]
 	} else {
@@ -699,7 +707,7 @@ func mutecryptDecrypt(
 		return "", "", log.Error(err)
 	}
 
-	msg = outbuf.String()
+	message = outbuf.String()
 	return
 }
 
@@ -751,9 +759,17 @@ func (ce *CtrlEngine) procInQueue(c *cli.Context, host string) error {
 			}
 		} else {
 			log.Debugf("decrypt message (iqIdx=%d)", iqIdx)
-			senderID, plainMsg, err := mutecryptDecrypt(c, ce.passphrase, []byte(msg))
+			senderID, plainMsg, err := mutecryptDecrypt(c, ce.passphrase,
+				[]byte(msg), ce.fileTable.StatusFP)
 			if err != nil {
-				return log.Error(err)
+				return err
+			}
+			if senderID == "" {
+				// message could not be decrypted, but we do not want to fail
+				if err := ce.msgDB.DelInQueue(iqIdx); err != nil {
+					return err
+				}
+				continue
 			}
 			// check if contact exists
 			contact, _, contactType, err := ce.msgDB.GetContact(myID, senderID)
