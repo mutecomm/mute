@@ -25,9 +25,14 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-func createKeyDB(c *cli.Context, w io.Writer, passphrase []byte) error {
+func createKeyDB(
+	c *cli.Context,
+	w io.Writer,
+	outputFD uintptr,
+	passphrase []byte,
+) error {
 	args := []string{
-		"--output-fd", c.GlobalString("output-fd"),
+		"--output-fd", strconv.Itoa(int(outputFD)),
 		"--passphrase-fd", "stdin",
 		"--homedir", c.GlobalString("homedir"),
 		"--loglevel", c.GlobalString("loglevel"),
@@ -143,7 +148,7 @@ func (ce *CtrlEngine) dbCreate(
 	}
 	// create keyDB
 	log.Info("create keyDB")
-	if err := createKeyDB(c, w, passphrase); err != nil {
+	if err := createKeyDB(c, w, ce.fileTable.OutputFD, passphrase); err != nil {
 		return err
 	}
 	// status
