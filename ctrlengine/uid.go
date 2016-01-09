@@ -322,7 +322,14 @@ func (ce *CtrlEngine) uidNew(
 		}
 	}
 
-	// TODO: check that ID has not been registered already by the same user)
+	// check that ID has not been registered already by the same user
+	unmappedID, _, err := ce.msgDB.GetNym(id)
+	if err != nil {
+		return err
+	}
+	if unmappedID != "" {
+		return log.Errorf("user ID %s already owned", id)
+	}
 
 	// check that ID has not been registered already by other user
 	err = mutecryptHashchainSearch(c, id, c.String("host"), ce.passphrase)
