@@ -328,13 +328,13 @@ func (ce *CtrlEngine) uidNew(
 		return err
 	}
 	if unmappedID != "" {
-		return log.Errorf("user ID %s already owned", id)
+		return log.Error(ErrUserIDOwned)
 	}
 
 	// check that ID has not been registered already by other user
 	err = mutecryptHashchainSearch(c, id, c.String("host"), ce.passphrase)
 	if err == nil {
-		return log.Errorf("user ID %s already taken", id)
+		return log.Error(ErrUserIDTaken)
 	}
 
 	// get token from wallet
