@@ -266,6 +266,43 @@ func mutecryptNewUID(
 	return nil
 }
 
+func mutecryptHashchainSearch(
+	c *cli.Context,
+	id, host string,
+	passphrase []byte,
+) error {
+	args := []string{
+		"--homedir", c.GlobalString("homedir"),
+		"--loglevel", c.GlobalString("loglevel"),
+		"--logdir", c.GlobalString("logdir"),
+	}
+	if host != "" {
+		args = append(args,
+			"--keyhost", host,
+			"--keyport", ":8080") // TODO: remove keyport hack!
+	}
+	args = append(args,
+		"hashchain", "search",
+		"--search-only",
+		"--id", id,
+	)
+	cmd := exec.Command("mutecrypt", args...)
+	var errbuf bytes.Buffer
+	cmd.Stderr = &errbuf
+	ppR, ppW, err := os.Pipe()
+	if err != nil {
+		return err
+	}
+	defer ppR.Close()
+	ppW.Write(passphrase)
+	ppW.Close()
+	cmd.ExtraFiles = append(cmd.ExtraFiles, ppR)
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("%s: %s", err, strings.TrimSpace(errbuf.String()))
+	}
+	return nil
+}
+
 func (ce *CtrlEngine) uidNew(
 	c *cli.Context,
 	minDelay, maxDelay int32,
@@ -285,7 +322,13 @@ func (ce *CtrlEngine) uidNew(
 		}
 	}
 
-	// TODO: check that ID has not been registered already (by the same or other user)
+	// TODO: check that ID has not been registered already by the same user)
+
+	// check that ID has not been registered already by other user
+	err = mutecryptHashchainSearch(c, id, c.String("host"), ce.passphrase)
+	if err == nil {
+		return log.Errorf("user ID %s already taken", id)
+	}
 
 	// get token from wallet
 	token, err := wallet.GetToken(ce.client, def.AccdUsage, def.AccdOwner)
