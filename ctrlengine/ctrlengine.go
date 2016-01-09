@@ -363,6 +363,13 @@ func (ce *CtrlEngine) loop(c *cli.Context) {
 			continue
 		}
 		log.Infof("read: %s", ln)
+		// in the loop these global variables are reset, therefore we have to
+		// pass them in again
+		args = append(args,
+			"--homedir", c.GlobalString("homedir"),
+			"--logdir", c.GlobalString("logdir"),
+			"--loglevel", c.GlobalString("loglevel"),
+		)
 		args = append(args, strings.Fields(ln)...)
 		if err := ce.app.Run(args); err != nil {
 			// command execution failed -> issue status and continue
