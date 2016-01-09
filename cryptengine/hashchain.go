@@ -262,7 +262,7 @@ func (ce *CryptEngine) verifyServerSig(
 // searchHashChain searches the local hash chain corresponding to the given id
 // for the id. It talks to the corresponding key server to retrieve necessary
 // UIDMessageReplys and stores found UIDMessages in the local keyDB.
-func (ce *CryptEngine) searchHashChain(id string) error {
+func (ce *CryptEngine) searchHashChain(id string, searchOnly bool) error {
 	// map identity
 	mappedID, domain, err := identity.MapPlus(id)
 	if err != nil {
@@ -306,6 +306,9 @@ func (ce *CryptEngine) searchHashChain(id string) error {
 		// If NOT: HashID == HashIDTest: Continue
 		if !bytes.Equal(HashID, HashIDTest) {
 			continue
+		}
+		if searchOnly {
+			return nil
 		}
 		log.Debugf("cryptengine: UIDIndex=%s", base64.Encode(UIDIndex))
 

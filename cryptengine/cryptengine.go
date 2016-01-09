@@ -728,11 +728,15 @@ Delete a user ID (registered or unregistered).
 				},
 				{
 					Name:  "search",
-					Usage: "search local hash chain",
+					Usage: "search local hash chain and add UID messages",
 					Flags: []cli.Flag{
 						cli.StringFlag{
 							Name:  "id",
 							Usage: "user ID",
+						},
+						cli.BoolFlag{
+							Name:  "search-only",
+							Usage: "only search hash chain, do not retrieve UID messages",
 						},
 					},
 					Before: func(c *cli.Context) error {
@@ -748,7 +752,8 @@ Delete a user ID (registered or unregistered).
 						return nil
 					},
 					Action: func(c *cli.Context) {
-						ce.err = ce.searchHashChain(c.String("id"))
+						ce.err = ce.searchHashChain(c.String("id"),
+							c.Bool("search-only"))
 					},
 				},
 				{
