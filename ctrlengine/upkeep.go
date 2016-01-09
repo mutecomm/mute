@@ -441,7 +441,7 @@ func mutecryptHashchainSync(
 	return nil
 }
 
-func mutecryptHashchainVerify(
+func mutecryptHashchainValidate(
 	c *cli.Context,
 	domain, host string,
 	passphrase []byte,
@@ -457,7 +457,7 @@ func mutecryptHashchainVerify(
 			"--keyport", ":8080") // TODO: remove keyport hack!
 	}
 	args = append(args,
-		"hashchain", "sync",
+		"hashchain", "validate",
 		"--domain", domain,
 	)
 	cmd := exec.Command("mutecrypt", args...)
@@ -487,8 +487,8 @@ func (ce *CtrlEngine) upkeepHashchain(
 		return err
 	}
 	// verify hashchain
-	// TODO: we only have to verify the new part, not the whole hashchain!
-	err = mutecryptHashchainVerify(c, domain, host, ce.passphrase)
+	// TODO: we only have to validate the new part, not the whole hashchain!
+	err = mutecryptHashchainValidate(c, domain, host, ce.passphrase)
 	if err != nil {
 		return err
 	}
