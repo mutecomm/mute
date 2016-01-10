@@ -13,17 +13,15 @@ import (
 // SHA1 computes the SHA1 hash of the given buffer.
 // In Mute SHA1 is only used for tokens.
 func SHA1(buffer []byte) []byte {
-	hash := sha1.New()
-	hash.Write(buffer)
-	return hash.Sum(make([]byte, 0, sha1.Size))
+	hash := sha1.Sum(buffer)
+	return hash[:]
 }
 
 // SHA256 computes the SHA256 hash of the given buffer.
 // In Mute SHA256 is only used for hash chain operations.
 func SHA256(buffer []byte) []byte {
-	hash := sha256.New()
-	hash.Write(buffer)
-	return hash.Sum(make([]byte, 0, sha256.Size))
+	hash := sha256.Sum256(buffer)
+	return hash[:]
 }
 
 // SHA512 computes the SHA512 hash of the given buffer.
@@ -31,7 +29,6 @@ func SHA256(buffer []byte) []byte {
 // operations. For example, key material is hashed with SHA512 and message
 // authentication uses SHA512.
 func SHA512(buffer []byte) []byte {
-	hash := sha512.New()
-	hash.Write(buffer)
-	return hash.Sum(make([]byte, 0, sha512.Size))
+	hash := sha512.Sum512(buffer)
+	return hash[:]
 }
