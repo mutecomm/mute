@@ -103,7 +103,7 @@ func writeConfigFile(homedir, domain string, config []byte) error {
 	}
 	tmpfile := filepath.Join(configdir, domain+".new")
 	os.Remove(tmpfile) // ignore error
-	if err := ioutil.WriteFile(tmpfile, config, 0700); err != nil {
+	if err := ioutil.WriteFile(tmpfile, config, 0600); err != nil {
 		return log.Error(err)
 	}
 	return os.Rename(tmpfile, filepath.Join(configdir, domain))
