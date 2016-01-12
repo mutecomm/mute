@@ -22,9 +22,9 @@ import (
 func printCode(w io.Writer, release bool, commit, date string) {
 	if release {
 		fmt.Fprintf(w, "{\n")
-		fmt.Fprintf(w, "  \"release.Version\": \"%s\",\n", version.Number)
-		fmt.Fprintf(w, "  \"release.Commit\": \"%s\",\n", commit)
-		fmt.Fprintf(w, "  \"release.Date\": \"%s\"\n", date)
+		fmt.Fprintf(w, "  \"release.Version\": %q,\n", version.Number)
+		fmt.Fprintf(w, "  \"release.Commit\": %q,\n", commit)
+		fmt.Fprintf(w, "  \"release.Date\": %q\n", date)
 		fmt.Fprintf(w, "}\n")
 	} else {
 		fmt.Fprintf(w, "package release\n")
@@ -34,9 +34,9 @@ func printCode(w io.Writer, release bool, commit, date string) {
 		fmt.Fprintf(w, "\n")
 		fmt.Fprintf(w, "const (\n")
 		fmt.Fprintf(w, "\t// Commit is the git commit hash.\n")
-		fmt.Fprintf(w, "\tCommit = \"%s\"\n", commit)
+		fmt.Fprintf(w, "\tCommit = %q\n", commit)
 		fmt.Fprintf(w, "\t// Date is the git commit date.\n")
-		fmt.Fprintf(w, "\tDate = \"%s\"\n", date)
+		fmt.Fprintf(w, "\tDate = %q\n", date)
 		fmt.Fprintf(w, ")\n")
 	}
 }

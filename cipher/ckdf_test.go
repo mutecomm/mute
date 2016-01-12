@@ -20,10 +20,10 @@ func TestCKDF(t *testing.T) {
 	k1, k2 := CKDF(encode.ToByte8(0))
 	k1Hex := hex.EncodeToString(k1)
 	if k1Hex != k1Res {
-		t.Errorf("k1 == \"%s\" != \"%s\")", k1Hex, k1Res)
+		t.Errorf("k1 == %q != %q)", k1Hex, k1Res)
 	}
 	k2Hex := hex.EncodeToString(k2)
 	if k2Hex != k2Res {
-		t.Errorf("k2 == \"%s\" != \"%s\")", k2Hex, k2Res)
+		t.Errorf("k2 == %q != %q)", k2Hex, k2Res)
 	}
 }

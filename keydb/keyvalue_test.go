@@ -25,7 +25,7 @@ func TestKeyValueStore(t *testing.T) {
 		t.Fatal(err)
 	}
 	if value != "bar" {
-		t.Errorf("value is not \"bar\" (but \"%s\")", value)
+		t.Errorf("value is not \"bar\" (but %q)", value)
 	}
 	// update key
 	if err := keyDB.AddValue("foo", "baz"); err != nil {
@@ -36,7 +36,7 @@ func TestKeyValueStore(t *testing.T) {
 		t.Fatal(err)
 	}
 	if value != "baz" {
-		t.Errorf("value is not \"baz\" (but \"%s\")", value)
+		t.Errorf("value is not \"baz\" (but %q)", value)
 	}
 	// add empty key
 	if err := keyDB.AddValue("", "bar"); err == nil {

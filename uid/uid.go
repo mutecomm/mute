@@ -201,7 +201,7 @@ func (msg *Message) checkV1_0() error {
 	// UIDContent.PREFERENCES.FORWARDSEC must be "strict"
 	strict := Strict.String()
 	if msg.UIDContent.PREFERENCES.FORWARDSEC != strict {
-		return log.Errorf("uid: FORWARDSEC must be \"%s\"", strict)
+		return log.Errorf("uid: FORWARDSEC must be %q", strict)
 	}
 	// UIDContent.PUBKEYS contains exactly one ECDHE25519 key for the default
 	// ciphersuite
@@ -251,11 +251,11 @@ func (msg *Message) Check() error {
 	optional := Optional.String()
 	if msg.UIDContent.PREFERENCES.FORWARDSEC != optional {
 		if msg.UIDContent.MIXADDRESS != "" {
-			return log.Errorf("uid: MIXADDRESS must be null, if FORWARDSEC is not \"%s\"",
+			return log.Errorf("uid: MIXADDRESS must be null, if FORWARDSEC is not %q",
 				optional)
 		}
 		if msg.UIDContent.NYMADDRESS != "" {
-			return log.Errorf("uid: NYMADDRESS must be null, if FORWARDSEC is not \"%s\"",
+			return log.Errorf("uid: NYMADDRESS must be null, if FORWARDSEC is not %q",
 				optional)
 		}
 	}

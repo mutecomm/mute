@@ -180,7 +180,7 @@ func EncodeChunks(
 
 		mh := make(textproto.MIMEHeader)
 		mh.Add("Content-Type",
-			fmt.Sprintf("chunked; piece=%d; count=%d; chunkid=\"%s\"", i+1,
+			fmt.Sprintf("chunked; piece=%d; count=%d; chunkid=%q", i+1,
 				numOfChunks, header.MessageID))
 		mh.Add("Content-Transfer-Encoding", "base64")
 		chunkWriter, err := writer.CreatePart(mh)

@@ -56,7 +56,7 @@ func (ce *CryptEngine) generate(
 		}
 		fmt.Fprintln(outputfp, out.String())
 		if keyserver {
-			fmt.Fprintf(outputfp, "{\"PRIVSIGKEY\": \"%s\"}\n", uid.PrivateSigKey())
+			fmt.Fprintf(outputfp, "{\"PRIVSIGKEY\": %q}\n", uid.PrivateSigKey())
 		}
 	}
 	log.Infof("nym '%s' generated successfully", id)

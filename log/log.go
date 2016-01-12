@@ -37,7 +37,7 @@ func Init(logLevel, cmdPrefix, logDir string, logToConsole bool) error {
 	}
 	// check cmdPrefix
 	if len(cmdPrefix) != 5 {
-		return fmt.Errorf("len(cmdPrefix) must be 5: \"%s\"", cmdPrefix)
+		return fmt.Errorf("len(cmdPrefix) must be 5: %q", cmdPrefix)
 	}
 	// create logger
 	console := "<console />"
@@ -47,7 +47,7 @@ func Init(logLevel, cmdPrefix, logDir string, logToConsole bool) error {
 	var file string
 	if logDir != "" {
 		execBase := strings.TrimSuffix(filepath.Base(os.Args[0]), ".exe")
-		file = fmt.Sprintf("<rollingfile type=\"size\" filename=\"%s\" maxsize=\"10485760\" maxrolls=\"3\" />",
+		file = fmt.Sprintf("<rollingfile type=\"size\" filename=%q maxsize=\"10485760\" maxrolls=\"3\" />",
 			filepath.Join(logDir, execBase+".log"))
 	}
 	config := `
