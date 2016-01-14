@@ -33,3 +33,12 @@ life. If you have enough metadata, you don’t really need content.
 // Message4 is a test message.
 const Message4 = `We kill people based on metadata.
 — Michael Hayden, former Director of the NSA`
+
+// Message5 is a test message.
+const Message5 = `What you're given is a set of powerful but easy to understand,
+easy to use building blocks from which you can assemble—compose—a solution to
+your problem. It might not end up quite as fast or as sophisticated or as
+ideologically motivated as the solution you'd write in some of those other
+languages, but it'll almost certainly be easier to write, easier to read, easier
+to understand, easier to maintain, and maybe safer.
+— Rob Pike on the Go Programming language, 2012`
