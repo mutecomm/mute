@@ -335,11 +335,11 @@ func printRun(r []*operation) {
 func TestFailure1(t *testing.T) {
 	defer log.Flush()
 	r := []*operation{
-		&operation{op: encryptAlice},
-		&operation{op: encryptBob, prio: 2},
-		&operation{op: decrypt},
-		&operation{op: encryptAlice, prio: 1},
-		&operation{op: decrypt},
+		{op: encryptAlice},
+		{op: encryptBob, prio: 2},
+		{op: decrypt},
+		{op: encryptAlice, prio: 1},
+		{op: decrypt},
 	}
 	if err := testRun(r); err != nil {
 		printRun(r)
@@ -350,11 +350,11 @@ func TestFailure1(t *testing.T) {
 func TestFailure2(t *testing.T) {
 	defer log.Flush()
 	r := []*operation{
-		&operation{op: encryptBob, prio: 1},
-		&operation{op: encryptBob, prio: 2},
-		&operation{op: encryptBob, prio: 3},
-		&operation{op: encryptAlice},
-		&operation{op: decrypt},
+		{op: encryptBob, prio: 1},
+		{op: encryptBob, prio: 2},
+		{op: encryptBob, prio: 3},
+		{op: encryptAlice},
+		{op: decrypt},
 	}
 	if err := testRun(r); err != nil {
 		printRun(r)
@@ -365,14 +365,14 @@ func TestFailure2(t *testing.T) {
 func TestFailure3(t *testing.T) {
 	defer log.Flush()
 	r := []*operation{
-		&operation{op: encryptAlice},
-		&operation{op: encryptAlice, prio: 1},
-		&operation{op: decrypt},
-		&operation{op: decrypt},
-		&operation{op: encryptBob},
-		&operation{op: decrypt},
-		&operation{op: encryptAlice},
-		&operation{op: decrypt},
+		{op: encryptAlice},
+		{op: encryptAlice, prio: 1},
+		{op: decrypt},
+		{op: decrypt},
+		{op: encryptBob},
+		{op: decrypt},
+		{op: encryptAlice},
+		{op: decrypt},
 	}
 	if err := testRun(r); err != nil {
 		printRun(r)
@@ -383,15 +383,15 @@ func TestFailure3(t *testing.T) {
 func TestFailure4(t *testing.T) {
 	defer log.Flush()
 	r := []*operation{
-		&operation{op: encryptBob, prio: 1},
-		&operation{op: encryptBob, prio: 2},
-		&operation{op: decrypt},
-		&operation{op: encryptAlice, prio: 3},
-		&operation{op: encryptAlice},
-		&operation{op: decrypt},
-		&operation{op: encryptAlice, prio: 4},
-		&operation{op: decrypt},
-		&operation{op: decrypt},
+		{op: encryptBob, prio: 1},
+		{op: encryptBob, prio: 2},
+		{op: decrypt},
+		{op: encryptAlice, prio: 3},
+		{op: encryptAlice},
+		{op: decrypt},
+		{op: encryptAlice, prio: 4},
+		{op: decrypt},
+		{op: decrypt},
 	}
 	if err := testRun(r); err != nil {
 		printRun(r)
@@ -418,14 +418,14 @@ func TestRandom(t *testing.T) {
 func TestConversation(t *testing.T) {
 	defer log.Flush()
 	r := []*operation{
-		&operation{op: encryptAlice, checkKey: true},                // start first session (Alice)
-		&operation{op: decrypt, checkKey: true},                     // start first session (Bob)
-		&operation{op: encryptBob, checkKey: true, usePrev: true},   // set nextSenderSession (Bob)
-		&operation{op: decrypt, checkKey: true, usePrev: true},      // set nextSenderSession(Alice)
-		&operation{op: encryptAlice, checkKey: true, usePrev: true}, // Alice saw Bob's new key
-		&operation{op: decrypt, checkKey: true, usePrev: true},      // Bob updates session
-		&operation{op: encryptBob, checkKey: true},                  // Bob encrypts with new session
-		&operation{op: decrypt, checkKey: true},                     // Alice sees new session and switches
+		{op: encryptAlice, checkKey: true},                // start first session (Alice)
+		{op: decrypt, checkKey: true},                     // start first session (Bob)
+		{op: encryptBob, checkKey: true, usePrev: true},   // set nextSenderSession (Bob)
+		{op: decrypt, checkKey: true, usePrev: true},      // set nextSenderSession(Alice)
+		{op: encryptAlice, checkKey: true, usePrev: true}, // Alice saw Bob's new key
+		{op: decrypt, checkKey: true, usePrev: true},      // Bob updates session
+		{op: encryptBob, checkKey: true},                  // Bob encrypts with new session
+		{op: decrypt, checkKey: true},                     // Alice sees new session and switches
 	}
 	if err := testRun(r); err != nil {
 		printRun(r)
@@ -435,16 +435,16 @@ func TestConversation(t *testing.T) {
 
 func TestExhaustSessionSequential(t *testing.T) {
 	r := []*operation{
-		&operation{op: encryptAlice, prio: 4},
-		&operation{op: encryptAlice, prio: 3},
-		&operation{op: encryptAlice, prio: 2},
-		&operation{op: encryptAlice, prio: 1},
-		&operation{op: encryptAlice},
-		&operation{op: decrypt},
-		&operation{op: decrypt},
-		&operation{op: decrypt},
-		&operation{op: decrypt},
-		&operation{op: decrypt},
+		{op: encryptAlice, prio: 4},
+		{op: encryptAlice, prio: 3},
+		{op: encryptAlice, prio: 2},
+		{op: encryptAlice, prio: 1},
+		{op: encryptAlice},
+		{op: decrypt},
+		{op: decrypt},
+		{op: decrypt},
+		{op: decrypt},
+		{op: decrypt},
 	}
 	if err := testRun(r); err != nil {
 		printRun(r)
@@ -454,12 +454,12 @@ func TestExhaustSessionSequential(t *testing.T) {
 
 func TestExhaustSessionLast(t *testing.T) {
 	r := []*operation{
-		&operation{op: encryptAlice},
-		&operation{op: encryptAlice},
-		&operation{op: encryptAlice},
-		&operation{op: encryptAlice},
-		&operation{op: encryptAlice, prio: 1},
-		&operation{op: decrypt},
+		{op: encryptAlice},
+		{op: encryptAlice},
+		{op: encryptAlice},
+		{op: encryptAlice},
+		{op: encryptAlice, prio: 1},
+		{op: decrypt},
 	}
 	if err := testRun(r); err != nil {
 		printRun(r)
@@ -470,10 +470,10 @@ func TestExhaustSessionLast(t *testing.T) {
 func TestSimultaneousSessions(t *testing.T) {
 	// simultaneous sessions
 	r := []*operation{
-		&operation{op: encryptAlice, prio: 1},
-		&operation{op: encryptBob},
-		&operation{op: decrypt},
-		&operation{op: decrypt},
+		{op: encryptAlice, prio: 1},
+		{op: encryptBob},
+		{op: decrypt},
+		{op: decrypt},
 	}
 	if err := testRun(r); err != nil {
 		printRun(r)

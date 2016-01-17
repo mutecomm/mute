@@ -134,7 +134,7 @@ func TestMultipartMIME(t *testing.T) {
 	writer = multipart.NewWriter(&mime)
 	err := multipartMIME(writer, msgs.Message1,
 		[]*Attachment{
-			&Attachment{
+			{
 				Filename:    "message.txt",
 				Reader:      bytes.NewBufferString(msgs.Message2),
 				ContentType: "application/octet-stream",
@@ -170,7 +170,7 @@ func TestNew(t *testing.T) {
 	}
 	err = New(&email, header, msgs.Message1,
 		[]*Attachment{
-			&Attachment{
+			{
 				Filename: "message.txt",
 				Reader:   bytes.NewBufferString(msgs.Message2),
 			},
@@ -202,12 +202,12 @@ func TestChunks(t *testing.T) {
 	}
 	err = New(&msg, header, testMessage,
 		[]*Attachment{
-			&Attachment{
+			{
 				Filename: "quote1.txt",
 				Reader:   bytes.NewBufferString(msgs.Message1),
 				Inline:   true,
 			},
-			&Attachment{
+			{
 				Filename:    "quote2.txt",
 				Reader:      bytes.NewBufferString(msgs.Message2),
 				ContentType: "application/octet-stream",
