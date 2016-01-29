@@ -1,0 +1,8 @@
+{
+	"messageid":2,
+	"From":"<beta@mute.one>",
+	"To":"<alpha@mute.one>",
+	"CC":"",
+	"Subject": "Test message Two",
+	"Body":"Some body that might be longer than expected"
+}
