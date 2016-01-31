@@ -15,7 +15,7 @@ go generate ./release
 go install -v ./cmd/...
 
 # call source code checker for each directory except doc/ and vendor/
-dirs=`ls -d */ | grep -v -e angularui -e contrib -e doc -e vendor`
+dirs=`ls -d */ | grep -v -e gui -e contrib -e doc -e vendor`
 echo "goimports"
 for dir in $dirs
 do
