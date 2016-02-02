@@ -4,6 +4,7 @@ env: GO15VENDOREXPERIMENT=1
 before_install:
   - mysql -u root -e 'CREATE DATABASE spendbook;'
   - mysql -u root -e 'CREATE DATABASE wallet;'
+  - go get -v github.com/gorilla/rpc/v2
   - go get github.com/frankbraun/gocheck
 script:
   - gocheck -g -c
