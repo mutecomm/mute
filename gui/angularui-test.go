@@ -61,7 +61,7 @@ func main() {
 			}
 			w.Write([]byte("{ \"status\": \"ok\" }"))
 		}
-		fmt.Println("===== Call end =====\n\n\n")
+		fmt.Printf("===== Call end =====\n\n\n\n")
 	})
 	s := &http.Server{
 		Addr:           ":" + os.Args[1],
