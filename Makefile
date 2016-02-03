@@ -5,4 +5,4 @@ all:
 
 .PHONY: test
 test:
-	./test.sh
+	gocheck -c
