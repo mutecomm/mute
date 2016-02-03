@@ -1,4 +1,4 @@
-## Mute — secure messaging — α release [![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](http://godoc.org/github.com/mutecomm/mute) [![Build Status](http://img.shields.io/travis/mutecomm/mute.svg?style=flat-square)](https://travis-ci.org/mutecomm/mute)
+## Mute — secure messaging — α release [![GoDoc](https://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](https://godoc.org/github.com/mutecomm/mute) [![Build Status](https://img.shields.io/travis/mutecomm/mute.svg?style=flat-square)](https://travis-ci.org/mutecomm/mute) [![License](https://img.shields.io/badge/license-BSD-brightgreen.svg?style=flat-square)](https://github.com/mutecomm/mute/blob/master/LICENSE)
 
 This is an **alpha** release of Mute — **use at your own risk**!
 There are known bugs, all sorts of things might go wrong, and you might not be
