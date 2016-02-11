@@ -19,8 +19,8 @@
 		},
 		{
 			"path": "github.com/codegangsta/cli",
-			"revision": "cf1f63a7274872768d4037305d572b70b1199397",
-			"revisionTime": "2016-01-29T19:19:57-08:00"
+			"revision": "0ab42fd482c27cf2c95e7794ad3bb2082c2ab2d7",
+			"revisionTime": "2016-02-09T20:42:30-08:00"
 		},
 		{
 			"path": "github.com/fatih/structs",
@@ -29,8 +29,8 @@
 		},
 		{
 			"path": "github.com/go-sql-driver/mysql",
-			"revision": "b4db83c6faa0dc87d33f0bd7cdc81c7078594278",
-			"revisionTime": "2016-01-30T01:03:41+01:00"
+			"revision": "267b128680c46286b9ca13475c3cca5de8f79bd7",
+			"revisionTime": "2016-02-03T12:00:21+01:00"
 		},
 		{
 			"path": "github.com/gorilla/rpc/v2",
