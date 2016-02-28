@@ -509,6 +509,29 @@ func New() *CtrlEngine {
 	}
 	ce.app.Commands = []cli.Command{
 		{
+			Name:  "app",
+			Usage: "Start app mode (opens web browser)",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "docroot",
+					Value: "gui/docroot",
+					Usage: "document root for app",
+				},
+			},
+			Before: func(c *cli.Context) error {
+				if len(c.Args()) > 0 {
+					return log.Errorf("superfluous argument(s): %s", strings.Join(c.Args(), " "))
+				}
+				if err := ce.prepare(c, false, false); err != nil {
+					return err
+				}
+				return nil
+			},
+			Action: func(c *cli.Context) {
+				ce.err = ce.appStart(ce.fileTable.StatusFP, c.String("docroot"))
+			},
+		},
+		{
 			Name:  "db",
 			Usage: "Commands for local databases",
 			Subcommands: []cli.Command{
