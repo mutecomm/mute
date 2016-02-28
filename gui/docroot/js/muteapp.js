@@ -13,7 +13,7 @@ muteApp.controller('muteListsCtrl', ['$scope', '$http',
     $scope.actMessage={};
     $scope.newMessage={};
     $scope.settingsContent={};
-    
+
     $scope.getPseudonyms = function getPseudonyms(promise){
       $http.get('/api/pseudonyms.json').success(function(data) {
         $scope.pseudonyms = data;
@@ -28,14 +28,14 @@ muteApp.controller('muteListsCtrl', ['$scope', '$http',
     }
 
     $scope.updateContactList=function updateContactList(){
-      if ( $scope.pseudonym !== undefined && $scope.pseudonym !== null 
+      if ( $scope.pseudonym !== undefined && $scope.pseudonym !== null
           && $scope.pseudonym.name !== undefined && $scope.pseudonym.name !== null ){
         $http.get('/api/'+$scope.pseudonym.name+'/contacts.json').success(function(data){
           $scope.contacts=data;
         });
       }
     }
-    
+
     $scope.updateMessageList=function updateMessageList(page){
       $scope.display_message=false;
       $scope.edit_message=false;
@@ -44,7 +44,7 @@ muteApp.controller('muteListsCtrl', ['$scope', '$http',
       }
 
       $scope.page=page
-        if ( $scope.pseudonym !== undefined && $scope.pseudonym !== null 
+        if ( $scope.pseudonym !== undefined && $scope.pseudonym !== null
           && $scope.pseudonym.name !== undefined && $scope.pseudonym.name !== null ){
           $http.get('/api/'+$scope.pseudonym.name+'/messages/'+$scope.folder+'.json?limit='+$scope.limit+'&page='+$scope.page).success(function(data){
            $scope.messages=data;
@@ -59,7 +59,7 @@ muteApp.controller('muteListsCtrl', ['$scope', '$http',
     }
 
     $scope.fetch=function fetch(){
-      if ( $scope.pseudonym !== undefined && $scope.pseudonym !== null 
+      if ( $scope.pseudonym !== undefined && $scope.pseudonym !== null
           && $scope.pseudonym.name !== undefined && $scope.pseudonym.name !== null ){
           $http.get('/api/'+$scope.pseudonym.name+'/get/').success(function(data){
             if (data.new == true) {
