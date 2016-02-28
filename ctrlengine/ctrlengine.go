@@ -528,7 +528,8 @@ func New() *CtrlEngine {
 				return nil
 			},
 			Action: func(c *cli.Context) {
-				ce.err = ce.appStart(ce.fileTable.StatusFP, c.String("docroot"))
+				ce.err = ce.appStart(c, ce.fileTable.StatusFP,
+					c.String("docroot"))
 			},
 		},
 		{
@@ -1463,21 +1464,24 @@ func decodeWalletKey(p string) (*[ed25519.PrivateKeySize]byte, error) {
 func (ce *CtrlEngine) openMsgDB(
 	homedir string,
 ) error {
-	// read passphrase
-	fmt.Fprintf(ce.fileTable.StatusFP, "read passphrase from fd %d (not echoed)\n",
-		ce.fileTable.PassphraseFD)
-	log.Infof("read passphrase from fd %d (not echoed)",
-		ce.fileTable.PassphraseFD)
-	var err error
-	ce.passphrase, err = util.Readline(ce.fileTable.PassphraseFP)
-	if err != nil {
-		return err
+	// read passphrase, if necessary
+	if ce.passphrase == nil {
+		fmt.Fprintf(ce.fileTable.StatusFP, "read passphrase from fd %d (not echoed)\n",
+			ce.fileTable.PassphraseFD)
+		log.Infof("read passphrase from fd %d (not echoed)",
+			ce.fileTable.PassphraseFD)
+		var err error
+		ce.passphrase, err = util.Readline(ce.fileTable.PassphraseFP)
+		if err != nil {
+			return err
+		}
+		log.Info("done")
 	}
-	log.Info("done")
 
 	// open msgDB
 	msgdbname := filepath.Join(homedir, "msgs")
 	log.Infof("open msgDB %s", msgdbname)
+	var err error
 	ce.msgDB, err = msgdb.Open(msgdbname, ce.passphrase)
 	if err != nil {
 		return err
