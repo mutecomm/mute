@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// Package browser defines web browser related helper functions.
 package browser
 
 import (
@@ -11,7 +12,8 @@ import (
 
 // Start tries to open the URL in a browser
 // and reports whether it succeeds.
-// Note: copied startBrowser from
+//
+// Note: startBrowser was copied from
 // https://github.com/golang/go/blob/master/src/cmd/cover/html.go
 func Start(url string) bool {
 	// try to start the browser
