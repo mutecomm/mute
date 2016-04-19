@@ -517,6 +517,11 @@ func New() *CtrlEngine {
 					Value: "gui/docroot",
 					Usage: "document root for app",
 				},
+				cli.StringFlag{
+					Name:  "http",
+					Value: "localhost:0",
+					Usage: "HTTP service address (port 0 means random port)",
+				},
 			},
 			Before: func(c *cli.Context) error {
 				if len(c.Args()) > 0 {
@@ -529,7 +534,7 @@ func New() *CtrlEngine {
 			},
 			Action: func(c *cli.Context) {
 				ce.err = ce.appStart(c, ce.fileTable.StatusFP,
-					c.String("docroot"))
+					c.String("docroot"), c.String("http"))
 			},
 		},
 		{

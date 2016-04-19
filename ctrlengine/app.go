@@ -117,9 +117,10 @@ func (ce *CtrlEngine) appStart(
 	c *cli.Context,
 	statusfp io.Writer,
 	docroot string,
+	httpAddress string,
 ) error {
 	// create listener for a free port
-	l, err := net.Listen("tcp", "localhost:0")
+	l, err := net.Listen("tcp", httpAddress)
 	if err != nil {
 		return err
 	}
