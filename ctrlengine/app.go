@@ -119,8 +119,7 @@ func (ce *CtrlEngine) appStart(
 	docroot string,
 ) error {
 	// create listener for a free port
-	// TODO: do we want to use a fixed port here?
-	l, err := net.Listen("tcp", "localhost:")
+	l, err := net.Listen("tcp", "localhost:0")
 	if err != nil {
 		return err
 	}
