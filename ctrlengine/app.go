@@ -103,7 +103,8 @@ func (sh *staticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	auth.RLock()
 	secret = auth.secret
 	auth.RUnlock()
-	if cookie.Value != secret {
+	// check that cookie has been set and equals random secret
+	if cookie.Value != "" && cookie.Value != secret {
 		http.Error(w, "invalid cookie value", http.StatusForbidden)
 		return
 	}
