@@ -132,10 +132,16 @@ func (ce *CtrlEngine) appStart(
 		c:        c,
 		statusfp: statusfp,
 	})
+	// create HTTP server
+	srv := &http.Server{
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+		MaxHeaderBytes: 1 << 20, // 1 MB
+	}
 	// start HTTP server
 	ch := make(chan error)
 	go func() {
-		ch <- http.Serve(l, nil)
+		ch <- srv.Serve(l)
 	}()
 	// try to open browser
 	addr := "http://" + l.Addr().String() + "/login"
