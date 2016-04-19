@@ -123,17 +123,20 @@ func (ce *CtrlEngine) appStart(
 	if err != nil {
 		return err
 	}
+	// create muxer
+	muxer := http.NewServeMux()
 	// register handlers
-	http.Handle("/", &staticHandler{
+	muxer.Handle("/", &staticHandler{
 		handler: http.FileServer(http.Dir(docroot)),
 	})
-	http.Handle("/login", &loginHandler{
+	muxer.Handle("/login", &loginHandler{
 		ce:       ce,
 		c:        c,
 		statusfp: statusfp,
 	})
 	// create HTTP server
 	srv := &http.Server{
+		Handler:        muxer,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20, // 1 MB
