@@ -4,7 +4,7 @@
 
 /*
 Package encdb defines an encrypted database used within Mute.
-Such an encrypted database consists of two file for a given database file with
+Such an encrypted database consists of two files for a given database file with
 name "dbname":
 
   dbname.db
