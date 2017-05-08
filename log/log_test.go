@@ -26,33 +26,31 @@ func Example_critical() {
 }
 
 // This example shows when and how to use the error log level.
-func Example_error() error {
+func Example_error() {
 	conditionWhichShouldBeTrue := true
 	// ...
 
 	// create own error
 	if !conditionWhichShouldBeTrue {
-		return log.Error("package name: condition should be true")
+		log.Error("package name: condition should be true")
 	}
 
 	// calling external package which can produce an error
 	_, err := os.Create("filename")
 	if err != nil {
-		return log.Error(err)
+		log.Error(err)
 	}
-	return nil
 }
 
 // This example shows when and how to use the warn log level.
-func Example_warn() error {
+func Example_warn() {
 	expiryCondition := true
 	// ...
 
 	// check condition in server package, error is not handled on the server
 	if !expiryCondition {
-		return log.Warnf("server: token has expired")
+		log.Warnf("server: token has expired")
 	}
-	return nil
 }
 
 // This example shows when and how to use the info log level.
