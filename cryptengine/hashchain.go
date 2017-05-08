@@ -78,6 +78,9 @@ func (ce *CryptEngine) syncHashChain(domain string) error {
 	content["StartPosition"] = start
 	content["EndPosition"] = end
 	reply, err = client.JSONRPCRequest("KeyHashchain.FetchHashChain", content)
+	if err != nil {
+		return err
+	}
 	// parse hash chain entries
 	hcEntries, ok := reply["HCEntries"].([]interface{})
 	if !ok {
