@@ -75,10 +75,10 @@
 			"revisionTime": "2017-02-22T00:19:28Z"
 		},
 		{
-			"checksumSHA1": "ReJlYeqkgmgIFK4We+7609Cv798=",
+			"checksumSHA1": "iCXbeCYMps5XJ6YzGyP2MDZaRUI=",
 			"path": "github.com/mutecomm/go-sqlcipher",
-			"revision": "1ea89987f6b0d607300081b80869ccde6845236d",
-			"revisionTime": "2017-05-08T18:54:00Z"
+			"revision": "0fd2b12476f2c99bcefc7895fef930cc206ff91d",
+			"revisionTime": "2017-05-08T21:04:03Z"
 		},
 		{
 			"checksumSHA1": "BcKVRsLhMzSj4ksVqslEThK6tjA=",
