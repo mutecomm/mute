@@ -46,7 +46,7 @@ type KeyGenerator struct {
 }
 
 // New returns a new key generator. The Usage and URL of the generator must be
-// explicitely set.
+// explicitly set.
 func New(curve func() elliptic.Curve, rand io.Reader, hash func([]byte) []byte) *KeyGenerator {
 	kg := new(KeyGenerator)
 	kg.Curve = eccutil.SetCurve(curve, rand, hash)

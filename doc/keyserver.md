@@ -139,7 +139,7 @@ Return last Hashchain entry.
 
 `KeyRepository.GetLink(domain)`
 
-Return the Identity and Position of the first Authorative entry for the
+Return the Identity and Position of the first AUTHORITATIVE entry for the
 Chainlink to the domain. (see below: "Linking chains and key repositories")
 
 
@@ -308,9 +308,9 @@ struct UIDMessage {
       URI: URI(s) of the foreign key hashchain. Array of strings. May be zero-value.
       LAST: Last entry of the foreign key hashchain. String.
             May be zero-value if URI is zero.
-      AUTHORATIVE: Boolean true/false.
+      AUTHORITATIVE: Boolean true/false.
       DOMAINS: List of domains that are served currently. Array of strings.
-               Must be zero unless AUTHORATIVE is true and URI is set.
+               Must be zero unless AUTHORITATIVE is true and URI is set.
       IDENTITY: Own Identity in the foreign key hashchain. String. May be
                 zero-value if URI is zero. Currently unused (must be zero).
     }
@@ -322,9 +322,9 @@ struct UIDMessage {
   SELFSIGNATURE: Signature over UIDContent by current SIGKEY (see above).
                  Base64 encoded.
   LINKAUTHORITY: Signature over UIDContent by key server SIGESCROW in the case
-                 of authorative keyserver links (see below: "Linking chains and
+                 of AUTHORITATIVE keyserver links (see below: "Linking chains and
                  key repositories"). Base64 encoded. Must be zero unless an
-                 authorative link entry.
+                 AUTHORITATIVE link entry.
 }
 ```
 
@@ -388,7 +388,7 @@ key control loss).
 
 Definitions:
 - `ROLLOVER`: Time after which the hashchain should be considered
-  "non-authorative" by the client. One year.
+  "non-AUTHORITATIVE" by the client. One year.
 
 Server:
 - New entries should not have a `UIDMessage.UIDContent.NOTAFTER` that is more
@@ -507,11 +507,11 @@ Repositories and Key Hashchains together for the following purposes:
   entry of another hashchain into their own, increasing the security against
   modification for the linked hashchain.
 - Connect identities across multiple Key Servers.
-- Authorative link: Allows Keyservers to operate in a federated way to support
+- AUTHORITATIVE link: Allows Keyservers to operate in a federated way to support
   finding Identities served by other KeyServers.
 
 Entries in the `CHAINLINK` URI must be ordered lexicographically. No more than
-five entries are permitted except in the Authorative Link scenario.
+five entries are permitted except in the AUTHORITATIVE Link scenario.
 This limitation serves to limit space for preimage attacks.
 
 
@@ -521,7 +521,7 @@ The URI of the `CHAINLINK` is set to the URI(s) of the Origin Key Server to be
 bound into the destination hashchain.
 The `LAST` entry is the last key hashchain entry on the Origin Key Server at the
 time of request.
-If `AUTHORATIVE` is true, the entry is verified by the destination keyserver by
+If `AUTHORITATIVE` is true, the entry is verified by the destination keyserver by
 making the appropriate calls to the origin keyserver.
 The reply of such a call may be off by up to an hour to allow for fast-growing chains to link.
 `DOMAINS` and `IDENTITY` must be zero-value.
@@ -535,28 +535,28 @@ The `LAST` entry is the last key hashchain entry on the Origin Key Server at the
 time of request.
 `IDENTITY` is set to the origin keyserver identity of this entry.
 `DOMAINS` must be zero-value.
-If `AUTHORATIVE` is true, the Key Server must get the current `UIDMessage` for
+If `AUTHORITATIVE` is true, the Key Server must get the current `UIDMessage` for
 the `IDENTITY` from the Origin Key Server and verify that the `SIGKEY` and
 `SIGESCROW` of the connecting `UIDMessage` (this message) are the same as for
 the current entry of the `IDENTITY` on the Origin Key Server.
-If `AUTHORATIVE` is false, the Key Server must verify that the identity was
-connected successfully before (with `AUTHORATIVE` true).
+If `AUTHORITATIVE` is false, the Key Server must verify that the identity was
+connected successfully before (with `AUTHORITATIVE` true).
 This allows a peer to be identified over multiple keyservers and thus increase
 assurance. It also allows for identities to be moved from one keyserver to
 another or to be separated.
 
 
-#### Authorative link
+#### AUTHORITATIVE link
 
 The URI of the `CHAINLINK` is set to the URI(s) of the Origin Key Server to be
 bound into the destination hashchain.
 The `LAST` entry is the last key hashchain entry on the Origin Key Server at the
 time of request.
-`AUTHORATIVE` must be true.
+`AUTHORITATIVE` must be true.
 `DOMAINS` is a list of domains handled by the Origin Key Server. `IDENTITY` is
 set to the identity of the origin key server itself (it's signature key).
-Authorative Links are Connected Identities and require the same verification
-process. In addition, authorative links that change (add or delete) domains
+AUTHORITATIVE Links are Connected Identities and require the same verification
+process. In addition, AUTHORITATIVE links that change (add or delete) domains
 claimed by the Origin Key Server need to be manually verified by the Key Server
 Operator.
 For this the `LINKAUTHORITY` signature over the whole `UIDMessage` must be made

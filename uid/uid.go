@@ -40,7 +40,7 @@ import (
 //
 const ProtocolVersion = "1.0"
 
-// PFSPreference representes a perfect forward secrecy (PFS) preference.
+// PFSPreference represents a perfect forward secrecy (PFS) preference.
 type PFSPreference int
 
 const (
@@ -69,11 +69,11 @@ type preferences struct {
 }
 
 type chainlink struct {
-	URI         []string // URI(s) of the foreign key hashchain
-	LAST        string   // last entry of the foreign key hashchain
-	AUTHORATIVE bool
-	DOMAINS     []string // list of domains that are served currently
-	IDENTITY    string   // own Identity in the foreign key hashchain
+	URI           []string // URI(s) of the foreign key hashchain
+	LAST          string   // last entry of the foreign key hashchain
+	AUTHORITATIVE bool
+	DOMAINS       []string // list of domains that are served currently
+	IDENTITY      string   // own Identity in the foreign key hashchain
 }
 
 type uidContent struct {
@@ -104,8 +104,8 @@ type Message struct {
 	// Signature over UIDContent by current SIGKEY.
 	SELFSIGNATURE string
 	// Signature over UIDContent by key server SIGESCROW in the case of
-	// authorative keyserver links.
-	// Must be zero unless an authorative link entry.
+	// authoritative keyserver links.
+	// Must be zero unless an authoritative link entry.
 	LINKAUTHORITY string
 }
 

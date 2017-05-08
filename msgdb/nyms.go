@@ -110,7 +110,7 @@ func (msgDB *MsgDB) DelNym(mappedID string) error {
 		return err
 	}
 	if unmappedID == "" {
-		return log.Errorf("msgdb: nym %s unkown", mappedID)
+		return log.Errorf("msgdb: nym %s unknown", mappedID)
 	}
 	if _, err := msgDB.delNymQuery.Exec(mappedID); err != nil {
 		return log.Error(err)
