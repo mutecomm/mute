@@ -13,9 +13,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/codegangsta/cli"
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/util/browser"
+	"github.com/urfave/cli"
 )
 
 var loginTemplate = `<!doctype html>

@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 //go:generate mutegenerate -o head.go

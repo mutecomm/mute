@@ -12,7 +12,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/codegangsta/cli"
 	"github.com/mutecomm/mute/cryptengine/cache"
 	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/def/version"
@@ -22,6 +21,7 @@ import (
 	"github.com/mutecomm/mute/util/bzero"
 	"github.com/mutecomm/mute/util/descriptors"
 	"github.com/mutecomm/mute/util/home"
+	"github.com/urfave/cli"
 )
 
 const (

@@ -45,12 +45,6 @@
 			"revisionTime": "2017-01-30T13:45:32Z"
 		},
 		{
-			"checksumSHA1": "0f16D95P6TXnvOxFh8b2z2CPzmE=",
-			"path": "github.com/codegangsta/cli",
-			"revision": "d70f47eeca3afd795160003bc6e28b001d60c67c",
-			"revisionTime": "2017-05-06T04:25:29Z"
-		},
-		{
 			"checksumSHA1": "40Ns85VYa4smQPcewZ7SOdfLnKU=",
 			"path": "github.com/fatih/structs",
 			"revision": "a720dfa8df582c51dee1b36feabb906bde1588bd",
@@ -115,6 +109,12 @@
 			"path": "github.com/ronperry/cryptoedge/lioness",
 			"revision": "cc363e290743065ada265b425d09e7e2e3eb6c9a",
 			"revisionTime": "2015-08-15T11:40:06Z"
+		},
+		{
+			"checksumSHA1": "79A2m2Zs96hg/3xtcsOBzkpPAKM=",
+			"path": "github.com/urfave/cli",
+			"revision": "d70f47eeca3afd795160003bc6e28b001d60c67c",
+			"revisionTime": "2017-05-06T04:25:29Z"
 		},
 		{
 			"checksumSHA1": "nAu0XmCeC6WnUySyI8R7w4cxAqU=",

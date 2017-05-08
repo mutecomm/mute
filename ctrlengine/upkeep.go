@@ -18,7 +18,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/codegangsta/cli"
 	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/log"
 	mixclient "github.com/mutecomm/mute/mix/client"
@@ -29,6 +28,7 @@ import (
 	"github.com/mutecomm/mute/util/gotool"
 	"github.com/mutecomm/mute/util/times"
 	"github.com/mutecomm/mute/util/wallet"
+	"github.com/urfave/cli"
 )
 
 type getPastExecution func(mappedID string) (int64, error)

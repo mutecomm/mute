@@ -8,12 +8,12 @@ package main
 import (
 	"os"
 
-	"github.com/codegangsta/cli"
 	"github.com/mutecomm/mute/ctrlengine"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/release"
 	"github.com/mutecomm/mute/util"
 	"github.com/mutecomm/mute/util/interrupt"
+	"github.com/urfave/cli"
 )
 
 func init() {

@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"syscall"
 
-	"github.com/codegangsta/cli"
 	"github.com/mutecomm/mute/log"
+	"github.com/urfave/cli"
 )
 
 var (

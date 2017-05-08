@@ -18,7 +18,6 @@ import (
 	"time"
 
 	"github.com/agl/ed25519"
-	"github.com/codegangsta/cli"
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/ctrlengine/mail"
 	"github.com/mutecomm/mute/def"
@@ -35,6 +34,7 @@ import (
 	"github.com/mutecomm/mute/util/times"
 	"github.com/mutecomm/mute/util/wallet"
 	"github.com/peterh/liner"
+	"github.com/urfave/cli"
 )
 
 func mutecryptEncrypt(

@@ -16,7 +16,6 @@ import (
 	"strings"
 
 	"github.com/agl/ed25519"
-	"github.com/codegangsta/cli"
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/encode/base64"
@@ -30,6 +29,7 @@ import (
 	"github.com/mutecomm/mute/util/bzero"
 	"github.com/mutecomm/mute/util/times"
 	"github.com/mutecomm/mute/util/wallet"
+	"github.com/urfave/cli"
 )
 
 func decodeED25519PubKeyBase64(p string) (*[ed25519.PublicKeySize]byte, error) {
