@@ -150,7 +150,7 @@ func (ce *CtrlEngine) appStart(
 	// try to open browser
 	addr := "http://" + l.Addr().String() + "/login"
 	fmt.Fprintf(statusfp, "open browser for address: %s\n", addr)
-	if !browser.Start(addr) {
+	if !browser.Open(addr) {
 		fmt.Fprintf(statusfp, "could not open browser for address: %s\n", addr)
 	}
 	return <-ch
