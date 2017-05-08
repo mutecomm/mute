@@ -105,7 +105,7 @@ func TestOutQueue(t *testing.T) {
 		t.Fatal(err)
 	}
 	// afterwards there should be no undelivered message
-	_, peer, _, _, _, _, err = msgDB.GetUndeliveredMessage(a)
+	_, _, _, _, _, _, err = msgDB.GetUndeliveredMessage(a)
 	if err != nil {
 		t.Fatal(err)
 	}

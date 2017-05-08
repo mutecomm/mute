@@ -115,7 +115,7 @@ func TestMapLocalpart(t *testing.T) {
 	}
 
 	// too long
-	lp, err = MapLocalpart("abcdefghijklmnopqrstuvwzyz.ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-X")
+	_, err = MapLocalpart("abcdefghijklmnopqrstuvwzyz.ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-X")
 	if err == nil {
 		t.Error("should fail")
 	}
