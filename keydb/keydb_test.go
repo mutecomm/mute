@@ -203,6 +203,9 @@ func TestPublicUID(t *testing.T) {
 	}
 	var rA2 *uid.Message
 	rA2, pos, _, err = keyDB.GetPublicUID("alice@mute.berlin", 30)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if !bytes.Equal(rA2.JSON(), a2.JSON()) {
 		t.Error("UID messages differ")
 	}
@@ -235,6 +238,9 @@ func TestPrivateKeyInit(t *testing.T) {
 		t.Fatal(err)
 	}
 	rKI, rSigPubKey, rPrivKey, err := keyDB.GetPrivateKeyInit(pubKeyHash)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if !bytes.Equal(rKI.JSON(), ki.JSON()) {
 		t.Error("KeyInits differ")
 	}
@@ -342,7 +348,7 @@ func TestHashchain(t *testing.T) {
 	if err := keyDB.DelHashChain("mute.berlin"); err != nil {
 		t.Fatal(err)
 	}
-	pos, found, err = keyDB.GetLastHashChainPos("mute.berlin")
+	_, found, err = keyDB.GetLastHashChainPos("mute.berlin")
 	if err != nil {
 		t.Fatal(err)
 	}
