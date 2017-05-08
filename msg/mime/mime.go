@@ -248,7 +248,8 @@ func DecodeChunk(chunk string) (
 		return nil, "", 0, 0, log.Error(err)
 	}
 
-	mediaType, params, err = mime.ParseMediaType(p.Header.Get("Content-Type"))
+	// TODO: check mediaType?
+	_, params, err = mime.ParseMediaType(p.Header.Get("Content-Type"))
 	if err != nil {
 		return nil, "", 0, 0, log.Error(err)
 	}
