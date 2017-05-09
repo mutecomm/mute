@@ -29,7 +29,7 @@ import (
 	"fmt"
 	"os"
 
-	_ "github.com/mutecomm/go-sqlcipher" // encDB is tightly coupled to go-sqlcipher
+	"github.com/mutecomm/go-sqlcipher"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/util"
 )
@@ -76,18 +76,36 @@ func Create(dbname string, passphrase []byte, iter int, createStmts []string) er
 		return err
 	}
 	// create DB
-	dbfile += fmt.Sprintf("?_pragma_key=x'%s'&_pragma_cipher_page_size=4096",
-		hex.EncodeToString(key))
-	db, err := sql.Open("sqlite3", dbfile)
+	dbfileWithDSN := dbfile +
+		fmt.Sprintf("?_pragma_key=x'%s'&_pragma_cipher_page_size=4096",
+			hex.EncodeToString(key))
+	db, err := sql.Open("sqlite3", dbfileWithDSN)
 	if err != nil {
 		return log.Error(err)
 	}
-	defer db.Close()
-	_, err = db.Exec("PRAGMA auto_vacuum = full;")
+	// set auto_vacuum mode to full
+	if _, err := db.Exec("PRAGMA auto_vacuum = full;"); err != nil {
+		db.Close()
+		return log.Error(err)
+	}
+	// create tables
+	if err := createTables(db, createStmts); err != nil {
+		db.Close()
+		return log.Error(err)
+	}
+	// close database
+	if err := db.Close(); err != nil {
+		return log.Error(err)
+	}
+	// make sure the database file is encrypted
+	encrypted, err := sqlite3.IsEncrypted(dbfile)
 	if err != nil {
 		return log.Error(err)
 	}
-	return createTables(db, createStmts)
+	if !encrypted {
+		return log.Errorf("encdb: created dbfile '%s' is not encrypted", dbfile)
+	}
+	return nil
 }
 
 // Open tries to open an encrypted database with the given passphrase.
@@ -108,6 +126,14 @@ func Open(dbname string, passphrase []byte) (*sql.DB, error) {
 	}
 	if _, err := os.Stat(keyfile); err != nil {
 		return nil, log.Error(err)
+	}
+	// make sure the database file is encrypted
+	encrypted, err := sqlite3.IsEncrypted(dbfile)
+	if err != nil {
+		return nil, log.Error(err)
+	}
+	if !encrypted {
+		return nil, log.Errorf("encdb: dbfile '%s' is not encrypted", dbfile)
 	}
 	// get key from keyfile
 	key, err := ReadKeyfile(keyfile, passphrase)
