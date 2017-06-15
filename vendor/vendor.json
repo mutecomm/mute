@@ -58,6 +58,24 @@
 			"revisionTime": "2017-06-12T12:55:44Z"
 		},
 		{
+			"checksumSHA1": "WuPOA1T+6qG/al2wgOzeJnAMkhE=",
+			"path": "github.com/gdamore/encoding",
+			"revision": "b23993cbb6353f0e6aa98d0ee318a34728f628b9",
+			"revisionTime": "2015-12-15T21:28:35Z"
+		},
+		{
+			"checksumSHA1": "iRqDqPq8MLobpOAfRdZAFtFkTQc=",
+			"path": "github.com/gdamore/tcell",
+			"revision": "62d7350d170ffa942c74ae40a99c8b0a6dcc8c95",
+			"revisionTime": "2017-05-01T21:23:58Z"
+		},
+		{
+			"checksumSHA1": "p6NyUv4NfXmMOnUQLJEzGT9HfDo=",
+			"path": "github.com/gdamore/tcell/views",
+			"revision": "62d7350d170ffa942c74ae40a99c8b0a6dcc8c95",
+			"revisionTime": "2017-05-01T21:23:58Z"
+		},
+		{
 			"checksumSHA1": "6unGicJhBKC7C7Hpsi+gJX68rzg=",
 			"path": "github.com/go-sql-driver/mysql",
 			"revision": "a825be04c652d01442384e9dcdf2cdc3f1eda67f",
@@ -80,6 +98,12 @@
 			"path": "github.com/jpillora/backoff",
 			"revision": "06c7a16c845dc8e0bf575fafeeca0f5462f5eb4d",
 			"revisionTime": "2017-02-22T00:19:28Z"
+		},
+		{
+			"checksumSHA1": "qQ/69O0QaXw/YCajx/sj+rgFzWw=",
+			"path": "github.com/lucasb-eyer/go-colorful",
+			"revision": "c900de9dbbc73129068f5af6a823068fc5f2308c",
+			"revisionTime": "2017-02-23T22:10:28Z"
 		},
 		{
 			"checksumSHA1": "cJE7dphDlam/i7PhnsyosNWtbd4=",
@@ -207,6 +231,24 @@
 			"path": "golang.org/x/sys/unix",
 			"revision": "0b25a408a50076fbbcae6b7ac0ea5fbb0b085e79",
 			"revisionTime": "2017-06-08T11:43:49Z"
+		},
+		{
+			"checksumSHA1": "Mr4ur60bgQJnQFfJY0dGtwWwMPE=",
+			"path": "golang.org/x/text/encoding",
+			"revision": "3491b61b9edc56653ad4333e605e2908e46a036b",
+			"revisionTime": "2017-06-09T08:37:55Z"
+		},
+		{
+			"checksumSHA1": "9cg4nSGfKTIWKb6bWV7U4lnuFKA=",
+			"path": "golang.org/x/text/encoding/internal/identifier",
+			"revision": "3491b61b9edc56653ad4333e605e2908e46a036b",
+			"revisionTime": "2017-06-09T08:37:55Z"
+		},
+		{
+			"checksumSHA1": "ziMb9+ANGRJSSIuxYdRbA+cDRBQ=",
+			"path": "golang.org/x/text/transform",
+			"revision": "3491b61b9edc56653ad4333e605e2908e46a036b",
+			"revisionTime": "2017-06-09T08:37:55Z"
 		}
 	],
 	"rootPath": "github.com/mutecomm/mute"
