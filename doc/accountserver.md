@@ -97,7 +97,7 @@ To communicated tokens within a message, the X-Mute-PurchaseReferral header is
 used.
 It contains the token flags and the number of tokens with this flag, followed by
 other flags.
-Preceeding the list is the number of entries in the header. The header is then
+Preceding the list is the number of entries in the header. The header is then
 base64encoded:
 
 ```

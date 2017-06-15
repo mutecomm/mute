@@ -32,7 +32,7 @@ Mute is an asynchronous, SMTP-based and privacy enhancing communication system.
 - KeyInit Repository: To make Forward Secrecy keys available for session
   initialization between peers.
 - Key HashChain: To provide Identity-Key authenticity.
-- Mix: Provide anonymity by implementing Stop-Foward-Mixing and relaying.
+- Mix: Provide anonymity by implementing Stop-Forward-Mixing and relaying.
 - ServiceGuard: Token-based internal authentication and authorization provider.
 - Storage: SMTP-ATRN capable mailbox/mail queue storage.
 - User application.
@@ -58,7 +58,7 @@ Always:
 - No indention is used, no unnecessary whitespace for element separation.
 - All binary data is encoded as base64 with full padding.
 
-Unless explicitely stated otherwise:	
+Unless explicitly stated otherwise:
 - All optional fields are present but set to the zero value.
 - Fields are ordered lexicographically by field name/key.
 - In cases where lists of equal alternatives (keys for different ciphersuits,

@@ -357,7 +357,7 @@ Key Server verifies:
 - Verify that `UIDContent.LASTENTRY` is reasonably fresh and valid for this
   keyserver.
 
-- If `IDENTITY` is unkown, add to Key Hashchain and add to Key Repository (see
+- If `IDENTITY` is unknown, add to Key Hashchain and add to Key Repository (see
   below: "Storing UIDMessages"). End.
 - If `IDENTITY` is **known**, continue:
 	
@@ -661,7 +661,7 @@ it has been returned).
 
 Biased selection/deletion:
 - Calculate the remaining litetime of the key in question: `n = NOTAFTER-NOW()`
-- Calculate the maximum lifetime of all keys eligable for selection:
+- Calculate the maximum lifetime of all keys eligible for selection:
   `m = max(lifetime)`
 - Generate random value `0 < r < m : r = random(0,m)`
 - If `r > n`, the key is a deletion candidate.
