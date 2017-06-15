@@ -10,6 +10,7 @@ import (
 
 	"github.com/gdamore/tcell"
 	"github.com/gdamore/tcell/views"
+	_ "github.com/mutecomm/mute/tui/editor"
 	"github.com/urfave/cli"
 )
 
