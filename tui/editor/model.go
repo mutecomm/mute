@@ -14,15 +14,15 @@ import (
 )
 
 type textBufferModel struct {
-	tb     *textbuffer.TextBuffer
-	width  int  // text buffer
-	height int  // text buffer
-	x      int  // cursor
-	y      int  // cursor
-	cursor bool // cursor (enabled)
-	hidden bool // cursor
-	style  tcell.Style
-	editor *Editor // backlink to editor (for posting events)
+	tb     *textbuffer.TextBuffer // underlying text buffer
+	width  int                    // text buffer
+	height int                    // text buffer
+	x      int                    // cursor
+	y      int                    // cursor
+	cursor bool                   // cursor (enabled)
+	hidden bool                   // cursor
+	style  tcell.Style            // default style
+	editor *Editor                // backlink to editor (for posting events)
 }
 
 func (m *textBufferModel) GetCell(x, y int) (rune, tcell.Style, []rune, int) {
