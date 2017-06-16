@@ -62,8 +62,8 @@ func (e *Editor) Init() {
 	})
 }
 
-// NewEditor creates a blank Editor.
-func NewEditor() *Editor {
+// New creates a blank Editor.
+func New() *Editor {
 	var e Editor
 	e.Init()
 	return &e

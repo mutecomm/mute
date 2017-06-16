@@ -31,8 +31,10 @@ var pagerCommand = cli.Command{
 }
 
 type root struct {
-	app *views.Application
-	editor.Editor
+	app    *views.Application
+	editor *editor.Editor
+
+	views.BoxLayout
 }
 
 func (r *root) HandleEvent(ev tcell.Event) bool {
@@ -49,18 +51,18 @@ func (r *root) HandleEvent(ev tcell.Event) bool {
 				r.app.Quit()
 				return true
 			case 'i':
-				r.Editor.EnableCursor(true)
-				r.Editor.MakeCursorVisible()
+				r.editor.EnableCursor(true)
+				r.editor.MakeCursorVisible()
 				return true
 			}
 		}
 	}
 	log.Trace("calling r.TextArea.HandleEvent()")
-	return r.Editor.HandleEvent(ev)
+	return r.BoxLayout.HandleEvent(ev)
 }
 
 func (r *root) Draw() {
-	r.Editor.Draw()
+	r.BoxLayout.Draw()
 }
 
 func pager(filename string) error {
@@ -76,7 +78,10 @@ func pager(filename string) error {
 		Background(tcell.ColorWhite))
 
 	root := &root{app: app}
-	root.Editor.SetContent(buf)
+	root.BoxLayout.SetOrientation(views.Horizontal)
+	root.editor = editor.New()
+	root.editor.SetContent(buf)
+	root.BoxLayout.AddWidget(root.editor, 1.0)
 
 	app.SetRootWidget(root)
 	if err := app.Run(); err != nil {
