@@ -9,13 +9,18 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
+
+func TestEmpty(t *testing.T) {
+	tb := New(nil)
+	assert.Equal(t, 0, tb.LineLenRune(0))
+	assert.Equal(t, 0, tb.LineLenChar(0))
+	assert.Equal(t, 0, tb.LineLenCell(0))
+}
 
 func TestHelloWorld(t *testing.T) {
 	s := "Hello, 世界"
-	tb, err := NewString(s)
-	require.NoError(t, err)
+	tb := New([]byte(s))
 	assert.Equal(t, 9, tb.LineLenRune(0))
 	assert.Equal(t, 9, tb.LineLenChar(0))
 	assert.Equal(t, 11, tb.LineLenCell(0))
@@ -32,7 +37,7 @@ func TestHelloWorld(t *testing.T) {
 	assert.Equal(t, '世', c[0])
 	assert.Equal(t, 0, w)
 	var b bytes.Buffer
-	err = tb.Write(&b)
+	err := tb.Write(&b)
 	if assert.NoError(t, err) {
 		assert.Equal(t, s, b.String())
 	}

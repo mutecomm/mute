@@ -6,38 +6,65 @@
 package editor
 
 import (
+	"sync"
+
 	"github.com/gdamore/tcell"
 	"github.com/gdamore/tcell/views"
+	"github.com/mutecomm/mute/log"
+	"github.com/mutecomm/mute/tui/textbuffer"
 )
 
-// Editor is an embeddable editor views.Widget.
+// Editor is an editor widget.
 type Editor struct {
-	views.WidgetWatchers
+	model *textBufferModel
+	once  sync.Once
+	views.CellView
 }
 
-// NewPager creates a pager views.Widget for the UTF-8 buffer b.
-func NewPager(b []byte) *Editor {
-	return nil
+// SetContent of Editor.
+func (e *Editor) SetContent(b []byte) {
+	log.Trace("editor.SetContent()")
+	e.Init()
+	e.model.tb = textbuffer.New(b)
+	e.model.width = e.model.tb.MaxLineLenCell()
+	e.model.height = e.model.tb.Lines()
 }
 
-// Draw implements the Draw() method of an editor views.Widget.
-func (e *Editor) Draw() {
+// SetStyle of Editor.
+func (e *Editor) SetStyle(style tcell.Style) {
+	e.model.style = style
+	e.CellView.SetStyle(style)
 }
 
-// Resize implements the Resize() method of an enditor views.Widget.
-func (e *Editor) Resize() {
+// EnableCursor enables a soft cursor in the Editor.
+func (e *Editor) EnableCursor(on bool) {
+	log.Trace("editor.EnableCursor()")
+	log.Tracef("e.model.x=%d, e.model.y=%d", e.model.x, e.model.y)
+	e.Init()
+	e.model.cursor = on
 }
 
-// HandleEvent implements the HandleEvent() method of an editor views.Widget.
-func (e *Editor) HandleEvent(ev tcell.Event) bool {
-	return false
+// HideCursor hides or shows the cursor in the Editor.
+// If on is true, the cursor is hidden.
+// Note that a cursor is only shown if it is enabled.
+func (e *Editor) HideCursor(on bool) {
+	e.Init()
+	e.model.hidden = on
 }
 
-// SetView implements the SetView() method of an editor views.Widget.
-func (e *Editor) SetView(view views.View) {
+// Init initializes the Editor.
+func (e *Editor) Init() {
+	e.once.Do(func() {
+		m := &textBufferModel{tb: textbuffer.New(nil), width: 0}
+		e.model = m
+		e.CellView.Init()
+		e.CellView.SetModel(m)
+	})
 }
 
-// Size implements the Size() method of an editor views.Widget.
-func (e *Editor) Size() (int, int) {
-	return 0, 0
+// NewEditor creates a blank Editor.
+func NewEditor() *Editor {
+	var e Editor
+	e.Init()
+	return &e
 }

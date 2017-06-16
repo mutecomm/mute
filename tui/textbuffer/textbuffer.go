@@ -45,7 +45,6 @@ package textbuffer
 
 import (
 	"bytes"
-	"errors"
 	"io"
 	"unicode/utf8"
 
@@ -70,7 +69,7 @@ type cell struct {
 	charWidth int // 1: narrow, 2: wide, first half, 0: wide, second half
 }
 
-func (tb *TextBuffer) parseRow(row []byte) (*line, error) {
+func (tb *TextBuffer) parseRow(row []byte) *line {
 	var l line
 	for len(row) > 0 {
 		r, size := utf8.DecodeRune(row)
@@ -99,34 +98,26 @@ func (tb *TextBuffer) parseRow(row []byte) (*line, error) {
 			l.cells = append(l.cells, cell{charIndex: len(l.chars) - 1, charWidth: 0})
 		default:
 			// should not happen, would be changed in runewidth.RuneWidth
-			return nil, errors.New("textbuffer: runewidth > 2 encountered")
+			panic("textbuffer: runewidth > 2 encountered")
 		}
 		row = row[size:]
 	}
-	return &l, nil
+	return &l
 }
 
 // New converts the UTF-8 buffer b into a new TextBuffer.
-func New(b []byte) (*TextBuffer, error) {
+func New(b []byte) *TextBuffer {
 	var tb TextBuffer
 	// split buffer into rows (with newline separator)
 	rows := bytes.Split(b, []byte("\n"))
 	// convert all rows into lines
 	for y := 0; y < len(rows); y++ {
 		// parse row
-		line, err := tb.parseRow(rows[y])
-		if err != nil {
-			return nil, err
-		}
+		line := tb.parseRow(rows[y])
 		// save line
 		tb.lines = append(tb.lines, *line)
 	}
-	return &tb, nil
-}
-
-// NewString converts the UTF-8 string s into a new TextBuffer.
-func NewString(s string) (*TextBuffer, error) {
-	return New([]byte(s))
+	return &tb
 }
 
 // GetRune returns the rune in line y at position x of the rune coordinate
@@ -199,6 +190,19 @@ func (tb *TextBuffer) LineLenCell(y int) int {
 		return len(tb.lines[y].cells)
 	}
 	return 0
+}
+
+// MaxLineLenCell returns the maximum line length in the cell coordinate system.
+func (tb *TextBuffer) MaxLineLenCell() int {
+	var max int
+	// TODO: cache results?
+	for y := 0; y < tb.Lines(); y++ {
+		l := tb.LineLenCell(y)
+		if l > max {
+			max = l
+		}
+	}
+	return max
 }
 
 // Write writes the content of tb to w (including newlines).
