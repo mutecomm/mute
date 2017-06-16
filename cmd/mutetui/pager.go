@@ -82,7 +82,7 @@ func (h *cursorEventHandler) HandleEvent(ev tcell.Event) bool {
 
 func formatStatus(e *editor.Editor) string {
 	x, y := e.GetCursor()
-	return fmt.Sprintf("%d,%d", x, y)
+	return fmt.Sprintf("%d,%d", y+1, x+1)
 }
 
 func pager(filename string) error {
