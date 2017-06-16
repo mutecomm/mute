@@ -197,6 +197,9 @@ func (a *textBufferView) HandleEvent(e tcell.Event) bool {
 			return true
 		case tcell.KeyRune:
 			switch e.Rune() {
+			case 'g':
+				a.keyHome()
+				return true
 			case 'k':
 				a.keyUp()
 				return true
@@ -208,6 +211,9 @@ func (a *textBufferView) HandleEvent(e tcell.Event) bool {
 				return true
 			case 'h':
 				a.keyLeft()
+				return true
+			case ' ':
+				a.keyPgDn()
 				return true
 			}
 		}
