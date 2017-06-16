@@ -6,6 +6,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 
 	"github.com/gdamore/tcell"
@@ -33,6 +34,7 @@ var pagerCommand = cli.Command{
 type root struct {
 	app    *views.Application
 	editor *editor.Editor
+	status *views.Text
 
 	views.BoxLayout
 }
@@ -65,6 +67,24 @@ func (r *root) Draw() {
 	r.BoxLayout.Draw()
 }
 
+type cursorEventHandler struct {
+	text *views.Text
+}
+
+func (h *cursorEventHandler) HandleEvent(ev tcell.Event) bool {
+	switch ev := ev.(type) {
+	case *editor.CursorEvent:
+		h.text.SetText(formatStatus(ev.Widget().(*editor.Editor)))
+		return true
+	}
+	return false
+}
+
+func formatStatus(e *editor.Editor) string {
+	x, y := e.GetCursor()
+	return fmt.Sprintf("%d,%d", x, y)
+}
+
 func pager(filename string) error {
 	log.Trace("main.pager()")
 	buf, err := ioutil.ReadFile(filename)
@@ -78,10 +98,20 @@ func pager(filename string) error {
 		Background(tcell.ColorWhite))
 
 	root := &root{app: app}
-	root.BoxLayout.SetOrientation(views.Horizontal)
+	root.BoxLayout.SetOrientation(views.Vertical)
+
 	root.editor = editor.New()
 	root.editor.SetContent(buf)
 	root.BoxLayout.AddWidget(root.editor, 1.0)
+
+	root.status = views.NewText()
+	root.status.SetStyle(tcell.StyleDefault.
+		Foreground(tcell.ColorWhite).
+		Background(tcell.ColorBlack))
+	root.status.SetText(formatStatus(root.editor))
+	root.BoxLayout.AddWidget(root.status, 0)
+
+	root.editor.Watch(&cursorEventHandler{text: root.status})
 
 	app.SetRootWidget(root)
 	if err := app.Run(); err != nil {

@@ -55,7 +55,7 @@ func (e *Editor) HideCursor(on bool) {
 // Init initializes the Editor.
 func (e *Editor) Init() {
 	e.once.Do(func() {
-		m := &textBufferModel{tb: textbuffer.New(nil), width: 0}
+		m := &textBufferModel{tb: textbuffer.New(nil), width: 0, editor: e}
 		e.model = m
 		e.CellView.Init()
 		e.CellView.SetModel(m)
@@ -67,4 +67,10 @@ func New() *Editor {
 	var e Editor
 	e.Init()
 	return &e
+}
+
+// GetCursor returns the current cursor position.
+func (e *Editor) GetCursor() (int, int) {
+	x, y, _, _ := e.model.GetCursor()
+	return x, y
 }

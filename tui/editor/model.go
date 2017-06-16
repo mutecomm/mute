@@ -8,6 +8,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/gdamore/tcell"
+	"github.com/gdamore/tcell/views"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/tui/textbuffer"
 )
@@ -21,6 +22,7 @@ type textBufferModel struct {
 	cursor bool // cursor (enabled)
 	hidden bool // cursor
 	style  tcell.Style
+	editor *Editor // backlink to editor (for posting events)
 }
 
 func (m *textBufferModel) GetCell(x, y int) (rune, tcell.Style, []rune, int) {
@@ -56,11 +58,36 @@ func (m *textBufferModel) limitCursor() {
 	}
 	log.Tracef("m.x=%d, m.y=%d", m.x, m.y)
 }
+
+// CursorEvent reports a changed cursor event.
+type CursorEvent struct {
+	widget views.Widget
+	tcell.EventTime
+}
+
+// Widget returns the views.Widget for the CursorEvent.
+func (cev *CursorEvent) Widget() views.Widget {
+	return cev.widget
+}
+
+// SetWidget set the views.Widget for the CursorEvent.
+func (cev *CursorEvent) SetWidget(widget views.Widget) {
+	cev.widget = widget
+}
+
+func (m *textBufferModel) postCursorEvent() {
+	ev := &CursorEvent{}
+	ev.SetWidget(m.editor)
+	ev.SetEventNow()
+	m.editor.PostEvent(ev)
+}
+
 func (m *textBufferModel) SetCursor(x, y int) {
 	log.Tracef("editor.SetCursor(x=%d, y=%d)", x, y)
 	m.x = x
 	m.y = y
 	m.limitCursor()
+	m.postCursorEvent()
 }
 
 func (m *textBufferModel) GetCursor() (int, int, bool, bool) {
@@ -72,4 +99,5 @@ func (m *textBufferModel) MoveCursor(x, y int) {
 	m.x += x
 	m.y += y
 	m.limitCursor()
+	m.postCursorEvent()
 }
