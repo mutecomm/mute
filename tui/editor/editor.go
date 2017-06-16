@@ -9,7 +9,6 @@ import (
 	"sync"
 
 	"github.com/gdamore/tcell"
-	"github.com/gdamore/tcell/views"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/tui/textbuffer"
 )
@@ -18,7 +17,7 @@ import (
 type Editor struct {
 	model *textBufferModel
 	once  sync.Once
-	views.CellView
+	textBufferView
 }
 
 // SetContent of Editor.
@@ -33,7 +32,7 @@ func (e *Editor) SetContent(b []byte) {
 // SetStyle of Editor.
 func (e *Editor) SetStyle(style tcell.Style) {
 	e.model.style = style
-	e.CellView.SetStyle(style)
+	e.textBufferView.SetStyle(style)
 }
 
 // EnableCursor enables a soft cursor in the Editor.
@@ -57,8 +56,8 @@ func (e *Editor) Init() {
 	e.once.Do(func() {
 		m := &textBufferModel{tb: textbuffer.New(nil), width: 0, editor: e}
 		e.model = m
-		e.CellView.Init()
-		e.CellView.SetModel(m)
+		e.textBufferView.Init()
+		e.textBufferView.SetModel(m)
 	})
 }
 
