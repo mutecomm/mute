@@ -7,7 +7,6 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -83,9 +82,6 @@ func main() {
 	}
 	if *test {
 		return
-	}
-	if os.Getenv("GO15VENDOREXPERIMENT") != "1" {
-		fatal(errors.New("environment variable GO15VENDOREXPERIMENT not set to 1"))
 	}
 	commit, date, err := git.GetHead("", os.Stderr)
 	if err != nil {

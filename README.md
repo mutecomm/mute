@@ -31,9 +31,7 @@ a graphical user interface will be released at a later stage.
 ### Installation
 
 At the moment, only installation from source is supported.
-You must have at least [Go 1.5](https://golang.org/dl/) installed (with `GOPATH` set accordingly and `$GOPATH/bin` being part of your `PATH`).
-The environment variable `GO15VENDOREXPERIMENT` must be set to `1`, to make
-sure that Mute uses the external dependencies from the `vendor/` directory.
+You must have at least [Go 1.6](https://golang.org/dl/) installed (with `GOPATH` set accordingly and `$GOPATH/bin` being part of your `PATH`).
 
 To install `mutectrl` execute the following three commands:
 
