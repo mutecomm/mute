@@ -51,6 +51,18 @@ import (
 	"github.com/mattn/go-runewidth"
 )
 
+const (
+	SOS = "\x1bX"  // start of string (used for links)
+	APC = "\x1b_"  // application program command (NOWRAP, CURSOR, ENDSOS)
+	ST  = "\x1b\\" // string terminator, terminates SOS and APC
+
+// 0 reset attributes
+// 1 bold
+// 4 underline
+// 39 set default foreground color
+// 49 set default background color
+)
+
 // TextBuffer is a line-oriented text buffer for displaying and editing UTF-8
 // text.
 type TextBuffer struct {
@@ -159,6 +171,18 @@ func (tb *TextBuffer) GetCell(x, y int) (c []rune, width int) {
 	}
 	return nil, 0
 }
+
+// InsertCell inserts the character c in line y at position x of the cell coordinate system.
+// If line y does not exist empty lines are included until line y.
+// If position x does not exist empty characters are included until before position x.
+// If position x does exist (with width > 0), the existing character and all the ones right to
+// it are move one position to the right.
+// If position x does exists, but with width 0, c is inserted to the right of it.
+/*
+func (tb *TextBuffer) InsertCell(x, y) (c []rune) {
+
+}
+*/
 
 // Lines returns the number of lines.
 func (tb *TextBuffer) Lines() int {

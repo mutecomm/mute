@@ -195,7 +195,10 @@ func (a *textBufferView) HandleEvent(e tcell.Event) bool {
 		case tcell.KeyHome:
 			a.keyHome()
 			return true
+		case tcell.KeyEnter:
+			// TODO: add new line
 		case tcell.KeyRune:
+			// TODO: the following only apply to command mode!
 			switch e.Rune() {
 			case 'g':
 				a.keyHome()

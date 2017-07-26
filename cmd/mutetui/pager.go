@@ -102,6 +102,9 @@ func pager(filename string) error {
 
 	root.editor = editor.New()
 	root.editor.SetContent(buf)
+	root.editor.SetStyle(tcell.StyleDefault.
+		Foreground(tcell.ColorBlack).
+		Background(tcell.ColorWhite).Underline(true))
 	root.BoxLayout.AddWidget(root.editor, 1.0)
 
 	root.status = views.NewText()
