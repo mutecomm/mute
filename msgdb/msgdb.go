@@ -303,161 +303,214 @@ func (msgDB *MsgDB) Version() (string, error) {
 func Open(dbname string, passphrase []byte) (*MsgDB, error) {
 	var msgDB MsgDB
 	var err error
+	// open database
 	msgDB.encDB, err = encdb.Open(dbname, passphrase)
 	if err != nil {
 		return nil, err
 	}
+	// prepare statements
 	if msgDB.updateValueQuery, err = msgDB.encDB.Prepare(updateValueQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.insertValueQuery, err = msgDB.encDB.Prepare(insertValueQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getValueQuery, err = msgDB.encDB.Prepare(getValueQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.updateNymQuery, err = msgDB.encDB.Prepare(updateNymQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.insertNymQuery, err = msgDB.encDB.Prepare(insertNymQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getNymQuery, err = msgDB.encDB.Prepare(getNymQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getNymMappedQuery, err = msgDB.encDB.Prepare(getNymMappedQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getNymUIDQuery, err = msgDB.encDB.Prepare(getNymUIDQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getNymsQuery, err = msgDB.encDB.Prepare(getNymsQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.delNymQuery, err = msgDB.encDB.Prepare(delNymQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getContactQuery, err = msgDB.encDB.Prepare(getContactQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getContactMappedQuery, err = msgDB.encDB.Prepare(getContactMappedQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getContactUIDQuery, err = msgDB.encDB.Prepare(getContactUIDQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getContactsQuery, err = msgDB.encDB.Prepare(getContactsQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.updateContactQuery, err = msgDB.encDB.Prepare(updateContactQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.insertContactQuery, err = msgDB.encDB.Prepare(insertContactQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.delContactQuery, err = msgDB.encDB.Prepare(delContactQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.addAccountQuery, err = msgDB.encDB.Prepare(addAccountQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.setAccountTimeQuery, err = msgDB.encDB.Prepare(setAccountTimeQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.setAccountLastTimeQuery, err = msgDB.encDB.Prepare(setAccountLastTimeQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getAccountQuery, err = msgDB.encDB.Prepare(getAccountQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getAccountsQuery, err = msgDB.encDB.Prepare(getAccountsQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getAccountTimeQuery, err = msgDB.encDB.Prepare(getAccountTimeQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.addMsgQuery, err = msgDB.encDB.Prepare(addMsgQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.delMsgQuery, err = msgDB.encDB.Prepare(delMsgQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getMsgQuery, err = msgDB.encDB.Prepare(getMsgQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.readMsgQuery, err = msgDB.encDB.Prepare(readMsgQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getMsgsQuery, err = msgDB.encDB.Prepare(getMsgsQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getUndeliveredMsgQuery, err = msgDB.encDB.Prepare(getUndeliveredMsgQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.updateDeliveryMsgQuery, err = msgDB.encDB.Prepare(updateDeliveryMsgQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.updateMsgDateQuery, err = msgDB.encDB.Prepare(updateMsgDateQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getUpkeepAllQuery, err = msgDB.encDB.Prepare(getUpkeepAllQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.setUpkeepAllQuery, err = msgDB.encDB.Prepare(setUpkeepAllQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getUpkeepAccountsQuery, err = msgDB.encDB.Prepare(getUpkeepAccountsQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.setUpkeepAccountsQuery, err = msgDB.encDB.Prepare(setUpkeepAccountsQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.addOutQueueQuery, err = msgDB.encDB.Prepare(addOutQueueQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getOutQueueQuery, err = msgDB.encDB.Prepare(getOutQueueQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getOutQueueMsgIDQuery, err = msgDB.encDB.Prepare(getOutQueueMsgIDQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.setOutQueueQuery, err = msgDB.encDB.Prepare(setOutQueueQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.removeOutQueueQuery, err = msgDB.encDB.Prepare(removeOutQueueQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.setResendOutQueueQuery, err = msgDB.encDB.Prepare(setResendOutQueueQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.clearResendOutQueueQuery, err = msgDB.encDB.Prepare(clearResendOutQueueQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.addInQueueQuery, err = msgDB.encDB.Prepare(addInQueueQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getInQueueQuery, err = msgDB.encDB.Prepare(getInQueueQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getInQueueIDsQuery, err = msgDB.encDB.Prepare(getInQueueIDsQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.setInQueueQuery, err = msgDB.encDB.Prepare(setInQueueQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.removeInQueueQuery, err = msgDB.encDB.Prepare(removeInQueueQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.addMessageIDCacheQuery, err = msgDB.encDB.Prepare(addMessageIDCacheQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getMessageIDCacheQuery, err = msgDB.encDB.Prepare(getMessageIDCacheQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.getMessageIDCacheEntryQuery, err = msgDB.encDB.Prepare(getMessageIDCacheEntryQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	if msgDB.removeMessageIDCacheQuery, err = msgDB.encDB.Prepare(removeMessageIDCacheQuery); err != nil {
+		msgDB.encDB.Close()
 		return nil, err
 	}
 	return &msgDB, nil
