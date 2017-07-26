@@ -42,8 +42,7 @@ const KeySuffix = ".key"
 
 func createTables(db *sql.DB, createStmts []string) error {
 	for _, stmt := range createStmts {
-		_, err := db.Exec(stmt)
-		if err != nil {
+		if _, err := db.Exec(stmt); err != nil {
 			return log.Errorf("encdb: %q: %s", err, stmt)
 		}
 	}
