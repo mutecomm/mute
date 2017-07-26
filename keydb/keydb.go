@@ -228,101 +228,134 @@ func (keyDB *KeyDB) Version() (string, error) {
 func Open(dbname string, passphrase []byte) (*KeyDB, error) {
 	var keyDB KeyDB
 	var err error
+	// open database
 	keyDB.encDB, err = encdb.Open(dbname, passphrase)
 	if err != nil {
 		return nil, err
 	}
+	// prepare statements
 	if keyDB.updateValueQuery, err = keyDB.encDB.Prepare(updateValueQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.insertValueQuery, err = keyDB.encDB.Prepare(insertValueQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.getValueQuery, err = keyDB.encDB.Prepare(getValueQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.addPrivateUIDQuery, err = keyDB.encDB.Prepare(addPrivateUIDQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.addPrivateUIDReplyQuery, err = keyDB.encDB.Prepare(addPrivateUIDReplyQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.delPrivateUIDQuery, err = keyDB.encDB.Prepare(delPrivateUIDQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.getPrivateIdentitiesQuery, err = keyDB.encDB.Prepare(getPrivateIdentitiesQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.getPrivateUIDQuery, err = keyDB.encDB.Prepare(getPrivateUIDQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.addPrivateKeyInitQuery, err = keyDB.encDB.Prepare(addPrivateKeyInitQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.getPrivateKeyInitQuery, err = keyDB.encDB.Prepare(getPrivateKeyInitQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.addPublicKeyInitQuery, err = keyDB.encDB.Prepare(addPublicKeyInitQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.getPublicKeyInitQuery, err = keyDB.encDB.Prepare(getPublicKeyInitQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.addPublicUIDQuery, err = keyDB.encDB.Prepare(addPublicUIDQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.getPublicUIDQuery, err = keyDB.encDB.Prepare(getPublicUIDQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.getSessionQuery, err = keyDB.encDB.Prepare(getSessionQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.getSessionIDQuery, err = keyDB.encDB.Prepare(getSessionIDQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.updateSessionQuery, err = keyDB.encDB.Prepare(updateSessionQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.insertSessionQuery, err = keyDB.encDB.Prepare(insertSessionQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.addMessageKeyQuery, err = keyDB.encDB.Prepare(addMessageKeyQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.delMessageKeyQuery, err = keyDB.encDB.Prepare(delMessageKeyQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.getMessageKeyQuery, err = keyDB.encDB.Prepare(getMessageKeyQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.addHashChainEntryQuery, err = keyDB.encDB.Prepare(addHashChainEntryQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.getHashChainEntryQuery, err = keyDB.encDB.Prepare(getHashChainEntryQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.getLastHashChainPosQuery, err = keyDB.encDB.Prepare(getLastHashChainPosQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.delHashChainQuery, err = keyDB.encDB.Prepare(delHashChainQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.updateSessionStateQuery, err = keyDB.encDB.Prepare(updateSessionStateQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.insertSessionStateQuery, err = keyDB.encDB.Prepare(insertSessionStateQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.getSessionStateQuery, err = keyDB.encDB.Prepare(getSessionStateQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.updateSessionKeyQuery, err = keyDB.encDB.Prepare(updateSessionKeyQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.insertSessionKeyQuery, err = keyDB.encDB.Prepare(insertSessionKeyQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	if keyDB.getSessionKeyQuery, err = keyDB.encDB.Prepare(getSessionKeyQuery); err != nil {
+		keyDB.encDB.Close()
 		return nil, err
 	}
 	return &keyDB, nil
