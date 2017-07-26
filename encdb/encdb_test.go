@@ -29,7 +29,9 @@ func TestCreateOpenClose(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	encdb.Close()
+	if err := encdb.Close(); err != nil {
+		t.Error(err)
+	}
 }
 
 func TestCreateRekey(t *testing.T) {
