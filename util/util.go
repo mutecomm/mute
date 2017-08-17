@@ -73,8 +73,14 @@ func Cp(srcFile, destFile string) error {
 		return err
 	}
 	defer src.Close()
-	// open desination file
-	dest, err := os.Create(destFile)
+	// get mode of source file
+	fi, err := src.Stat()
+	if err != nil {
+		return err
+	}
+	mode := fi.Mode() & os.ModePerm // only keep standard UNIX permission bits
+	// create destination file
+	dest, err := os.OpenFile(destFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, mode)
 	if err != nil {
 		return err
 	}
