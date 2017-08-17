@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
 	"github.com/mutecomm/mute/log"
 	"golang.org/x/crypto/ssh/terminal"
@@ -58,9 +59,13 @@ func CreateDirs(dirs ...string) error {
 
 // Cp copies a srcFile to destFile.
 func Cp(srcFile, destFile string) error {
-	// make sure destination file does not exist already
-	if _, err := os.Stat(destFile); err == nil {
-		return log.Errorf("destination file '%s' exists already", destFile)
+	if destFile != "." {
+		// make sure destination file does not exist already
+		if _, err := os.Stat(destFile); err == nil {
+			return log.Errorf("destination file '%s' exists already", destFile)
+		}
+	} else {
+		destFile = filepath.Base(srcFile)
 	}
 	// open source file
 	src, err := os.Open(srcFile)
