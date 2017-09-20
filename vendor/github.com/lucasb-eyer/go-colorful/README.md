@@ -14,7 +14,7 @@ two players got very similar colors, which bugged me. The very same evening,
 [I want hue](http://tools.medialab.sciences-po.fr/iwanthue/) was the top post
 on HackerNews' frontpage and showed me how to Do It Right™. Last but not
 least, there was no library for handling color spaces available in go. Colorful
-does just that and implements Go's color.Color interface.
+does just that and implements Go's `color.Color` interface.
 
 What?
 =====
@@ -118,6 +118,23 @@ h, c, l := c.Hcl()
 Note that, because of Go's unfortunate choice of requiring an initial uppercase,
 the name of the functions relating to the xyY space are just off. If you have
 any good suggestion, please open an issue. (I don't consider XyY good.)
+
+### The `color.Color` interface
+Because a `colorful.Color` implements Go's `color.Color` interface (found in the
+`image/color` package), it can be used anywhere that expects a `color.Color`.
+
+Furthermore, you can convert anything that implements the `color.Color` interface
+into a `colorful.Color` using the `MakeColorful` function:
+
+```go
+c := colorful.MakeColor(color.Gray16{12345})
+```
+
+**Caveat:** Be aware that for this latter conversion  (using `MakeColor`) hits a corner-case
+when alpha is exactly zero. Because `color.Color` uses pre-multiplied alpha colors,
+this means the RGB values are lost and it's impossible to recover them. The current
+implementation `panic()`s in that case, see [issue 21](https://github.com/lucasb-eyer/go-colorful/issues/21)
+for discussion and suggesting alternatives.
 
 ### Comparing colors
 In the RGB color space, the Euclidian distance between colors *doesn't* correspond
@@ -368,12 +385,81 @@ c := colorful.LabWhiteRef(0.507850, 0.040585,-0.370945, colorful.D50)
 l, a, b := c.LabWhiteRef(colorful.D50)
 ```
 
+### Reading and writing colors from databases
+
+The type `HexColor` makes it easy to store colors as strings in a database. It
+implements the [https://godoc.org/database/sql#Scanner](database/sql.Scanner)
+and [database/sql/driver.Value](https://godoc.org/database/sql/driver.Value)
+interfaces which provide automatic type conversion.
+
+Example:
+
+```go
+var hc HexColor
+_, err := db.QueryRow("SELECT '#ff0000';").Scan(&hc)
+// hc == HexColor{R: 1, G: 0, B: 0}; err == nil
+```
+
 FAQ
 ===
 
 ### Q: I get all f!@#ed up values! Your library sucks!
 A: You probably provided values in the wrong range. For example, RGB values are
 expected to reside between 0 and 1, *not* between 0 and 255. Normalize your colors.
+
+### Q: Lab/Luv/HCl seem broken! Your library sucks!
+They look like this:
+
+<img height="150" src="https://user-images.githubusercontent.com/3779568/28646900-6548040c-7264-11e7-8f12-81097a97c260.png">
+
+A: You're likely trying to generate and display colors that can't be represented by RGB,
+and thus monitors. When you're trying to convert, say, `HCL(190.0, 1.0, 1.0).RGB255()`,
+you're asking for RGB values of `(-2105.254  300.680  286.185)`, which clearly don't exist,
+and the `RGB255` function just casts these numbers to `uint8`, creating wrap-around and
+what looks like a completely broken gradient. What you want to do, is either use more
+reasonable values of colors which actually exist in RGB, or just `Clamp()` the resulting
+color to its nearest existing one, living with the consequences:
+`HCL(190.0, 1.0, 1.0).Clamp().RGB255()`. It will look something like this:
+
+<img height="150" src="https://user-images.githubusercontent.com/1476029/29596343-9a8c62c6-8771-11e7-9026-b8eb8852cc4a.png">
+
+[Here's an issue going in-depth about this](https://github.com/lucasb-eyer/go-colorful/issues/14),
+as well as [my answer](https://github.com/lucasb-eyer/go-colorful/issues/14#issuecomment-324205385),
+both with code and pretty pictures. Also note that this was somewhat covered above in the
+["Blending colors" section](https://github.com/lucasb-eyer/go-colorful#blending-colors).
+
+### Q: In a tight loop, conversion to Lab/Luv/HCl/... are slooooow!
+A: Yes, they are.
+This library aims for correctness, readability, and modularity; it wasn't written with speed in mind.
+A large part of the slowness comes from these conversions going through `LinearRgb` which uses powers.
+I implemented a fast approximation to `LinearRgb` called `FastLinearRgb` by using Taylor approximations.
+The approximation is roughly 5x faster and precise up to roughly 0.5%,
+the major caveat being that if the input values are outside the range 0-1, accuracy drops dramatically.
+You can use these in your conversions as follows:
+
+```go
+col := // Get your color somehow
+l, a, b := XyzToLab(LinearRgbToXyz(col.LinearRgb()))
+```
+
+If you need faster versions of `Distance*` and `Blend*` that make use of this fast approximation,
+feel free to implement them and open a pull-request, I'll happily accept.
+
+The derivation of these functions can be followed in [this Jupyter notebook](doc/LinearRGB Approximations.ipynb).
+Here's the main figure showing the approximation quality:
+
+![approximation quality](doc/approx-quality.png)
+
+More speed could be gained by using SIMD instructions in many places.
+You can also get more speed for specific conversions by approximating the full conversion function,
+but that is outside the scope of this library.
+Thanks to [@ZirconiumX](https://github.com/ZirconiumX) for starting this investigation,
+see [issue #18](https://github.com/lucasb-eyer/go-colorful/issues/18) for details.
+
+### Q: `MakeColor` panics when alpha is zero!
+A: Because in that case, the conversion is undefined. See
+[issue 21](https://github.com/lucasb-eyer/go-colorful/issues/21)
+as well as the short caveat discussion in the ["The `color.Color` interface"](README.md#the-colorcolor-interface) section above.
 
 Who?
 ====
