@@ -169,10 +169,7 @@ func (ce *CtrlEngine) dbCreate(
 		return err
 	}
 	// print wallet key
-	if err := printWalletKey(w, walletKey); err != nil {
-		return err
-	}
-	return nil
+	return printWalletKey(w, walletKey)
 }
 
 func rekeyKeyDB(c *cli.Context, oldPassphrase, newPassphrase []byte) error {
@@ -292,10 +289,7 @@ func (ce *CtrlEngine) dbRekey(statusfp io.Writer, c *cli.Context) error {
 	}
 	// rekey keyDB
 	log.Info("rekey keyDB")
-	if err := rekeyKeyDB(c, oldPassphrase, newPassphrase); err != nil {
-		return err
-	}
-	return nil
+	return rekeyKeyDB(c, oldPassphrase, newPassphrase)
 }
 
 func mutecryptDBStatus(c *cli.Context, w io.Writer, passphrase []byte) error {

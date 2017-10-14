@@ -127,10 +127,7 @@ func (ce *CryptEngine) fetchKeyInit(pseudonym string) error {
 		return err
 	}
 	// store public key init message
-	if err := ce.keyDB.AddPublicKeyInit(ki); err != nil {
-		return err
-	}
-	return nil
+	return ce.keyDB.AddPublicKeyInit(ki)
 }
 
 func (ce *CryptEngine) flushKeyInit(pseudonym string) error {

@@ -66,11 +66,7 @@ func (pe *ProtoEngine) prepare(c *cli.Context) error {
 	}
 
 	// configure
-	if err := def.InitMuteFromFile(pe.homedir); err != nil {
-		return err
-	}
-
-	return nil
+	return def.InitMuteFromFile(pe.homedir)
 }
 
 // New returns a new Mute proto engine.

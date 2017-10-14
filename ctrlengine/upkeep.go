@@ -90,10 +90,7 @@ func (ce *CtrlEngine) upkeepAll(
 	// TODO: call all upkeep tasks in mutecrypt
 
 	// record time of execution
-	if err := ce.msgDB.SetUpkeepAll(mappedID, now); err != nil {
-		return err
-	}
-	return nil
+	return ce.msgDB.SetUpkeepAll(mappedID, now)
 }
 
 func writeConfigFile(homedir, domain string, config []byte) error {
@@ -398,11 +395,7 @@ func (ce *CtrlEngine) upkeepAccounts(
 	}
 
 	// record time of execution
-	if err := ce.msgDB.SetUpkeepAccounts(mappedID, now); err != nil {
-		return err
-	}
-
-	return nil
+	return ce.msgDB.SetUpkeepAccounts(mappedID, now)
 }
 
 func mutecryptHashchainSync(

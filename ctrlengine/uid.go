@@ -416,10 +416,7 @@ func (ce *CtrlEngine) uidEdit(unmappedID, fullName string) error {
 	if old == "" {
 		return log.Errorf("user ID %s unknown", unmappedID)
 	}
-	if err := ce.msgDB.AddNym(mappedID, unmappedID, fullName); err != nil {
-		return err
-	}
-	return nil
+	return ce.msgDB.AddNym(mappedID, unmappedID, fullName)
 }
 
 func (ce *CtrlEngine) uidActive(
@@ -451,10 +448,7 @@ func (ce *CtrlEngine) uidSwitch(unmappedID string) error {
 	if existing == "" {
 		return log.Errorf("user ID %s unknown", unmappedID)
 	}
-	if err := ce.msgDB.AddValue(msgdb.ActiveUID, mappedID); err != nil {
-		return err
-	}
-	return nil
+	return ce.msgDB.AddValue(msgdb.ActiveUID, mappedID)
 }
 
 func mutecryptDeleteUID(c *cli.Context, id string, passphrase []byte) error {

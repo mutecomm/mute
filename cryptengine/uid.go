@@ -148,10 +148,7 @@ func (ce *CryptEngine) genupdate(pseudonym string) error {
 		return err
 	}
 	// store new UID in keyDB
-	if err := ce.keyDB.AddPrivateUID(newUID); err != nil {
-		return err
-	}
-	return nil
+	return ce.keyDB.AddPrivateUID(newUID)
 }
 
 // update an already generated nym update (stored in keyDB) with key server.
@@ -188,10 +185,7 @@ func (ce *CryptEngine) deleteUID(pseudonym string, force bool) error {
 	}
 
 	// delete UID from keyDB
-	if err := ce.keyDB.DelPrivateUID(msg); err != nil {
-		return err
-	}
-	return nil
+	return ce.keyDB.DelPrivateUID(msg)
 }
 
 // list UIDs shows all own (mapped) users IDs on outfp.

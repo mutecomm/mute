@@ -19,10 +19,7 @@ func Generate(dir, arg string, outfp, statfp io.Writer) error {
 	}
 	cmd.Stdout = outfp
 	cmd.Stderr = statfp
-	if err := cmd.Run(); err != nil {
-		return err
-	}
-	return nil
+	return cmd.Run()
 }
 
 // Install executes `go install -v` in directory dir.
@@ -35,8 +32,5 @@ func Install(dir, arg string, outfp, statfp io.Writer) error {
 	}
 	cmd.Stdout = outfp
 	cmd.Stderr = statfp
-	if err := cmd.Run(); err != nil {
-		return err
-	}
-	return nil
+	return cmd.Run()
 }

@@ -58,10 +58,7 @@ func Pull(dir string, outfp, statfp io.Writer) error {
 	}
 	cmd.Stdout = outfp
 	cmd.Stderr = statfp
-	if err := cmd.Run(); err != nil {
-		return err
-	}
-	return nil
+	return cmd.Run()
 }
 
 // Checkout executes a `git checkout commit` in directory dir.
@@ -72,8 +69,5 @@ func Checkout(dir, commit string, outfp, statfp io.Writer) error {
 	}
 	cmd.Stdout = outfp
 	cmd.Stderr = statfp
-	if err := cmd.Run(); err != nil {
-		return err
-	}
-	return nil
+	return cmd.Run()
 }

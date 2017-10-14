@@ -52,9 +52,12 @@ import (
 )
 
 const (
-	SOS = "\x1bX"  // start of string (used for links)
-	APC = "\x1b_"  // application program command (NOWRAP, CURSOR, ENDSOS)
-	ST  = "\x1b\\" // string terminator, terminates SOS and APC
+	// SOS defines the start of string (used for links)
+	SOS = "\x1bX"
+	// APC defines the application program command (NOWRAP, CURSOR, ENDSOS)
+	APC = "\x1b_"
+	// ST defines the string terminator, terminates SOS and APC
+	ST = "\x1b\\"
 
 // 0 reset attributes
 // 1 bold

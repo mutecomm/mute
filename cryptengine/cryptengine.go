@@ -287,10 +287,7 @@ func New() *CryptEngine {
 							return log.Errorf("superfluous argument(s): %s",
 								strings.Join(c.Args(), " "))
 						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.dbVacuum("FULL")
@@ -329,10 +326,7 @@ func New() *CryptEngine {
 							return log.Errorf("superfluous argument(s): %s",
 								strings.Join(c.Args(), " "))
 						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.dbVersion(ce.fileTable.OutputFP)
@@ -361,10 +355,7 @@ func New() *CryptEngine {
 						if !c.IsSet("domain") {
 							return log.Error("option --domain is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.getCapabilities(c.String("domain"), c.String("host"))
@@ -387,10 +378,7 @@ func New() *CryptEngine {
 						if !c.IsSet("domain") {
 							return log.Error("option --domain is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.showCapabilities(c.String("domain"), c.String("host"))
@@ -422,10 +410,7 @@ register the UID message with the keyserver yet.
 						if !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.generate(c.String("id"), c.GlobalBool("keyserver"),
@@ -458,10 +443,7 @@ Tries to register a pregenerated UID message with the corresponding keyserver.
 						if !c.IsSet("token") {
 							return log.Error("option --token is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.register(c.String("id"), c.String("token"))
@@ -483,10 +465,7 @@ Tries to register a pregenerated UID message with the corresponding keyserver.
 						if !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.genupdate(c.String("id"))
@@ -515,10 +494,7 @@ Tries to register a pregenerated UID message with the corresponding keyserver.
 						if !c.IsSet("token") {
 							return log.Error("option --token is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.update(c.String("id"), c.String("token"))
@@ -547,10 +523,7 @@ Delete a user ID (registered or unregistered).
 						if !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.deleteUID(c.String("id"), c.Bool("force"))
@@ -563,10 +536,7 @@ Delete a user ID (registered or unregistered).
 						if len(c.Args()) > 0 {
 							return log.Errorf("superfluous argument(s): %s", strings.Join(c.Args(), " "))
 						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.listUIDs(ce.fileTable.OutputFP)
@@ -615,10 +585,7 @@ Delete a user ID (registered or unregistered).
 						if !c.IsSet("token") {
 							return log.Error("option --token is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.addKeyInit(c.String("id"),
@@ -642,10 +609,7 @@ Delete a user ID (registered or unregistered).
 						if !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.fetchKeyInit(c.String("id"))
@@ -667,10 +631,7 @@ Delete a user ID (registered or unregistered).
 						if !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.flushKeyInit(c.String("id"))
@@ -695,10 +656,7 @@ Delete a user ID (registered or unregistered).
 						if !c.IsSet("domain") {
 							return log.Error("option --domain is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.syncHashChain(c.String("domain"))
@@ -717,10 +675,7 @@ Delete a user ID (registered or unregistered).
 						if !c.IsSet("domain") {
 							return log.Error("option --domain is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.validateHashChain(c.String("domain"))
@@ -746,10 +701,7 @@ Delete a user ID (registered or unregistered).
 						if !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.searchHashChain(c.String("id"),
@@ -772,10 +724,7 @@ Delete a user ID (registered or unregistered).
 						if !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.lookupHashChain(c.String("id"))
@@ -794,10 +743,7 @@ Delete a user ID (registered or unregistered).
 						if !c.IsSet("domain") {
 							return log.Error("option --domain is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.showHashChain(c.String("domain"))
@@ -816,10 +762,7 @@ Delete a user ID (registered or unregistered).
 						if !c.IsSet("domain") {
 							return log.Error("option --domain is mandatory")
 						}
-						if err := ce.prepare(c, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.deleteHashChain(c.String("domain"))
@@ -861,10 +804,7 @@ Delete a user ID (registered or unregistered).
 				if !c.IsSet("nymaddress") {
 					return log.Error("option --nymaddress is mandatory")
 				}
-				if err := ce.prepare(c, true); err != nil {
-					return err
-				}
-				return nil
+				return ce.prepare(c, true)
 			},
 			Action: func(c *cli.Context) {
 				ce.err = ce.encrypt(ce.fileTable.OutputFP, c.String("from"),
@@ -879,10 +819,7 @@ Delete a user ID (registered or unregistered).
 				if len(c.Args()) > 0 {
 					return log.Errorf("superfluous argument(s): %s", strings.Join(c.Args(), " "))
 				}
-				if err := ce.prepare(c, true); err != nil {
-					return err
-				}
-				return nil
+				return ce.prepare(c, true)
 			},
 			Action: func(c *cli.Context) {
 				ce.err = ce.decrypt(ce.fileTable.OutputFP, ce.fileTable.InputFP,
@@ -896,10 +833,7 @@ Delete a user ID (registered or unregistered).
 				if len(c.Args()) > 0 {
 					return log.Errorf("superfluous argument(s): %s", strings.Join(c.Args(), " "))
 				}
-				if err := ce.prepare(c, false); err != nil {
-					return err
-				}
-				return nil
+				return ce.prepare(c, false)
 			},
 			Action: func(c *cli.Context) {
 				ce.err = errExit

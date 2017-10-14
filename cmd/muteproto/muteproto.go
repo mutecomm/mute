@@ -27,10 +27,7 @@ func muteprotoMain() error {
 	pe := protoengine.New()
 
 	// run proto engine
-	if err := pe.Run(os.Args); err != nil {
-		return err
-	}
-	return nil
+	return pe.Run(os.Args)
 }
 
 func main() {

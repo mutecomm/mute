@@ -284,10 +284,7 @@ func Create(dbname string, passphrase []byte, iter int) error {
 		return err
 	}
 	defer msgDB.Close()
-	if err := msgDB.AddValue(DBVersion, Version); err != nil {
-		return err
-	}
-	return nil
+	return msgDB.AddValue(DBVersion, Version)
 }
 
 // Version returns the current version of msgDB.

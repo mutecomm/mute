@@ -535,8 +535,5 @@ func (ce *CryptEngine) showHashChain(domain string) error {
 
 // deleteHashChain deletes the local hash chain copy of the given domain.
 func (ce *CryptEngine) deleteHashChain(domain string) error {
-	if err := ce.keyDB.DelHashChain(domain); err != nil {
-		return err
-	}
-	return nil
+	return ce.keyDB.DelHashChain(domain)
 }

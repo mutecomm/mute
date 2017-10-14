@@ -26,10 +26,7 @@ func (ce *CtrlEngine) walletPubkey(w io.Writer) error {
 	if err != nil {
 		return err
 	}
-	if err := printWalletKey(w, privkey); err != nil {
-		return err
-	}
-	return nil
+	return printWalletKey(w, privkey)
 }
 
 func (ce *CtrlEngine) walletBalance(w io.Writer) error {

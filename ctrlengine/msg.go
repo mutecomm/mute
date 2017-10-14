@@ -841,10 +841,7 @@ func (ce *CtrlEngine) msgFetch(
 	}
 
 	// process new messages in inqueue
-	if err := ce.procInQueue(c, host); err != nil {
-		return err
-	}
-	return nil
+	return ce.procInQueue(c, host)
 }
 
 func (ce *CtrlEngine) msgList(w io.Writer, id string) error {
@@ -920,8 +917,5 @@ func (ce *CtrlEngine) msgDelete(myID string, msgID int64) error {
 	if err != nil {
 		return err
 	}
-	if err := ce.msgDB.DelMessage(idMapped, msgID); err != nil {
-		return err
-	}
-	return nil
+	return ce.msgDB.DelMessage(idMapped, msgID)
 }

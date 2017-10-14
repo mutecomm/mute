@@ -209,10 +209,7 @@ func Create(dbname string, passphrase []byte, iter int) error {
 		return err
 	}
 	defer keyDB.Close()
-	if err := keyDB.AddValue(DBVersion, Version); err != nil {
-		return err
-	}
-	return nil
+	return keyDB.AddValue(DBVersion, Version)
 }
 
 // Version returns the current version of keyDB.

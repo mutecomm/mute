@@ -192,11 +192,7 @@ func mutecryptAddContact(
 		return err
 	}
 
-	if err := cmd.Wait(); err != nil {
-		return err
-	}
-
-	return nil
+	return cmd.Wait()
 }
 
 func add(
@@ -315,10 +311,7 @@ func (ce *CtrlEngine) contactRemove(id, contact string) error {
 		return err
 	}
 	// remove contact
-	if err := ce.msgDB.RemoveContact(idMapped, contactMapped); err != nil {
-		return err
-	}
-	return nil
+	return ce.msgDB.RemoveContact(idMapped, contactMapped)
 }
 
 func (ce *CtrlEngine) contactBlock(id, contact string) error {

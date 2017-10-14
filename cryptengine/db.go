@@ -44,10 +44,7 @@ func (ce *CryptEngine) dbCreate(homedir string, iterations int) error {
 	}
 	// create keyDB
 	log.Infof("create keyDB '%s'", keydbname)
-	if err := keydb.Create(keydbname, passphrase, iterations); err != nil {
-		return err
-	}
-	return nil
+	return keydb.Create(keydbname, passphrase, iterations)
 }
 
 // rekey a KeyDB.
@@ -87,10 +84,7 @@ func (ce *CryptEngine) dbRekey(homedir string, iterations int) error {
 	}
 	// rekey keyDB
 	log.Infof("rekey keyDB '%s'", keydbname)
-	if err := keydb.Rekey(keydbname, oldPassphrase, newPassphrase, iterations); err != nil {
-		return err
-	}
-	return nil
+	return keydb.Rekey(keydbname, oldPassphrase, newPassphrase, iterations)
 }
 
 func (ce *CryptEngine) dbStatus(w io.Writer) error {

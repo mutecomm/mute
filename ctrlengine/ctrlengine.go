@@ -527,10 +527,7 @@ func New() *CtrlEngine {
 				if len(c.Args()) > 0 {
 					return log.Errorf("superfluous argument(s): %s", strings.Join(c.Args(), " "))
 				}
-				if err := ce.prepare(c, false, false); err != nil {
-					return err
-				}
-				return nil
+				return ce.prepare(c, false, false)
 			},
 			Action: func(c *cli.Context) {
 				ce.err = ce.appStart(c, ce.fileTable.StatusFP,
@@ -621,10 +618,7 @@ func New() *CtrlEngine {
 							return log.Errorf("superfluous argument(s): %s",
 								strings.Join(c.Args(), " "))
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.dbVacuum(c, "FULL")
@@ -663,10 +657,7 @@ func New() *CtrlEngine {
 							return log.Errorf("superfluous argument(s): %s",
 								strings.Join(c.Args(), " "))
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.dbVersion(c, ce.fileTable.OutputFP)
@@ -702,10 +693,7 @@ Tries to register a new user ID with the corresponding key server.
 						if err := checkDelayArgs(c); err != nil {
 							return err
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.uidNew(c, int32(c.Int("mindelay")),
@@ -726,10 +714,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.uidEdit(c.String("id"), c.String("full-name"))
@@ -742,10 +727,7 @@ Tries to register a new user ID with the corresponding key server.
 						if len(c.Args()) > 0 {
 							return log.Errorf("superfluous argument(s): %s", strings.Join(c.Args(), " "))
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.uidActive(c, ce.fileTable.OutputFD,
@@ -765,10 +747,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.uidSwitch(c.String("id"))
@@ -791,10 +770,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.uidDelete(c, c.String("id"), c.Bool("force"),
@@ -808,10 +784,7 @@ Tries to register a new user ID with the corresponding key server.
 						if len(c.Args()) > 0 {
 							return log.Errorf("superfluous argument(s): %s", strings.Join(c.Args(), " "))
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.uidList(ce.fileTable.OutputFP)
@@ -842,10 +815,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !c.IsSet("contact") {
 							return log.Error("option --contact is mandatory")
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.contactAdd(ce.getID(c), c.String("contact"),
@@ -871,10 +841,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !c.IsSet("contact") {
 							return log.Error("option --contact is mandatory")
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.contactEdit(ce.getID(c),
@@ -898,10 +865,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !c.IsSet("contact") {
 							return log.Error("option --contact is mandatory")
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.contactRemove(ce.getID(c),
@@ -925,10 +889,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !c.IsSet("contact") {
 							return log.Error("option --contact is mandatory")
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.contactBlock(ce.getID(c),
@@ -952,10 +913,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !c.IsSet("contact") {
 							return log.Error("option --contact is mandatory")
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.contactUnblock(ce.getID(c),
@@ -975,10 +933,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !interactive && !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.contactList(ce.fileTable.OutputFP, ce.getID(c))
@@ -997,10 +952,7 @@ Tries to register a new user ID with the corresponding key server.
 						if !interactive && !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.contactBlacklist(ce.fileTable.OutputFP,
@@ -1071,10 +1023,7 @@ email body as the actual message.
 						if err := checkDelayArgs(c); err != nil {
 							return err
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.msgAdd(c, ce.getID(c), c.String("to"),
@@ -1103,10 +1052,7 @@ email body as the actual message.
 						if !interactive && !c.IsSet("all") && !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.msgSend(c, ce.getID(c), c.Bool("all"),
@@ -1128,10 +1074,7 @@ email body as the actual message.
 						if !interactive && !c.IsSet("all") && !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.msgFetch(c, ce.getID(c), c.Bool("all"),
@@ -1151,10 +1094,7 @@ email body as the actual message.
 						if !interactive && !c.IsSet("id") {
 							return log.Error("option --id is mandatory")
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.msgList(ce.fileTable.OutputFP, ce.getID(c))
@@ -1177,10 +1117,7 @@ email body as the actual message.
 						if !c.IsSet("msgnum") {
 							return log.Error("option --msgnum is mandatory")
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.msgRead(ce.fileTable.OutputFP, ce.getID(c),
@@ -1208,10 +1145,7 @@ A deleted message is permanently gone. Handle with care!
 						if !c.IsSet("msgnum") {
 							return log.Error("option --msgnum is mandatory")
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.msgDelete(ce.getID(c), int64(c.Int("msgnum")))
@@ -1244,10 +1178,7 @@ A deleted message is permanently gone. Handle with care!
 						if !c.IsSet("period") {
 							return log.Error("option --period is mandatory")
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.upkeepAll(c, ce.getID(c),
@@ -1268,10 +1199,7 @@ A deleted message is permanently gone. Handle with care!
 							return log.Errorf("superfluous argument(s): %s",
 								strings.Join(c.Args(), " "))
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.upkeepFetchconf(ce.msgDB,
@@ -1305,10 +1233,7 @@ A deleted message is permanently gone. Handle with care!
 								return log.Error("options --source and --binary exclude each other")
 							}
 						*/
-						if err := ce.prepare(c, true, false); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, false)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.upkeepUpdate(c.GlobalString("homedir"),
@@ -1342,10 +1267,7 @@ A deleted message is permanently gone. Handle with care!
 						if !c.IsSet("period") {
 							return log.Error("option --period is mandatory")
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.upkeepAccounts(ce.getID(c),
@@ -1371,10 +1293,7 @@ A deleted message is permanently gone. Handle with care!
 						if !c.IsSet("domain") {
 							return log.Error("option --domain is mandatory")
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.upkeepHashchain(c, c.String("domain"),
@@ -1395,10 +1314,7 @@ A deleted message is permanently gone. Handle with care!
 							return log.Errorf("superfluous argument(s): %s",
 								strings.Join(c.Args(), " "))
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.walletPubkey(ce.fileTable.OutputFP)
@@ -1412,10 +1328,7 @@ A deleted message is permanently gone. Handle with care!
 							return log.Errorf("superfluous argument(s): %s",
 								strings.Join(c.Args(), " "))
 						}
-						if err := ce.prepare(c, true, true); err != nil {
-							return err
-						}
-						return nil
+						return ce.prepare(c, true, true)
 					},
 					Action: func(c *cli.Context) {
 						ce.err = ce.walletBalance(ce.fileTable.OutputFP)
@@ -1430,10 +1343,7 @@ A deleted message is permanently gone. Handle with care!
 				if len(c.Args()) > 0 {
 					return log.Errorf("superfluous argument(s): %s", strings.Join(c.Args(), " "))
 				}
-				if err := ce.prepare(c, false, false); err != nil {
-					return err
-				}
-				return nil
+				return ce.prepare(c, false, false)
 			},
 			Action: func(c *cli.Context) {
 				ce.err = errExit

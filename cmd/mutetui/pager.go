@@ -117,8 +117,5 @@ func pager(filename string) error {
 	root.editor.Watch(&cursorEventHandler{text: root.status})
 
 	app.SetRootWidget(root)
-	if err := app.Run(); err != nil {
-		return err
-	}
-	return nil
+	return app.Run()
 }
