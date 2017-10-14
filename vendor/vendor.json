@@ -161,6 +161,12 @@
 			"revisionTime": "2017-07-05T02:17:15Z"
 		},
 		{
+			"checksumSHA1": "7vs6dSc1PPGBKyzb/SCIyeMJPLQ=",
+			"path": "github.com/stretchr/testify/require",
+			"revision": "890a5c3458b43e6104ff5da8dfa139d013d77544",
+			"revisionTime": "2017-07-05T02:17:15Z"
+		},
+		{
 			"checksumSHA1": "gqJHl8fHLTjHkgJAIxQFoiDBxBE=",
 			"path": "github.com/urfave/cli",
 			"revision": "2997500ba5f393daa5d76c18544c6367b2c48d16",
