@@ -101,7 +101,8 @@ See [net.Dial](https://golang.org/pkg/net/#Dial) for more information which netw
 In general you should use an Unix domain socket if available and TCP otherwise for best performance.
 
 #### Address
-For TCP and UDP networks, addresses have the form `host:port`.
+For TCP and UDP networks, addresses have the form `host[:port]`.
+If `port` is omitted, the default port will be used.
 If `host` is a literal IPv6 address, it must be enclosed in square brackets.
 The functions [net.JoinHostPort](https://golang.org/pkg/net/#JoinHostPort) and [net.SplitHostPort](https://golang.org/pkg/net/#SplitHostPort) manipulate addresses in this form.
 
@@ -231,10 +232,10 @@ Please keep in mind, that param values must be [url.QueryEscape](https://golang.
 ##### `maxAllowedPacket`
 ```
 Type:          decimal number
-Default:       0
+Default:       4194304
 ```
 
-Max packet size allowed in bytes. Use `maxAllowedPacket=0` to automatically fetch the `max_allowed_packet` variable from server.
+Max packet size allowed in bytes. The default value is 4 MiB and should be adjusted to match the server settings. `maxAllowedPacket=0` can be used to automatically fetch the `max_allowed_packet` variable from server *on every connection*.
 
 ##### `multiStatements`
 
@@ -293,20 +294,6 @@ supposed to happen, setting this on some MySQL providers (such as AWS Aurora)
 is safer for failovers.
 
 
-##### `strict`
-
-```
-Type:           bool
-Valid Values:   true, false
-Default:        false
-```
-
-`strict=true` enables a driver-side strict mode in which MySQL warnings are treated as errors. This mode should not be used in production as it may lead to data corruption in certain situations.
-
-A server-side strict mode, which is safe for production use, can be set via the [`sql_mode`](https://dev.mysql.com/doc/refman/5.7/en/sql-mode.html) system variable.
-
-By default MySQL also treats notes as warnings. Use [`sql_notes=false`](http://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html#sysvar_sql_notes) to ignore notes.
-
 ##### `timeout`
 
 ```
@@ -315,6 +302,7 @@ Default:        OS default
 ```
 
 Timeout for establishing connections, aka dial timeout. The value must be a decimal number with a unit suffix (*"ms"*, *"s"*, *"m"*, *"h"*), such as *"30s"*, *"0.5m"* or *"1m30s"*.
+
 
 ##### `tls`
 
@@ -325,6 +313,7 @@ Default:        false
 ```
 
 `tls=true` enables TLS / SSL encrypted connection to the server. Use `skip-verify` if you want to use a self-signed or invalid certificate (server side). Use a custom value registered with [`mysql.RegisterTLSConfig`](https://godoc.org/github.com/go-sql-driver/mysql#RegisterTLSConfig).
+
 
 ##### `writeTimeout`
 
