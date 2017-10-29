@@ -571,7 +571,8 @@ func (mc *mysqlConn) handleErrorPacket(data []byte) error {
 	errno := binary.LittleEndian.Uint16(data[1:3])
 
 	// 1792: ER_CANT_EXECUTE_IN_READ_ONLY_TRANSACTION
-	if errno == 1792 && mc.cfg.RejectReadOnly {
+	// 1290: ER_OPTION_PREVENTS_STATEMENT (returned by Aurora during failover)
+	if (errno == 1792 || errno == 1290) && mc.cfg.RejectReadOnly {
 		// Oops; we are connected to a read-only connection, and won't be able
 		// to issue any write statements. Since RejectReadOnly is configured,
 		// we throw away this connection hoping this one would have write
@@ -699,11 +700,14 @@ func (mc *mysqlConn) readColumns(count int) ([]mysqlField, error) {
 
 		// Filler [uint8]
 		// Charset [charset, collation uint8]
+		pos += n + 1 + 2
+
 		// Length [uint32]
-		pos += n + 1 + 2 + 4
+		columns[i].length = binary.LittleEndian.Uint32(data[pos : pos+4])
+		pos += 4
 
 		// Field type [uint8]
-		columns[i].fieldType = data[pos]
+		columns[i].fieldType = fieldType(data[pos])
 		pos++
 
 		// Flags [uint16]
@@ -980,7 +984,7 @@ func (stmt *mysqlStmt) writeExecutePacket(args []driver.Value) error {
 			// build NULL-bitmap
 			if arg == nil {
 				nullMask[i/8] |= 1 << (uint(i) & 7)
-				paramTypes[i+i] = fieldTypeNULL
+				paramTypes[i+i] = byte(fieldTypeNULL)
 				paramTypes[i+i+1] = 0x00
 				continue
 			}
@@ -988,7 +992,7 @@ func (stmt *mysqlStmt) writeExecutePacket(args []driver.Value) error {
 			// cache types and values
 			switch v := arg.(type) {
 			case int64:
-				paramTypes[i+i] = fieldTypeLongLong
+				paramTypes[i+i] = byte(fieldTypeLongLong)
 				paramTypes[i+i+1] = 0x00
 
 				if cap(paramValues)-len(paramValues)-8 >= 0 {
@@ -1004,7 +1008,7 @@ func (stmt *mysqlStmt) writeExecutePacket(args []driver.Value) error {
 				}
 
 			case float64:
-				paramTypes[i+i] = fieldTypeDouble
+				paramTypes[i+i] = byte(fieldTypeDouble)
 				paramTypes[i+i+1] = 0x00
 
 				if cap(paramValues)-len(paramValues)-8 >= 0 {
@@ -1020,7 +1024,7 @@ func (stmt *mysqlStmt) writeExecutePacket(args []driver.Value) error {
 				}
 
 			case bool:
-				paramTypes[i+i] = fieldTypeTiny
+				paramTypes[i+i] = byte(fieldTypeTiny)
 				paramTypes[i+i+1] = 0x00
 
 				if v {
@@ -1032,7 +1036,7 @@ func (stmt *mysqlStmt) writeExecutePacket(args []driver.Value) error {
 			case []byte:
 				// Common case (non-nil value) first
 				if v != nil {
-					paramTypes[i+i] = fieldTypeString
+					paramTypes[i+i] = byte(fieldTypeString)
 					paramTypes[i+i+1] = 0x00
 
 					if len(v) < mc.maxAllowedPacket-pos-len(paramValues)-(len(args)-(i+1))*64 {
@@ -1050,11 +1054,11 @@ func (stmt *mysqlStmt) writeExecutePacket(args []driver.Value) error {
 
 				// Handle []byte(nil) as a NULL value
 				nullMask[i/8] |= 1 << (uint(i) & 7)
-				paramTypes[i+i] = fieldTypeNULL
+				paramTypes[i+i] = byte(fieldTypeNULL)
 				paramTypes[i+i+1] = 0x00
 
 			case string:
-				paramTypes[i+i] = fieldTypeString
+				paramTypes[i+i] = byte(fieldTypeString)
 				paramTypes[i+i+1] = 0x00
 
 				if len(v) < mc.maxAllowedPacket-pos-len(paramValues)-(len(args)-(i+1))*64 {
@@ -1069,7 +1073,7 @@ func (stmt *mysqlStmt) writeExecutePacket(args []driver.Value) error {
 				}
 
 			case time.Time:
-				paramTypes[i+i] = fieldTypeString
+				paramTypes[i+i] = byte(fieldTypeString)
 				paramTypes[i+i+1] = 0x00
 
 				var a [64]byte
@@ -1143,10 +1147,11 @@ func (rows *binaryRows) readRow(dest []driver.Value) error {
 			}
 			return io.EOF
 		}
+		mc := rows.mc
 		rows.mc = nil
 
 		// Error otherwise
-		return rows.mc.handleErrorPacket(data)
+		return mc.handleErrorPacket(data)
 	}
 
 	// NULL-bitmap,  [(column-count + 7 + 2) / 8 bytes]
