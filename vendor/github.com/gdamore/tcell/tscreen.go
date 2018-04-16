@@ -383,10 +383,8 @@ outer:
 }
 
 func (t *tScreen) Fini() {
+	ti := t.ti
 	t.Lock()
-	defer t.Unlock()
-	
-	ti := t.ti	
 	t.cells.Resize(0, 0)
 	t.TPuts(ti.ShowCursor)
 	t.TPuts(ti.AttrOff)
@@ -397,15 +395,11 @@ func (t *tScreen) Fini() {
 	t.curstyle = Style(-1)
 	t.clear = false
 	t.fini = true
+	t.Unlock()
 
-	select {
-	case <-t.quit:
-		// do nothing, already closed
-
-	default:
+	if t.quit != nil {
 		close(t.quit)
 	}
-	
 	t.termioFini()
 }
 

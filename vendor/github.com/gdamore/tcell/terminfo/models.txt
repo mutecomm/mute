@@ -8,6 +8,8 @@ cygwin
 d200
 d210
 dtterm
+Eterm
+Eterm-256color
 eterm
 gnome
 gnome-256color
