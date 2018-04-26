@@ -9,11 +9,11 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/frankbraun/codechain/util/home"
 	"github.com/mutecomm/mute/def/version"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/release"
 	"github.com/mutecomm/mute/util"
-	"github.com/mutecomm/mute/util/home"
 	"github.com/urfave/cli"
 )
 

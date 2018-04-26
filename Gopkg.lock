@@ -30,6 +30,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/frankbraun/codechain"
+  packages = ["util/home"]
+  revision = "d055bb91b158092636b047bcdbb754bf3973a2ef"
+
+[[projects]]
+  branch = "master"
   name = "github.com/gdamore/encoding"
   packages = ["."]
   revision = "b23993cbb6353f0e6aa98d0ee318a34728f628b9"
@@ -134,13 +140,13 @@
     "salsa20/salsa",
     "ssh/terminal"
   ]
-  revision = "d6449816ce06963d9d136eee5a56fca5b0616e7e"
+  revision = "2b6c08872f4b66da917bb4ce98df4f0307330f78"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context"]
-  revision = "a35a21de978d84ffc92f010a153705b170b2f9d1"
+  revision = "5f9ae10d9af5b1c89ae6904293b14b064d4ada23"
 
 [[projects]]
   branch = "master"
@@ -149,7 +155,7 @@
     "unix",
     "windows"
   ]
-  revision = "2f57af4873d00d535c5c9028850aa2152e6a5566"
+  revision = "79b0c6888797020a994db17c8510466c72fe75d9"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -166,6 +172,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "67582af9cf7142b1e44810d6650b346d4acb0b33435d7ae8cb77a2bd1cde14e6"
+  inputs-digest = "3c51868153909f61519eb01951191a9d38e1a5432a82502fd2c0009aeecd5636"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/agl/ed25519"
+	"github.com/frankbraun/codechain/util/home"
 	"github.com/mutecomm/mute/configclient"
 	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/def/version"
@@ -28,7 +29,6 @@ import (
 	"github.com/mutecomm/mute/util/bzero"
 	"github.com/mutecomm/mute/util/descriptors"
 	"github.com/mutecomm/mute/util/git"
-	"github.com/mutecomm/mute/util/home"
 	"github.com/peterh/liner"
 	"github.com/urfave/cli"
 )
