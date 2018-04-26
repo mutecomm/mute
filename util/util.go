@@ -9,11 +9,8 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"io"
 	"os"
-	"path/filepath"
 
-	"github.com/frankbraun/codechain/util/file"
 	"github.com/mutecomm/mute/log"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -54,45 +51,6 @@ func CreateDirs(dirs ...string) error {
 		if err := os.MkdirAll(dir, 0700); err != nil {
 			return log.Error(err)
 		}
-	}
-	return nil
-}
-
-// Cp copies a srcFile to destFile.
-func Cp(srcFile, destFile string) error {
-	if destFile != "." {
-		// make sure destination file does not exist already
-		exists, err := file.Exists(destFile)
-		if err != nil {
-			return log.Error(err)
-		}
-		if exists {
-			return log.Errorf("destination file '%s' exists already", destFile)
-		}
-	} else {
-		destFile = filepath.Base(srcFile)
-	}
-	// open source file
-	src, err := os.Open(srcFile)
-	if err != nil {
-		return err
-	}
-	defer src.Close()
-	// get mode of source file
-	fi, err := src.Stat()
-	if err != nil {
-		return err
-	}
-	mode := fi.Mode() & os.ModePerm // only keep standard UNIX permission bits
-	// create destination file
-	dest, err := os.OpenFile(destFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, mode)
-	if err != nil {
-		return err
-	}
-	defer dest.Close()
-	// copy content
-	if _, err := io.Copy(dest, src); err != nil {
-		return err
 	}
 	return nil
 }
