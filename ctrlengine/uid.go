@@ -16,6 +16,7 @@ import (
 	"strings"
 
 	"github.com/agl/ed25519"
+	"github.com/frankbraun/codechain/util/bzero"
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/encode/base64"
@@ -26,7 +27,6 @@ import (
 	"github.com/mutecomm/mute/serviceguard/client"
 	"github.com/mutecomm/mute/uid/identity"
 	"github.com/mutecomm/mute/util"
-	"github.com/mutecomm/mute/util/bzero"
 	"github.com/mutecomm/mute/util/times"
 	"github.com/mutecomm/mute/util/wallet"
 	"github.com/urfave/cli"

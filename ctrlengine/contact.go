@@ -13,11 +13,11 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/frankbraun/codechain/util/bzero"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msgdb"
 	"github.com/mutecomm/mute/serviceguard/client"
 	"github.com/mutecomm/mute/uid/identity"
-	"github.com/mutecomm/mute/util/bzero"
 	"github.com/urfave/cli"
 )
 

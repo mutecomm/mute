@@ -16,11 +16,11 @@ import (
 	"strings"
 
 	"github.com/agl/ed25519"
+	"github.com/frankbraun/codechain/util/bzero"
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msgdb"
-	"github.com/mutecomm/mute/util/bzero"
 	"github.com/urfave/cli"
 	"golang.org/x/crypto/ssh/terminal"
 )

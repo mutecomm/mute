@@ -9,10 +9,10 @@ import (
 	"crypto/sha512"
 	"io"
 
+	"github.com/frankbraun/codechain/util/bzero"
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/msg/session"
-	"github.com/mutecomm/mute/util/bzero"
 	"golang.org/x/crypto/hkdf"
 )
 

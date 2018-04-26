@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/agl/ed25519"
+	"github.com/frankbraun/codechain/util/bzero"
 	"github.com/frankbraun/codechain/util/home"
 	"github.com/mutecomm/mute/configclient"
 	"github.com/mutecomm/mute/def"
@@ -26,7 +27,6 @@ import (
 	"github.com/mutecomm/mute/serviceguard/client"
 	"github.com/mutecomm/mute/serviceguard/client/trivial"
 	"github.com/mutecomm/mute/util"
-	"github.com/mutecomm/mute/util/bzero"
 	"github.com/mutecomm/mute/util/descriptors"
 	"github.com/mutecomm/mute/util/git"
 	"github.com/peterh/liner"

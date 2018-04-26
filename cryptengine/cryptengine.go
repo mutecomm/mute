@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/frankbraun/codechain/util/bzero"
 	"github.com/frankbraun/codechain/util/home"
 	"github.com/mutecomm/mute/cryptengine/cache"
 	"github.com/mutecomm/mute/def"
@@ -19,7 +20,6 @@ import (
 	"github.com/mutecomm/mute/keydb"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/util"
-	"github.com/mutecomm/mute/util/bzero"
 	"github.com/mutecomm/mute/util/descriptors"
 	"github.com/urfave/cli"
 )

@@ -11,9 +11,9 @@ import (
 	"io"
 	"path/filepath"
 
+	"github.com/frankbraun/codechain/util/bzero"
 	"github.com/mutecomm/mute/keydb"
 	"github.com/mutecomm/mute/log"
-	"github.com/mutecomm/mute/util/bzero"
 )
 
 // create a new KeyDB.
