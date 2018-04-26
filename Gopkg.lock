@@ -33,9 +33,10 @@
   name = "github.com/frankbraun/codechain"
   packages = [
     "util/bzero",
+    "util/file",
     "util/home"
   ]
-  revision = "156875d0d9a2365f114343d78c0d36d238bb4ae4"
+  revision = "4f9a85cc5f635f77e760a7a0515d8cd3c5a04252"
 
 [[projects]]
   branch = "master"
@@ -175,6 +176,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2fe11abdc1511dde3560e10afb56023106d9f0cb2a201a0c36a8955dd926de9a"
+  inputs-digest = "8dd89566a884f7c7ddc70c58f519e67645c8faab92c105f44796ec1da3d063c4"
   solver-name = "gps-cdcl"
   solver-version = 1

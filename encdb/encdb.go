@@ -29,6 +29,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/frankbraun/codechain/util/file"
 	"github.com/mutecomm/go-sqlcipher"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/util"
@@ -63,11 +64,19 @@ func Create(dbname string, passphrase []byte, iter int, createStmts []string) er
 	dbfile := dbname + DBSuffix
 	keyfile := dbname + KeySuffix
 	// make sure files do not exist already
-	if _, err := os.Stat(dbfile); err == nil {
+	exists, err := file.Exists(dbfile)
+	if err != nil {
+		return log.Error(err)
+	}
+	if exists {
 		return log.Errorf("encdb: dbfile '%s' exists already", dbfile)
 	}
-	if _, err := os.Stat(keyfile); err == nil {
-		return log.Errorf("encdb: dbfile '%s' exists already", keyfile)
+	exists, err = file.Exists(keyfile)
+	if err != nil {
+		return log.Error(err)
+	}
+	if exists {
+		return log.Errorf("encdb: keyfile '%s' exists already", keyfile)
 	}
 	// create keyfile
 	key, err := generateKeyfile(keyfile, passphrase, iter)

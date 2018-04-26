@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/frankbraun/codechain/util/file"
 	"github.com/mutecomm/mute/log"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -61,7 +62,11 @@ func CreateDirs(dirs ...string) error {
 func Cp(srcFile, destFile string) error {
 	if destFile != "." {
 		// make sure destination file does not exist already
-		if _, err := os.Stat(destFile); err == nil {
+		exists, err := file.Exists(destFile)
+		if err != nil {
+			return log.Error(err)
+		}
+		if exists {
 			return log.Errorf("destination file '%s' exists already", destFile)
 		}
 	} else {

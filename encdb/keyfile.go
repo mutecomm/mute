@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/frankbraun/codechain/util/file"
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode"
 	"github.com/mutecomm/mute/log"
@@ -45,7 +46,11 @@ Format of keyfile:
 // supplied key in AES-256 encrypted form.
 func writeKeyfile(filename string, passphrase []byte, iter int, key []byte) error {
 	// make sure keyfile does not exist already
-	if _, err := os.Stat(filename); err == nil {
+	exists, err := file.Exists(filename)
+	if err != nil {
+		return log.Error(err)
+	}
+	if exists {
 		return log.Errorf("encdb: keyfile '%s' exists already", filename)
 	}
 	// convert iter to uint64
