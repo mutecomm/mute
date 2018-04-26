@@ -36,7 +36,7 @@
     "util/file",
     "util/home"
   ]
-  revision = "4f9a85cc5f635f77e760a7a0515d8cd3c5a04252"
+  revision = "62310ef8073d15a614907224ff1fe658bcdd7269"
 
 [[projects]]
   branch = "master"
@@ -144,7 +144,7 @@
     "salsa20/salsa",
     "ssh/terminal"
   ]
-  revision = "2b6c08872f4b66da917bb4ce98df4f0307330f78"
+  revision = "dccd99e89d39b13e12f1103c72e3bc49eb40a833"
 
 [[projects]]
   branch = "master"
@@ -159,7 +159,7 @@
     "unix",
     "windows"
   ]
-  revision = "79b0c6888797020a994db17c8510466c72fe75d9"
+  revision = "bb9c189858d91f42db229b04d45a4c3d23a7662a"
 
 [[projects]]
   name = "golang.org/x/text"
