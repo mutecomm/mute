@@ -55,7 +55,7 @@ func CreateDirs(dirs ...string) error {
 	return nil
 }
 
-// ContainsString returns true, if the the string array sa contains the string s.
+// ContainsString returns true, if the string array sa contains the string s.
 // Otherwise, it returns false.
 func ContainsString(sa []string, s string) bool {
 	for _, v := range sa {
