@@ -3,7 +3,6 @@ module github.com/mutecomm/mute
 go 1.14
 
 require (
-	github.com/agl/ed25519 v0.0.0-20170116200512-5312a6153412
 	github.com/cihub/seelog v0.0.0-20151216151435-d2c6e5aa9fbf
 	github.com/davecgh/go-spew v1.1.0
 	github.com/fatih/structs v1.0.0
