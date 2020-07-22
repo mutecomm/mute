@@ -5,80 +5,106 @@
 package encdb
 
 import (
+	"bytes"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
-
-	"github.com/stretchr/testify/require"
 )
 
 func TestGenerateRead(t *testing.T) {
 	tmpdir, err := ioutil.TempDir("", "keyfile_test")
-	require.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer os.RemoveAll(tmpdir)
 	keyfile := filepath.Join(tmpdir, "keyfile_test.key")
 	// generate keyfile
 	gkey, err := generateKeyfile(keyfile, passphrase, iter)
-	require.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 	// read keyfile
 	rkey, err := ReadKeyfile(keyfile, passphrase)
-	require.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 	// compare keys
-	require.Equal(t, gkey, rkey, "keys differ")
+	if !bytes.Equal(gkey, rkey) {
+		t.Fatalf("keys differ")
+	}
 }
 
 func TestMultipleGenerates(t *testing.T) {
 	tmpdir, err := ioutil.TempDir("", "keyfile_test")
-	require.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer os.RemoveAll(tmpdir)
 	keyfile := filepath.Join(tmpdir, "keyfile_test.key")
-	_, err = generateKeyfile(keyfile, passphrase, iter)
-	require.NoError(t, err)
-	_, err = generateKeyfile(keyfile, passphrase, iter)
-	require.Error(t, err, "second generate should fail")
+	if _, err := generateKeyfile(keyfile, passphrase, iter); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := generateKeyfile(keyfile, passphrase, iter); err == nil {
+		t.Fatalf("second generate should fail")
+	}
 }
 
 func TestFailingRead(t *testing.T) {
 	tmpdir, err := ioutil.TempDir("", "keyfile_test")
-	require.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer os.RemoveAll(tmpdir)
 	keyfile := filepath.Join(tmpdir, "keyfile_test.key")
-	_, err = ReadKeyfile(keyfile, passphrase)
-	require.Error(t, err)
+	if _, err := ReadKeyfile(keyfile, passphrase); err == nil {
+		t.Fatal("read should fail")
+	}
 }
 
 func TestInvalidIterRead(t *testing.T) {
 	tmpdir, err := ioutil.TempDir("", "keyfile_test")
-	require.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer os.RemoveAll(tmpdir)
 	keyfile := filepath.Join(tmpdir, "keyfile_test.key")
 	fp, err := os.Create(keyfile)
-	require.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 	var biter = make([]byte, 8)
 	for k := range biter {
 		biter[k] = 255
 	}
-	_, err = fp.Write(biter)
-	require.NoError(t, err)
+	if _, err := fp.Write(biter); err != nil {
+		t.Fatal(err)
+	}
 	fp.Close()
-	_, err = ReadKeyfile(keyfile, passphrase)
-	require.Error(t, err)
+	if _, err := ReadKeyfile(keyfile, passphrase); err == nil {
+		t.Fatalf("read should fail")
+	}
 }
 
 func bogusElementRead(t *testing.T, size int) {
 	tmpdir, err := ioutil.TempDir("", "keyfile_test")
-	require.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer os.RemoveAll(tmpdir)
 	keyfile := filepath.Join(tmpdir, "keyfile_test.key")
 	fp, err := os.Create(keyfile)
-	require.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 	var biter = make([]byte, size)
-	_, err = fp.Write(biter)
-	require.NoError(t, err)
+	if _, err := fp.Write(biter); err != nil {
+		t.Fatal(err)
+	}
 	fp.Close()
-	_, err = ReadKeyfile(keyfile, passphrase)
-	require.Error(t, err)
+	if _, err := ReadKeyfile(keyfile, passphrase); err == nil {
+		t.Fatalf("read should fail")
+	}
 }
 
 func TestBogusIterRead(t *testing.T) {
@@ -95,10 +121,13 @@ func TestBogusKeyRead(t *testing.T) {
 
 func TestInvalidIterGenerate(t *testing.T) {
 	tmpdir, err := ioutil.TempDir("", "keyfile_test")
-	require.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer os.RemoveAll(tmpdir)
 	keyfile := filepath.Join(tmpdir, "keyfile_test.key")
 	// generate keyfile
-	_, err = generateKeyfile(keyfile, passphrase, -1)
-	require.Error(t, err)
+	if _, err := generateKeyfile(keyfile, passphrase, -1); err == nil {
+		t.Fatalf("generate should fail")
+	}
 }
