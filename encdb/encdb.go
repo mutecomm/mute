@@ -31,7 +31,6 @@ import (
 	"os"
 
 	"github.com/mutecomm/go-sqlcipher"
-	"github.com/mutecomm/mute/util"
 )
 
 // DBSuffix defines the suffix for database files.
@@ -212,7 +211,7 @@ func Status(db *sql.DB) (autoVacuum string, freelistCount int64, err error) {
 // VACUUM is executed.
 func Vacuum(db *sql.DB, autoVacuumMode string) error {
 	if autoVacuumMode != "" {
-		if !util.ContainsString(autoVacuumModes, autoVacuumMode) {
+		if !containsString(autoVacuumModes, autoVacuumMode) {
 			return fmt.Errorf("encdb: unknown auto_vacuum mode: %s", autoVacuumMode)
 		}
 		var av int64

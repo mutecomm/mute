@@ -15,3 +15,14 @@ func fileExists(filename string) (bool, error) {
 	}
 	return true, err
 }
+
+// containsString returns true, if the string array sa contains the string s.
+// Otherwise, it returns false.
+func containsString(sa []string, s string) bool {
+	for _, v := range sa {
+		if v == s {
+			return true
+		}
+	}
+	return false
+}
