@@ -30,8 +30,7 @@ NACL HKDF AES-CTR256 SHA512-HMAC ED25519 ECDHE25519
 - TLS 1.2 (not included) with TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA  or TLS 1.0
   (included in Go) with TLS_ECDHE_ECDSA_AES_256_CBC_SHA_256.
 - SKDF secure key derivation function. Use HKDF, see RFC 5869.
-- ED25519 signature algorithm. Available for Go.
-  http://godoc.org/github.com/agl/ed25519. In snippets folder.
+- ED25519 signature algorithm.
 - CSPRNG: Fortuna with AES256, SHA256, /dev/urandom. See snippets folder for
   example (don't use code).
 
