@@ -5,10 +5,10 @@
 package sortedmap
 
 import (
+	"crypto/ed25519"
 	"encoding/json"
 	"errors"
 
-	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/util/times"
 )
 

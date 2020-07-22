@@ -6,7 +6,7 @@
 package nilstore
 
 import (
-	"github.com/agl/ed25519"
+	"crypto/ed25519"
 	"github.com/mutecomm/mute/serviceguard/client"
 	"github.com/mutecomm/mute/util/times"
 )

@@ -7,12 +7,12 @@ package mixaddr
 
 import (
 	"crypto"
+	"crypto/ed25519"
 	_ "crypto/sha256" // import sha256
 	"encoding/binary"
 	"encoding/json"
 	"math/rand"
 
-	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/util/times"
 )
 
@@ -60,7 +60,7 @@ func (adl AddressList) hash() []byte {
 // Sign a mix address list.
 func (adl AddressList) Sign(privateKey *[ed25519.PrivateKeySize]byte) []byte {
 	hashSum := adl.hash()
-	sig := ed25519.Sign(privateKey, hashSum)
+	sig := ed25519.Sign(privateKey[:], hashSum)
 	return sig[:]
 }
 
@@ -94,7 +94,7 @@ func (stmt AddressStatement) Verify() bool {
 // Verify a mix address list.
 func (adl AddressList) Verify(publicKey *[ed25519.PublicKeySize]byte, signature *[ed25519.SignatureSize]byte) bool {
 	hashSum := adl.hash()
-	return ed25519.Verify(publicKey, hashSum, signature)
+	return ed25519.Verify(publicKey[:], hashSum, signature[:])
 }
 
 // Expire entries from addressList. Returns new addresslist.

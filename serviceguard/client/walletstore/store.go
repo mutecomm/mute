@@ -12,7 +12,7 @@ import (
 	mathrand "math/rand"
 	"sync"
 
-	"github.com/agl/ed25519"
+	"crypto/ed25519"
 	_ "github.com/go-sql-driver/mysql" // remove after tests
 	"github.com/mutecomm/mute/serviceguard/client"
 	"github.com/mutecomm/mute/serviceguard/common/constants"

@@ -7,6 +7,7 @@ package ctrlengine
 import (
 	"bufio"
 	"bytes"
+	"crypto/ed25519"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,7 +16,6 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/agl/ed25519"
 	"github.com/frankbraun/codechain/util/bzero"
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/def"
@@ -344,11 +344,13 @@ func (ce *CtrlEngine) uidNew(
 	}
 
 	// register account for  UID
-	_, privkey, err := ed25519.GenerateKey(cipher.RandReader)
+	_, sk, err := ed25519.GenerateKey(cipher.RandReader)
 	if err != nil {
 		return log.Error(err)
 	}
-	server, err := mixclient.PayAccount(privkey, token.Token, "", def.CACert)
+	var privkey [ed25519.PrivateKeySize]byte
+	copy(privkey[:], sk)
+	server, err := mixclient.PayAccount(&privkey, token.Token, "", def.CACert)
 	if err != nil {
 		ce.client.UnlockToken(token.Hash)
 		return log.Error(err)
@@ -385,7 +387,7 @@ func (ce *CtrlEngine) uidNew(
 	}
 
 	// register account for UID
-	err = ce.msgDB.AddAccount(id, "", privkey, server, &secret,
+	err = ce.msgDB.AddAccount(id, "", &privkey, server, &secret,
 		minDelay, maxDelay)
 	if err != nil {
 		return err

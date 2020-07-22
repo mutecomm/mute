@@ -7,11 +7,11 @@ package msg
 import (
 	"bytes"
 	"crypto/aes"
+	"crypto/ed25519"
 	"crypto/hmac"
 	"crypto/sha512"
 	"io"
 
-	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/cipher/aes256"
 	"github.com/mutecomm/mute/encode/base64"
@@ -543,7 +543,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 
 	// verify signature, if necessary
 	if contentHash != nil {
-		if !ed25519.Verify(uidRes.msg.PublicSigKey32(), contentHash, &sigBuf) {
+		if !ed25519.Verify(uidRes.msg.PublicSigKey32()[:], contentHash, sigBuf[:]) {
 			return "", "", log.Error(ErrInvalidSignature)
 		}
 		// encode signature to base64 as return value

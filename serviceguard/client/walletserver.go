@@ -5,7 +5,7 @@
 package client
 
 import (
-	"github.com/agl/ed25519"
+	"crypto/ed25519"
 	"github.com/mutecomm/mute/serviceguard/client/walletrpc"
 	"github.com/mutecomm/mute/serviceguard/common/keypool"
 	"github.com/mutecomm/mute/serviceguard/common/signkeys"

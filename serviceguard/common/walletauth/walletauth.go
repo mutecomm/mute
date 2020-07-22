@@ -6,6 +6,7 @@
 package walletauth
 
 import (
+	"crypto/ed25519"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/binary"
@@ -13,7 +14,6 @@ import (
 	"io"
 	"strconv"
 
-	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/util/times"
 )
 
@@ -46,7 +46,7 @@ func CreateToken(pubkey *[ed25519.PublicKeySize]byte, privkey *[ed25519.PrivateK
 	io.ReadFull(Rand, token[32:64])
 	binary.BigEndian.PutUint64(token[64:72], now)
 	binary.BigEndian.PutUint64(token[72:80], counter)
-	sig := ed25519.Sign(privkey, token[:80])
+	sig := ed25519.Sign(privkey[:], token[:80])
 	copy(token[80:], sig[:])
 	return token
 }
@@ -61,7 +61,7 @@ func (token AuthToken) CheckToken() (pubkey *[ed25519.PublicKeySize]byte, ltime,
 	pubkey = new([ed25519.PublicKeySize]byte)
 	copy(pubkey[:], token[:32])
 	copy(sig[:], token[80:])
-	ok := ed25519.Verify(pubkey, token[:80], &sig)
+	ok := ed25519.Verify(pubkey[:], token[:80], sig[:])
 	if !ok {
 		return nil, 0, 0, ErrBadSignature
 	}

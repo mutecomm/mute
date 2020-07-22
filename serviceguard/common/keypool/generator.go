@@ -9,7 +9,7 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/agl/ed25519"
+	"crypto/ed25519"
 	"github.com/mutecomm/mute/serviceguard/common/signkeys"
 	"github.com/mutecomm/mute/util/times"
 )

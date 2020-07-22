@@ -11,7 +11,7 @@ import (
 	"encoding/binary"
 	"errors"
 
-	"github.com/agl/ed25519"
+	"crypto/ed25519"
 	"github.com/mutecomm/mute/serviceguard/common/signkeys"
 	"github.com/ronperry/cryptoedge/jjm"
 )
@@ -122,7 +122,7 @@ func (p *ReissuePacket) Sign(privkey *[ed25519.PrivateKeySize]byte) {
 		p.Signature = []byte{0x00}
 		return
 	}
-	sig := ed25519.Sign(privkey, p.Image())
+	sig := ed25519.Sign(privkey[:], p.Image())
 	p.Signature = make([]byte, len(sig))
 	copy(p.Signature, sig[:])
 	return
@@ -130,15 +130,13 @@ func (p *ReissuePacket) Sign(privkey *[ed25519.PrivateKeySize]byte) {
 
 // Verify a packet signature using pubkey.
 func (p ReissuePacket) Verify(pubkey *[ed25519.PublicKeySize]byte) error {
-	var sig [ed25519.SignatureSize]byte
 	if len(p.Signature) != 1 && pubkey == nil { // Packet is signed but no public key is givem
 		return ErrSignerNeeded
 	}
 	if len(p.Signature) == 1 && pubkey == nil { // Packet is not signed
 		return nil
 	}
-	copy(sig[:], p.Signature)
-	ok := ed25519.Verify(pubkey, p.Image(), &sig)
+	ok := ed25519.Verify(pubkey[:], p.Image(), p.Signature)
 	if ok {
 		return nil
 	}
@@ -193,23 +191,19 @@ func (s *SpendPacket) Sign(privkey *[ed25519.PrivateKeySize]byte) {
 		s.Signature = []byte{0x00}
 		return
 	}
-	sig := ed25519.Sign(privkey, s.Image())
-	s.Signature = make([]byte, len(sig))
-	copy(s.Signature, sig[:])
+	s.Signature = ed25519.Sign(privkey[:], s.Image())
 	return
 }
 
 // Verify a SpendPacket.
 func (s *SpendPacket) Verify(pubkey *[ed25519.PublicKeySize]byte) error {
-	var sig [ed25519.SignatureSize]byte
 	if len(s.Signature) != 1 && pubkey == nil { // Packet is signed but no public key is givem
 		return ErrSignerNeeded
 	}
 	if len(s.Signature) == 1 && pubkey == nil { // Packet is not signed
 		return nil
 	}
-	copy(sig[:], s.Signature)
-	ok := ed25519.Verify(pubkey, s.Image(), &sig)
+	ok := ed25519.Verify(pubkey[:], s.Image(), s.Signature)
 	if ok {
 		return nil
 	}

@@ -8,7 +8,7 @@ import (
 	"crypto/rand"
 	"testing"
 
-	"github.com/agl/ed25519"
+	"crypto/ed25519"
 )
 
 func TestSplitKey(t *testing.T) {

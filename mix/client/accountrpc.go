@@ -8,7 +8,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 
-	"github.com/agl/ed25519"
+	"crypto/ed25519"
 	"github.com/mutecomm/mute/serviceguard/common/walletauth"
 	"github.com/mutecomm/mute/util/times"
 )

@@ -15,7 +15,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/agl/ed25519"
+	"crypto/ed25519"
+
 	"github.com/frankbraun/codechain/util/bzero"
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"

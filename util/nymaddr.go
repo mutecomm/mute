@@ -5,9 +5,9 @@
 package util
 
 import (
+	"crypto/ed25519"
 	"encoding/hex"
 
-	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"

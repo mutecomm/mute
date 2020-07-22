@@ -12,7 +12,7 @@ import (
 	"io"
 	"math/big"
 
-	"github.com/agl/ed25519"
+	"crypto/ed25519"
 	"github.com/mutecomm/mute/serviceguard/common/signkeys"
 	"github.com/ronperry/cryptoedge/eccutil"
 	"github.com/ronperry/cryptoedge/jjm"

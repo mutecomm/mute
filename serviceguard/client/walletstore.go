@@ -5,7 +5,7 @@
 package client
 
 import (
-	"github.com/agl/ed25519"
+	"crypto/ed25519"
 )
 
 // WalletStore interface for storing and fetching wallet state.

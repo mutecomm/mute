@@ -14,7 +14,7 @@ package client
 import (
 	"sync"
 
-	"github.com/agl/ed25519"
+	"crypto/ed25519"
 	keylookupClient "github.com/mutecomm/mute/serviceguard/client/keylookup"
 	"github.com/mutecomm/mute/serviceguard/client/packetproto"
 	"github.com/mutecomm/mute/serviceguard/client/walletrpc"

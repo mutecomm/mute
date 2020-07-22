@@ -10,7 +10,7 @@ import (
 	"crypto/sha256"
 	"testing"
 
-	"github.com/agl/ed25519"
+	"crypto/ed25519"
 	"github.com/mutecomm/mute/mix/mixaddr"
 	"github.com/mutecomm/mute/mix/nymaddr"
 	"github.com/mutecomm/mute/util/times"

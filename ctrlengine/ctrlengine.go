@@ -14,7 +14,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/agl/ed25519"
+	"crypto/ed25519"
+
 	"github.com/frankbraun/codechain/util/bzero"
 	"github.com/frankbraun/codechain/util/home"
 	"github.com/mutecomm/mute/configclient"

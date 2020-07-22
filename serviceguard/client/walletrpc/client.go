@@ -9,7 +9,7 @@ import (
 	"encoding/base64"
 	"errors"
 
-	"github.com/agl/ed25519"
+	"crypto/ed25519"
 	"github.com/mutecomm/mute/serviceguard/common/constants"
 	"github.com/mutecomm/mute/serviceguard/common/walletauth"
 	"github.com/mutecomm/mute/util/jsonclient"

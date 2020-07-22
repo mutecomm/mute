@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/agl/ed25519"
+	"crypto/ed25519"
 	"github.com/ronperry/cryptoedge/eccutil"
 )
 

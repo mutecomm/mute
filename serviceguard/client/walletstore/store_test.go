@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/agl/ed25519"
+	"crypto/ed25519"
 	_ "github.com/mutecomm/go-sqlcipher"
 	"github.com/mutecomm/mute/serviceguard/client"
 	"github.com/mutecomm/mute/util/times"

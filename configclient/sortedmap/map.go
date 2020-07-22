@@ -6,11 +6,10 @@
 package sortedmap
 
 import (
+	"crypto/ed25519"
 	"crypto/sha512"
 	"encoding/binary"
 	"sort"
-
-	"github.com/agl/ed25519"
 )
 
 // StringMap is a string->string map.
@@ -105,18 +104,16 @@ func (so SortedMap) Image() []byte {
 func (so SortedMap) Sign(signdate uint64, privKey *[ed25519.PrivateKeySize]byte) []byte {
 	sdate := make([]byte, 8)
 	binary.BigEndian.PutUint64(sdate, signdate)
-	sig := ed25519.Sign(privKey, append(so.Image(), sdate...))
+	sig := ed25519.Sign(privKey[:], append(so.Image(), sdate...))
 	return sig[:]
 }
 
 // Verify a signature for a SortedMap with the publickey.
 func (so SortedMap) Verify(signdate uint64, publicKey []byte, signature []byte) bool {
 	var pubkey [ed25519.PublicKeySize]byte
-	var sig [ed25519.SignatureSize]byte
 	sdate := make([]byte, 8)
 	binary.BigEndian.PutUint64(sdate, signdate)
 
 	copy(pubkey[:], publicKey)
-	copy(sig[:], signature)
-	return ed25519.Verify(&pubkey, append(so.Image(), sdate...), &sig)
+	return ed25519.Verify(pubkey[:], append(so.Image(), sdate...), signature)
 }

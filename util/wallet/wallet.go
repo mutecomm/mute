@@ -6,9 +6,9 @@
 package wallet
 
 import (
+	"crypto/ed25519"
 	"time"
 
-	"github.com/agl/ed25519"
 	"github.com/jpillora/backoff"
 	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/log"

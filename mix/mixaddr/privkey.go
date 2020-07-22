@@ -15,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/agl/ed25519"
+	"crypto/ed25519"
 	"golang.org/x/crypto/curve25519"
 )
 

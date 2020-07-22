@@ -5,9 +5,9 @@
 package client
 
 import (
+	"crypto/ed25519"
 	"crypto/rand"
 
-	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/serviceguard/client/guardrpc"
 	"github.com/mutecomm/mute/serviceguard/common/keypool"
 	"github.com/mutecomm/mute/serviceguard/common/signkeys"
@@ -83,11 +83,13 @@ func (c *Client) ReissueToken(tokenHash []byte, ownerPubkey *[ed25519.PublicKeyS
 		}
 		// Generate new owner if no owner is specified
 		if ownerPubkey == nil {
-			ownerPubkey, ownerPrivkey, err = ed25519.GenerateKey(rand.Reader)
+			pk, sk, err := ed25519.GenerateKey(rand.Reader)
 			if err != nil {
 				c.LastError = err
 				return nil, ErrFatal
 			}
+			copy(ownerPubkey[:], pk)
+			copy(ownerPrivkey[:], sk)
 			tokenEntry.NewOwnerPrivKey = ownerPrivkey
 		}
 		tokenEntry.NewOwnerPubKey = ownerPubkey

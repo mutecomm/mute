@@ -6,12 +6,12 @@
 package keylookup
 
 import (
+	"crypto/ed25519"
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
 	"strings"
 
-	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/serviceguard/common/constants"
 	"github.com/mutecomm/mute/serviceguard/common/keypool"
 	"github.com/mutecomm/mute/serviceguard/common/signkeys"
@@ -109,7 +109,6 @@ func (klc *LookupClient) RegisterStorage() {
 
 // GetVerifyList requests a list of known issuer keys from the lookup service
 func (klc LookupClient) GetVerifyList() ([][ed25519.PublicKeySize]byte, error) {
-	var sig [ed25519.SignatureSize]byte
 	var pk [ed25519.PublicKeySize]byte
 	method := "PublicService.VerifyKeys"
 	client, err := klc.ClientFactory(ServiceURL, klc.ServiceGuardCA)
@@ -142,9 +141,8 @@ func (klc LookupClient) GetVerifyList() ([][ed25519.PublicKeySize]byte, error) {
 	if err != nil {
 		return nil, ErrParams
 	}
-	copy(sig[:], signature)
 	keylist := data["KeyList"].(string)
-	ok := ed25519.Verify(klc.PubKey, []byte(keylist), &sig)
+	ok := ed25519.Verify(klc.PubKey[:], []byte(keylist), signature)
 	if !ok {
 		return nil, ErrBadSignature
 	}

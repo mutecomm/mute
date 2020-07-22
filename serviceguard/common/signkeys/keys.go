@@ -7,6 +7,7 @@
 package signkeys
 
 import (
+	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/sha256"
 	"encoding/asn1"
@@ -15,7 +16,6 @@ import (
 	"io"
 	"math/big"
 
-	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/util/times"
 	"github.com/ronperry/cryptoedge/eccutil"
 )
@@ -121,7 +121,7 @@ func (pk PublicKey) Verify(SignaturePublicKey *[ed25519.PublicKeySize]byte) bool
 	if tcalc != pk.KeyID {
 		return false
 	}
-	return ed25519.Verify(SignaturePublicKey, tcalc[:], &pk.Signature)
+	return ed25519.Verify(SignaturePublicKey[:], tcalc[:], pk.Signature[:])
 }
 
 // CalcKeyID returns the sha256 of the key components.
@@ -157,7 +157,7 @@ func (kg KeyGenerator) GenKey() (*KeyPair, error) {
 	}
 	// Create signature
 	k.PublicKey.KeyID = k.PublicKey.CalcKeyID()
-	sig := ed25519.Sign(kg.PrivateKey, k.PublicKey.KeyID[:])
-	k.PublicKey.Signature = *sig
+	sig := ed25519.Sign(kg.PrivateKey[:], k.PublicKey.KeyID[:])
+	copy(k.PublicKey.Signature[:], sig)
 	return k, nil
 }

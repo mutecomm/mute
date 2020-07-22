@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/agl/ed25519"
+	"crypto/ed25519"
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/util/times"
