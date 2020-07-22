@@ -9,6 +9,7 @@ import (
 	"io"
 
 	"github.com/mutecomm/mute/cipher"
+	"github.com/mutecomm/mute/cipher/aes256"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/util"
@@ -126,7 +127,7 @@ func (ki *KeyInit) SessionAnchor(sigPubKey string) (*SessionAnchor, error) {
 	if err != nil {
 		return nil, err
 	}
-	txt := cipher.AES256CTRDecrypt(keyHash[:32], enc)
+	txt := aes256.CTRDecrypt(keyHash[:32], enc)
 	var sa SessionAnchor
 	if err := json.Unmarshal(txt, &sa); err != nil {
 		return nil, log.Error(err)
@@ -252,7 +253,7 @@ func (msg *Message) sessionAnchor(
 	jsn := sa.json()
 	hash := cipher.SHA512(jsn)
 	// SESSIONANCHOR = AES256_CTR(key=UIDMessage.UIDContent.SIGKEY.HASH, SessionAnchor)
-	enc := base64.Encode(cipher.AES256CTREncrypt(key[:32], jsn, rand))
+	enc := base64.Encode(aes256.CTREncrypt(key[:32], jsn, rand))
 	return enc, base64.Encode(hash), sa.PFKEYS[0].HASH, base64.Encode(sa.PFKEYS[0].PrivateKey32()[:]), nil
 }
 

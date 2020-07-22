@@ -2,22 +2,20 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package cipher
+package aes256
 
 import (
 	"crypto/aes"
 	"crypto/cipher"
 	"io"
-
-	"github.com/mutecomm/mute/log"
 )
 
-// AES256CBCEncrypt encrypts the given plaintext with AES-256 in CBC mode.
+// CBCEncrypt encrypts the given plaintext with AES-256 in CBC mode.
 // The supplied key must be 32 bytes long.
 // The returned ciphertext is prepended by a randomly generated IV.
-func AES256CBCEncrypt(key, plaintext []byte, rand io.Reader) (ciphertext []byte) {
+func CBCEncrypt(key, plaintext []byte, rand io.Reader) (ciphertext []byte) {
 	if len(key) != 32 {
-		panic(log.Critical("cipher: AES-256 key is not 32 bytes long"))
+		panic("aes256: AES-256 key is not 32 bytes long")
 	}
 	block, _ := aes.NewCipher(key) // correct key length was enforced above
 
@@ -26,7 +24,7 @@ func AES256CBCEncrypt(key, plaintext []byte, rand io.Reader) (ciphertext []byte)
 	// https://tools.ietf.org/html/rfc5246#section-6.2.3.2. Here we'll
 	// assume that the plaintext is already of the correct length.
 	if len(plaintext)%aes.BlockSize != 0 {
-		panic(log.Critical("cipher: plaintext is not a multiple of the block size"))
+		panic("aes256: plaintext is not a multiple of the block size")
 	}
 
 	// The IV needs to be unique, but not secure. Therefore it's common to
@@ -35,7 +33,7 @@ func AES256CBCEncrypt(key, plaintext []byte, rand io.Reader) (ciphertext []byte)
 	iv := ciphertext[:aes.BlockSize]
 	_, err := io.ReadFull(rand, iv)
 	if err != nil {
-		panic(log.Critical(err))
+		panic(err)
 	}
 
 	mode := cipher.NewCBCEncrypter(block, iv)
@@ -44,19 +42,19 @@ func AES256CBCEncrypt(key, plaintext []byte, rand io.Reader) (ciphertext []byte)
 	return
 }
 
-// AES256CBCDecrypt decrypts the given ciphertext with AES-256 in CBC mode and
+// CBCDecrypt decrypts the given ciphertext with AES-256 in CBC mode and
 // returns the resulting plaintext. The supplied key must be 32 bytes long and
 // the ciphertext must be prepended by the corresponding IV.
-func AES256CBCDecrypt(key, ciphertext []byte) (plaintext []byte) {
+func CBCDecrypt(key, ciphertext []byte) (plaintext []byte) {
 	if len(key) != 32 {
-		panic(log.Critical("cipher: AES-256 key is not 32 bytes long"))
+		panic("aes256: AES-256 key is not 32 bytes long")
 	}
 	block, _ := aes.NewCipher(key) // correct key length was enforced above
 
 	// The IV needs to be unique, but not secure. Therefore it's common to
 	// include it at the beginning of the ciphertext.
 	if len(ciphertext) < aes.BlockSize {
-		panic(log.Critical("cipher: ciphertext too short"))
+		panic("aes256: ciphertext too short")
 	}
 	iv := ciphertext[:aes.BlockSize]
 	ciphertext = ciphertext[aes.BlockSize:]
@@ -64,7 +62,7 @@ func AES256CBCDecrypt(key, ciphertext []byte) (plaintext []byte) {
 
 	// CBC mode always works in whole blocks.
 	if len(ciphertext)%aes.BlockSize != 0 {
-		panic(log.Critical("cipher: ciphertext is not a multiple of the block size"))
+		panic("aes256: ciphertext is not a multiple of the block size")
 	}
 
 	mode := cipher.NewCBCDecrypter(block, iv)
@@ -75,12 +73,12 @@ func AES256CBCDecrypt(key, ciphertext []byte) (plaintext []byte) {
 	return
 }
 
-// AES256CTREncrypt encrypts the given plaintext with AES-256 in CTR mode.
+// CTREncrypt encrypts the given plaintext with AES-256 in CTR mode.
 // The supplied key must be 32 bytes long.
 // The returned ciphertext is prepended by a randomly generated IV.
-func AES256CTREncrypt(key, plaintext []byte, rand io.Reader) (ciphertext []byte) {
+func CTREncrypt(key, plaintext []byte, rand io.Reader) (ciphertext []byte) {
 	if len(key) != 32 {
-		panic(log.Critical("cipher: AES-256 key is not 32 bytes long"))
+		panic("aes256: AES-256 key is not 32 bytes long")
 	}
 	block, _ := aes.NewCipher(key) // correct key length was enforced above
 
@@ -90,7 +88,7 @@ func AES256CTREncrypt(key, plaintext []byte, rand io.Reader) (ciphertext []byte)
 	iv := ciphertext[:aes.BlockSize]
 	_, err := io.ReadFull(rand, iv)
 	if err != nil {
-		panic(log.Critical(err))
+		panic(err)
 	}
 
 	stream := cipher.NewCTR(block, iv)
@@ -99,19 +97,19 @@ func AES256CTREncrypt(key, plaintext []byte, rand io.Reader) (ciphertext []byte)
 	return
 }
 
-// AES256CTRDecrypt decrypts the given ciphertext with AES-256 in CTR mode and
+// CTRDecrypt decrypts the given ciphertext with AES-256 in CTR mode and
 // returns the resulting plaintext. The supplied key must be 32 bytes long and
 // the ciphertext must be prepended by the corresponding IV.
-func AES256CTRDecrypt(key, ciphertext []byte) (plaintext []byte) {
+func CTRDecrypt(key, ciphertext []byte) (plaintext []byte) {
 	if len(key) != 32 {
-		panic(log.Critical("cipher: AES-256 key is not 32 bytes long"))
+		panic("aes256: AES-256 key is not 32 bytes long")
 	}
 	block, _ := aes.NewCipher(key) // correct key length was enforced above
 
 	// The IV needs to be unique, but not secure. Therefore it's common to
 	// include it at the beginning of the ciphertext.
 	if len(ciphertext) < aes.BlockSize {
-		panic(log.Critical("cipher: ciphertext too short"))
+		panic("aes256: ciphertext too short")
 	}
 	iv := ciphertext[:aes.BlockSize]
 	ciphertext = ciphertext[aes.BlockSize:]
@@ -123,14 +121,14 @@ func AES256CTRDecrypt(key, ciphertext []byte) (plaintext []byte) {
 	return
 }
 
-// AES256CTRStream creates a new AES-256 stream in CTR mode.
+// CTRStream creates a new AES-256 stream in CTR mode.
 // The supplied key must be 32 bytes long and the iv 16 bytes.
-func AES256CTRStream(key, iv []byte) cipher.Stream {
+func CTRStream(key, iv []byte) cipher.Stream {
 	if len(key) != 32 {
-		panic(log.Critical("cipher: AES-256 key is not 32 bytes long"))
+		panic("aes256: AES-256 key is not 32 bytes long")
 	}
 	if len(iv) != 16 {
-		panic(log.Critical("cipher: AES-256 IV is not 16 bytes long"))
+		panic("aes256: AES-256 IV is not 16 bytes long")
 	}
 	block, _ := aes.NewCipher(key) // correct key length was enforced above
 	return cipher.NewCTR(block, iv)

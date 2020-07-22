@@ -68,9 +68,9 @@ func encrypt(sign bool, flipUIDs bool) (
 	ms := memstore.New()
 	ms.AddPublicKeyEntry(recipient.Identity(), recipientTemp)
 	args := &EncryptArgs{
-		Writer: &w,
-		From:   sender,
-		To:     recipient,
+		Writer:                 &w,
+		From:                   sender,
+		To:                     recipient,
 		SenderLastKeychainHash: hashchain.TestEntry,
 		PrivateSigKey:          privateSigKey,
 		Reader:                 r,
@@ -273,9 +273,9 @@ func TestMaxMessageLength(t *testing.T) {
 	aliceKeyStore := memstore.New()
 	aliceKeyStore.AddPublicKeyEntry(bob, bobKE)
 	encryptArgs := &EncryptArgs{
-		Writer: &encMsg,
-		From:   aliceUID,
-		To:     bobUID,
+		Writer:                 &encMsg,
+		From:                   aliceUID,
+		To:                     bobUID,
 		SenderLastKeychainHash: hashchain.TestEntry,
 		PrivateSigKey:          aliceUID.PrivateSigKey64(),
 		Reader:                 bytes.NewBuffer(message),
@@ -335,9 +335,9 @@ func TestReflection(t *testing.T) {
 	aliceKeyStore := memstore.New()
 	aliceKeyStore.AddPublicKeyEntry(bob, bobUID.PubKey()) // duplicate key
 	encryptArgs := &EncryptArgs{
-		Writer: &encMsg,
-		From:   aliceUID,
-		To:     bobUID,
+		Writer:                 &encMsg,
+		From:                   aliceUID,
+		To:                     bobUID,
 		SenderLastKeychainHash: hashchain.TestEntry,
 		Reader:                 bytes.NewBufferString(msgs.Message1),
 		Rand:                   cipher.RandReader,

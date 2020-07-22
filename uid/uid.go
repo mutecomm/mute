@@ -15,6 +15,7 @@ import (
 
 	"github.com/fatih/structs"
 	"github.com/mutecomm/mute/cipher"
+	"github.com/mutecomm/mute/cipher/aes256"
 	"github.com/mutecomm/mute/encode"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/keyserver/hashchain"
@@ -296,7 +297,7 @@ func (msg *Message) Encrypt() (UIDHash, UIDIndex []byte, UIDMessageEncrypted str
 	// Calculate hash: UIDIndex = sha256(UIDHash)
 	UIDIndex = cipher.SHA256(UIDHash)
 	// Encrypt UIDMessage: UIDMessageEncrypted = UIDIndex | nonce | aes_ctr(nonce, key=UIDHash, UIDMessage)
-	enc := cipher.AES256CTREncrypt(UIDHash, Message, cipher.RandReader)
+	enc := aes256.CTREncrypt(UIDHash, Message, cipher.RandReader)
 	uidEnc := make([]byte, sha256.Size+len(enc))
 	copy(uidEnc, UIDIndex)
 	copy(uidEnc[sha256.Size:], enc)
@@ -626,7 +627,7 @@ func (reply *MessageReply) Decrypt(UIDHash []byte) ([]byte, *Message, error) {
 	}
 	UIDIndex := UIDMessageEncrypted[:sha256.Size]
 	enc := UIDMessageEncrypted[sha256.Size:]
-	Message := cipher.AES256CTRDecrypt(UIDHash, enc)
+	Message := aes256.CTRDecrypt(UIDHash, enc)
 	uid, err := NewJSON(string(Message))
 	if err != nil {
 		return nil, nil, log.Error(err)

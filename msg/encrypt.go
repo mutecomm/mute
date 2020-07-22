@@ -16,6 +16,7 @@ import (
 
 	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/cipher"
+	"github.com/mutecomm/mute/cipher/aes256"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg/padding"
@@ -343,7 +344,7 @@ func Encrypt(args *EncryptArgs) (nymAddress string, err error) {
 	if err := ih.write(&buf); err != nil {
 		return "", err
 	}
-	stream := cipher.AES256CTRStream(cryptoKey, iv)
+	stream := aes256.CTRStream(cryptoKey, iv)
 	stream.XORKeyStream(buf.Bytes(), buf.Bytes())
 	oh = newOuterHeader(encryptedPacket, count, buf.Bytes())
 	if err := oh.write(wc, true); err != nil {

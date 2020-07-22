@@ -10,6 +10,7 @@ import (
 	"fmt"
 
 	"github.com/mutecomm/mute/cipher"
+	"github.com/mutecomm/mute/cipher/aes256"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/keyserver/hashchain"
 	"github.com/mutecomm/mute/log"
@@ -339,7 +340,7 @@ func (ce *CryptEngine) searchHashChain(id string, searchOnly bool) error {
 		}
 
 		// Decrypt UIDHash = AES_256_CBC_Decrypt( IDKEY, CrUID)
-		UIDHash := cipher.AES256CBCDecrypt(IDKEY, CrUID)
+		UIDHash := aes256.CBCDecrypt(IDKEY, CrUID)
 		log.Debugf("cryptengine: UIDHash=%s", base64.Encode(UIDHash))
 
 		// Decrypt UIDMessageReply.UIDMessage with UIDHash
@@ -467,7 +468,7 @@ func (ce *CryptEngine) lookupHashChain(id string) error {
 		}
 
 		// Decrypt UIDHash = AES_256_CBC_Decrypt( IDKEY, CrUID)
-		UIDHash := cipher.AES256CBCDecrypt(IDKEY, CrUID)
+		UIDHash := aes256.CBCDecrypt(IDKEY, CrUID)
 		log.Debugf("cryptengine: UIDHash=%s", base64.Encode(UIDHash))
 
 		// Decrypt UIDMessageReply.UIDMessage with UIDHash

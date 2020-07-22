@@ -2,11 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package cipher
+package aes256
 
 import (
+	"crypto/rand"
 	"io"
 	"testing"
+
+	"github.com/mutecomm/mute/cipher"
 )
 
 var (
@@ -20,37 +23,37 @@ var (
 )
 
 func init() {
-	if _, err := io.ReadFull(RandReader, key); err != nil {
+	if _, err := io.ReadFull(rand.Reader, key); err != nil {
 		panic(err)
 	}
-	if _, err := io.ReadFull(RandReader, iv); err != nil {
+	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
 		panic(err)
 	}
 }
 
 func TestAES256(t *testing.T) {
-	ciphertext := AES256CBCEncrypt(key, []byte(secret), RandReader)
-	plaintext := string(AES256CBCDecrypt(key, ciphertext))
+	ciphertext := CBCEncrypt(key, []byte(secret), rand.Reader)
+	plaintext := string(CBCDecrypt(key, ciphertext))
 	if plaintext != secret {
-		t.Error("AES256CBC: plaintext != secret")
+		t.Error("CBC: plaintext != secret")
 	}
 
-	ciphertext = AES256CTREncrypt(key, []byte(secret), RandReader)
-	plaintext = string(AES256CTRDecrypt(key, ciphertext))
+	ciphertext = CTREncrypt(key, []byte(secret), rand.Reader)
+	plaintext = string(CTRDecrypt(key, ciphertext))
 	if plaintext != secret {
-		t.Error("AES256CTR: plaintext != secret")
+		t.Error("CTR: plaintext != secret")
 	}
 }
 
 func TestAES256Stream(t *testing.T) {
-	stream := AES256CTRStream(key, iv)
+	stream := CTRStream(key, iv)
 	ciphertext := make([]byte, len(secret))
 	stream.XORKeyStream(ciphertext, []byte(secret))
-	stream = AES256CTRStream(key, iv)
+	stream = CTRStream(key, iv)
 	plaintext := make([]byte, len(secret))
 	stream.XORKeyStream(plaintext, ciphertext)
 	if string(plaintext) != secret {
-		t.Error("AES256CTRStream: plaintext != secret")
+		t.Error("CTRStream: plaintext != secret")
 	}
 }
 
@@ -62,60 +65,60 @@ func shouldPanic(t *testing.T) {
 
 func TestAESCBCEncryptShortKey(t *testing.T) {
 	defer shouldPanic(t)
-	AES256CBCEncrypt(shortKey, []byte(secret), RandReader)
+	CBCEncrypt(shortKey, []byte(secret), rand.Reader)
 }
 
 func TestAESCBCEncryptShortPlaintext(t *testing.T) {
 	defer shouldPanic(t)
-	AES256CBCEncrypt(key, []byte(shortSecret), RandReader)
+	CBCEncrypt(key, []byte(shortSecret), rand.Reader)
 }
 
 func TestAESCBCEncryptRandFail(t *testing.T) {
 	defer shouldPanic(t)
-	AES256CBCEncrypt(key, []byte(secret), RandFail)
+	CBCEncrypt(key, []byte(secret), cipher.RandFail)
 }
 
 func TestAESCBCDecryptShortKey(t *testing.T) {
 	defer shouldPanic(t)
-	AES256CBCDecrypt(shortKey, []byte(secret))
+	CBCDecrypt(shortKey, []byte(secret))
 }
 
 func TestAESCBCDecryptShortCiphertext(t *testing.T) {
 	defer shouldPanic(t)
-	AES256CBCDecrypt(key, []byte(shortSecret))
+	CBCDecrypt(key, []byte(shortSecret))
 }
 
 func TestAESCBCDecryptMultCiphertext(t *testing.T) {
 	defer shouldPanic(t)
-	AES256CBCDecrypt(key, []byte(multCiphertext))
+	CBCDecrypt(key, []byte(multCiphertext))
 }
 
 func TestAESCTREncryptShortKey(t *testing.T) {
 	defer shouldPanic(t)
-	AES256CTREncrypt(shortKey, []byte(secret), RandReader)
+	CTREncrypt(shortKey, []byte(secret), rand.Reader)
 }
 
 func TestAESCTREncryptRandFail(t *testing.T) {
 	defer shouldPanic(t)
-	AES256CTREncrypt(key, []byte(secret), RandFail)
+	CTREncrypt(key, []byte(secret), cipher.RandFail)
 }
 
 func TestAESCTRDecryptShortKey(t *testing.T) {
 	defer shouldPanic(t)
-	AES256CTRDecrypt(shortKey, []byte(secret))
+	CTRDecrypt(shortKey, []byte(secret))
 }
 
 func TestAESCTRDecryptShortCiphertext(t *testing.T) {
 	defer shouldPanic(t)
-	AES256CTRDecrypt(key, []byte(shortSecret))
+	CTRDecrypt(key, []byte(shortSecret))
 }
 
 func TestAESCTRStreamShortKey(t *testing.T) {
 	defer shouldPanic(t)
-	_ = AES256CTRStream(shortKey, iv)
+	_ = CTRStream(shortKey, iv)
 }
 
 func TestAESCTRStreamShortIV(t *testing.T) {
 	defer shouldPanic(t)
-	_ = AES256CTRStream(key, shortIV)
+	_ = CTRStream(key, shortIV)
 }

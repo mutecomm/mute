@@ -13,6 +13,7 @@ import (
 
 	"github.com/agl/ed25519"
 	"github.com/mutecomm/mute/cipher"
+	"github.com/mutecomm/mute/cipher/aes256"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msg/mime"
@@ -446,7 +447,7 @@ func Decrypt(args *DecryptArgs) (senderID, sig string, err error) {
 	count++
 	ciphertext := oh.inner
 	plaintext := make([]byte, len(ciphertext))
-	stream := cipher.AES256CTRStream(cryptoKey, iv)
+	stream := aes256.CTRStream(cryptoKey, iv)
 	stream.XORKeyStream(plaintext, ciphertext)
 	ih, err := readInnerHeader(bytes.NewBuffer(plaintext))
 	if err != nil {

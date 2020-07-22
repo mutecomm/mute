@@ -11,7 +11,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/mutecomm/mute/cipher"
+	"github.com/mutecomm/mute/cipher/aes256"
 	"github.com/mutecomm/mute/encode"
 	"golang.org/x/crypto/pbkdf2"
 )
@@ -77,7 +77,7 @@ func writeKeyfile(filename string, passphrase []byte, iter int, key []byte) erro
 	// compute derived key from passphrase
 	dk := pbkdf2.Key(passphrase, salt, iter, 32, sha256.New)
 	// compute AES-256 encrypted key (with IV)
-	encKey := cipher.AES256CBCEncrypt([]byte(dk), key, rand.Reader)
+	encKey := aes256.CBCEncrypt([]byte(dk), key, rand.Reader)
 	// write number of iterations
 	if _, err := keyfile.Write(encode.ToByte8(uiter)); err != nil {
 		return err
@@ -144,7 +144,7 @@ func ReadKeyfile(filename string, passphrase []byte) (key []byte, err error) {
 	// compute derived key from passphrase
 	dk := pbkdf2.Key([]byte(passphrase), salt, iter, 32, sha256.New)
 	// decrypt key
-	return cipher.AES256CBCDecrypt([]byte(dk), encKey), nil
+	return aes256.CBCDecrypt([]byte(dk), encKey), nil
 }
 
 func replaceKeyfile(filename string, oldPassphrase, newPassphrase []byte, newIter int) error {

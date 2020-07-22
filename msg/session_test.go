@@ -178,9 +178,9 @@ func testRun(r []*operation) error {
 		case r[i].op == encryptAlice:
 			var encMsg bytes.Buffer
 			encryptArgs := &msg.EncryptArgs{
-				Writer: &encMsg,
-				From:   aliceUID,
-				To:     bobUID,
+				Writer:                 &encMsg,
+				From:                   aliceUID,
+				To:                     bobUID,
 				SenderLastKeychainHash: hashchain.TestEntry,
 				Reader:                 bytes.NewBufferString(msgs.Message1),
 				NumOfKeys:              2,
@@ -210,9 +210,9 @@ func testRun(r []*operation) error {
 		case r[i].op == encryptBob:
 			var encMsg bytes.Buffer
 			encryptArgs := &msg.EncryptArgs{
-				Writer: &encMsg,
-				From:   bobUID,
-				To:     aliceUID,
+				Writer:                 &encMsg,
+				From:                   bobUID,
+				To:                     aliceUID,
 				SenderLastKeychainHash: hashchain.TestEntry,
 				Reader:                 bytes.NewBufferString(msgs.Message2),
 				NumOfKeys:              2,
