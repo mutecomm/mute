@@ -164,10 +164,6 @@ const (
 	// (testnet).
 	TestnetConfigURL = "127.0.0.1:3080"
 
-	// KDFIterationsDB defines the default number of KDF iterations for the
-	// message and key database.
-	KDFIterationsDB = 64000
-
 	// MinDelay defines the default minimum delay setting for messages to mix.
 	MinDelay = int32(120)
 

@@ -39,6 +39,9 @@ const DBSuffix = ".db"
 // KeySuffix defines the suffix for key files.
 const KeySuffix = ".key"
 
+// KDFIterations defines a default number of KDF iterations.
+const KDFIterations = 64000
+
 func createTables(db *sql.DB, createStmts []string) error {
 	for _, stmt := range createStmts {
 		if _, err := db.Exec(stmt); err != nil {

@@ -20,6 +20,7 @@ import (
 	"github.com/mutecomm/mute/configclient"
 	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/def/version"
+	"github.com/mutecomm/mute/encdb"
 	"github.com/mutecomm/mute/encode/base64"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/msgdb"
@@ -544,7 +545,7 @@ func New() *CtrlEngine {
 					Flags: []cli.Flag{
 						cli.IntFlag{
 							Name:  "iterations",
-							Value: def.KDFIterationsDB,
+							Value: encdb.KDFIterations,
 							Usage: "number of KDF iterations used for DB creation",
 						},
 						cli.StringFlag{
@@ -569,7 +570,7 @@ func New() *CtrlEngine {
 					Flags: []cli.Flag{
 						cli.IntFlag{
 							Name:  "iterations",
-							Value: def.KDFIterationsDB,
+							Value: encdb.KDFIterations,
 							Usage: "number of KDF iterations used for DB rekeying",
 						},
 					},

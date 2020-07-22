@@ -17,6 +17,7 @@ import (
 	"github.com/mutecomm/mute/cryptengine/cache"
 	"github.com/mutecomm/mute/def"
 	"github.com/mutecomm/mute/def/version"
+	"github.com/mutecomm/mute/encdb"
 	"github.com/mutecomm/mute/keydb"
 	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/util"
@@ -216,7 +217,7 @@ func New() *CryptEngine {
 					Flags: []cli.Flag{
 						cli.IntFlag{
 							Name:  "iterations",
-							Value: def.KDFIterationsDB,
+							Value: encdb.KDFIterations,
 							Usage: "number of KDF iterations used for KeyDB creation",
 						},
 					},
@@ -237,7 +238,7 @@ func New() *CryptEngine {
 					Flags: []cli.Flag{
 						cli.IntFlag{
 							Name:  "iterations",
-							Value: def.KDFIterationsDB,
+							Value: encdb.KDFIterations,
 							Usage: "number of KDF iterations used for KeyDB rekeying",
 						},
 					},
