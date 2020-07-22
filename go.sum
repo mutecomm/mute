@@ -2,6 +2,7 @@ github.com/agl/ed25519 v0.0.0-20170116200512-5312a6153412 h1:w1UutsfOrms1J05zt7I
 github.com/agl/ed25519 v0.0.0-20170116200512-5312a6153412/go.mod h1:WPjqKcmVOxf0XSf3YxCJs6N6AOSrOx3obionmG7T0y0=
 github.com/cihub/seelog v0.0.0-20151216151435-d2c6e5aa9fbf h1:XI2tOTCBqEnMyN2j1yPBI07yQHeywUSCEf8YWqf0oKw=
 github.com/cihub/seelog v0.0.0-20151216151435-d2c6e5aa9fbf/go.mod h1:9d6lWj8KzO/fd/NrVaLscBKmPigpZpn5YawRPw+e3Yo=
+github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/fatih/structs v1.0.0 h1:BrX964Rv5uQ3wwS+KRUAJCBBw5PQmgJfJ6v4yly5QwU=
 github.com/fatih/structs v1.0.0/go.mod h1:9NiDSp5zOcgEDl+j00MP/WkGVPOlPRLejGD8Ga6PJ7M=
@@ -25,9 +26,11 @@ github.com/mutecomm/go-sqlcipher v0.0.0-20170920224653-f799951b4ab2 h1:Q5L04ENac
 github.com/mutecomm/go-sqlcipher v0.0.0-20170920224653-f799951b4ab2/go.mod h1:S9Hougr2LhvUtZGY1fCTj9nr9P53lfsCCQ2XqVMFZX8=
 github.com/peterh/liner v1.0.1-0.20180504030148-80ce870644db h1:Z9SacnYcbITj+RvDhSuFKGN6Lftw/VzpiomO3W/88u8=
 github.com/peterh/liner v1.0.1-0.20180504030148-80ce870644db/go.mod h1:xIteQHvHuaLYG9IFj6mSxM0fCKrs34IrEQUhOYuGPHc=
+github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/ronperry/cryptoedge v0.0.0-20150815114006-cc363e290743 h1:pcIcti7s2DKfoVd+Ak0yTky9VbJv0T1ZFzQRFs9uqMw=
 github.com/ronperry/cryptoedge v0.0.0-20150815114006-cc363e290743/go.mod h1:/dvkdMih3m7llill7aGjhBGFPi/k1ra1kM2OfN+Su+8=
+github.com/stretchr/testify v1.2.1 h1:52QO5WkIUcHGIR7EnGagH88x1bUzqGXTC5/1bDTUQ7U=
 github.com/stretchr/testify v1.2.1/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
 github.com/urfave/cli v1.20.0 h1:fDqGv3UG/4jbVl/QkFwEdddtEDjh/5Ov6X+0B/3bPaw=
 github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
