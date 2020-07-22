@@ -26,11 +26,11 @@ package encdb
 import (
 	"database/sql"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"os"
 
 	"github.com/mutecomm/go-sqlcipher"
-	"github.com/mutecomm/mute/log"
 	"github.com/mutecomm/mute/util"
 )
 
@@ -43,7 +43,7 @@ const KeySuffix = ".key"
 func createTables(db *sql.DB, createStmts []string) error {
 	for _, stmt := range createStmts {
 		if _, err := db.Exec(stmt); err != nil {
-			return log.Errorf("encdb: %q: %s", err, stmt)
+			return fmt.Errorf("encdb: %q: %s", err, stmt)
 		}
 	}
 	return nil
@@ -65,17 +65,17 @@ func Create(dbname string, passphrase []byte, iter int, createStmts []string) er
 	// make sure files do not exist already
 	exists, err := fileExists(dbfile)
 	if err != nil {
-		return log.Error(err)
+		return err
 	}
 	if exists {
-		return log.Errorf("encdb: dbfile '%s' exists already", dbfile)
+		return fmt.Errorf("encdb: dbfile '%s' exists already", dbfile)
 	}
 	exists, err = fileExists(keyfile)
 	if err != nil {
-		return log.Error(err)
+		return err
 	}
 	if exists {
-		return log.Errorf("encdb: keyfile '%s' exists already", keyfile)
+		return fmt.Errorf("encdb: keyfile '%s' exists already", keyfile)
 	}
 	// create keyfile
 	key, err := generateKeyfile(keyfile, passphrase, iter)
@@ -88,29 +88,29 @@ func Create(dbname string, passphrase []byte, iter int, createStmts []string) er
 			hex.EncodeToString(key))
 	db, err := sql.Open("sqlite3", dbfileWithDSN)
 	if err != nil {
-		return log.Error(err)
+		return err
 	}
 	// set auto_vacuum mode to full
 	if _, err := db.Exec("PRAGMA auto_vacuum = full;"); err != nil {
 		db.Close()
-		return log.Error(err)
+		return err
 	}
 	// create tables
 	if err := createTables(db, createStmts); err != nil {
 		db.Close()
-		return log.Error(err)
+		return err
 	}
 	// close database
 	if err := db.Close(); err != nil {
-		return log.Error(err)
+		return err
 	}
 	// make sure the database file is encrypted
 	encrypted, err := sqlite3.IsEncrypted(dbfile)
 	if err != nil {
-		return log.Error(err)
+		return err
 	}
 	if !encrypted {
-		return log.Errorf("encdb: created dbfile '%s' is not encrypted", dbfile)
+		return fmt.Errorf("encdb: created dbfile '%s' is not encrypted", dbfile)
 	}
 	return nil
 }
@@ -129,18 +129,18 @@ func Open(dbname string, passphrase []byte) (*sql.DB, error) {
 	keyfile := dbname + KeySuffix
 	// make sure files exists
 	if _, err := os.Stat(dbfile); err != nil {
-		return nil, log.Error(err)
+		return nil, err
 	}
 	if _, err := os.Stat(keyfile); err != nil {
-		return nil, log.Error(err)
+		return nil, err
 	}
 	// make sure the database file is encrypted
 	encrypted, err := sqlite3.IsEncrypted(dbfile)
 	if err != nil {
-		return nil, log.Error(err)
+		return nil, err
 	}
 	if !encrypted {
-		return nil, log.Errorf("encdb: dbfile '%s' is not encrypted", dbfile)
+		return nil, fmt.Errorf("encdb: dbfile '%s' is not encrypted", dbfile)
 	}
 	// get key from keyfile
 	key, err := ReadKeyfile(keyfile, passphrase)
@@ -154,12 +154,12 @@ func Open(dbname string, passphrase []byte) (*sql.DB, error) {
 	dbfile += "&_foreign_keys=1"
 	db, err := sql.Open("sqlite3", dbfile)
 	if err != nil {
-		return nil, log.Error(err)
+		return nil, err
 	}
 	// test key
 	_, err = db.Exec("SELECT count(*) FROM sqlite_master;")
 	if err != nil {
-		return nil, log.Error(err)
+		return nil, err
 	}
 	return db, nil
 }
@@ -213,7 +213,7 @@ func Status(db *sql.DB) (autoVacuum string, freelistCount int64, err error) {
 func Vacuum(db *sql.DB, autoVacuumMode string) error {
 	if autoVacuumMode != "" {
 		if !util.ContainsString(autoVacuumModes, autoVacuumMode) {
-			return log.Errorf("encdb: unknown auto_vacuum mode: %s", autoVacuumMode)
+			return fmt.Errorf("encdb: unknown auto_vacuum mode: %s", autoVacuumMode)
 		}
 		var av int64
 		err := db.QueryRow("PRAGMA auto_vacuum;").Scan(&av)
@@ -230,7 +230,7 @@ func Vacuum(db *sql.DB, autoVacuumMode string) error {
 	}
 	_, err := db.Exec("VACUUM;")
 	if err != nil {
-		return log.Error(err)
+		return err
 	}
 	return nil
 }
@@ -245,11 +245,11 @@ func Incremental(db *sql.DB, pages int64) error {
 		return err
 	}
 	if autoVacuumModes[av] != "INCREMENTAL" {
-		return log.Error("encdb: current auto_vacuum mode is not INCREMENTAL")
+		return errors.New("encdb: current auto_vacuum mode is not INCREMENTAL")
 	}
 	_, err = db.Exec(fmt.Sprintf("PRAGMA incremental_vacuum(%d);", pages))
 	if err != nil {
-		log.Error(err)
+		return err
 	}
 	return nil
 }

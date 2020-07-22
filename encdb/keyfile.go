@@ -6,12 +6,12 @@ package encdb
 
 import (
 	"crypto/sha256"
+	"fmt"
 	"io"
 	"os"
 
 	"github.com/mutecomm/mute/cipher"
 	"github.com/mutecomm/mute/encode"
-	"github.com/mutecomm/mute/log"
 	"golang.org/x/crypto/pbkdf2"
 )
 
@@ -47,25 +47,25 @@ func writeKeyfile(filename string, passphrase []byte, iter int, key []byte) erro
 	// make sure keyfile does not exist already
 	exists, err := fileExists(filename)
 	if err != nil {
-		return log.Error(err)
+		return err
 	}
 	if exists {
-		return log.Errorf("encdb: keyfile '%s' exists already", filename)
+		return fmt.Errorf("encdb: keyfile '%s' exists already", filename)
 	}
 	// convert iter to uint64
 	var uiter uint64
 	if iter < 0 || iter > 2147483647 {
-		return log.Errorf("encdb: writeKeyfile: invalid iter value")
+		return fmt.Errorf("encdb: writeKeyfile: invalid iter value")
 	}
 	uiter = uint64(iter)
 	// check keylength
 	if len(key) != 32 {
-		return log.Errorf("encdb: writeKeyfile: len(key) != 32")
+		return fmt.Errorf("encdb: writeKeyfile: len(key) != 32")
 	}
 	// create keyfile
 	keyfile, err := os.Create(filename)
 	if err != nil {
-		return log.Error(err)
+		return err
 	}
 	defer keyfile.Close()
 	// generate salt
@@ -117,28 +117,28 @@ func ReadKeyfile(filename string, passphrase []byte) (key []byte, err error) {
 	// open keyfile
 	keyfile, err := os.Open(filename)
 	if err != nil {
-		return nil, log.Error(err)
+		return nil, err
 	}
 	defer keyfile.Close()
 	// read iter and convert to int
 	var biter = make([]byte, 8)
 	if _, err := keyfile.Read(biter); err != nil {
-		return nil, log.Error(err)
+		return nil, err
 	}
 	uiter := encode.ToUint64(biter)
 	if uiter > 2147483647 {
-		return nil, log.Errorf("encdb: ReadKeyfile: invalid iter value")
+		return nil, fmt.Errorf("encdb: ReadKeyfile: invalid iter value")
 	}
 	iter := int(uiter)
 	// read salt
 	var salt = make([]byte, 32)
 	if _, err := keyfile.Read(salt); err != nil {
-		return nil, log.Error(err)
+		return nil, err
 	}
 	// read encrypted key
 	var encKey = make([]byte, 16+32)
 	if _, err := keyfile.Read(encKey); err != nil {
-		return nil, log.Error(err)
+		return nil, err
 	}
 	// compute derived key from passphrase
 	dk := pbkdf2.Key([]byte(passphrase), salt, iter, 32, sha256.New)
