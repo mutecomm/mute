@@ -5,6 +5,7 @@
 package encdb
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
 	"fmt"
 	"io"
@@ -70,13 +71,13 @@ func writeKeyfile(filename string, passphrase []byte, iter int, key []byte) erro
 	defer keyfile.Close()
 	// generate salt
 	var salt = make([]byte, 32)
-	if _, err := io.ReadFull(cipher.RandReader, salt); err != nil {
+	if _, err := io.ReadFull(rand.Reader, salt); err != nil {
 		return err
 	}
 	// compute derived key from passphrase
 	dk := pbkdf2.Key(passphrase, salt, iter, 32, sha256.New)
 	// compute AES-256 encrypted key (with IV)
-	encKey := cipher.AES256CBCEncrypt([]byte(dk), key, cipher.RandReader)
+	encKey := cipher.AES256CBCEncrypt([]byte(dk), key, rand.Reader)
 	// write number of iterations
 	if _, err := keyfile.Write(encode.ToByte8(uiter)); err != nil {
 		return err
@@ -100,7 +101,7 @@ func writeKeyfile(filename string, passphrase []byte, iter int, key []byte) erro
 func generateKeyfile(filename string, passphrase []byte, iter int) (key []byte, err error) {
 	// generate raw key
 	var rawKey = make([]byte, 32)
-	if _, err := io.ReadFull(cipher.RandReader, rawKey); err != nil {
+	if _, err := io.ReadFull(rand.Reader, rawKey); err != nil {
 		return nil, err
 	}
 	if err := writeKeyfile(filename, passphrase, iter, rawKey); err != nil {
