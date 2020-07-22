@@ -4,15 +4,11 @@
 
 package encode
 
-import (
-	"github.com/mutecomm/mute/log"
-)
-
 // ToUint64 converts the byte slice b of length 8 to an uint64.
 // If b does not have length 8 the function panics.
 func ToUint64(b []byte) (u uint64) {
 	if len(b) != 8 {
-		panic(log.Critical("encode: ToUint64(): len(b) != 8"))
+		panic("encode: ToUint64(): len(b) != 8")
 	}
 	u = uint64(b[7])<<56 |
 		uint64(b[6])<<48 |
@@ -29,7 +25,7 @@ func ToUint64(b []byte) (u uint64) {
 // If b does not have length 2 the function panics.
 func ToUint16(b []byte) (u uint16) {
 	if len(b) != 2 {
-		panic(log.Critical("encode: ToUint16(): len(b) != 2"))
+		panic("encode: ToUint16(): len(b) != 2")
 	}
 	u = uint16(b[1])<<8 |
 		uint16(b[0])
