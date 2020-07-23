@@ -11,7 +11,7 @@ name "dbname":
   dbname.key
 
 The file "dbname.db" is an AES-256 encrypted sqlite3 file managed by the
-package "github.com/mutecomm/go-sqlcipher". The file named "dbname.key" is an
+package "github.com/mutecomm/go-sqlcipher/v4". The file named "dbname.key" is an
 AES-256 encrypted text file which contains the (randomly generated) raw
 encryption key for "dbname.db". To decrypt the key file the key derivation
 function PBKDF2 is applied to a supplied passphrase (with a configurable number
@@ -30,7 +30,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mutecomm/go-sqlcipher"
+	"github.com/mutecomm/go-sqlcipher/v4"
 )
 
 // DBSuffix defines the suffix for database files.
